@@ -1,0 +1,298 @@
+import React, { useState } from 'react';
+import { Song, Playlist } from '../types';
+import {
+  FolderHeart,
+  Sparkles,
+  Lock,
+  Plus,
+  Music,
+  CheckCircle2,
+  BookOpen,
+  User,
+  Star,
+  Search,
+  ChevronRight,
+  Trash2,
+  Tag,
+  Gauge,
+  Award,
+  Play,
+  ShieldAlert,
+} from 'lucide-react';
+
+interface DashboardProps {
+  currentUser: { name: string; email: string } | null;
+  repertoireSongIds: string[];
+  songs: Song[];
+  playlists: Playlist[];
+  onSelectSong: (song: Song) => void;
+  onRemoveFromRepertoire: (songId: string) => void;
+  onOpenAuth: (mode?: 'signup' | 'login') => void;
+  onGoToPublicSongs: () => void;
+}
+
+export const Dashboard: React.FC<DashboardProps> = ({
+  currentUser,
+  repertoireSongIds,
+  songs,
+  playlists,
+  onSelectSong,
+  onRemoveFromRepertoire,
+  onOpenAuth,
+  onGoToPublicSongs,
+}) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'estudando' | 'dominado'>('all');
+
+  // Filter songs in private repertoire
+  const repertoireSongs = songs.filter((s) => repertoireSongIds.includes(s.id));
+
+  const filteredRepertoire = repertoireSongs.filter((s) => {
+    const matchSearch =
+      s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.artist.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (s.category && s.category.toLowerCase().includes(searchQuery.toLowerCase()));
+    return matchSearch;
+  });
+
+  // If user is not logged in, show guest teaser screen for Private Dashboard
+  if (!currentUser) {
+    return (
+      <div className="space-y-6 text-slate-900 animate-fade-in">
+        {/* Banner Teaser */}
+        <div className="bg-gradient-to-r from-[#1D2D44] via-[#0E7C7B] to-[#1D2D44] rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-lg">
+          <div className="relative z-10 max-w-2xl space-y-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F26419] text-white text-xs font-black tracking-wider uppercase">
+              <Lock className="w-3.5 h-3.5" />
+              Área Privada do Músico
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+              Seu Dashboard & Repertório Pessoal
+            </h1>
+            <p className="text-teal-100 text-sm leading-relaxed">
+              Enquanto o acervo de **músicas e playlists é 100% público**, seu repertório de estudos é **estritamente privado** e exclusivo da sua conta!
+            </p>
+            <div className="pt-2 flex flex-wrap gap-3">
+              <button
+                onClick={() => onOpenAuth('signup')}
+                className="px-6 py-3 rounded-2xl bg-[#F26419] hover:bg-[#D9530D] text-white font-extrabold text-xs tracking-wider uppercase shadow-md flex items-center gap-2 transition-all cursor-pointer"
+              >
+                <Sparkles className="w-4 h-4" />
+                Criar Minha Conta Grátis
+              </button>
+              <button
+                onClick={() => onOpenAuth('login')}
+                className="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-extrabold text-xs tracking-wider uppercase transition-all cursor-pointer"
+              >
+                Já Tenho Conta (Entrar)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs space-y-2">
+            <div className="w-10 h-10 rounded-xl bg-orange-50 text-[#F26419] flex items-center justify-center font-bold">
+              <FolderHeart className="w-5 h-5" />
+            </div>
+            <h3 className="font-extrabold text-slate-900 text-base">Repertório 100% Privado</h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Guarde suas cifras prediletas em uma lista própria que só você tem acesso no seu painel.
+            </p>
+          </div>
+
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs space-y-2">
+            <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#0E7C7B] flex items-center justify-center font-bold">
+              <Award className="w-5 h-5" />
+            </div>
+            <h3 className="font-extrabold text-slate-900 text-base">Evolução & Treino</h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Acompanhe seu nível em cada música, anotando tons preferidos e estapas de aprendizado.
+            </p>
+          </div>
+
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs space-y-2">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+              <Lock className="w-5 h-5" />
+            </div>
+            <h3 className="font-extrabold text-slate-900 text-base">Sem Anúncios Bloqueantes</h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Membros cadastrados têm acesso fluido e sem bloqueios de cifras no visualizador Scribd.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 text-slate-900 animate-fade-in">
+      {/* User Dashboard Header */}
+      <div className="bg-gradient-to-r from-[#1D2D44] via-[#0E7C7B] to-[#1D2D44] rounded-3xl p-6 text-white shadow-md relative overflow-hidden">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-[#F26419] text-white flex items-center justify-center font-black text-2xl shadow-md border-2 border-white/20">
+              {currentUser.name.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-black uppercase tracking-wider text-teal-200">
+                  Dashboard do Músico
+                </span>
+                <span className="px-2 py-0.2 rounded-full bg-emerald-500 text-white text-[10px] font-extrabold">
+                  Conta Ativa
+                </span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-black text-white">{currentUser.name}</h1>
+              <p className="text-xs text-teal-100/90">{currentUser.email}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onGoToPublicSongs}
+              className="px-4 py-2.5 rounded-xl bg-[#F26419] hover:bg-[#D9530D] text-white font-extrabold text-xs tracking-wider uppercase shadow-sm flex items-center gap-2 transition-all cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              Explorar Músicas Públicas
+            </button>
+          </div>
+        </div>
+
+        {/* Stats Row */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-white/10">
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+            <span className="text-[10px] text-teal-100 font-extrabold uppercase tracking-wider block">
+              Repertório Privado
+            </span>
+            <span className="text-xl font-black text-white">{repertoireSongs.length} músicas</span>
+          </div>
+
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+            <span className="text-[10px] text-teal-100 font-extrabold uppercase tracking-wider block">
+              Acervo Público
+            </span>
+            <span className="text-xl font-black text-white">{songs.length} disponíveis</span>
+          </div>
+
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+            <span className="text-[10px] text-teal-100 font-extrabold uppercase tracking-wider block">
+              Playlists no Portal
+            </span>
+            <span className="text-xl font-black text-white">{playlists.length} listas</span>
+          </div>
+
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+            <span className="text-[10px] text-teal-100 font-extrabold uppercase tracking-wider block">
+              Status do Acesso
+            </span>
+            <span className="text-sm font-black text-emerald-300">🔓 Desbloqueado</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Private Repertoire Section */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <FolderHeart className="w-5 h-5 text-[#F26419]" />
+              <h2 className="text-xl font-black text-slate-900 tracking-tight">
+                Meu Repertório Privado
+              </h2>
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Esta lista é exclusiva do seu usuário. Ninguém mais pode ver suas seleções particulares.
+            </p>
+          </div>
+
+          {/* Search within Repertoire */}
+          <div className="relative min-w-[240px]">
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Buscar no meu repertório..."
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-orange-500"
+            />
+          </div>
+        </div>
+
+        {/* Repertoire Songs List */}
+        {filteredRepertoire.length === 0 ? (
+          <div className="py-12 text-center space-y-3 bg-slate-50/70 rounded-2xl border border-dashed border-slate-200">
+            <Music className="w-10 h-10 text-slate-300 mx-auto" />
+            <h3 className="text-sm font-extrabold text-slate-700">
+              {searchQuery ? 'Nenhuma música encontrada na busca' : 'Seu repertório privado está vazio'}
+            </h3>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto">
+              Navegue pelas músicas públicas e clique em **"⭐ Adicionar ao Meu Repertório"** para montar seu cancioneiro particular.
+            </p>
+            <button
+              onClick={onGoToPublicSongs}
+              className="px-4 py-2 rounded-xl bg-[#F26419] text-white font-extrabold text-xs transition-all cursor-pointer inline-flex items-center gap-1.5"
+            >
+              <Search className="w-3.5 h-3.5" /> Ver Músicas Públicas
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {filteredRepertoire.map((song) => (
+              <div
+                key={song.id}
+                className="bg-slate-50 border border-slate-200/90 hover:border-orange-300 rounded-xl p-3.5 transition-all group flex flex-col justify-between gap-3 hover:shadow-xs"
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <h3
+                      onClick={() => onSelectSong(song)}
+                      className="font-black text-sm text-slate-900 group-hover:text-orange-600 transition-colors cursor-pointer truncate"
+                    >
+                      {song.title}
+                    </h3>
+                    <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded border border-orange-200 shrink-0">
+                      Tom {song.key}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-600 font-medium">{song.artist}</p>
+
+                  <div className="flex items-center gap-1.5 mt-2.5 flex-wrap">
+                    {song.category && (
+                      <span className="px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-[#0E7C7B]/10 text-[#0E7C7B]">
+                        {song.category}
+                      </span>
+                    )}
+                    {song.difficulty && (
+                      <span className="px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        {song.difficulty}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-slate-200/60 text-xs">
+                  <button
+                    onClick={() => onSelectSong(song)}
+                    className="text-[#F26419] font-extrabold hover:underline inline-flex items-center gap-1 cursor-pointer"
+                  >
+                    <Play className="w-3 h-3 fill-current" /> Tocar Cifra
+                  </button>
+
+                  <button
+                    onClick={() => onRemoveFromRepertoire(song.id)}
+                    className="text-slate-400 hover:text-rose-600 p-1 rounded-md hover:bg-rose-50 transition-colors cursor-pointer"
+                    title="Remover do meu repertório privado"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
