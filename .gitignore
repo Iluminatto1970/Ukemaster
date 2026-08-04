@@ -31,3 +31,7 @@ Thumbs.db
 .aiox-core/local/
 .claude/settings.local.json
 .aiox/install-log.txt
+
+# Agentes/ferramentas — runtime local (não versionar)
+.aiox-core/node_modules/
+.freebuff/
