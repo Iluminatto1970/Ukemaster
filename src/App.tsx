@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useAuth } from './auth';
 import { Song, Playlist, ActiveTab } from './types';
 import { DEFAULT_SONGS, DEFAULT_PLAYLISTS } from './data/defaultSongs';
@@ -25,6 +25,15 @@ import {
   saveRepertoirePublic,
   setPublicRepertoire,
 } from './lib/repertoires';
+import {
+  fetchSongsFromCloud,
+  pushSongsToCloud,
+  fetchPlaylistsFromCloud,
+  pushPlaylistsToCloud,
+  fetchRepertoireFromCloud,
+  pushRepertoireToCloud,
+  isSupabaseConfigured,
+} from './lib/cloudSync';
 
 
 const LOCAL_STORAGE_SONGS_KEY = 'ukemaster_songs_v1';
@@ -73,6 +82,12 @@ export default function App() {
   const [isRepertoirePublic, setIsRepertoirePublic] = useState<boolean>(false);
   const [repertoirePublicLoadedFor, setRepertoirePublicLoadedFor] = useState<string>('');
 
+  // Nuvem (Supabase): só habilita push depois do primeiro carregamento
+  const [cloudReady, setCloudReady] = useState<boolean>(false);
+  // Marca se o usuário editou dados locais antes do primeiro load da nuvem
+  // terminar — nesse caso a nuvem NÃO sobrescreve a edição local.
+  const localEditedRef = useRef<boolean>(false);
+
   const [activeTab, setActiveTab] = useState<ActiveTab>('musicas');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
@@ -106,11 +121,63 @@ export default function App() {
     }
   }, [playlists]);
 
+  // ── Nuvem (Supabase): carregamento inicial ──────────────────────────
+  // Busca songs/playlists na nuvem. Se a nuvem tiver dados (acervo público
+  // compartilhado), eles substituem o local. Se vazia/indisponível, mantém
+  // o local e faz seed na nuvem via push (abaixo).
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const [cloudSongs, cloudPlaylists] = await Promise.all([
+        fetchSongsFromCloud(),
+        fetchPlaylistsFromCloud(),
+      ]);
+      if (cancelled) return;
+      // Se o usuário editou algo antes da resposta chegar, não sobrescreve
+      if (cloudSongs && cloudSongs.length > 0 && !localEditedRef.current) {
+        setSongs(cloudSongs);
+      }
+      if (cloudPlaylists && cloudPlaylists.length > 0 && !localEditedRef.current) {
+        setPlaylists(cloudPlaylists);
+      }
+      setCloudReady(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Push (debounce) songs/playlists para a nuvem a cada alteração
+  useEffect(() => {
+    if (!cloudReady) return;
+    const t = setTimeout(() => {
+      pushSongsToCloud(songs);
+    }, 1000);
+    return () => clearTimeout(t);
+  }, [songs, cloudReady]);
+
+  useEffect(() => {
+    if (!cloudReady) return;
+    const t = setTimeout(() => {
+      pushPlaylistsToCloud(playlists);
+    }, 1000);
+    return () => clearTimeout(t);
+  }, [playlists, cloudReady]);
+
   // Carrega o repertório do usuário atual (troca de lista ao trocar de conta)
   useEffect(() => {
     if (repertoireLoadedFor === currentUserId) return;
-    setRepertoireSongIds(loadRepertoire(currentUserId, true));
-    setRepertoireLoadedFor(currentUserId);
+    const userId = currentUserId;
+    setRepertoireSongIds(loadRepertoire(userId, true));
+    setRepertoireLoadedFor(userId);
+    // Nuvem: se houver repertório salvo para este usuário, ele vence.
+    // Guarda: só aplica se ainda for o MESMO usuário (evita que a resposta
+    // atrasada de uma conta sobrescreva a lista de outra ao trocar de conta).
+    fetchRepertoireFromCloud(userId).then((cloudIds) => {
+      if (cloudIds && cloudIds.length > 0 && userId === currentUserId) {
+        setRepertoireSongIds(cloudIds);
+      }
+    });
   }, [currentUserId, repertoireLoadedFor]);
 
   useEffect(() => {
@@ -151,6 +218,28 @@ export default function App() {
     repertoirePublicLoadedFor,
   ]);
 
+  // Nuvem: espelha o repertório do usuário (só contas reais, não guest)
+  useEffect(() => {
+    if (repertoireLoadedFor !== currentUserId) return;
+    if (currentUserId === 'guest') return;
+    if (!isSupabaseConfigured()) return;
+    const name =
+      isSignedIn && clerkUser
+        ? clerkUser.fullName ||
+          clerkUser.username ||
+          clerkUser.primaryEmailAddress?.emailAddress?.split('@')[0] ||
+          'Músico'
+        : 'Músico';
+    pushRepertoireToCloud(currentUserId, name, repertoireSongIds, isRepertoirePublic);
+  }, [
+    repertoireSongIds,
+    isRepertoirePublic,
+    currentUserId,
+    repertoireLoadedFor,
+    isSignedIn,
+    clerkUser,
+  ]);
+
   const handleToggleRepertoire = (songId: string) => {
     setRepertoireSongIds((prev) =>
       prev.includes(songId) ? prev.filter((id) => id !== songId) : [...prev, songId]
@@ -158,6 +247,10 @@ export default function App() {
   };
 
   // Handlers for Song CRUD
+  const markLocalEdited = () => {
+    localEditedRef.current = true;
+  };
+
   const handleSelectSong = (song: Song) => {
     const nextCount = songOpenCount + 1;
     setSongOpenCount(nextCount);
@@ -194,6 +287,7 @@ export default function App() {
   };
 
   const handleSaveSong = (savedSong: Song) => {
+    markLocalEdited();
     setSongs((prev) => {
       const exists = prev.some((s) => s.id === savedSong.id);
       if (exists) {
@@ -210,6 +304,7 @@ export default function App() {
   };
 
   const handleDeleteSong = (songId: string) => {
+    markLocalEdited();
     const targetSong = songs.find((s) => s.id === songId);
     const title = targetSong ? targetSong.title : 'Música';
 
@@ -238,6 +333,7 @@ export default function App() {
     category?: string,
     difficulty?: 'Simplificado' | 'Médio' | 'Avançado' | 'Misto'
   ) => {
+    markLocalEdited();
     const newPl: Playlist = {
       id: `pl-${Date.now()}`,
       title,
@@ -251,10 +347,12 @@ export default function App() {
   };
 
   const handleDeletePlaylist = (playlistId: string) => {
+    markLocalEdited();
     setPlaylists((prev) => prev.filter((p) => p.id !== playlistId));
   };
 
   const handleAddSongToPlaylist = (playlistId: string, songId: string) => {
+    markLocalEdited();
     setPlaylists((prev) =>
       prev.map((pl) => {
         if (pl.id === playlistId && !pl.songIds.includes(songId)) {
@@ -266,6 +364,7 @@ export default function App() {
   };
 
   const handleRemoveSongFromPlaylist = (playlistId: string, songId: string) => {
+    markLocalEdited();
     setPlaylists((prev) =>
       prev.map((pl) => {
         if (pl.id === playlistId) {
@@ -288,6 +387,7 @@ export default function App() {
   };
 
   const handleImportSongs = (importedSongs: Song[]) => {
+    markLocalEdited();
     setSongs((prev) => {
       const merged = [...prev];
       importedSongs.forEach((imp) => {

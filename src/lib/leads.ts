@@ -32,6 +32,8 @@
  * ─────────────────────────────────────────────────────────────────────
  */
 
+import { supabaseRequest, isSupabaseConfigured } from './supabase';
+
 export interface Lead {
   name: string;
   email: string;
@@ -46,28 +48,15 @@ const LOCAL_STORAGE_LEADS_KEY = 'ukemaster_leads_v1';
  * Salva um lead. Retorna onde foi armazenado: 'supabase' ou 'local'.
  */
 export async function saveLead(lead: Lead): Promise<{ stored: 'supabase' | 'local' }> {
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-  const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
-
-  if (supabaseUrl && supabaseKey) {
-    try {
-      const res = await fetch(`${supabaseUrl.replace(/\/+$/, '')}/rest/v1/leads`, {
-        method: 'POST',
-        headers: {
-          apikey: supabaseKey,
-          Authorization: `Bearer ${supabaseKey}`,
-          'Content-Type': 'application/json',
-          Prefer: 'return=minimal',
-        },
-        body: JSON.stringify(lead),
-      });
-      if (res.ok) {
-        console.info('[leads] Lead salvo no Supabase ✅');
-        return { stored: 'supabase' };
-      }
-      console.error('[leads] Supabase respondeu', res.status, await res.text().catch(() => ''));
-    } catch (e) {
-      console.error('[leads] Erro ao enviar para o Supabase:', e);
+  if (isSupabaseConfigured()) {
+    const { ok } = await supabaseRequest('leads', {
+      method: 'POST',
+      body: lead,
+      prefer: 'return=minimal',
+    });
+    if (ok) {
+      console.info('[leads] Lead salvo no Supabase ✅');
+      return { stored: 'supabase' };
     }
     // Se falhou (rede/CORS/RLS), cai no fallback local para não perder o lead.
   }

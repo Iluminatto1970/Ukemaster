@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Playlist, Song, SONG_CATEGORIES, PLAYLIST_DIFFICULTIES } from '../types';
 import { List, Plus, Trash2, Edit2, Play, Music, ChevronRight, X, Sparkles, Check, Tag, Gauge, Filter, FolderHeart, Globe } from 'lucide-react';
-import { getPublicRepertoires } from '../lib/repertoires';
+import { PublicRepertoire } from '../lib/repertoires';
+import { getPublicRepertoiresWithCloud } from '../lib/cloudSync';
 
 interface PlaylistManagerProps {
   playlists: Playlist[];
@@ -41,8 +42,22 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [filterDifficulty, setFilterDifficulty] = useState<string>('all');
 
-  // Repertórios públicos da comunidade (dados do registro local — futuro Supabase)
-  const publicRepertoires = getPublicRepertoires();
+  // Repertórios públicos da comunidade (nuvem primeiro, local como fallback)
+  const [publicRepertoires, setPublicRepertoires] = useState<PublicRepertoire[]>([]);
+  const [publicLoaded, setPublicLoaded] = useState<boolean>(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const list = await getPublicRepertoiresWithCloud();
+      if (cancelled) return;
+      setPublicRepertoires(list);
+      setPublicLoaded(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const filteredPlaylists = playlists.filter((pl) => {
     const matchCat = filterCategory === 'all' || pl.category === filterCategory;
@@ -314,7 +329,11 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
           </span>
         </div>
 
-        {publicRepertoires.length === 0 ? (
+        {!publicLoaded ? (
+          <div className="py-8 text-center text-xs text-slate-400 font-semibold">
+            Carregando repertórios públicos...
+          </div>
+        ) : publicRepertoires.length === 0 ? (
           <div className="py-8 text-center space-y-1.5 bg-slate-50/70 rounded-2xl border border-dashed border-slate-200">
             <Globe className="w-8 h-8 text-slate-300 mx-auto" />
             <p className="text-xs font-extrabold text-slate-600">Nenhum repertório público ainda</p>
