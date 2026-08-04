@@ -1,20 +1,16 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Song, Playlist, SONG_CATEGORIES, SONG_DIFFICULTIES } from '../types';
 import {
   Search,
   Plus,
   Music,
-  Youtube,
   Trash2,
   Edit3,
-  Eye,
   Download,
   Upload,
-  Filter,
   ListPlus,
   Play,
   User,
-  Sparkles,
   ChevronRight,
   Star,
   Tag,
@@ -24,6 +20,7 @@ import { ImportSongModal } from './ImportSongModal';
 import { AdSenseSlot } from './AdSenseSlot';
 import { ChordDiagram } from './ChordDiagram';
 import { findChord } from '../data/chords';
+import { extractUniqueChords } from '../utils/chordUtils';
 
 interface SongListProps {
   songs: Song[];
@@ -64,6 +61,14 @@ export const SongList: React.FC<SongListProps> = ({
   const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
   const [songToDelete, setSongToDelete] = useState<Song | null>(null);
 
+  // Nova busca limpa o filtro de artista selecionado (evita "nenhuma cifra
+  // encontrada" quando artista + busca se combinam e dão zero resultados).
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      setSelectedArtistFilter('all');
+    }
+  }, [searchQuery]);
+
   // Extract unique list of artists with counts
   const artistsList = useMemo(() => {
     const artistMap = new Map<string, number>();
@@ -91,9 +96,10 @@ export const SongList: React.FC<SongListProps> = ({
     return Array.from(artistMap.entries()).map(([name, count]) => ({
       name,
       count,
-      avatar: `https://images.unsplash.com/photo-${
-        1500000000000 + Math.abs(name.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)) % 50000000
-      }?w=100&auto=format&fit=crop&q=80`,
+      // Avatar inicial confiável (DiceBear) — URLs falsas do Unsplash não carregam.
+      avatar: `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(
+        name
+      )}&backgroundColor=0e7c7b&fontWeight=600`,
     }));
   }, [songs]);
 
@@ -129,7 +135,30 @@ export const SongList: React.FC<SongListProps> = ({
   const gChord = findChord('G')?.fingerings[0] || { frets: [0, 2, 3, 2], fingers: [0, 1, 3, 2] };
   const cChord = findChord('C')?.fingerings[0] || { frets: [0, 0, 0, 3], fingers: [0, 0, 0, 3] };
   const amChord = findChord('Am')?.fingerings[0] || { frets: [2, 0, 0, 0], fingers: [2, 0, 0, 0] };
-  const fChord = findChord('F')?.fingerings[0] || { frets: [2, 0, 1, 0], fingers: [2, 0, 1, 0] };
+
+  // Pares de acordes de prévia por música (conforme template: G/C, Am/F, Em/D...)
+  const songPreviewChords = useMemo(() => {
+    const map = new Map<string, { name: string; fingering: { frets: number[]; fingers?: number[] } }[]>();
+    songs.forEach((song) => {
+      const names = extractUniqueChords(song.content, 0).slice(0, 2);
+      const defs = names
+        .map((n) => {
+          const def = findChord(n);
+          return def ? { name: n, fingering: def.fingerings[0] } : null;
+        })
+        .filter((x): x is { name: string; fingering: { frets: number[]; fingers?: number[] } } => !!x);
+      if (defs.length === 0) {
+        defs.push({ name: 'G', fingering: gChord });
+      }
+      if (defs.length === 1) {
+        defs.push({ name: 'C', fingering: cChord });
+      }
+      map.set(song.id, defs.slice(0, 2));
+    });
+    return map;
+  }, [songs]);
+
+  const todayScrollRef = useRef<HTMLDivElement>(null);
 
   const getDifficultyBadgeClass = (diff?: string) => {
     if (diff === 'Simplificado' || diff === 'Iniciante') {
@@ -143,73 +172,72 @@ export const SongList: React.FC<SongListProps> = ({
 
   return (
     <div className="space-y-6 text-slate-900">
-      {/* Top Section Bar: Title & Subtabs */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-4">
-        <div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900 uppercase font-sans flex items-center gap-2">
-            ACERVO PÚBLICO
-          </h1>
-          <p className="text-slate-500 text-xs font-semibold mt-0.5">
-            Músicas e playlists 100% públicas com {songs.length} cifras abertas para toda a comunidade.
-          </p>
+      {/* Header: BIBLIOTECA (LIBRARY) + tabs — conforme template */}
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 className="text-3xl font-black tracking-tight text-slate-900 uppercase font-sans">
+              BIBLIOTECA
+            </h1>
+            <p className="text-slate-400 text-[11px] font-bold uppercase tracking-widest mt-0.5">
+              {songs.length} canções da comunidade
+            </p>
+          </div>
+
+          {/* Ações */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsImportModalOpen(true)}
+              className="px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold text-xs hover:border-orange-400 flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+            >
+              <Upload className="w-3.5 h-3.5 text-orange-500" /> Importar
+            </button>
+            <button
+              onClick={onExportSongs}
+              className="px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold text-xs hover:border-orange-400 flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+            >
+              <Download className="w-3.5 h-3.5 text-orange-500" /> Exportar
+            </button>
+            <button
+              onClick={onCreateNewSong}
+              className="px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs flex items-center gap-1.5 shadow-md shadow-orange-500/20 transition-all cursor-pointer"
+            >
+              <Plus className="w-4 h-4 stroke-[3]" /> Nova Cifra
+            </button>
+          </div>
         </div>
 
-        {/* Subtabs matching screenshot */}
-        <div className="flex items-center gap-6 overflow-x-auto no-scrollbar">
+        {/* Tabs: LISTAS DE ARTISTAS / MINHAS LISTAS / TODAS AS CANÇÕES (laranja à direita) */}
+        <div className="flex items-center gap-5 border-b border-slate-200 pb-1 overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveSubTab('artistas')}
-            className={`text-xs font-extrabold uppercase tracking-wider transition-all pb-1 cursor-pointer ${
+            className={`text-xs font-extrabold uppercase tracking-wider transition-all pb-1 cursor-pointer whitespace-nowrap ${
               activeSubTab === 'artistas'
-                ? 'text-orange-500 border-b-2 border-orange-500'
-                : 'text-slate-500 hover:text-slate-800'
+                ? 'text-slate-900 border-b-2 border-orange-500'
+                : 'text-slate-400 font-bold hover:text-slate-700'
             }`}
           >
             Listas de Artistas
           </button>
           <button
             onClick={() => setActiveSubTab('listas')}
-            className={`text-xs font-extrabold uppercase tracking-wider transition-all pb-1 cursor-pointer ${
+            className={`text-xs font-extrabold uppercase tracking-wider transition-all pb-1 cursor-pointer whitespace-nowrap ${
               activeSubTab === 'listas'
-                ? 'text-orange-500 border-b-2 border-orange-500'
-                : 'text-slate-500 hover:text-slate-800'
+                ? 'text-slate-900 border-b-2 border-orange-500'
+                : 'text-slate-400 font-bold hover:text-slate-700'
             }`}
           >
-            Playlists Públicas
+            Minhas Listas
           </button>
+          <span className="flex-1 hidden sm:block" />
           <button
             onClick={() => {
               setActiveSubTab('todas');
               setSelectedArtistFilter('all');
             }}
-            className={`text-xs font-extrabold uppercase tracking-wider transition-all pb-1 cursor-pointer ${
-              activeSubTab === 'todas'
-                ? 'text-orange-500 border-b-2 border-orange-500'
-                : 'text-slate-500 hover:text-slate-800'
-            }`}
+            className="text-xs font-extrabold uppercase tracking-wider pb-1 cursor-pointer whitespace-nowrap text-orange-500 hover:text-orange-600"
           >
             Todas as Canções
-          </button>
-        </div>
-
-        {/* Actions */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setIsImportModalOpen(true)}
-            className="px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold text-xs hover:border-orange-400 flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
-          >
-            <Upload className="w-3.5 h-3.5 text-orange-500" /> Importar
-          </button>
-          <button
-            onClick={onExportSongs}
-            className="px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold text-xs hover:border-orange-400 flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
-          >
-            <Download className="w-3.5 h-3.5 text-orange-500" /> Exportar
-          </button>
-          <button
-            onClick={onCreateNewSong}
-            className="px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs flex items-center gap-1.5 shadow-md shadow-orange-500/20 transition-all cursor-pointer"
-          >
-            <Plus className="w-4 h-4 stroke-[3]" /> Nova Cifra
           </button>
         </div>
       </div>
@@ -244,20 +272,29 @@ export const SongList: React.FC<SongListProps> = ({
                     }
                     className={`flex items-center gap-3 p-2 rounded-xl transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-orange-500 text-white shadow-xs font-bold'
+                        ? 'bg-slate-100 border border-slate-200 font-bold'
                         : 'hover:bg-slate-100 text-slate-700'
                     }`}
                   >
                     <img
                       src={artist.avatar}
                       alt={artist.name}
-                      className="w-8 h-8 rounded-full object-cover border border-slate-200/80 shrink-0"
+                      loading="lazy"
+                      className="w-8 h-8 rounded-full object-cover border border-slate-200/80 shrink-0 bg-slate-100"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.onerror = null;
+                        target.src =
+                          'https://ui-avatars.com/api/?name=' +
+                          encodeURIComponent(artist.name) +
+                          '&background=0E7C7B&color=fff&bold=true&size=128';
+                      }}
                     />
                     <div className="flex-1 min-w-0">
-                      <p className={`text-xs font-bold truncate ${isSelected ? 'text-white' : 'text-slate-900'}`}>
+                      <p className={`text-xs font-bold truncate ${isSelected ? 'text-slate-900' : 'text-slate-900'}`}>
                         {artist.name}
                       </p>
-                      <p className={`text-[10px] ${isSelected ? 'text-orange-100' : 'text-slate-400'}`}>
+                      <p className={`text-[10px] ${isSelected ? 'text-slate-500' : 'text-slate-400'}`}>
                         {artist.count > 0 ? `${artist.count} músicas` : 'Artista Ukulele'}
                       </p>
                     </div>
@@ -270,6 +307,26 @@ export const SongList: React.FC<SongListProps> = ({
 
         {/* COLUMN 2: Songs Main Grid (Middle Panel) */}
         <div className="lg:col-span-6 space-y-4">
+          {/* Header: CANÇÕES (conforme template) */}
+          <div className="flex items-center justify-between">
+            <h3 className="font-black text-slate-900 uppercase text-sm tracking-wider flex items-center gap-1.5">
+              <Music className="w-4 h-4 text-orange-500" /> CANÇÕES
+            </h3>
+            <button
+              onClick={() => {
+                setSelectedCategory('all');
+                setSelectedDifficulty('all');
+                setSelectedArtistFilter('all');
+                setSearchQuery('');
+                setActiveSubTab('todas');
+              }}
+              className="text-[10px] text-orange-500 font-bold flex items-center gap-0.5 cursor-pointer hover:text-orange-600"
+              title="Ver todas as canções"
+            >
+              Inéditos <ChevronRight className="w-3 h-3" />
+            </button>
+          </div>
+
           {/* Filter Bar */}
           <div className="bg-white border border-slate-200/90 rounded-2xl p-3 shadow-2xs space-y-2.5">
             <div className="flex flex-col sm:flex-row gap-2">
@@ -364,7 +421,7 @@ export const SongList: React.FC<SongListProps> = ({
                       onClick={() => onSelectSong(song)}
                       className="bg-white border border-slate-200/90 hover:border-orange-400/80 rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group cursor-pointer space-y-3"
                     >
-                      {/* Top Visual Box (Album cover or Chord diagrams preview) */}
+                      {/* Top Visual Box (Album cover ou par de acordes da música) */}
                       <div className="bg-slate-50 border border-slate-100 rounded-xl p-2.5 flex items-center justify-center gap-2 overflow-hidden min-h-[90px]">
                         {song.youtubeId ? (
                           <div className="relative w-full h-24 rounded-lg overflow-hidden group-hover:scale-102 transition-transform">
@@ -380,9 +437,16 @@ export const SongList: React.FC<SongListProps> = ({
                             </div>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-2 scale-75 transform -my-4">
-                            <ChordDiagram chordName="G" fingering={gChord} size="sm" showPlayButton={false} />
-                            <ChordDiagram chordName="C" fingering={cChord} size="sm" showPlayButton={false} />
+                          <div className="flex items-center gap-1 scale-75 transform -my-4">
+                            {(songPreviewChords.get(song.id) || []).map((pc) => (
+                              <ChordDiagram
+                                key={pc.name}
+                                chordName={pc.name}
+                                fingering={pc.fingering}
+                                size="sm"
+                                showPlayButton={false}
+                              />
+                            ))}
                           </div>
                         )}
                       </div>
@@ -485,9 +549,9 @@ export const SongList: React.FC<SongListProps> = ({
           )}
         </div>
 
-        {/* COLUMN 3: Right Sidebar Widgets (Repertório Atual & Hoje) matching screenshot */}
+        {/* COLUMN 3: Right Sidebar Widgets — conforme template */}
         <div className="lg:col-span-3 space-y-4">
-          {/* Widget 1: REPERTÓRIO ATUAL (Chord boxes G, C, Am) */}
+          {/* Widget 1: REPERTÓRIO ATUAL — cards verticais grandes (G, C, Am) */}
           <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs space-y-3">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2">
               <h3 className="font-black text-slate-900 uppercase text-xs tracking-wider">
@@ -498,14 +562,24 @@ export const SongList: React.FC<SongListProps> = ({
               </span>
             </div>
 
-            <div className="grid grid-cols-3 gap-1.5">
-              <ChordDiagram chordName="G" fingering={gChord} size="sm" showPlayButton={false} />
-              <ChordDiagram chordName="C" fingering={cChord} size="sm" showPlayButton={false} />
-              <ChordDiagram chordName="Am" fingering={amChord} size="sm" showPlayButton={false} />
+            <div className="grid grid-cols-1 gap-2">
+              {[
+                { name: 'G', fingering: gChord },
+                { name: 'C', fingering: cChord },
+                { name: 'Am', fingering: amChord },
+              ].map((ch) => (
+                <div
+                  key={ch.name}
+                  className="bg-white border border-slate-200/90 rounded-xl p-2 flex items-center justify-center gap-3 shadow-2xs"
+                >
+                  <ChordDiagram chordName={ch.name} fingering={ch.fingering} size="md" showPlayButton={false} />
+                  <span className="font-mono font-black text-slate-900 text-sm">{ch.name}</span>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Widget 2: REPERTÓRIO DE HOJE */}
+          {/* Widget 2: REPERTÓRIO DE HOJE — lista horizontal com PLAY + seta */}
           <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs space-y-3">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2">
               <h3 className="font-black text-slate-900 uppercase text-xs tracking-wider">
@@ -516,70 +590,89 @@ export const SongList: React.FC<SongListProps> = ({
               </span>
             </div>
 
-            <div className="space-y-2.5">
-              {songs.slice(0, 3).map((song, i) => (
-                <div
-                  key={song.id}
-                  onClick={() => onSelectSong(song)}
-                  className="flex items-center gap-2.5 p-2 rounded-xl bg-slate-50 border border-slate-100 hover:border-orange-300 transition-all cursor-pointer group"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-600 font-black shrink-0 overflow-hidden">
-                    {song.youtubeId ? (
-                      <img
-                        src={`https://img.youtube.com/vi/${song.youtubeId}/default.jpg`}
-                        alt={song.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <Music className="w-5 h-5 text-orange-500" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-slate-900 group-hover:text-orange-600 truncate">
+            <div className="relative">
+              <div
+                ref={todayScrollRef}
+                className="flex gap-2.5 overflow-x-auto no-scrollbar pb-1 pr-7"
+              >
+                {songs.slice(0, 8).map((song) => (
+                  <div
+                    key={song.id}
+                    onClick={() => onSelectSong(song)}
+                    className="w-28 shrink-0 bg-slate-50 border border-slate-100 hover:border-orange-300 rounded-xl p-2 space-y-1.5 transition-all cursor-pointer group"
+                  >
+                    <div className="w-full h-14 rounded-lg overflow-hidden bg-orange-500/10 flex items-center justify-center">
+                      {song.youtubeId ? (
+                        <img
+                          src={`https://img.youtube.com/vi/${song.youtubeId}/default.jpg`}
+                          alt={song.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Music className="w-5 h-5 text-orange-500" />
+                      )}
+                    </div>
+                    <p className="text-[10px] font-bold text-slate-900 truncate group-hover:text-orange-600">
                       {song.title}
                     </p>
-                    <p className="text-[10px] text-slate-500 truncate">{song.artist}</p>
+                    <p className="text-[9px] text-slate-400 truncate">{song.artist}</p>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSelectSong(song);
+                      }}
+                      className="w-full py-1 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-[9px] cursor-pointer"
+                    >
+                      PLAY
+                    </button>
                   </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSelectSong(song);
-                    }}
-                    className="px-2 py-1 rounded-lg bg-orange-500 text-white font-extrabold text-[10px] shadow-2xs hover:bg-orange-600"
-                  >
-                    PLAY
-                  </button>
-                </div>
-              ))}
+                ))}
+              </div>
+
+              {/* Seta de navegação (sobreposta, como no template) */}
+              {songs.length > 4 && (
+                <button
+                  onClick={() => todayScrollRef.current?.scrollBy({ left: 160, behavior: 'smooth' })}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-500 hover:text-orange-500 cursor-pointer"
+                  title="Próximo"
+                >
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
           </div>
 
-          {/* Widget 3: Featured Player Banner */}
+          {/* Widget 3: Card em destaque — horizontal com estrelas + PLAY */}
           {songs.length > 0 && (
-            <div className="bg-gradient-to-tr from-slate-900 to-slate-800 text-white rounded-2xl p-4 shadow-sm space-y-3 relative overflow-hidden">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-extrabold text-orange-400 uppercase tracking-widest text-[10px]">
-                  REPERTÓRIO EM DESTAQUE
-                </span>
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-3.5 shadow-2xs flex items-center gap-3">
+              <div className="w-16 h-16 rounded-xl overflow-hidden bg-orange-500/10 flex items-center justify-center shrink-0">
+                {songs[0].youtubeId ? (
+                  <img
+                    src={`https://img.youtube.com/vi/${songs[0].youtubeId}/default.jpg`}
+                    alt={songs[0].title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <Music className="w-7 h-7 text-orange-500" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0 space-y-1">
+                <p className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">
+                  Repertório de Hoje
+                </p>
+                <p className="text-xs font-black text-slate-900 truncate">{songs[0].title}</p>
+                <p className="text-[10px] text-orange-600 font-bold truncate">{songs[0].artist}</p>
                 <div className="flex text-amber-400">
-                  <Star className="w-3 h-3 fill-amber-400" />
-                  <Star className="w-3 h-3 fill-amber-400" />
-                  <Star className="w-3 h-3 fill-amber-400" />
-                  <Star className="w-3 h-3 fill-amber-400" />
-                  <Star className="w-3 h-3 fill-amber-400" />
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <Star key={i} className="w-3 h-3 fill-amber-400" />
+                  ))}
                 </div>
               </div>
-
-              <div>
-                <h4 className="font-extrabold text-sm text-white">{songs[0].title}</h4>
-                <p className="text-slate-300 text-xs font-medium">{songs[0].artist}</p>
-              </div>
-
               <button
                 onClick={() => onSelectSong(songs[0])}
-                className="w-full py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs uppercase tracking-wider shadow-md shadow-orange-950/40 cursor-pointer"
+                className="px-3 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black text-xs shrink-0 flex items-center gap-1 cursor-pointer shadow-2xs"
               >
-                TOCAR AGORA
+                <Play className="w-3 h-3 fill-white" /> PLAY
               </button>
             </div>
           )}

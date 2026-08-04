@@ -4,6 +4,7 @@ import {
   FolderHeart,
   Sparkles,
   Lock,
+  Globe,
   Plus,
   Music,
   CheckCircle2,
@@ -23,6 +24,8 @@ import {
 interface DashboardProps {
   currentUser: { name: string; email: string } | null;
   repertoireSongIds: string[];
+  isRepertoirePublic: boolean;
+  onToggleRepertoirePublic: () => void;
   songs: Song[];
   playlists: Playlist[];
   onSelectSong: (song: Song) => void;
@@ -34,6 +37,8 @@ interface DashboardProps {
 export const Dashboard: React.FC<DashboardProps> = ({
   currentUser,
   repertoireSongIds,
+  isRepertoirePublic,
+  onToggleRepertoirePublic,
   songs,
   playlists,
   onSelectSong,
@@ -203,22 +208,57 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </h2>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              Esta lista é exclusiva do seu usuário. Ninguém mais pode ver suas seleções particulares.
+              Esta lista é individual do seu usuário — as músicas são públicas para todos, mas seu repertório é só seu (a menos que você o torne público).
             </p>
           </div>
 
-          {/* Search within Repertoire */}
-          <div className="relative min-w-[240px]">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar no meu repertório..."
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-orange-500"
-            />
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            {/* Public/Private Toggle */}
+            <button
+              onClick={onToggleRepertoirePublic}
+              title={isRepertoirePublic ? 'Seu repertório está visível para a comunidade' : 'Compartilhar meu repertório com a comunidade'}
+              className={`px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5 border transition-all cursor-pointer ${
+                isRepertoirePublic
+                  ? 'bg-[#0E7C7B] text-white border-[#0E7C7B] shadow-xs hover:bg-[#0A5F5E]'
+                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:border-[#0E7C7B] hover:text-[#0E7C7B]'
+              }`}
+            >
+              {isRepertoirePublic ? (
+                <>
+                  <Globe className="w-4 h-4" /> Repertório Público
+                </>
+              ) : (
+                <>
+                  <Globe className="w-4 h-4 text-slate-400" /> Tornar Público
+                </>
+              )}
+            </button>
+
+            {/* Search within Repertoire */}
+            <div className="relative min-w-[240px]">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Buscar no meu repertório..."
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-orange-500"
+              />
+            </div>
           </div>
         </div>
+
+        {/* Banner quando público */}
+        {isRepertoirePublic && (
+          <div className="flex items-start gap-2.5 px-3.5 py-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800">
+            <Globe className="w-4 h-4 shrink-0 mt-0.5 text-[#0E7C7B]" />
+            <p className="text-xs font-bold leading-relaxed">
+              Seu repertório está <span className="uppercase">PÚBLICO</span> — ele aparece em
+              "Playlists & Listas Públicas → Repertórios da Comunidade" e qualquer músico pode
+              ver e tocar suas seleções. Clique em "Repertório Público" para voltar a ser privado.
+            </p>
+          </div>
+        )}
 
         {/* Repertoire Songs List */}
         {filteredRepertoire.length === 0 ? (

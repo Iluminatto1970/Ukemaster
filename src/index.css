@@ -1,22 +1,84 @@
 @import "tailwindcss";
 
 @theme {
+  /* ============================================================
+     Identidade Visual UkeMaster Pro
+     ============================================================ */
+
+  /* 1. Verde-Petróleo / Teal — cor de destaque principal */
   --color-teal-brand: #0E7C7B;
   --color-teal-brand-dark: #095B5A;
   --color-teal-brand-light: #E7F5F5;
-  
+
+  /* 2. Laranja Vibrante — Call to Action */
   --color-orange-brand: #F26419;
   --color-orange-brand-hover: #D9530D;
   --color-orange-brand-light: #FEF0E8;
-  
+
+  /* 3. Amarelo Girassol / Âmbar — energia */
   --color-yellow-brand: #F6AE2D;
   --color-yellow-brand-hover: #E39C1B;
   --color-yellow-brand-light: #FFF8E7;
-  
+
+  /* 4. Azul-Marinho Fechado / Grafite — base de textos e contraste */
   --color-slate-brand: #1D2D44;
   --color-slate-brand-light: #2C3F5B;
-  
+
+  /* 5. Fundo claro */
   --color-bg-brand: #F8F9FA;
+
+  /* ============================================================
+     Escalas padrão do Tailwind sobrescritas com a paleta da marca
+     (faz todos os componentes existentes usarem as cores oficiais)
+     ============================================================ */
+
+  /* Laranja (CTA) — base #F26419 */
+  --color-orange-50: #FEF4EC;
+  --color-orange-100: #FDE9D9;
+  --color-orange-200: #FBCFB4;
+  --color-orange-300: #F8AD83;
+  --color-orange-400: #F58854;
+  --color-orange-500: #F26419;
+  --color-orange-600: #D9530D;
+  --color-orange-700: #B4450B;
+  --color-orange-800: #8F3A0C;
+  --color-orange-900: #75300C;
+
+  /* Teal (destaque principal) — base #0E7C7B */
+  --color-teal-50: #EDF7F6;
+  --color-teal-100: #D5ECEA;
+  --color-teal-200: #AAD9D6;
+  --color-teal-300: #78C0BC;
+  --color-teal-400: #3F9F9B;
+  --color-teal-500: #0E7C7B;
+  --color-teal-600: #0A5F5E;
+  --color-teal-700: #084D4C;
+  --color-teal-800: #073D3C;
+  --color-teal-900: #06302F;
+
+  /* Âmbar / Amarelo Girassol — base #F6AE2D */
+  --color-amber-50: #FEF8E9;
+  --color-amber-100: #FDEEC8;
+  --color-amber-200: #FBDE93;
+  --color-amber-300: #F9CB5D;
+  --color-amber-400: #F6AE2D;
+  --color-amber-500: #E39C1B;
+  --color-amber-600: #C77F15;
+  --color-amber-700: #A56513;
+  --color-amber-800: #855112;
+  --color-amber-900: #6E4312;
+
+  /* Slate (grafite azulado) — base #1D2D44 */
+  --color-slate-50: #F5F7F9;
+  --color-slate-100: #E8EDF1;
+  --color-slate-200: #D4DCE4;
+  --color-slate-300: #B1BECC;
+  --color-slate-400: #8C9BAE;
+  --color-slate-500: #6C7E93;
+  --color-slate-600: #52647A;
+  --color-slate-700: #3E4E61;
+  --color-slate-800: #2B3A4B;
+  --color-slate-900: #1D2D44;
 }
 
 body {

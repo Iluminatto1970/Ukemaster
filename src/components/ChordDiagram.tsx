@@ -70,7 +70,7 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({
           <text
             x={padding - 10}
             y={padding + fretSpacing / 2 + 4}
-            fill="#64748b"
+            fill="#6C7E93"
             fontSize="10"
             fontWeight="bold"
             textAnchor="end"
@@ -85,7 +85,7 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({
           y1={padding}
           x2={padding + boardWidth}
           y2={padding}
-          stroke={baseFret === 1 ? '#0E7C7B' : '#94a3b8'}
+          stroke={baseFret === 1 ? '#0E7C7B' : '#8C9BAE'}
           strokeWidth={baseFret === 1 ? 4 : 2}
         />
 
@@ -97,7 +97,7 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({
             y1={padding + i * fretSpacing}
             x2={padding + boardWidth}
             y2={padding + i * fretSpacing}
-            stroke="#cbd5e1"
+            stroke="#D4DCE4"
             strokeWidth={1.5}
           />
         ))}
@@ -112,7 +112,7 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({
               y1={padding}
               x2={x}
               y2={padding + boardHeight}
-              stroke="#64748b"
+              stroke="#6C7E93"
               strokeWidth={i === 0 ? 2.5 : i === 1 ? 2 : i === 2 ? 1.5 : 1.2}
             />
           );
@@ -209,7 +209,7 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({
             key={`str-name-${i}`}
             x={padding + i * stringSpacing}
             y={height - 4}
-            fill="#64748b"
+            fill="#6C7E93"
             fontSize="10"
             fontWeight="600"
             textAnchor="middle"

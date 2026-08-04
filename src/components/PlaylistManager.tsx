@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Playlist, Song, SONG_CATEGORIES, PLAYLIST_DIFFICULTIES } from '../types';
-import { List, Plus, Trash2, Edit2, Play, Music, ChevronRight, X, Sparkles, Check, Tag, Gauge, Filter } from 'lucide-react';
+import { List, Plus, Trash2, Edit2, Play, Music, ChevronRight, X, Sparkles, Check, Tag, Gauge, Filter, FolderHeart, Globe } from 'lucide-react';
+import { getPublicRepertoires } from '../lib/repertoires';
 
 interface PlaylistManagerProps {
   playlists: Playlist[];
@@ -40,6 +41,9 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [filterDifficulty, setFilterDifficulty] = useState<string>('all');
 
+  // Repertórios públicos da comunidade (dados do registro local — futuro Supabase)
+  const publicRepertoires = getPublicRepertoires();
+
   const filteredPlaylists = playlists.filter((pl) => {
     const matchCat = filterCategory === 'all' || pl.category === filterCategory;
     const matchDiff = filterDifficulty === 'all' || pl.difficulty === filterDifficulty;
@@ -78,7 +82,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
             <List className="w-6 h-6 text-orange-500" /> Playlists & Listas Públicas
           </h2>
           <p className="text-slate-600 text-xs sm:text-sm mt-1 font-medium">
-            Explore e crie playlists abertas para toda a comunidade do Ukemaster.
+            Explore e crie playlists abertas para toda a comunidade do UkeMaster Pro.
           </p>
         </div>
 
@@ -294,6 +298,74 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
             </div>
           )}
         </div>
+      </div>
+
+      {/* Repertórios Públicos da Comunidade */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2">
+            <FolderHeart className="w-5 h-5 text-[#F26419]" />
+            <h3 className="font-black text-slate-900 uppercase text-sm tracking-wider">
+              Repertórios Públicos da Comunidade
+            </h3>
+          </div>
+          <span className="text-[10px] text-slate-500 font-bold flex items-center gap-1">
+            <Globe className="w-3 h-3 text-[#0E7C7B]" /> {publicRepertoires.length} compartilhados
+          </span>
+        </div>
+
+        {publicRepertoires.length === 0 ? (
+          <div className="py-8 text-center space-y-1.5 bg-slate-50/70 rounded-2xl border border-dashed border-slate-200">
+            <Globe className="w-8 h-8 text-slate-300 mx-auto" />
+            <p className="text-xs font-extrabold text-slate-600">Nenhum repertório público ainda</p>
+            <p className="text-[11px] text-slate-400 max-w-md mx-auto">
+              No seu Dashboard, ative "Tornar Público" para compartilhar suas seleções com outros músicos.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {publicRepertoires.map((rep) => (
+              <div
+                key={rep.userId}
+                className="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 space-y-2.5"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-full bg-[#0E7C7B] text-white flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
+                    {(rep.name || 'M').charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-extrabold text-slate-900 truncate">{rep.name}</p>
+                    <p className="text-[10px] text-slate-500 font-bold">
+                      Repertório Público • {rep.songIds.length} {rep.songIds.length === 1 ? 'música' : 'músicas'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  {rep.songIds.map((id) => {
+                    const s = songs.find((song) => song.id === id);
+                    if (!s) return null;
+                    return (
+                      <div
+                        key={id}
+                        onClick={() => onSelectSong(s)}
+                        className="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg bg-white border border-slate-200/70 hover:border-orange-300 transition-colors cursor-pointer group"
+                      >
+                        <div className="min-w-0">
+                          <p className="text-[11px] font-bold text-slate-800 truncate group-hover:text-orange-600">
+                            {s.title}
+                          </p>
+                          <p className="text-[10px] text-slate-400 truncate">{s.artist}</p>
+                        </div>
+                        <Play className="w-3.5 h-3.5 text-orange-500 shrink-0" />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Create New Playlist Modal */}

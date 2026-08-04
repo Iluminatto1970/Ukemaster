@@ -40,7 +40,7 @@ export function useSongSeo(options: UseSongSeoOptions): GeneratedSeoResult {
       updateDocumentMetaTags(seoResult);
 
       return () => {
-        // Reset to default UkeMaster tags when unmounted
+        // Reset to default UkeMaster Pro tags when unmounted
         updateDocumentMetaTags({});
       };
     }

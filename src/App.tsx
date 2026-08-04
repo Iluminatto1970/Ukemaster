@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useAuth } from './auth';
 import { Song, Playlist, ActiveTab } from './types';
 import { DEFAULT_SONGS, DEFAULT_PLAYLISTS } from './data/defaultSongs';
 import { Header } from './components/Header';
@@ -13,15 +14,21 @@ import { StrummingGuide } from './components/StrummingGuide';
 // import { AdSenseSlot } from './components/AdSenseSlot'; // placeholder // placeholder
 import { StickyBottomAd } from './components/StickyBottomAd';
 import { AdSenseSettingsModal } from './components/AdSenseSettingsModal';
-import { AuthModal } from './components/AuthModal';
 import { Dashboard } from './components/Dashboard';
 import { AdInterstitialModal } from './components/AdInterstitialModal';
-import { Music, List, Sparkles, Plus, BookOpen, Radio, Flame, DollarSign } from 'lucide-react';
+import { Monetag } from './components/Monetag';
+import { SupportPrompt } from './components/SupportPrompt';
+import {
+  loadRepertoire,
+  saveRepertoire,
+  loadRepertoirePublic,
+  saveRepertoirePublic,
+  setPublicRepertoire,
+} from './lib/repertoires';
+
 
 const LOCAL_STORAGE_SONGS_KEY = 'ukemaster_songs_v1';
 const LOCAL_STORAGE_PLAYLISTS_KEY = 'ukemaster_playlists_v1';
-const LOCAL_STORAGE_USER_KEY = 'ukemaster_user_v1';
-const LOCAL_STORAGE_REPERTOIRE_KEY = 'ukemaster_repertoire_v1';
 
 export default function App() {
   // Load initial state from localStorage or default dataset
@@ -43,26 +50,28 @@ export default function App() {
     }
   });
 
-  // User Auth & Private Repertoire State
-  const [currentUser, setCurrentUser] = useState<{ name: string; email: string } | null>(() => {
-    try {
-      const saved = localStorage.getItem(LOCAL_STORAGE_USER_KEY);
-      if (saved) return JSON.parse(saved);
-      // Default to logged-in user so dashboard is populated, but user can easily log out
-      return { name: 'Músico Aluno', email: 'aluno@ukulele.com' };
-    } catch {
-      return { name: 'Músico Aluno', email: 'aluno@ukulele.com' };
-    }
-  });
+  // Autenticação real via Clerk (substitui o login falso em localStorage)
+  const { isSignedIn, user: clerkUser, openSignIn, openSignUp } = useAuth();
 
-  const [repertoireSongIds, setRepertoireSongIds] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem(LOCAL_STORAGE_REPERTOIRE_KEY);
-      return saved ? JSON.parse(saved) : ['s1', 's2', 's3'];
-    } catch {
-      return ['s1', 's2', 's3'];
-    }
-  });
+  const currentUser = useMemo(() => {
+    if (!isSignedIn || !clerkUser) return null;
+    const email = clerkUser.primaryEmailAddress?.emailAddress || '';
+    return {
+      name: clerkUser.fullName || clerkUser.username || email.split('@')[0] || 'Músico',
+      email,
+    };
+  }, [isSignedIn, clerkUser]);
+
+  // ── Repertório INDIVIDUAL (cada usuário tem o seu) ───────────────────────
+  // As MÚSICAS são públicas para todos; o REPERTÓRIO é chaveado pelo id do
+  // Clerk (visitantes usam uma área "guest" separada). Toggle para torná-lo
+  // público e compartilhar com a comunidade fica no Dashboard.
+  const currentUserId = clerkUser?.id || 'guest';
+
+  const [repertoireSongIds, setRepertoireSongIds] = useState<string[]>([]);
+  const [repertoireLoadedFor, setRepertoireLoadedFor] = useState<string>('');
+  const [isRepertoirePublic, setIsRepertoirePublic] = useState<boolean>(false);
+  const [repertoirePublicLoadedFor, setRepertoirePublicLoadedFor] = useState<string>('');
 
   const [activeTab, setActiveTab] = useState<ActiveTab>('musicas');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -73,12 +82,11 @@ export default function App() {
   const [isAdSenseModalOpen, setIsAdSenseModalOpen] = useState<boolean>(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
 
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
-  const [authModalInitialMode, setAuthModalInitialMode] = useState<'signup' | 'login'>('signup');
-
   // Interstitial Ad State (Shows advertisement gating periodically before opening lyrics)
   const [isAdInterstitialOpen, setIsAdInterstitialOpen] = useState<boolean>(false);
   const [pendingSongToView, setPendingSongToView] = useState<Song | null>(null);
+
+  // Import Monetag and SupportPrompt
   const [songOpenCount, setSongOpenCount] = useState<number>(0);
 
   // Sync state to localStorage
@@ -98,35 +106,50 @@ export default function App() {
     }
   }, [playlists]);
 
+  // Carrega o repertório do usuário atual (troca de lista ao trocar de conta)
   useEffect(() => {
-    try {
-      if (currentUser) {
-        localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(currentUser));
-      } else {
-        localStorage.removeItem(LOCAL_STORAGE_USER_KEY);
-      }
-    } catch (e) {
-      console.error('Error saving user to localStorage:', e);
-    }
-  }, [currentUser]);
+    if (repertoireLoadedFor === currentUserId) return;
+    setRepertoireSongIds(loadRepertoire(currentUserId, true));
+    setRepertoireLoadedFor(currentUserId);
+  }, [currentUserId, repertoireLoadedFor]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(LOCAL_STORAGE_REPERTOIRE_KEY, JSON.stringify(repertoireSongIds));
-    } catch (e) {
-      console.error('Error saving repertoire to localStorage:', e);
+    if (repertoireLoadedFor !== currentUserId) return;
+    saveRepertoire(currentUserId, repertoireSongIds);
+  }, [repertoireSongIds, currentUserId, repertoireLoadedFor]);
+
+  // Visibilidade pública do repertório (por usuário) + registro da comunidade
+  useEffect(() => {
+    if (repertoirePublicLoadedFor === currentUserId) return;
+    setIsRepertoirePublic(loadRepertoirePublic(currentUserId));
+    setRepertoirePublicLoadedFor(currentUserId);
+  }, [currentUserId, repertoirePublicLoadedFor]);
+
+  useEffect(() => {
+    if (repertoirePublicLoadedFor !== currentUserId) return;
+    saveRepertoirePublic(currentUserId, isRepertoirePublic);
+    if (isRepertoirePublic && isSignedIn && clerkUser) {
+      setPublicRepertoire(currentUserId, {
+        userId: currentUserId,
+        name:
+          clerkUser.fullName ||
+          clerkUser.username ||
+          clerkUser.primaryEmailAddress?.emailAddress?.split('@')[0] ||
+          'Músico',
+        songIds: repertoireSongIds,
+        updatedAt: new Date().toISOString(),
+      });
+    } else {
+      setPublicRepertoire(currentUserId, null);
     }
-  }, [repertoireSongIds]);
-
-  // Auth Handlers
-  const handleLoginSuccess = (user: { name: string; email: string }) => {
-    setCurrentUser(user);
-    setIsAuthModalOpen(false);
-  };
-
-  const handleLogout = () => {
-    setCurrentUser(null);
-  };
+  }, [
+    isRepertoirePublic,
+    repertoireSongIds,
+    currentUserId,
+    isSignedIn,
+    clerkUser,
+    repertoirePublicLoadedFor,
+  ]);
 
   const handleToggleRepertoire = (songId: string) => {
     setRepertoireSongIds((prev) =>
@@ -285,32 +308,37 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans antialiased flex flex-col">
+    <div className="min-h-screen bg-bg-brand text-slate-900 font-sans antialiased flex flex-col">
+      {/* Monetag Ads (push/popunder) — script injetado no <head> */}
+      <Monetag />
+
+      {/* Support Banner — comunidade APOIA.se */}
+      <SupportPrompt />
+
       {/* Navigation Header */}
       <Header
-        activeTab={activeTab}
         setActiveTab={(tab) => {
           setActiveTab(tab);
           if (tab === 'musicas') {
             setViewMode('list');
           }
         }}
-        songsCount={songs.length}
         onToggleMobileSidebar={() => setIsMobileSidebarOpen((prev) => !prev)}
         searchQuery={searchQuery}
         setSearchQuery={(q) => {
           setSearchQuery(q);
-          if (q && activeTab !== 'musicas') {
-            setActiveTab('musicas');
-            setViewMode('list');
+          if (q) {
+            // Digitar na busca deve SEMPRE mostrar os resultados filtrados:
+            // volta para a aba de músicas e sai do viewer/playlists (mas
+            // não interrompe a edição de uma cifra em andamento).
+            if (activeTab !== 'musicas') {
+              setActiveTab('musicas');
+            }
+            if (viewMode !== 'editor') {
+              setViewMode('list');
+            }
           }
         }}
-        currentUser={currentUser}
-        onOpenAuth={(mode) => {
-          setAuthModalInitialMode(mode || 'signup');
-          setIsAuthModalOpen(true);
-        }}
-        onLogout={handleLogout}
       />
 
       {/* Main Container Layout with Sidebar + Workspace */}
@@ -326,63 +354,44 @@ export default function App() {
           }}
           songsCount={songs.length}
           playlistsCount={playlists.length}
+          viewMode={viewMode}
+          onOpenPlaylists={() => {
+            setActiveTab('musicas');
+            setViewMode('playlists');
+          }}
           onOpenAdSenseSettings={() => setIsAdSenseModalOpen(true)}
           isOpenMobile={isMobileSidebarOpen}
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
         />
 
         {/* Right Main Content Panel */}
-        <main className="flex-1 min-w-0 space-y-4">
-          {/* Top Banner Ad */}
-          <div id="carbonads" className="bg-white border border-slate-200/90 rounded-2xl p-3 text-center text-xs text-slate-500">Anúncio</div>
-
-          {/* Sub Switcher for Musicas View Modes */}
-          {activeTab === 'musicas' && (
-            <div className="flex items-center gap-2 bg-white border border-slate-200/90 rounded-2xl p-2 shadow-2xs">
-              <button
-                onClick={() => setViewMode('list')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                  viewMode === 'list'
-                    ? 'bg-[#F26419] text-white shadow-xs'
-                    : 'bg-slate-100 text-[#1D2D44] hover:bg-slate-200'
-                }`}
-              >
-                <Music className="w-3.5 h-3.5" /> Músicas Públicas ({songs.length})
-              </button>
-
-              <button
-                onClick={() => setViewMode('playlists')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                  viewMode === 'playlists'
-                    ? 'bg-[#F26419] text-white shadow-xs'
-                    : 'bg-slate-100 text-[#1D2D44] hover:bg-slate-200'
-                }`}
-              >
-                <List className="w-3.5 h-3.5" /> Playlists Públicas ({playlists.length})
-              </button>
-
-              {viewMode === 'viewer' && selectedSong && (
-                <span className="text-xs font-bold text-[#F26419] bg-[#FEF0E8] px-3 py-1.5 rounded-xl border border-[#F26419]/30 truncate max-w-xs ml-auto">
-                  Tocando: {selectedSong.title}
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* Tab Views */}
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-6 shadow-2xs min-h-[600px]">
+        <main className="flex-1 min-w-0">
+          {/* Tab Views — lista de músicas fica sem wrapper branco (layout do template); demais telas mantêm o card */}
+          <div
+            className={
+              activeTab === 'musicas' && viewMode === 'list'
+                ? ''
+                : 'bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-6 shadow-2xs min-h-[600px]'
+            }
+          >
             {/* Tab 1: Dashboard (Repertório Privado) */}
             {activeTab === 'dashboard' && (
               <Dashboard
                 currentUser={currentUser}
                 repertoireSongIds={repertoireSongIds}
+                isRepertoirePublic={isRepertoirePublic}
+                onToggleRepertoirePublic={() => setIsRepertoirePublic((prev) => !prev)}
                 songs={songs}
                 playlists={playlists}
                 onSelectSong={handleSelectSong}
                 onRemoveFromRepertoire={handleToggleRepertoire}
                 onOpenAuth={(mode) => {
-                  setAuthModalInitialMode(mode || 'signup');
-                  setIsAuthModalOpen(true);
+                  // Abre o fluxo real do Clerk (modal hospedado)
+                  if (mode === 'login') {
+                    openSignIn();
+                  } else {
+                    openSignUp();
+                  }
                 }}
                 onGoToPublicSongs={() => {
                   setActiveTab('musicas');
@@ -424,8 +433,12 @@ export default function App() {
                     isInRepertoire={repertoireSongIds.includes(selectedSong.id)}
                     onToggleRepertoire={() => handleToggleRepertoire(selectedSong.id)}
                     onOpenAuth={(mode) => {
-                      setAuthModalInitialMode(mode || 'signup');
-                      setIsAuthModalOpen(true);
+                      // Abre o fluxo real do Clerk (modal hospedado)
+                      if (mode === 'login') {
+                        openSignIn();
+                      } else {
+                        openSignUp();
+                      }
                     }}
                   />
                 )}
@@ -475,7 +488,7 @@ export default function App() {
       <footer className="bg-white border-t border-slate-200 py-6 pb-24 text-center text-xs text-slate-500 mt-auto">
         <div className="max-w-[1600px] mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-800">Uke Master Pro</span> • Plataforma 100% Gratuita Mantida por Anúncios
+            <span className="font-bold text-slate-800">UkeMaster Pro</span> • Plataforma 100% Gratuita Mantida por Anúncios
           </div>
           <div className="flex items-center gap-4">
             <span>Afinação padrão G4 C4 E4 A4</span>
@@ -490,14 +503,6 @@ export default function App() {
       <AdSenseSettingsModal
         isOpen={isAdSenseModalOpen}
         onClose={() => setIsAdSenseModalOpen(false)}
-      />
-
-      {/* Auth Modal for Scribd Paywall Sign Up / Sign In */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        onLoginSuccess={handleLoginSuccess}
-        initialMode={authModalInitialMode}
       />
 
       {/* Interstitial Ad Modal (Gates song opening periodically with countdown) */}

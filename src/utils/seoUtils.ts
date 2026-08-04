@@ -36,13 +36,13 @@ export function generateSongSeo(data: SongSeoData): GeneratedSeoResult {
 
   // 1. Title SEO
   const seoTitle = cleanTitle && cleanArtist
-    ? `${cleanTitle} - ${cleanArtist} | Cifra de Ukulele no UkeMaster`
+    ? `${cleanTitle} - ${cleanArtist} | Cifra de Ukulele no UkeMaster Pro`
     : cleanTitle
-    ? `${cleanTitle} | Cifra de Ukulele no UkeMaster`
-    : 'Ukemaster — Cifras, Dicionário de Acordes & Afinador de Ukulele';
+    ? `${cleanTitle} | Cifra de Ukulele no UkeMaster Pro`
+    : 'UkeMaster Pro — Cifras, Dicionário de Acordes & Afinador de Ukulele';
 
   // 2. Meta Description SEO
-  const seoDescription = `Cifra de Ukulele da música "${displayTitle}" de ${displayArtist}. Aprenda a tocar no Ukulele em tom de ${key} (${difficulty}). Inclui acordes [${chordsStr}], diagramas interativos,${strumming} e letra completa formatada no UkeMaster.`;
+  const seoDescription = `Cifra de Ukulele da música "${displayTitle}" de ${displayArtist}. Aprenda a tocar no Ukulele em tom de ${key} (${difficulty}). Inclui acordes [${chordsStr}], diagramas interativos,${strumming} e letra completa formatada no UkeMaster Pro.`;
 
   // Helper for clean hashtags
   const sanitizeForHashtag = (str: string) =>
@@ -76,7 +76,7 @@ export function generateSongSeo(data: SongSeoData): GeneratedSeoResult {
 
   hashtagSet.add('#Ukulele');
   hashtagSet.add('#CifraUkulele');
-  hashtagSet.add('#UkeMaster');
+  hashtagSet.add('#UkeMasterPro');
   hashtagSet.add('#UkuleleBrasil');
   hashtagSet.add('#AprenderUkulele');
   hashtagSet.add('#AcordesUkulele');
@@ -101,7 +101,7 @@ export function generateSongSeo(data: SongSeoData): GeneratedSeoResult {
     'Ukulele',
     'Cifra Ukulele',
     'Acordes Ukulele',
-    'UkeMaster',
+    'UkeMaster Pro',
     `Tom ${key}`,
     `Ukulele ${difficulty}`,
     'Aprender Ukulele',
@@ -124,9 +124,9 @@ export function generateSongSeo(data: SongSeoData): GeneratedSeoResult {
 export function updateDocumentMetaTags(seoResult: Partial<GeneratedSeoResult> & { customTitle?: string; customDescription?: string }) {
   if (typeof document === 'undefined') return;
 
-  const pageTitle = seoResult.customTitle || seoResult.seoTitle || 'Ukemaster — Cifras, Dicionário de Acordes & Afinador de Ukulele';
+  const pageTitle = seoResult.customTitle || seoResult.seoTitle || 'UkeMaster Pro — Cifras, Dicionário de Acordes & Afinador de Ukulele';
   const pageDescription = seoResult.customDescription || seoResult.seoDescription || 'O Portal Oficial do Ukulele: Cifras de músicas públicas, dicionário de acordes, afinador de precisão, ritmos e seu repertório privado.';
-  const pageKeywords = seoResult.keywords || 'ukulele, cifra, acordes, ukemaster, musica, letras, afinador';
+  const pageKeywords = seoResult.keywords || 'ukulele, cifra, acordes, ukemaster pro, musica, letras, afinador';
 
   // Update document.title
   document.title = pageTitle;
@@ -149,7 +149,7 @@ export function updateDocumentMetaTags(seoResult: Partial<GeneratedSeoResult> & 
   setMetaTag('meta[property="og:title"]', 'property', 'og:title', pageTitle);
   setMetaTag('meta[property="og:description"]', 'property', 'og:description', pageDescription);
   setMetaTag('meta[property="og:type"]', 'property', 'og:type', 'website');
-  setMetaTag('meta[property="og:site_name"]', 'property', 'og:site_name', 'Ukemaster');
+  setMetaTag('meta[property="og:site_name"]', 'property', 'og:site_name', 'UkeMaster Pro');
 
   // Twitter Cards
   setMetaTag('meta[name="twitter:card"]', 'name', 'twitter:card', 'summary_large_image');
