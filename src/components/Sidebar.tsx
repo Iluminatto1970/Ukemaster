@@ -138,7 +138,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Footer Info */}
       <div className="p-4 border-t border-white/10 text-[10px] text-teal-100/70 font-medium">
         <p className="flex items-center gap-1 font-bold text-teal-50">
-          <Sparkles className="w-3 h-3 text-[#F6AE2D]" /> Ukemaster v2.0
+          <Sparkles className="w-3 h-3 text-[#F6AE2D]" /> Uke Master Pro v2.0
         </p>
         <p className="mt-0.5">Portal de Músicas, Cifras & Acordes</p>
       </div>

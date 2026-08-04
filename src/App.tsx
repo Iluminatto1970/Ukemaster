@@ -10,7 +10,7 @@ import { SongViewer } from './components/SongViewer';
 import { SongEditor } from './components/SongEditor';
 import { PlaylistManager } from './components/PlaylistManager';
 import { StrummingGuide } from './components/StrummingGuide';
-import { AdSenseSlot } from './components/AdSenseSlot';
+// import { AdSenseSlot } from './components/AdSenseSlot'; // placeholder // placeholder
 import { StickyBottomAd } from './components/StickyBottomAd';
 import { AdSenseSettingsModal } from './components/AdSenseSettingsModal';
 import { AuthModal } from './components/AuthModal';
@@ -334,11 +334,7 @@ export default function App() {
         {/* Right Main Content Panel */}
         <main className="flex-1 min-w-0 space-y-4">
           {/* Top Banner Ad */}
-          <AdSenseSlot
-            format="horizontal"
-            label="Anúncio do Portal • 100% Grátis"
-            onOpenSettings={() => setIsAdSenseModalOpen(true)}
-          />
+          <div id="carbonads" className="bg-white border border-slate-200/90 rounded-2xl p-3 text-center text-xs text-slate-500">Anúncio</div>
 
           {/* Sub Switcher for Musicas View Modes */}
           {activeTab === 'musicas' && (
@@ -479,7 +475,7 @@ export default function App() {
       <footer className="bg-white border-t border-slate-200 py-6 pb-24 text-center text-xs text-slate-500 mt-auto">
         <div className="max-w-[1600px] mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-800">UkeMaster</span> • Plataforma 100% Gratuita Mantida por Anúncios
+            <span className="font-bold text-slate-800">Uke Master Pro</span> • Plataforma 100% Gratuita Mantida por Anúncios
           </div>
           <div className="flex items-center gap-4">
             <span>Afinação padrão G4 C4 E4 A4</span>

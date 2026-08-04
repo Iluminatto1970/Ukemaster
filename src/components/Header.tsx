@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ActiveTab } from '../types';
 import { Logo } from './Logo';
+import { DonationModal } from './DonationModal';
 import { Search, Bell, MessageSquare, ChevronDown, Menu, User, LogOut, Sparkles, Lock, FolderHeart } from 'lucide-react';
 
 interface HeaderProps {
@@ -27,8 +28,10 @@ export const Header: React.FC<HeaderProps> = ({
   onLogout,
 }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [donationOpen, setDonationOpen] = useState(false);
 
   return (
+    <>
     <header className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-2xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
@@ -69,6 +72,13 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Right Profile & Actions */}
           <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              onClick={() => setDonationOpen(true)}
+              className="px-3 py-1.5 rounded-xl bg-[#F26419] hover:bg-[#D9530D] text-white font-black text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+              title="Apoie o Projeto via Pix"
+            >
+              ☕ Apoie
+           </button>
             {currentUser ? (
               /* Logged In User Pill */
               <div className="relative">
@@ -139,6 +149,8 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
     </header>
+    <DonationModal isOpen={donationOpen} onClose={() => setDonationOpen(false)} />
+    </>
   );
 };
 

@@ -70,7 +70,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [showTablatures, setShowTablatures] = useState<boolean>(true);
 
-  // Auto-scroll state
+  const clampSemitone = (value: number) => Math.max(-2, Math.min(2, value));
   const [isAutoScrolling, setIsAutoScrolling] = useState<boolean>(false);
   const [scrollSpeed, setScrollSpeed] = useState<number>(2); // 1 to 5
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -314,7 +314,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
             </div>
             <div className="flex items-center gap-1.5">
               <button
-                onClick={() => setTransposeSemitones((prev) => prev - 1)}
+                onClick={() => setTransposeSemitones((prev) => clampSemitone(prev - 1))}
                 className="p-2 rounded-lg bg-white border border-slate-200 hover:border-orange-400 text-slate-700 font-bold text-xs cursor-pointer shadow-2xs"
                 title="-1 Semitom"
               >
@@ -332,7 +332,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
               )}
 
               <button
-                onClick={() => setTransposeSemitones((prev) => prev + 1)}
+                onClick={() => setTransposeSemitones((prev) => clampSemitone(prev + 1))}
                 className="p-2 rounded-lg bg-white border border-slate-200 hover:border-orange-400 text-slate-700 font-bold text-xs cursor-pointer shadow-2xs"
                 title="+1 Semitom"
               >
@@ -501,7 +501,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
       )}
 
       {/* Top Banner Ad before chord sheet */}
-      <AdSenseSlot format="horizontal" label="Anúncio do Topo da Cifra" />
+      {/* <AdSenseSlot format="horizontal" label="Anúncio do Topo da Cifra" /> */}
 
       {/* Main Content Area: Side-by-Side Grid when video is shown */}
       <div className={showVideo && videoId ? "grid grid-cols-1 lg:grid-cols-12 gap-6 items-start" : "w-full"}>
