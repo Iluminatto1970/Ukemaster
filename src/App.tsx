@@ -39,6 +39,7 @@ import { AdInterstitialModal } from './components/AdInterstitialModal';
 import { Monetag } from './components/Monetag';
 import { SupportPrompt } from './components/SupportPrompt';
 import { LeadCaptureModal } from './components/LeadCaptureModal';
+import { SplashScreen } from './components/SplashScreen';
 
 /** Máximo de anúncios intersticiais por dia (por dispositivo) — equilíbrio
  * entre receita e experiência: depois do limite, cifras abrem direto. */
@@ -171,6 +172,9 @@ export default function App() {
   const [isCreatingNew, setIsCreatingNew] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<'list' | 'viewer' | 'editor' | 'playlists'>('list');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
+
+  // Splash de abertura (mostra a marca por ~2s e some com fade)
+  const [showSplash, setShowSplash] = useState<boolean>(true);
 
   // Interstitial Ad State (Shows advertisement gating periodically before opening lyrics)
   const [isAdInterstitialOpen, setIsAdInterstitialOpen] = useState<boolean>(false);
@@ -728,7 +732,10 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-bg-brand text-slate-900 font-sans antialiased flex flex-col">
-      {/* Monetag Ads (push/popunder) — script injetado no <head> */}
+      {/* Splash de abertura — some sozinho após ~2s (fade out) */}
+      {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
+
+      {/* Monetag Ads (banners in-page) — script injetado no <head> */}
       <Monetag />
 
       {/* Support Banner — comunidade APOIA.se */}

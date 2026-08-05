@@ -223,3 +223,44 @@ body {
   animation: slide-in-left 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* ── Splash screen de abertura ────────────────────────────── */
+@keyframes splash-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.6) translateY(10px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes splash-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-splash-pop {
+  animation: splash-pop 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.animate-splash-rise {
+  animation: splash-rise 0.5s ease-out both;
+}
+.animate-splash-rise:nth-child(1) {
+  animation-delay: 0.15s;
+}
+.animate-splash-rise:nth-child(2) {
+  animation-delay: 0.25s;
+}
+.animate-splash-rise:nth-child(3) {
+  animation-delay: 0.35s;
+}
+
