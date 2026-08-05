@@ -1,3 +1,6 @@
+/**
+ * Banner de apoio no topo: convida a doar no APOIA.se e explica que anúncios mantêm o portal.
+ */
 import React, { useEffect, useState } from 'react';
 import { APOIA_SE_URL } from '../config';
 

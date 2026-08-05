@@ -1,3 +1,6 @@
+/**
+ * Menu lateral de navegação (desktop e mobile): HOME, Repertórios, Dicionário, Playlists, Estudo de Ritmos, Afinador e ADMIN (só proprietário).
+ */
 import React from 'react';
 import { ActiveTab } from '../types';
 import {

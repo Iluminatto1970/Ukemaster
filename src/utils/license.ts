@@ -1,3 +1,6 @@
+/**
+ * Licenciamento: marca d'água/textos legais e helpers de atribuição.
+ */
 // ponytail: no‑op helpers kept for future use; system has no Pro tier
 export const LICENSE_KEY = 'ukemaster.pro';
 

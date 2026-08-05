@@ -1,3 +1,6 @@
+/**
+ * Cabeçalho fixo: busca global, logo, botões de apoio/doação, notificações e autenticação (Clerk).
+ */
 import React, { useState } from 'react';
 import { ActiveTab } from '../types';
 import { Logo } from './Logo';

@@ -1,4 +1,7 @@
 /**
+ * Captura de leads (nome/e-mail/WhatsApp) antes do cadastro: grava no Supabase para o banco próprio do proprietário.
+ */
+/**
  * Banco de leads do UkeMaster Pro.
  *
  * Captura nome/e-mail/WhatsApp no cadastro (modal de lead, sem paywall de

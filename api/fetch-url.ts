@@ -1,4 +1,7 @@
 /**
+ * Endpoint utilitário: proxy de fetch de URLs (usado para ler páginas no editor/importação).
+ */
+/**
  * Vercel Serverless Function — /api/fetch-url
  * Busca o HTML de uma URL externa sem restrições de CORS.
  * Equivale ao endpoint do server.ts, mas disponível na Vercel (produção).

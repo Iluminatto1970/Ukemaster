@@ -1,3 +1,6 @@
+/**
+ * Guia de ritmos/levadas (estudo de ritmos): padrões de batida com notação e dicas para o ukulele.
+ */
 import React, { useState, useEffect, useRef } from 'react';
 import { DEFAULT_STRUMMING_PATTERNS } from '../data/defaultSongs';
 import { StrummingPattern } from '../types';

@@ -1,3 +1,6 @@
+/**
+ * Entrada do app (bootstrap): monta o React no DOM, configura Clerk (auth), analytics e o ThemeProvider/estilos globais.
+ */
 import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import {AuthProvider} from './auth.tsx';

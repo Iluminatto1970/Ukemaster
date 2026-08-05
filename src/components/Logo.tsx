@@ -1,3 +1,6 @@
+/**
+ * Logo do UkeMaster Pro (SVG/texto) nas variações usadas no header e footer.
+ */
 import React from 'react';
 
 interface LogoProps {

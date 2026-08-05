@@ -1,3 +1,6 @@
+/**
+ * Camada de autenticação: wrapper do Clerk com fallback de sessão local (guest) para o app funcionar sem login; expõe useAuth(), ClerkProvider e utilitários de usuário atual.
+ */
 import React, { createContext, useContext } from 'react';
 import { ClerkProvider, useClerk, useUser } from '@clerk/clerk-react';
 

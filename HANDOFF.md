@@ -71,6 +71,13 @@
 
 ---
 
+## 📚 COMO LER O CÓDIGO (documentação em massa)
+
+- **Todos os arquivos TS/TSX têm cabeçalho JSDoc** explicando o papel do módulo (gerado por `scripts/add-doc-headers.mjs` — idempotente; rode ao criar arquivos novos).
+- **Ordem sugerida de leitura:** `src/types.ts` (domínio) → `src/config.ts` → `src/lib/supabase.ts` + `src/lib/cloudSync.ts` (dados) → `src/lib/scraper.ts` + `src/lib/platformCron.ts` (cron/importação) → `src/App.tsx` (orquestração) → `src/components/`.
+- Camadas de dados: `ratings.ts` (votos/rankings), `repertoires.ts` (repertórios privados), `leads.ts` (captura de lead do cadastro).
+- Monetização: `AdSenseSlot`, `AdInterstitialModal` (limite diário de 6), `StickyBottomAd`, `Monetag` (4 zonas), `DonationModal`/`SupportPrompt` (APOIA.se + Pix).
+
 ## 🗂️ MAPA DO PROJETO
 
 | Caminho | O que é |

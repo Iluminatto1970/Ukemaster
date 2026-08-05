@@ -1,4 +1,7 @@
 /**
+ * Helper de handoff para outras IAs/CLIs: despeja HANDOFF.md + git status + diff resumido.
+ */
+/**
  * 🤝 Handoff Helper — contexto completo para QUALQUER IA/CLI retomar o trabalho.
  *
  * Uso:

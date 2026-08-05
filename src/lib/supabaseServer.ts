@@ -1,4 +1,7 @@
 /**
+ * Cliente Supabase usado apenas em server-side (APIs Vercel/Express): leitura do acervo para prerender de cifras, sitemap e robots.
+ */
+/**
  * Acesso ao Supabase LADO SERVIDOR (Node: server.ts, Vercel Functions, cron).
  *
  * Diferente do cliente (src/lib/supabase.ts que usa import.meta.env), aqui

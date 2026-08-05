@@ -1,4 +1,7 @@
 /**
+ * Repertórios privados por usuário: CRUD no Supabase com fallback localStorage (cada usuário tem o seu; opção de tornar público).
+ */
+/**
  * Repertório individual do UkeMaster Pro.
  *
  * Regra de negócio: as MÚSICAS são públicas (qualquer usuário publica e todos

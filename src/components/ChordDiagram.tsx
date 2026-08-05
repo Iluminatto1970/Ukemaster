@@ -1,3 +1,6 @@
+/**
+ * Diagrama SVG de acorde de ukulele (tamanhos xs→lg) com posição dos dedos e som de referência.
+ */
 import React from 'react';
 import { ChordFingering } from '../types';
 import { playUkuleleChord } from '../utils/audio';

@@ -1,4 +1,7 @@
 /**
+ * Configuração global: URLs públicas (APOIA.se, Monetag, scripts de anúncio) e constantes de ambiente do projeto.
+ */
+/**
  * Configurações globais do UkeMaster Pro.
  *
  * Estratégia: ads (Monetag) desde o dia zero + comunidade (APOIA.se),

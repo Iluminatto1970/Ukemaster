@@ -1,3 +1,6 @@
+/**
+ * Captura de lead (nome/e-mail/WhatsApp) antes do cadastro — alimenta o banco do proprietário.
+ */
 import React, { useState } from 'react';
 import { X, Sparkles, Check, ArrowRight, Phone, Mail, User, PartyPopper } from 'lucide-react';
 import { saveLead, normalizeWhatsApp } from '../lib/leads';

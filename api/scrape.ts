@@ -1,4 +1,7 @@
 /**
+ * Endpoint /api/scrape: scraping on-demand de uma URL de cifra (usado pelo AdminScraper).
+ */
+/**
  * Vercel Serverless Function — /api/scrape
  * Scraping de cifras do UkeMaster Pro (área admin, uso do proprietário).
  *

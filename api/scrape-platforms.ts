@@ -1,4 +1,7 @@
 /**
+ * Endpoint /api/scrape-platforms: dispara o cron de plataformas (BR/internacionais) sob demanda.
+ */
+/**
  * Vercel Serverless Function — /api/scrape-platforms
  * Alvo do CRON diário (vercel.json) + disparo manual pela área admin.
  *

@@ -1,4 +1,7 @@
 /**
+ * Votação e tendências: vota em músicas (1 por usuário), calcula rankings (Mais Votadas / Em Alta 14 dias) e persiste no Supabase com fallback local.
+ */
+/**
  * Sistema de votação (rating) do UkeMaster Pro.
  *
  * Design:

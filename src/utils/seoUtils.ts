@@ -1,3 +1,6 @@
+/**
+ * SEO global: funções de descrição, palavras-chave e estrutura de dados para crawlers.
+ */
 export interface SongSeoData {
   title: string;
   artist: string;

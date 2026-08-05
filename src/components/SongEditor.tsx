@@ -1,3 +1,6 @@
+/**
+ * Editor de cifra: criar/editar músicas com busca de vídeo, adaptação de tom, tags/SEO e estrutura passo a passo.
+ */
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { Song, SONG_CATEGORIES, SONG_DIFFICULTIES } from '../types';
 import { ALL_KEYS, ALL_QUALITIES, findChord, CHORD_DATABASE } from '../data/chords';

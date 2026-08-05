@@ -1,3 +1,6 @@
+/**
+ * SEO por música: gera JSON-LD, meta tags Open Graph/Twitter e título canônico para páginas de cifra.
+ */
 import { useEffect, useMemo } from 'react';
 import { generateSongSeo, updateDocumentMetaTags, SongSeoData, GeneratedSeoResult } from '../utils/seoUtils';
 

@@ -1,3 +1,6 @@
+/**
+ * Gerenciamento de playlists: criar, renomear, excluir e adicionar músicas da biblioteca.
+ */
 import React, { useState, useEffect } from 'react';
 import { Playlist, Song, SONG_CATEGORIES, PLAYLIST_DIFFICULTIES } from '../types';
 import { List, Plus, Trash2, Edit2, Play, Music, ChevronRight, X, Sparkles, Check, Tag, Gauge, Filter, FolderHeart, Globe } from 'lucide-react';

@@ -1,3 +1,6 @@
+/**
+ * Injeção dos scripts Monetag (push, vignette e tags) no <head> para monetização sem paywall.
+ */
 import React, { useEffect } from 'react';
 import {
   MONETAG_SCRIPT_URL,

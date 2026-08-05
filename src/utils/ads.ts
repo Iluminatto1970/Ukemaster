@@ -1,3 +1,6 @@
+/**
+ * Utilitários de publicidade: hooks/helpers para anúncios (Carbon Ads e afins).
+ */
 import { useEffect } from 'react';
 
 export function useCarbonAds() {

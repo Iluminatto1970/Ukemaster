@@ -1,3 +1,6 @@
+/**
+ * Manipulação de cifras/acordes: transposição de tom, extração de acordes, normalização e formatação para exibição.
+ */
 // Chord utility functions for parsing, transposing, extracting chords, and auto-detecting chords from imported text/documents
 
 const CHROMATIC_SCALE = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];

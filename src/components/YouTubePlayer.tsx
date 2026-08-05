@@ -1,3 +1,6 @@
+/**
+ * Player de vídeo do YouTube embutido (se a música tiver vídeo associado).
+ */
 import React, { useState } from 'react';
 import { extractYouTubeId } from '../utils/chordUtils';
 import { Youtube, Minimize2, Maximize2, ExternalLink, X } from 'lucide-react';

@@ -1,3 +1,6 @@
+/**
+ * Anúncio intersticial antes de abrir cifras (a cada 2ª): espera mínima para monetizar a impressão e botão Continuar liberado após o tempo.
+ */
 import React, { useState, useEffect } from 'react';
 import { AdSenseSlot } from './AdSenseSlot';
 import { Sparkles, Clock, Music, ArrowRight } from 'lucide-react';

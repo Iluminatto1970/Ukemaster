@@ -1,4 +1,7 @@
 /**
+ * Analytics leve (GA4/Plausible via configuração): rastreia page views e eventos-chave (abrir cifra, votar, login, doação).
+ */
+/**
  * Analytics do UkeMaster Pro — GA4 + Plausible (opcionais, via env).
  *
  * Configuração (em .env.local e nas Environment Variables da Vercel):

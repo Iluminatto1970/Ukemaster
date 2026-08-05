@@ -1,3 +1,6 @@
+/**
+ * Tipos compartilhados do domínio: Song, Playlist, Repertoire, User, ActiveTab, AdSenseConfig e estruturas usadas pelo app, cron e APIs.
+ */
 export interface ChordFingering {
   frets: number[]; // 4 numbers for strings [G, C, E, A], -1 for muted (X), 0 for open
   fingers?: number[]; // 1=index, 2=middle, 3=ring, 4=pinky, 0=none

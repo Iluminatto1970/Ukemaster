@@ -1,3 +1,6 @@
+/**
+ * Leitor de cifra: transposição, auto-scroll, tamanho de fonte, tablaturas, vídeo YouTube, voto, repertório e ações (editar/excluir admin).
+ */
 import React, { useState, useEffect, useRef } from 'react';
 import { Song } from '../types';
 import { parseChordPro, extractUniqueChords, extractYouTubeId } from '../utils/chordUtils';

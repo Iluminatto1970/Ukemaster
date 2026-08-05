@@ -1,4 +1,7 @@
 /**
+ * Sincronização do acervo com a nuvem: push de alterações locais para o Supabase com debounce, filtro anti-corrupção (nunca envia música sem conteúdo) e fallback offline.
+ */
+/**
  * Sincronização em nuvem (Supabase) com fallback localStorage.
  *
  * Estratégia: "último que salvou vence". O localStorage continua sendo o

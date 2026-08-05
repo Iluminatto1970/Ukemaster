@@ -1,3 +1,6 @@
+/**
+ * Importação de músicas: de texto livre, URL de cifra (scraping) ou JSON exportado.
+ */
 import React, { useState } from 'react';
 import { Song } from '../types';
 import { autoConvertTextToChordPro, extractUniqueChords, extractYouTubeId, extractSongMetadata, generateSongSeoAndHashtags, findDuplicateSong } from '../utils/chordUtils';

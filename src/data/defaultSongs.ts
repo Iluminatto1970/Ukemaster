@@ -1,3 +1,6 @@
+/**
+ * Acervo inicial/semente: músicas e playlists padrão usadas no primeiro carregamento (fallback sem nuvem).
+ */
 import { Song, Playlist, StrummingPattern } from '../types';
 
 export const DEFAULT_SONGS: Song[] = [

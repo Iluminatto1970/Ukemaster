@@ -1,3 +1,6 @@
+/**
+ * Afinador: microfone + detecção de pitch em tempo real, com indicação de afinação por corda (G C E A).
+ */
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { autoCorrelate, analyzePitch, PitchResult, TARGET_STRINGS, TARGET_STRINGS_LOW_G } from '../utils/pitchDetector';
 import { startContinuousTone, stopContinuousTone, playPluckedNote } from '../utils/audio';

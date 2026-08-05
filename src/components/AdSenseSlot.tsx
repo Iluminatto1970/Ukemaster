@@ -1,3 +1,6 @@
+/**
+ * Bloco de anúncio Google AdSense real: injeta adsbygoogle.js e registra o slot (formatos auto/rectangle/horizontal).
+ */
 import React, { useEffect, useRef } from 'react';
 
 declare global {

@@ -1,3 +1,6 @@
+/**
+ * Listagem principal do acervo: busca/filtros por gênero e nível, ranking Mais Votadas (estilo CifraClub), linhas densas de músicas, ações (votar, playlist, editar, excluir só admin) e widgets laterais (Em Alta, Artistas, Repertório).
+ */
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Song, Playlist, SONG_CATEGORIES, SONG_DIFFICULTIES } from '../types';
 import {

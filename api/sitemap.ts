@@ -1,4 +1,7 @@
 /**
+ * Endpoint /api/sitemap: gera o sitemap.xml dinâmico com todas as cifras (SEO para o Google indexar).
+ */
+/**
  * Vercel Serverless Function — /sitemap.xml (via rewrite)
  * Gera o sitemap com todas as cifras do acervo (paginação completa).
  *

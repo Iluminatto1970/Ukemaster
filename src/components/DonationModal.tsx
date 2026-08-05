@@ -1,3 +1,6 @@
+/**
+ * Modal de doação: APOIA.se + QR Pix (chave copiável) para apoiar o portal gratuito.
+ */
 import React, { useEffect, useState } from 'react';
 import qrcode from 'qrcode';
 import { APOIA_SE_URL } from '../config';

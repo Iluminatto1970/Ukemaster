@@ -1,3 +1,6 @@
+/**
+ * Componente raiz: orquestra toda a experiência — acervo (Supabase + cache local), busca/filtros, votação, repertórios, playlists, modais de anúncio/doação/lead, rotas SPA (/musica/:id) e SEO.
+ */
 import React, { useState, useEffect, useMemo, useRef, lazy, Suspense } from 'react';
 import { useAuth } from './auth';
 import { Song, Playlist, ActiveTab } from './types';
@@ -36,6 +39,10 @@ import { AdInterstitialModal } from './components/AdInterstitialModal';
 import { Monetag } from './components/Monetag';
 import { SupportPrompt } from './components/SupportPrompt';
 import { LeadCaptureModal } from './components/LeadCaptureModal';
+
+/** Máximo de anúncios intersticiais por dia (por dispositivo) — equilíbrio
+ * entre receita e experiência: depois do limite, cifras abrem direto. */
+const ADS_DAILY_LIMIT = 6;
 import {
   loadRepertoire,
   saveRepertoire,
@@ -178,6 +185,35 @@ export default function App() {
   // sessão, automaticamente após a 4ª música aberta (conversão sem irritar).
   const [donationOpen, setDonationOpen] = useState<boolean>(false);
   const donationShownRef = useRef(false);
+
+  // Limite diário de intersticiais: monetiza sem destruir a experiência.
+  // O usuário vê no máximo 6 anúncios intersticiais por dia (contador em
+  // localStorage por data); depois disso, cifras abrem direto.
+  const adsShownRef = useRef<{ date: string; count: number }>({ date: '', count: 0 });
+  const getAdsToday = (): number => {
+    const today = new Date().toISOString().slice(0, 10);
+    const saved = adsShownRef.current;
+    if (saved.date === today) return saved.count;
+    // primeira leitura da sessão: puxa do localStorage
+    try {
+      const raw = localStorage.getItem('ukemaster_ads_shown');
+      const parsed = raw ? JSON.parse(raw) : { date: '', count: 0 };
+      adsShownRef.current = parsed.date === today ? parsed : { date: today, count: 0 };
+    } catch {
+      adsShownRef.current = { date: today, count: 0 };
+    }
+    return adsShownRef.current.count;
+  };
+  const bumpAdsToday = () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const next = { date: today, count: getAdsToday() + 1 };
+    adsShownRef.current = next;
+    try {
+      localStorage.setItem('ukemaster_ads_shown', JSON.stringify(next));
+    } catch {
+      // cota cheia/privado — segue sem persistir
+    }
+  };
 
   // Sync state to localStorage — versão ENXUTA: com o acervo de 3.000+ cifras
   // completas o JSON estouraria a cota de ~5MB do localStorage, então o cache
@@ -486,8 +522,11 @@ export default function App() {
       genre: song.category || '',
     });
 
-    // Show interstitial ad gate on every 2nd song view attempt
-    if (nextCount % 2 === 0) {
+    // Show interstitial ad gate on every 2nd song view attempt — mas com
+    // LIMITE DIÁRIO: depois de N anúncios no dia o restante abre direto,
+    // para não afastar o usuário (equilíbrio receita × experiência).
+    if (nextCount % 2 === 0 && getAdsToday() < ADS_DAILY_LIMIT) {
+      bumpAdsToday();
       setPendingSongToView(song);
       setIsAdInterstitialOpen(true);
     } else {

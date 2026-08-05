@@ -1,4 +1,7 @@
 /**
+ * Scraping de cifras: extrai músicas de CifraClub e sites internacionais, detecta acordes, limpa títulos/artistas, descarta cifras vazias e lixo de metadados.
+ */
+/**
  * Scraping de cifras — lógica compartilhada entre a API (Vercel) e o servidor
  * local (server.ts). Roda no NODE (sem DOM): fetch + regex, e reaproveita o
  * pipeline de conversão/SEO que já existe no frontend (chordUtils/seoUtils).

@@ -1,3 +1,6 @@
+/**
+ * Anúncio fixo na base (mobile): aparece após rolar, com botão fechar — âncora de alto eCPM.
+ */
 import React, { useEffect, useState } from 'react';
 import { AdSenseSlot } from './AdSenseSlot';
 import { X } from 'lucide-react';

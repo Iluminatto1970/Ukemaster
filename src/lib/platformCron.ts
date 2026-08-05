@@ -1,4 +1,7 @@
 /**
+ * Motor do cron de plataformas: varre artistas por plataforma até sincronizar tudo, com dedupe anti-duplicata, histórico (cron_imports), cursor de progresso e modo REPARO (restaura conteúdo vazio preservando ids/votos).
+ */
+/**
  * Cron de plataformas de cifras — varre as plataformas ATÉ sincronizar tudo.
  *
  * Como funciona (cursor + histórico persistente no Supabase):

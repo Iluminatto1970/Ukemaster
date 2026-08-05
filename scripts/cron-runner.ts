@@ -1,4 +1,7 @@
 /**
+ * CLI do cron de plataformas (gera ukemaster-cron.mjs): flags --platform/--artist/--repair/--fast/--budget/--reset e leitura de .env.
+ */
+/**
  * Cron runner standalone — roda o cron de plataformas fora da Vercel.
  *
  * Uso (após bundlar com esbuild → ukemaster-cron.mjs):

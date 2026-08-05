@@ -1,3 +1,6 @@
+/**
+ * Áudio: geração de tons de referência e metrônomo (Web Audio API).
+ */
 // Web Audio API helper for synthesizing ukulele plucked sounds & reference tones
 
 let audioCtx: AudioContext | null = null;

@@ -1,3 +1,6 @@
+/**
+ * Repertórios privados do usuário: listagem, organização e compartilhamento público.
+ */
 import React, { useState } from 'react';
 import { Song, Playlist } from '../types';
 import {

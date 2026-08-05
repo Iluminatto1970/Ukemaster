@@ -1,4 +1,7 @@
 /**
+ * Catálogo de plataformas de cifras (BR e internacionais) para o cron: URLs de artistas, delayMs por site e habilitação.
+ */
+/**
  * Registro das plataformas de cifras varridas pelo cron do UkeMaster Pro.
  *
  * IMPORTANTE: nem todo site aceita scraping — muitos (Ultimate-Guitar,

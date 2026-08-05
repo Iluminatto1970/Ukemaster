@@ -1,3 +1,6 @@
+/**
+ * Dicionário de acordes: grade navegável com diagramas, busca e filtros por tom/tipo.
+ */
 import React, { useState } from 'react';
 import { CHORD_DATABASE, ALL_KEYS, ALL_QUALITIES } from '../data/chords';
 import { ChordDiagram } from './ChordDiagram';

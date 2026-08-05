@@ -1,4 +1,7 @@
 /**
+ * Endpoint /api/musica: prerender da página de cifra para crawlers (HTML com conteúdo), usado pela rota /musica/:id.
+ */
+/**
  * Vercel Serverless Function — /musica/:id (via rewrite, apenas para crawlers)
  * Prerender completo para o Google/WhatsApp: title, description, canonical,
  * og tags e JSON-LD MusicRecording — sem depender do JavaScript do cliente.

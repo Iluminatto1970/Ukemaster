@@ -1,4 +1,7 @@
 /**
+ * Endpoint /api/robots: gera robots.txt apontando para o sitemap.
+ */
+/**
  * Vercel Serverless Function — /robots.txt (via rewrite)
  * Autocontida (não importa de src/) — a Vercel compila cada api/*.ts isolado.
  */

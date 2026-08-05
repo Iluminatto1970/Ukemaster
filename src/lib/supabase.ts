@@ -1,4 +1,7 @@
 /**
+ * Cliente Supabase do lado do cliente (browser): acesso ao acervo de músicas, votos, playlists e repertórios via PostgREST com fallback localStorage.
+ */
+/**
  * Cliente Supabase mínimo (REST + anon key) — sem dependência externa.
  *
  * Usa o padrão PostgREST do Supabase:

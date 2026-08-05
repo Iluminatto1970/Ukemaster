@@ -1,3 +1,6 @@
+/**
+ * Área ADMIN (só iluminatto@gmail.com): importação em massa, scraping por URL/artista e disparo do cron de plataformas.
+ */
 import React, { useState } from 'react';
 import { Song } from '../types';
 import { CHORD_PLATFORMS } from '../lib/platforms';
