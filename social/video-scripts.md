@@ -185,34 +185,38 @@ F#m e B7 resolvem a música! Link na bio 👆
 
 ---
 
-## 🎬 Vídeo 7 — "42" (Coldplay) · Tom C
+## 🎬 Vídeo 7 — "42" (Coldplay) · Tom C#
 
-> ⚠️ **Nota:** esta cifra está **sem conteúdo no banco** (aguardando o repair do cron). O roteiro está pronto — grave assim que a cifra for preenchida (ou use a versão da letra: *"Those who are dead are not dead, they're just living in my head"*).
+> ✅ **Cifra disponível no acervo** (tom C#, conteúdo real — o repair do cron preencheu em 2026-08-05). A URL de exemplo: `https://ukemasterpro.vercel.app/musica/scraped-1785954148460-0mo0y3`
 
-**Gancho (0–4s):** toque o riff do refrão (fácil, em C — progressão aproximada C–G–Am–F)
+**Gancho (0–4s):** toque o refrão — *"Those who are dead are not dead, they're just living in my head"*
 
 **Estrutura (25s):**
 ```
-[0-4s]   Toca o refrão no ukulele
+[0-4s]   Toca o verso (Fm → Cm → C7)
 [4-8s]   Texto: "Coldplay no ukulele? Sim! 🎸"
-[8-15s]  "Os 4 acordes de sempre: C, G, Am, F"
+[8-15s]  "Verso com 3 acordes: Fm, Cm, C7"
 [15-20s] "Cifra completa no UkeMaster Pro"
 [20-25s] CTA: "Link na bio 👆"
 ```
 
-**Progressão para a tela (padrão Coldplay):**
+**Cifra real (trecho para a tela):**
 ```
-Verso/Refrão: C - G - Am - F
-(transponível: use a transposição do site p/ seu tom)
+[Fm] Those who are dead are not dead
+[Cm] [C7] they're just living in my head
+[Fm] And since I fell for that spell
+[Cm] [C7] I am living it as well
+
+[Chorus]
+[C#] Time is so short and I'm sure
+[G#] There must be something more
 ```
 
 **Legenda:**
 ```
 42 (Coldplay) no ukulele — internacional no portal 🎸
-4 acordes que você já sabe! Link na bio 👆
+Verso com 3 acordes (Fm, Cm, C7)! Link na bio 👆
 #coldplay #pop #ukulele #cifras #musica
-
-📌 A cifra completa chega em breve (o acervo está sendo atualizado)
 ```
 
 ---
