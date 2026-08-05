@@ -266,7 +266,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-xs px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-700 font-mono font-bold">
+                        <span className="hidden min-[480px]:inline-block text-xs px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-700 font-mono font-bold">
                           Tom: {song.key}
                         </span>
 

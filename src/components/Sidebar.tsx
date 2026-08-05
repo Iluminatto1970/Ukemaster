@@ -125,7 +125,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </nav>
 
       {/* Footer Info */}
-      <div className="p-4 border-t border-white/10 text-[10px] text-teal-100/70 font-medium">
+      <div className="p-4 border-t border-white/10 text-[10px] text-teal-100/70 font-medium safe-bottom">
         <p className="flex items-center gap-1 font-bold text-teal-50">
           <Sparkles className="w-3 h-3 text-[#F6AE2D]" /> UkeMaster Pro v2.0
         </p>
@@ -145,10 +145,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {isOpenMobile && (
         <div className="fixed inset-0 z-50 lg:hidden flex">
           <div
-            className="fixed inset-0 bg-stone-950/60 backdrop-blur-sm"
+            className="fixed inset-0 bg-stone-950/60 backdrop-blur-sm animate-fade-in"
             onClick={onCloseMobile}
           />
-          <div className="relative w-72 max-w-[80vw] h-full shadow-2xl z-10">
+          <div className="relative w-72 max-w-[80vw] h-full shadow-2xl z-10 animate-slide-in-left">
             {content}
           </div>
         </div>

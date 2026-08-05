@@ -27,7 +27,13 @@ com fallback automático para local se a nuvem estiver fora.
 
 1. No painel: **Project Settings → API**.
 2. Copie **Project URL** → `VITE_SUPABASE_URL`
-3. Copie **anon public key** → `VITE_SUPABASE_ANON_KEY`
+3. Copie a **anon public key** (ou a **publishable key** `sb_publishable_...`)
+   → `VITE_SUPABASE_ANON_KEY`
+
+> O app aceita tanto a chave anon antiga (`eyJ...`) quanto a nova
+> **publishable key** (`sb_publishable_...`) — e também os nomes no padrão
+> Next.js (`NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`),
+> já que o `vite.config.ts` expõe ambos os prefixos ao cliente.
 
 ### 4. Configure no seu computador (dev local)
 
@@ -35,15 +41,20 @@ Crie/edite o arquivo **`.env.local`** na raiz do projeto:
 
 ```bash
 VITE_SUPABASE_URL="https://SEU-PROJETO.supabase.co"
-VITE_SUPABASE_ANON_KEY="eyJhbGciOi...sua-chave-anon..."
+VITE_SUPABASE_ANON_KEY="sb_publishable_..."
 ```
+
+> **Projeto atual do UkeMaster Pro:** `https://asvjdjawaenxrlwdyziy.supabase.co`
+> (chaves já configuradas no `.env.local` local).
 
 Reinicie o servidor de dev (`npm run dev`) e pronto — o app passa a sincronizar.
 
 ### 5. Configure na Vercel (produção)
 
 1. Em **[vercel.com](https://vercel.com/) → Seu Projeto → Settings → Environment Variables**.
-2. Adicione as **mesmas 2 variáveis** (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`).
+2. Adicione as **mesmas variáveis** — de preferência com os nomes que o
+   Supabase já te deu (`NEXT_PUBLIC_SUPABASE_URL` e
+   `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`) ou os equivalentes `VITE_*`.
 3. Faça um **Deploy** (ou `npx vercel --prod --yes`).
 
 ---

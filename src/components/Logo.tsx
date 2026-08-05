@@ -33,8 +33,9 @@ export const Logo: React.FC<LogoProps> = ({ size = 'md' }) => {
         draggable={false}
       />
 
-      {/* Wordmark UkeMaster Pro */}
-      <div>
+      {/* Wordmark UkeMaster Pro — texto oculto em telas < 420px (mobile) para
+          dar espaço à busca; emblema permanece sempre visível */}
+      <div className="hidden min-[420px]:block">
         <div className={`font-black ${textSizes[size]} tracking-tight flex items-center leading-none`}>
           <span className="text-[#0E7C7B]">UKE</span>
           <span className="text-[#0E7C7B]">MASTER</span>

@@ -11,6 +11,9 @@ export default defineConfig(() => {
         '@': path.resolve(import.meta.dirname, '.'),
       },
     },
+    // Expõe ao cliente tanto VITE_* quanto NEXT_PUBLIC_* (compatibilidade
+    // com o padrão de nomes do Next.js usado no painel da Supabase).
+    envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       // Do not modifyâfile watching is disabled to prevent flickering during agent edits.

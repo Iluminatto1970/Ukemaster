@@ -121,9 +121,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
               <Lock className="w-5 h-5" />
             </div>
-            <h3 className="font-extrabold text-slate-900 text-base">Sem Anúncios Bloqueantes</h3>
+            <h3 className="font-extrabold text-slate-900 text-base">Seu Repertório é Só Seu</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Membros cadastrados têm acesso fluido e sem bloqueios de cifras no visualizador Scribd.
+              O acervo de cifras é 100% livre para todos — só o repertório privado é exclusivo da sua conta.
             </p>
           </div>
         </div>
@@ -235,7 +235,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </button>
 
             {/* Search within Repertoire */}
-            <div className="relative min-w-[240px]">
+            <div className="relative w-full sm:w-auto sm:min-w-[240px]">
               <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
               <input
                 type="text"

@@ -8,7 +8,10 @@
  *
  * Configuração (2 variáveis no .env.local / Vercel):
  *   VITE_SUPABASE_URL="https://xxxx.supabase.co"
- *   VITE_SUPABASE_ANON_KEY="eyJ..."
+ *   VITE_SUPABASE_ANON_KEY="eyJ..."   (ou sb_publishable_...)
+ *
+ * Também aceita os nomes no padrão Next.js (NEXT_PUBLIC_*) — o vite.config.ts
+ * expõe ambos os prefixos ao cliente, então funciona das duas formas.
  *
  * Se as chaves não estiverem configuradas, todas as funções retornam
  * `null`/`false` e o app continua 100% funcional com localStorage.
@@ -21,8 +24,13 @@ export interface SupabaseConfig {
 
 /** Retorna a config do Supabase ou null se não configurado. */
 export function getSupabase(): SupabaseConfig | null {
-  const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+  const url =
+    (import.meta.env.VITE_SUPABASE_URL as string | undefined) ||
+    (import.meta.env.NEXT_PUBLIC_SUPABASE_URL as string | undefined);
+  const anonKey =
+    (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ||
+    (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined) ||
+    (import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY as string | undefined);
   if (!url || !anonKey) return null;
   return { url: url.replace(/\/+$/, ''), anonKey };
 }

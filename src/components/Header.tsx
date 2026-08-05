@@ -30,11 +30,11 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-2xs">
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-2xs safe-top">
         <div className="max-w-[1600px] mx-auto px-3 sm:px-6">
-          <div className="flex items-center justify-between h-16 gap-3 sm:gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 py-2 sm:gap-4 sm:py-0 sm:h-16">
             {/* Left: Mobile Menu + Brand Logo (sempre visível, conforme template) */}
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0 order-1">
               {onToggleMobileSidebar && (
                 <button
                   onClick={onToggleMobileSidebar}
@@ -54,8 +54,8 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             </div>
 
-            {/* Center Search Bar */}
-            <div className="flex-1 max-w-xl mx-auto min-w-0">
+            {/* Center Search Bar — linha própria no mobile (embaixo), inline no desktop */}
+            <div className="order-3 basis-full sm:order-2 sm:basis-auto sm:flex-1 sm:max-w-xl sm:mx-auto sm:min-w-0">
               <div className="relative">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
@@ -69,7 +69,7 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Right: Icons & Profile */}
-            <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 order-2 sm:order-3 ml-auto sm:ml-0">
               {/* Envelope (Apoio — visível também no mobile) */}
               <button
                 onClick={() => setDonationOpen(true)}

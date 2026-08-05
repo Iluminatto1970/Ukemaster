@@ -18,6 +18,7 @@ import { Dashboard } from './components/Dashboard';
 import { AdInterstitialModal } from './components/AdInterstitialModal';
 import { Monetag } from './components/Monetag';
 import { SupportPrompt } from './components/SupportPrompt';
+import { LeadCaptureModal } from './components/LeadCaptureModal';
 import {
   loadRepertoire,
   saveRepertoire,
@@ -100,6 +101,9 @@ export default function App() {
   // Interstitial Ad State (Shows advertisement gating periodically before opening lyrics)
   const [isAdInterstitialOpen, setIsAdInterstitialOpen] = useState<boolean>(false);
   const [pendingSongToView, setPendingSongToView] = useState<Song | null>(null);
+
+  // Captura de lead antes do cadastro (nome/e-mail/WhatsApp → seu banco)
+  const [isLeadCaptureOpen, setIsLeadCaptureOpen] = useState<boolean>(false);
 
   // Import Monetag and SupportPrompt
   const [songOpenCount, setSongOpenCount] = useState<number>(0);
@@ -272,6 +276,20 @@ export default function App() {
       setPendingSongToView(null);
     }
     setIsAdInterstitialOpen(false);
+  };
+
+  // Fluxo de cadastro: primeiro captura o lead, depois abre o Clerk
+  const handleOpenAuth = (mode?: 'signup' | 'login') => {
+    if (mode === 'login') {
+      openSignIn();
+      return;
+    }
+    setIsLeadCaptureOpen(true);
+  };
+
+  const handleLeadComplete = () => {
+    setIsLeadCaptureOpen(false);
+    openSignUp();
   };
 
   const handleCreateNewSong = () => {
@@ -485,14 +503,7 @@ export default function App() {
                 playlists={playlists}
                 onSelectSong={handleSelectSong}
                 onRemoveFromRepertoire={handleToggleRepertoire}
-                onOpenAuth={(mode) => {
-                  // Abre o fluxo real do Clerk (modal hospedado)
-                  if (mode === 'login') {
-                    openSignIn();
-                  } else {
-                    openSignUp();
-                  }
-                }}
+                onOpenAuth={handleOpenAuth}
                 onGoToPublicSongs={() => {
                   setActiveTab('musicas');
                   setViewMode('list');
@@ -532,14 +543,7 @@ export default function App() {
                     currentUser={currentUser}
                     isInRepertoire={repertoireSongIds.includes(selectedSong.id)}
                     onToggleRepertoire={() => handleToggleRepertoire(selectedSong.id)}
-                    onOpenAuth={(mode) => {
-                      // Abre o fluxo real do Clerk (modal hospedado)
-                      if (mode === 'login') {
-                        openSignIn();
-                      } else {
-                        openSignUp();
-                      }
-                    }}
+                    onOpenAuth={handleOpenAuth}
                   />
                 )}
 
@@ -585,7 +589,7 @@ export default function App() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-6 pb-24 text-center text-xs text-slate-500 mt-auto">
+      <footer className="bg-white border-t border-slate-200 py-5 pb-6 text-center text-xs text-slate-500 mt-auto safe-bottom">
         <div className="max-w-[1600px] mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="font-bold text-slate-800">UkeMaster Pro</span> • Plataforma 100% Gratuita Mantida por Anúncios
@@ -596,7 +600,7 @@ export default function App() {
         </div>
       </footer>
 
-      {/* Sticky Bottom Ad Banner */}
+      {/* Sticky Bottom Ad Banner (mobile: apenas se houver conteúdo — hoje é placeholder) */}
       <StickyBottomAd />
 
       {/* AdSense Settings Modal */}
@@ -611,6 +615,13 @@ export default function App() {
         onComplete={handleCompleteAdInterstitial}
         title={pendingSongToView?.title}
         artist={pendingSongToView?.artist}
+      />
+
+      {/* Lead Capture Modal (antes do cadastro — nome/e-mail/WhatsApp) */}
+      <LeadCaptureModal
+        isOpen={isLeadCaptureOpen}
+        onClose={() => setIsLeadCaptureOpen(false)}
+        onComplete={handleLeadComplete}
       />
     </div>
   );

@@ -208,7 +208,7 @@ export const Tuner: React.FC = () => {
           {/* Tuner Gauge Display */}
           <div className="relative py-8 flex flex-col items-center justify-center">
             {/* Needle Gauge SVG */}
-            <div className="relative w-72 sm:w-80 h-40">
+            <div className="relative w-full max-w-[320px] h-40">
               <svg viewBox="0 0 200 110" className="w-full h-full overflow-visible">
                 {/* Arc Background */}
                 <path

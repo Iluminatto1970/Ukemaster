@@ -1,8 +1,8 @@
 /**
  * Banco de leads do UkeMaster Pro.
  *
- * Captura nome/e-mail/WhatsApp no cadastro (paywall estilo Scribd) e envia
- * para o SEU banco de dados de leads:
+ * Captura nome/e-mail/WhatsApp no cadastro (modal de lead, sem paywall de
+ * conteúdo) e envia para o SEU banco de dados de leads:
  *  - Supabase (Postgres) via REST — quando VITE_SUPABASE_URL e
  *    VITE_SUPABASE_ANON_KEY estão configurados (`.env.local` / Vercel).
  *  - Fallback: localStorage (desenvolvimento) — útil para testar o fluxo.

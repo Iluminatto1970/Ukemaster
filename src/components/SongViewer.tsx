@@ -31,13 +31,8 @@ import {
   Eye,
   EyeOff,
   FolderHeart,
-  Lock,
-  ArrowRight,
-  ShieldAlert,
 } from 'lucide-react';
 import { playUkuleleChord } from '../utils/audio';
-import { useAuth } from '../auth';
-import { saveLead, normalizeWhatsApp } from '../lib/leads';
 
 interface SongViewerProps {
   song: Song;
@@ -71,13 +66,6 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   const [copiedHashtags, setCopiedHashtags] = useState<boolean>(false);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [showTablatures, setShowTablatures] = useState<boolean>(true);
-
-  // Lead capture (paywall estilo Scribd) — nome/e-mail/WhatsApp para o seu banco de leads
-  const [leadName, setLeadName] = useState<string>('');
-  const [leadEmail, setLeadEmail] = useState<string>('');
-  const [leadWhatsapp, setLeadWhatsapp] = useState<string>('');
-  const [leadSubmitted, setLeadSubmitted] = useState<boolean>(false);
-  const { available: clerkAvailable } = useAuth();
 
   const clampSemitone = (value: number) => Math.max(-2, Math.min(2, value));
   const [isAutoScrolling, setIsAutoScrolling] = useState<boolean>(false);
@@ -171,20 +159,6 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   }, [groupedRenderItems]);
 
   const modalChordDef = selectedChordModal ? findChord(selectedChordModal) : null;
-
-  // Salva o lead (nome/e-mail/WhatsApp) e segue para o cadastro real (Clerk)
-  const handleLeadSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLeadSubmitted(true);
-    await saveLead({
-      name: leadName.trim(),
-      email: leadEmail.trim(),
-      whatsapp: normalizeWhatsApp(leadWhatsapp),
-      source: 'paywall',
-    });
-    // Abre o fluxo de cadastro para liberar 100% do conteúdo
-    onOpenAuth?.('signup');
-  };
 
   return (
     <div className="space-y-6 text-slate-900">
@@ -537,123 +511,6 @@ export const SongViewer: React.FC<SongViewerProps> = ({
           style={{ fontSize: `${fontSize}px` }}
         >
           {groupedRenderItems.map((item, itemIdx) => {
-            const maxPreviewItems = Math.max(3, Math.floor(groupedRenderItems.length * 0.25));
-            const isLockedForGuest = !currentUser && itemIdx >= maxPreviewItems;
-
-            if (isLockedForGuest) {
-              if (itemIdx === maxPreviewItems) {
-                return (
-                  <div key="scribd-paywall" className="relative mt-6 pt-6 pb-8 px-6 sm:px-8 rounded-3xl bg-gradient-to-b from-[#1D2D44] via-[#1D2D44] to-[#0E7C7B] border-2 border-[#F26419]/40 text-center space-y-4 shadow-2xl overflow-hidden backdrop-blur-xl">
-                    <div className="relative z-10 max-w-md mx-auto space-y-3 font-sans text-white">
-                      <div className="w-12 h-12 rounded-2xl bg-[#F26419] text-white flex items-center justify-center mx-auto shadow-md">
-                        <Lock className="w-6 h-6" />
-                      </div>
-
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F26419] text-white font-black text-[10px] tracking-wider uppercase">
-                        <Sparkles className="w-3.5 h-3.5" />
-                        Visualização Parcial • Scribd Lock
-                      </div>
-
-                      <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-tight">
-                        Crie sua conta grátis para ver 100% desta cifra
-                      </h3>
-
-                      <p className="text-xs text-teal-100 leading-relaxed">
-                        Apenas os primeiros versos de <strong className="text-amber-300">{song.title}</strong> estão visíveis para leitores não cadastrados.
-                      </p>
-
-                      <div className="bg-white/10 rounded-2xl p-3.5 border border-white/20 text-left space-y-2 text-xs font-bold text-white">
-                        <div className="flex items-center gap-2">
-                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span>Libere a letra e cifras completas de todas as músicas</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span>Ferramentas de transposição de tom e rolagem automática</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span>Monte seu **Repertório Privado** personalizado</span>
-                        </div>
-                      </div>
-
-                      <div className="pt-2 space-y-3">
-                        {!leadSubmitted ? (
-                          /* Formulário de lead: nome, e-mail e WhatsApp */
-                          <form onSubmit={handleLeadSubmit} className="space-y-2">
-                            <input
-                              type="text"
-                              value={leadName}
-                              onChange={(e) => setLeadName(e.target.value)}
-                              placeholder="Seu nome"
-                              required
-                              className="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-white placeholder-teal-100/60 focus:outline-none focus:border-[#F26419] focus:bg-white/15 transition-all"
-                            />
-                            <input
-                              type="email"
-                              value={leadEmail}
-                              onChange={(e) => setLeadEmail(e.target.value)}
-                              placeholder="Seu melhor e-mail"
-                              required
-                              className="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-white placeholder-teal-100/60 focus:outline-none focus:border-[#F26419] focus:bg-white/15 transition-all"
-                            />
-                            <input
-                              type="tel"
-                              value={leadWhatsapp}
-                              onChange={(e) => setLeadWhatsapp(e.target.value)}
-                              placeholder="Seu WhatsApp com DDD (ex: 11 98765-4321)"
-                              required
-                              minLength={10}
-                              className="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-white placeholder-teal-100/60 focus:outline-none focus:border-[#F26419] focus:bg-white/15 transition-all"
-                            />
-                            <button
-                              type="submit"
-                              className="w-full py-3 px-5 rounded-2xl bg-[#F26419] hover:bg-[#D9530D] text-white font-black text-xs tracking-wider uppercase shadow-lg shadow-[#F26419]/30 flex items-center justify-center gap-2 transition-all cursor-pointer"
-                            >
-                              <span>Liberar Cifra Completa</span>
-                              <ArrowRight className="w-4 h-4" />
-                            </button>
-                            <p className="text-[10px] text-teal-100/70 font-medium text-center">
-                              Seus dados ficam seguros e são usados apenas para contato e novidades do portal.
-                            </p>
-                          </form>
-                        ) : (
-                          /* Confirmação após salvar o lead */
-                          <div className="text-center space-y-3">
-                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 font-extrabold text-xs">
-                              <Check className="w-4 h-4" /> Cadastro recebido!
-                            </div>
-                            <p className="text-xs text-teal-100/80">
-                              {clerkAvailable
-                                ? 'Agora conclua seu cadastro para liberar 100% da cifra...'
-                                : 'Obrigado! Em breve você terá acesso completo ao acervo.'}
-                            </p>
-                            {clerkAvailable && (
-                              <button
-                                onClick={() => onOpenAuth?.('signup')}
-                                className="w-full py-3 px-5 rounded-2xl bg-[#F26419] hover:bg-[#D9530D] text-white font-black text-xs tracking-wider uppercase shadow-lg shadow-[#F26419]/30 flex items-center justify-center gap-2 transition-all cursor-pointer"
-                              >
-                                <span>Continuar Cadastro Grátis</span>
-                                <ArrowRight className="w-4 h-4" />
-                              </button>
-                            )}
-                          </div>
-                        )}
-
-                        <button
-                          onClick={() => onOpenAuth?.('login')}
-                          className="text-xs text-amber-200 font-bold hover:underline cursor-pointer block mx-auto pt-1"
-                        >
-                          Já possui conta? Clique para Entrar
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-              return null;
-            }
-
             let itemContent = null;
 
             if (item.type === 'section') {
