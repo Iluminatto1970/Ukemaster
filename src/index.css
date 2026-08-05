@@ -170,6 +170,33 @@ body {
 }
 
 /* ============================================================
+   Previne overflow horizontal / pan fora da tela no mobile
+   (as letras/cifras não podem "sair" da área visível ao arrastar)
+   ============================================================ */
+html,
+body {
+  /* `clip` não cria um scroll container (diferente de `hidden`), então
+     o position: sticky do header/sidebar continua funcionando */
+  overflow-x: clip;
+  max-width: 100%;
+}
+@supports not (overflow: clip) {
+  html,
+  body {
+    overflow-x: hidden;
+  }
+}
+body {
+  overscroll-behavior-x: contain;
+}
+
+/* Qualquer bloco de cifra/letra nunca pode estourar a largura do pai */
+.line-block {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+/* ============================================================
    Responsividade Mobile
    ============================================================ */
 

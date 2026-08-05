@@ -574,7 +574,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
         {/* Main Interactive Chord Sheet View - Theme Matched */}
         <div
           ref={scrollContainerRef}
-          className={`bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm max-h-[75vh] overflow-y-auto space-y-4 font-mono select-text ${
+          className={`bg-white border border-slate-200 rounded-2xl p-4 sm:p-8 shadow-sm max-h-[75vh] overflow-y-auto overflow-x-hidden min-w-0 space-y-4 font-mono select-text ${
             showVideo && videoId ? 'lg:col-span-7 xl:col-span-8' : 'w-full'
           }`}
           style={{ fontSize: `${fontSize}px` }}
@@ -599,11 +599,14 @@ export const SongViewer: React.FC<SongViewerProps> = ({
               const hasChords = line.tokens.some((t) => t.chord);
 
               itemContent = (
-                <div key={itemIdx} className="line-block leading-relaxed my-2">
+                <div key={itemIdx} className="line-block leading-relaxed my-2 max-w-full">
                   {hasChords ? (
-                    <div className="flex flex-wrap items-baseline gap-x-1 py-1">
+                    <div className="flex flex-wrap items-baseline gap-x-1 py-1 min-w-0">
                       {line.tokens.map((token, tokenIdx) => (
-                        <span key={tokenIdx} className="inline-flex flex-col items-start relative group">
+                        <span
+                          key={tokenIdx}
+                          className="inline-flex flex-col items-start relative group max-w-full min-w-0"
+                        >
                           {token.chord ? (
                             <button
                               onClick={() => {
@@ -621,12 +624,14 @@ export const SongViewer: React.FC<SongViewerProps> = ({
                           ) : (
                             <span className="h-5"></span>
                           )}
-                          <span className="text-[#1D2D44] font-semibold whitespace-pre">{token.text}</span>
+                          <span className="text-[#1D2D44] font-semibold whitespace-pre-wrap break-words">
+                            {token.text}
+                          </span>
                         </span>
                       ))}
                     </div>
                   ) : (
-                    <div className="text-slate-700 whitespace-pre-wrap">{line.rawLine}</div>
+                    <div className="text-slate-700 whitespace-pre-wrap break-words">{line.rawLine}</div>
                   )}
                 </div>
               );
@@ -638,7 +643,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
 
         {/* Embedded YouTube Side Panel */}
         {showVideo && videoId && (
-          <div className="lg:col-span-5 xl:col-span-4 lg:sticky lg:top-24 space-y-3">
+          <div className="lg:col-span-5 xl:col-span-4 lg:sticky lg:top-24 space-y-3 min-w-0">
             <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-2xl px-4 py-2.5">
               <span className="text-xs text-[#1D2D44] font-bold flex items-center gap-2">
                 <Youtube className="w-4 h-4 text-red-500" /> Vídeo / Aula

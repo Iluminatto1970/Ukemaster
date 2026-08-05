@@ -1015,7 +1015,7 @@ Eu [C]vejo o sol na [G]minha janela...`}
                 <span>Resultado Formatado em Tempo Real</span>
                 <span className="text-[10px] text-stone-500 font-normal">Formatação automática ChordPro</span>
               </span>
-              <div className="w-full h-[450px] overflow-y-auto bg-stone-950 border border-stone-800 rounded-xl p-4 font-mono text-xs space-y-2 select-text">
+              <div className="w-full h-[450px] overflow-y-auto overflow-x-hidden bg-stone-950 border border-stone-800 rounded-xl p-4 font-mono text-xs space-y-2 select-text">
                 {groupedPreviewItems.length > 0 ? (
                   groupedPreviewItems.map((item, idx) => {
                     if (item.type === 'section') {
@@ -1030,15 +1030,15 @@ Eu [C]vejo o sol na [G]minha janela...`}
                     }
                     const line = item.line;
                     return (
-                      <div key={idx} className="flex flex-wrap items-baseline gap-x-1 py-0.5">
+                      <div key={idx} className="flex flex-wrap items-baseline gap-x-1 py-0.5 min-w-0">
                         {line.tokens.map((t, tidx) => (
-                          <span key={tidx} className="inline-flex flex-col items-start">
+                          <span key={tidx} className="inline-flex flex-col items-start max-w-full min-w-0">
                             {t.chord ? (
                               <span className="text-amber-400 font-bold bg-amber-500/20 border border-amber-500/30 px-1 py-0.2 rounded text-[11px] -mb-1">
                                 {t.chord}
                               </span>
                             ) : null}
-                            <span className="text-stone-200 whitespace-pre">{t.text}</span>
+                            <span className="text-stone-200 whitespace-pre-wrap break-words">{t.text}</span>
                           </span>
                         ))}
                       </div>
@@ -1054,7 +1054,7 @@ Eu [C]vejo o sol na [G]minha janela...`}
 
         {/* Tab 3: Preview Only */}
         {activeTab === 'preview' && (
-          <div className="bg-stone-950 border border-stone-800 rounded-xl p-6 font-mono space-y-3 min-h-[350px]">
+          <div className="bg-stone-950 border border-stone-800 rounded-xl p-6 font-mono space-y-3 min-h-[350px] overflow-x-hidden">
             {groupedPreviewItems.length > 0 ? (
               groupedPreviewItems.map((item, idx) => {
                 if (item.type === 'section') {
@@ -1069,15 +1069,15 @@ Eu [C]vejo o sol na [G]minha janela...`}
                 }
                 const line = item.line;
                 return (
-                  <div key={idx} className="flex flex-wrap items-baseline gap-x-1 py-1">
+                  <div key={idx} className="flex flex-wrap items-baseline gap-x-1 py-1 min-w-0">
                     {line.tokens.map((t, tidx) => (
-                      <span key={tidx} className="inline-flex flex-col items-start">
+                      <span key={tidx} className="inline-flex flex-col items-start max-w-full min-w-0">
                         {t.chord ? (
                           <span className="text-amber-400 font-bold bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 rounded text-xs -mb-1">
                             {t.chord}
                           </span>
                         ) : null}
-                        <span className="text-stone-200 whitespace-pre">{t.text}</span>
+                        <span className="text-stone-200 whitespace-pre-wrap break-words">{t.text}</span>
                       </span>
                     ))}
                   </div>
