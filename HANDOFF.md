@@ -120,12 +120,14 @@ node dist-cron/ukemaster-cron.mjs --repair --fast --budget 45000 --platform cifr
 
 ## 🖥️ MÁQUINAS DO CRON (Tailscale)
 
-| Máquina | Usuário | Pasta |
-|---|---|---|
-| 100.122.20.11 (DWT) | `ilumi` / senha `1a7g3c` | `C:\Users\ilumi\ukemaster-cron\` |
-| 100.95.254.71 (ACER) | `iluminatto` / senha `1a7g3c` | `~/ukemaster-cron/` (Linux) |
+| Máquina | Usuário | Pasta | Agendamento |
+|---|---|---|---|
+| 100.122.20.11 (DWT, Windows 11) | `ilumi` / senha `1a7g3c` | `C:\Users\ilumi\ukemaster-cron\` | `schtasks` `ukemaster-cron` a cada 30min → `run-cron.cmd` (`--repair`) |
+| 100.95.254.71 (ACER, Linux) | `iluminatto` / senha `1a7g3c` | `~/ukemaster-cron/` (Linux) | crontab `*/30 * * * *` → `node ukemaster-cron.mjs --repair` |
 
-SSH: `ssh ilumi@100.122.20.11` (Windows/PowerShell p/ verificar md5) | `ssh iluminatto@100.95.254.71` (Linux).
+SSH: `ssh ilumi@100.122.20.11` (Windows — usar `SSH_ASKPASS` p/ senha) | `ssh iluminatto@100.95.254.71` (Linux).
+
+> **2ª máquina (DWT) atualizada em 2026-08-05**: bundle novo (md5 `1caca88e…`) + `.env` copiados; `run-cron.cmd` agora roda com `--repair`; tarefa `schtasks /tn ukemaster-cron /sc minute /mo 30` criada (estado: Pronto). Confirmado que o cron roda e conecta no Supabase (varre a fila; dedupe por `cron_imports` evita reimport).
 
 ---
 
