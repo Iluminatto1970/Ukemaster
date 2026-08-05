@@ -27,13 +27,23 @@ Thumbs.db
 .idea/
 *.swp
 
-# AIOX Local (AIOX)
-.aiox-core/local/
-.claude/settings.local.json
-.aiox/install-log.txt
+# Ferramentas de produtividade locais (não versionar)
+.aiox-core/
+.aiox/
+.claude/
+.codex/
+.cursor/
+.gemini/
+.kimi/
+.antigravity/
+.github/agents/
+AGENTS.md
+CLAUDE.md
+HANDOFF.md
+metadata.json
+scripts/handoff.ts
 
-# Agentes/ferramentas — runtime local (não versionar)
-.aiox-core/node_modules/
+# Dados locais da interface
 .freebuff/
 
 # Cron bundle standalone (build artifact)
