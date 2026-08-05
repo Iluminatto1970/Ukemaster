@@ -159,6 +159,7 @@ async function startServer() {
     const seoDescription =
       song.seo_description ||
       `Cifra de ukulele de "${song.title}" de ${song.artist}. Acordes, letra e diagramas para tocar no UkeMaster Pro.`;
+    const ogImage = `${siteUrl}/og-image.png`;
     const chords = (song.tags || []).slice(0, 8).join(', ') || 'Ukulele';
     const jsonLd = {
       '@context': 'https://schema.org',
@@ -187,9 +188,13 @@ async function startServer() {
       `<meta property="og:type" content="music.song" />`,
       `<meta property="og:url" content="${esc(canonicalUrl)}" />`,
       `<meta property="og:site_name" content="UkeMaster Pro" />`,
+      `<meta property="og:image" content="${esc(ogImage)}" />`,
+      `<meta property="og:image:width" content="1200" />`,
+      `<meta property="og:image:height" content="630" />`,
       `<meta name="twitter:card" content="summary_large_image" />`,
       `<meta name="twitter:title" content="${esc(song.title)} - ${esc(song.artist)} | UkeMaster Pro" />`,
       `<meta name="twitter:description" content="${esc(seoDescription)}" />`,
+      `<meta name="twitter:image" content="${esc(ogImage)}" />`,
       `<meta name="keywords" content="cifra ukulele, ${esc(song.title)}, ${esc(song.artist)}, acordes ukulele, ${esc(chords)}" />`,
       `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`,
       `<link rel="icon" href="/favicon.png" />`,

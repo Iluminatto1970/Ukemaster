@@ -96,6 +96,7 @@ export default async function handler(
 
   const siteUrl = getSiteUrl();
   const pageUrl = `${siteUrl}/musica/${encodeURIComponent(song.id)}`;
+  const ogImage = `${siteUrl}/og-image.png`;
   const title = `${song.title} - ${song.artist} | Cifra de Ukulele no UkeMaster Pro`;
   const description =
     song.seo_description ||
@@ -124,8 +125,12 @@ export default async function handler(
   <meta property="og:description" content="${esc(description)}" />
   <meta property="og:url" content="${esc(pageUrl)}" />
   <meta property="og:site_name" content="UkeMaster Pro" />
-  <meta name="twitter:card" content="summary" />
+  <meta property="og:image" content="${esc(ogImage)}" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${esc(song.title)} — ${esc(song.artist)}" />
+  <meta name="twitter:image" content="${esc(ogImage)}" />
   <script type="application/ld+json">${jsonLd}</script>
 </head>
 <body>
