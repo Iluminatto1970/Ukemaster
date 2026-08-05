@@ -43,15 +43,15 @@ export const AdSenseSlot: React.FC<AdSenseSlotProps> = ({
   useEffect(() => {
     if (!AD_CLIENT || !insRef.current) return;
 
-    const ensureScript = () =>
-      document.querySelector('script[data-adsense-loader]');
-
-    if (!ensureScript()) {
+    // Injeta o loader do AdSense UMA vez (o Google exige exatamente o
+    // <script async src="...adsbygoogle.js?..."> — sem atributos extras,
+    // que gerariam warning "AdSense head tag doesn't support...").
+    if (!document.getElementById('adsense-loader')) {
       const s = document.createElement('script');
+      s.id = 'adsense-loader';
       s.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${AD_CLIENT}`;
       s.async = true;
       s.crossOrigin = 'anonymous';
-      s.dataset.adsenseLoader = 'true';
       document.head.appendChild(s);
     }
 
