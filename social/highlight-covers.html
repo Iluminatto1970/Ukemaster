@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Capas dos Destaques — UkeMaster Pro</title>
+<style>
+  :root {
+    --teal: #0E7C7B;
+    --teal-dark: #0A5F5E;
+    --teal-deep: #074A49;
+    --amber: #F6AE2D;
+    --orange: #F26419;
+    --graphite: #1A3644;
+    --white: #FFFFFF;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0d1b2a;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    min-height: 100vh;
+  }
+
+  /* Toolbar */
+  .toolbar {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--graphite);
+    color: #fff;
+    padding: 10px 16px;
+    display: flex; align-items: center; gap: 12px;
+    flex-wrap: wrap;
+  }
+  .toolbar h1 { font-size: 14px; font-weight: 800; letter-spacing: 0.5px; }
+  .toolbar .hint { font-size: 11px; color: #9fb3c8; flex: 1; min-width: 200px; }
+  .toolbar button {
+    background: var(--amber); color: var(--graphite);
+    border: none; border-radius: 8px;
+    padding: 8px 14px; font-weight: 800; font-size: 12px;
+    cursor: pointer;
+  }
+  .toolbar button:hover { background: var(--orange); color: #fff; }
+  .toolbar .nav-btn {
+    background: #2c4257; color: #fff;
+  }
+  .toolbar .nav-btn:hover { background: #3a5872; color: #fff; }
+  .toolbar select {
+    background: #2c4257; color: #fff;
+    border: none; border-radius: 8px;
+    padding: 8px 12px; font-size: 12px; font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* Slides — cada um ocupa uma "página" própria (impressão/screenshot por slide) */
+  .slide-wrap {
+    padding: 20px 0;
+  }
+  .slide {
+    width: 1080px; height: 1920px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    background: linear-gradient(160deg, var(--teal) 0%, var(--teal-dark) 55%, var(--teal-deep) 100%);
+    color: #fff;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    font-size: 100px; /* scale base: 1px = 1/100 rem */
+  }
+
+  /* Decorative background */
+  .slide::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(246,174,45,0.14), transparent 32%),
+      radial-gradient(circle at 88% 92%, rgba(242,100,25,0.16), transparent 36%),
+      radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05), transparent 60%);
+  }
+  .slide::after {
+    content: '';
+    position: absolute;
+    width: 1300px; height: 1300px;
+    border: 3px solid rgba(246,174,45,0.16);
+    border-radius: 50%;
+    top: 50%; left: 50%; transform: translate(-50%,-50%);
+  }
+
+  .slide > * { position: relative; z-index: 2; }
+
+  /* Brand logo mark */
+  .brand {
+    position: absolute; top: 120px; left: 0; right: 0;
+    display: flex; align-items: center; justify-content: center;
+    gap: 22px;
+    padding: 0 80px;
+    z-index: 3;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .brand .logo-dot {
+    width: 90px; height: 90px;
+    background: linear-gradient(135deg, var(--amber), var(--orange));
+    border-radius: 22px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 52px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    flex-shrink: 0;
+  }
+  .brand .logo-text {
+    font-size: 36px; font-weight: 900; letter-spacing: 1px;
+    text-transform: uppercase;
+    line-height: 1.05;
+    white-space: nowrap;
+  }
+  .brand .logo-text small {
+    display: block;
+    font-size: 18px; font-weight: 700;
+    color: var(--amber); letter-spacing: 5px;
+  }
+
+  /* Emoji render: garante cor sólida e fonte consistente */
+  .emoji {
+    font-size: 400px;
+    line-height: 1;
+    filter: drop-shadow(0 18px 40px rgba(0,0,0,0.35));
+    margin-bottom: 40px;
+    font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+  }
+
+  /* Big emoji */
+  .emoji {
+    font-size: 420px;
+    line-height: 1;
+    filter: drop-shadow(0 18px 40px rgba(0,0,0,0.35));
+    margin-bottom: 40px;
+  }
+
+  /* Main title */
+  .title {
+    font-size: 170px;
+    font-weight: 900;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--amber);
+    text-shadow: 0 12px 40px rgba(0,0,0,0.35);
+    line-height: 1.1;
+  }
+
+  /* Subtitle */
+  .subtitle {
+    font-size: 56px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.92);
+    margin-top: 48px;
+    padding: 0 120px;
+    line-height: 1.35;
+  }
+
+  /* Bottom brand strip */
+  .footer-brand {
+    position: absolute; bottom: 110px; left: 0; right: 0;
+    font-size: 34px; font-weight: 800;
+    letter-spacing: 10px; text-transform: uppercase;
+    color: rgba(255,255,255,0.85);
+    z-index: 3;
+  }
+  .footer-brand span { color: var(--amber); }
+
+  /* Ukulele divider */
+  .divider {
+    display: flex; align-items: center; gap: 30px;
+    margin-top: 60px;
+    z-index: 3;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    width: 180px; height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, transparent, var(--amber));
+  }
+  .divider::after { background: linear-gradient(90deg, var(--amber), transparent); }
+  .divider .uke { font-size: 90px; }
+
+  /* Accent corner */
+  .corner {
+    position: absolute; width: 340px; height: 340px;
+    border: 10px solid rgba(246,174,45,0.35);
+    border-radius: 50%;
+  }
+  .corner.tl { top: -140px; left: -140px; }
+  .corner.br { bottom: -140px; right: -140px; }
+
+  /* Slide number chip */
+  .chip {
+    position: absolute; top: 300px; right: 80px;
+    background: rgba(255,255,255,0.12);
+    border: 2px solid rgba(255,255,255,0.35);
+    color: #fff;
+    font-size: 30px; font-weight: 700;
+    padding: 10px 26px; border-radius: 40px;
+    letter-spacing: 2px;
+    z-index: 3;
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <h1>🎬 Capas dos Destaques — UkeMaster Pro</h1>
+  <button class="nav-btn" onclick="nav(-1)">← Anterior</button>
+  <button class="nav-btn" onclick="nav(1)">Próxima →</button>
+  <select id="slideSelect" onchange="goTo(this.value)"></select>
+  <button onclick="toggleZoom()" id="zoomBtn">🔍 Modo zoom (ver capa inteira)</button>
+  <button onclick="exportSlide()">📸 Exportar capa atual</button>
+  <span class="hint">Cada capa tem 1080×1920 (formato story). Use o modo zoom para ver a capa inteira e capture o slide.</span>
+</div>
+
+<!-- ======================= 1. CIFRAS ======================= -->
+<div class="slide-wrap">
+<section class="slide" id="slide-1">
+  <div class="corner tl"></div>
+  <div class="corner br"></div>
+  <div class="chip">01 / 07</div>
+  <div class="brand">
+    <div class="logo-dot">🎸</div>
+    <div class="logo-text">UkeMaster<small>PRO</small></div>
+  </div>
+  <div class="emoji">🎵</div>
+  <div class="title">Cifras</div>
+  <div class="divider"><span class="uke">🪕</span></div>
+  <div class="subtitle">4.400+ músicas grátis<br />MPB · Sertanejo · Forró · Pop · Internacional</div>
+  <div class="footer-brand">ukemaster<span>pro</span>.com</div>
+</section>
+</div>
+
+<!-- ======================= 2. COMO FUNCIONA ======================= -->
+<div class="slide-wrap">
+<section class="slide" id="slide-2">
+  <div class="corner tl"></div>
+  <div class="corner br"></div>
+  <div class="chip">02 / 07</div>
+  <div class="brand">
+    <div class="logo-dot">🎸</div>
+    <div class="logo-text">UkeMaster<small>PRO</small></div>
+  </div>
+  <div class="emoji">🎸</div>
+  <div class="title">Como<br />Funciona</div>
+  <div class="divider"><span class="uke">🪕</span></div>
+  <div class="subtitle">Busque → Toque → Salve no seu repertório</div>
+  <div class="footer-brand">ukemaster<span>pro</span>.com</div>
+</section>
+</div>
+
+<!-- ======================= 3. AFINADOR ======================= -->
+<div class="slide-wrap">
+<section class="slide" id="slide-3">
+  <div class="corner tl"></div>
+  <div class="corner br"></div>
+  <div class="chip">03 / 07</div>
+  <div class="brand">
+    <div class="logo-dot">🎸</div>
+    <div class="logo-text">UkeMaster<small>PRO</small></div>
+  </div>
+  <div class="emoji">🎛️</div>
+  <div class="title">Afinador</div>
+  <div class="divider"><span class="uke">🪕</span></div>
+  <div class="subtitle">Afine seu ukulele em 60 segundos<br />G · C · E · A</div>
+  <div class="footer-brand">ukemaster<span>pro</span>.com</div>
+</section>
+</div>
+
+<!-- ======================= 4. DICIONÁRIO ======================= -->
+<div class="slide-wrap">
+<section class="slide" id="slide-4">
+  <div class="corner tl"></div>
+  <div class="corner br"></div>
+  <div class="chip">04 / 07</div>
+  <div class="brand">
+    <div class="logo-dot">🎸</div>
+    <div class="logo-text">UkeMaster<small>PRO</small></div>
+  </div>
+  <div class="emoji">🎼</div>
+  <div class="title">Acordes</div>
+  <div class="divider"><span class="uke">🪕</span></div>
+  <div class="subtitle">Dicionário de acordes completo<br />Comece por C · G · Am · F</div>
+  <div class="footer-brand">ukemaster<span>pro</span>.com</div>
+</section>
+</div>
+
+<!-- ======================= 5. RITMOS ======================= -->
+<div class="slide-wrap">
+<section class="slide" id="slide-5">
+  <div class="corner tl"></div>
+  <div class="corner br"></div>
+  <div class="chip">05 / 07</div>
+  <div class="brand">
+    <div class="logo-dot">🎸</div>
+    <div class="logo-text">UkeMaster<small>PRO</small></div>
+  </div>
+  <div class="emoji">🥁</div>
+  <div class="title">Ritmos</div>
+  <div class="divider"><span class="uke">🪕</span></div>
+  <div class="subtitle">Padrões de batida para cada música</div>
+  <div class="footer-brand">ukemaster<span>pro</span>.com</div>
+</section>
+</div>
+
+<!-- ======================= 6. APOIA ======================= -->
+<div class="slide-wrap">
+<section class="slide" id="slide-6">
+  <div class="corner tl"></div>
+  <div class="corner br"></div>
+  <div class="chip">06 / 07</div>
+  <div class="brand">
+    <div class="logo-dot">🎸</div>
+    <div class="logo-text">UkeMaster<small>PRO</small></div>
+  </div>
+  <div class="emoji">💚</div>
+  <div class="title">Apoie</div>
+  <div class="divider"><span class="uke">🪕</span></div>
+  <div class="subtitle">Mantenha o portal de pé<br />100% grátis, mantido pela comunidade</div>
+  <div class="footer-brand">apoia.se/<span>ukemasterpro</span></div>
+</section>
+</div>
+
+<!-- ======================= 7. COMUNIDADE ======================= -->
+<div class="slide-wrap">
+<section class="slide" id="slide-7">
+  <div class="corner tl"></div>
+  <div class="corner br"></div>
+  <div class="chip">07 / 07</div>
+  <div class="brand">
+    <div class="logo-dot">🎸</div>
+    <div class="logo-text">UkeMaster<small>PRO</small></div>
+  </div>
+  <div class="emoji">📣</div>
+  <div class="title">Você Toca?</div>
+  <div class="divider"><span class="uke">🪕</span></div>
+  <div class="subtitle">Poste sua versão e marque a gente!<br />#ukemasterpro</div>
+  <div class="footer-brand">ukemaster<span>pro</span>.com</div>
+</section>
+</div>
+
+<script>
+// ===== Navegação entre capas =====
+const slides = [...document.querySelectorAll('.slide')];
+const select = document.getElementById('slideSelect');
+const zoomBtn = document.getElementById('zoomBtn');
+let zoomed = false;
+
+slides.forEach((s, i) => {
+  const opt = document.createElement('option');
+  opt.value = i;
+  opt.textContent = 'Capa ' + (i + 1) + ' — ' + s.querySelector('.title').textContent.trim();
+  select.appendChild(opt);
+});
+
+function nav(dir) {
+  const cur = getCurrent();
+  const next = Math.min(Math.max(cur + dir, 0), slides.length - 1);
+  goTo(next);
+}
+
+function goTo(i) {
+  i = Number(i);
+  if (zoomed) {
+    zoomed = false;
+    document.body.classList.remove('zoom-mode');
+    zoomBtn.textContent = '🔍 Modo zoom (ver capa inteira)';
+  }
+  select.value = i;
+  slides[i].scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function getCurrent() {
+  const rects = slides.map(s => Math.abs(s.getBoundingClientRect().top));
+  return rects.indexOf(Math.min(...rects));
+}
+
+const wraps = [...document.querySelectorAll('.slide-wrap')];
+
+function toggleZoom() {
+  const cur = getCurrent();
+  zoomed = !zoomed;
+  document.body.classList.toggle('zoom-mode', zoomed);
+  zoomBtn.textContent = zoomed ? '🔍 Sair do zoom' : '🔍 Modo zoom (ver capa inteira)';
+  if (zoomed) {
+    // esconde os outros wraps, mostra só o atual
+    wraps.forEach((w, i) => w.style.display = i === cur ? '' : 'none');
+    // escala para caber na tela mantendo proporção
+    const vw = window.innerWidth - 40;
+    const vh = window.innerHeight - 120;
+    const scale = Math.min(vw / 1080, vh / 1920, 0.9);
+    slides.forEach((s, i) => {
+      if (i === cur) { s.style.transform = 'scale(' + scale + ')'; s.style.transformOrigin = 'top left'; }
+      else s.style.transform = '';
+    });
+    // reduz o espaço ocupado pelo wrap ao tamanho escalado (sem scroll horizontal)
+    wraps[cur].style.width = Math.round(1080 * scale) + 'px';
+    wraps[cur].style.height = Math.round(1920 * scale) + 'px';
+    wraps[cur].style.overflow = 'hidden';
+    wraps[cur].style.margin = '10px auto';
+    wraps[cur].scrollIntoView({ block: 'start' });
+  } else {
+    wraps.forEach(w => { w.style.display = ''; w.style.width = ''; w.style.height = ''; w.style.overflow = ''; w.style.margin = ''; });
+    slides.forEach(s => s.style.transform = '');
+  }
+}
+
+function exportSlide() {
+  const idx = getCurrent() + 1;
+  alert(
+    'COMO EXPORTAR A CAPA ' + idx + '/7 (PNG 1080×1920):\n\n' +
+    'OPÇÃO A (melhor qualidade):\n' +
+    '1) Clique em "🔍 Modo zoom" para ver a capa inteira\n' +
+    '2) F12 (DevTools) → Ctrl+Shift+P → digite "screenshot"\n' +
+    '3) Escolha "Capturar screenshot do node" (Capture node screenshot)\n' +
+    '4) Clique na capa → o PNG 1080×1920 é baixado\n\n' +
+    'OPÇÃO B: extensão de screenshot de página completa\n' +
+    'ou: DevTools → device toolbar (ícone celular) → iPhone →\n' +
+    'menu ⋮ → "Capturar screenshot em tamanho real"'
+  );
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') nav(1);
+  if (e.key === 'ArrowLeft') nav(-1);
+  if (e.key === 'Escape' && zoomed) toggleZoom();
+});
+</script>
+</body>
+</html>
