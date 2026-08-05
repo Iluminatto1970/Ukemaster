@@ -385,13 +385,21 @@ function flexibleTitleMatch(scraperTitle: string, scraperArtist: string, dbTitle
   }
   if (!t2clean) return false;
   if (t1 === t2clean) return true;
-  // Aceita contenção mútua com um mínimo de caracteres (evita falso-positivo tipo "42" vs "402")
-  const a = t1.length >= 4 ? t1 : '';
-  const b = t2clean.length >= 4 ? t2clean : '';
-  if (a && b && (a.includes(b) || b.includes(a))) return true;
-  // Título curto (ex.: "42"): só casa se um terminar com o outro após remover artista
+  // Título curto (< 4 chars, ex.: "42"): SÓ casa por igualdade exata — nunca
+  // por endsWith, que casaria "42" com "402" (falso-positivo que corromperia
+  // o conteúdo da linha errada).
   if (t1.length < 4 || t2clean.length < 4) {
-    return t2clean.endsWith(t1) || t1.endsWith(t2clean);
+    return false;
+  }
+  // Contenção mútua só com tamanhos próximos (evita "Boa Noite" casar com
+  // "Noite", ou "Stand By Me" com "By"): diferença máx. de 2 caracteres e
+  // o menor termo com >= 4 chars. Ainda cobre "Fogão de Lenha" vs
+  // "Obras de Poeta / Fogão de Lenha / No Rancho Fundo" quando o título
+  // sujo começa com o nome do artista (já removido acima).
+  const a = t1;
+  const b = t2clean;
+  if (Math.abs(a.length - b.length) <= 2) {
+    if (a.includes(b) || b.includes(a)) return true;
   }
   return false;
 }
