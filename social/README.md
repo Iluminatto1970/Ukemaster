@@ -12,6 +12,7 @@
 | `highlights.md` | Destaques do Instagram com nomes, capas e descrições |
 | `avatar-instructions.md` | Como preparar a foto de perfil a partir da logo (com dimensões exatas) |
 | `posting-kit.md` | Resumo rápido: links, hashtags e CTAs para copiar |
+| `video-scripts.md` | 7 roteiros de vídeo completos (músicas-âncora) com trechos reais de cifra |
 
 ## Como usar
 
