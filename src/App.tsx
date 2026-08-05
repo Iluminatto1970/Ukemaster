@@ -42,7 +42,7 @@ import { LeadCaptureModal } from './components/LeadCaptureModal';
 
 /** Máximo de anúncios intersticiais por dia (por dispositivo) — equilíbrio
  * entre receita e experiência: depois do limite, cifras abrem direto. */
-const ADS_DAILY_LIMIT = 6;
+const ADS_DAILY_LIMIT = 12;
 import {
   loadRepertoire,
   saveRepertoire,
