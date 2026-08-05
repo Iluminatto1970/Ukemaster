@@ -18,7 +18,8 @@
         }
       ]
     },
-    { "source": "/musica/:id", "destination": "/index.html" }
+    { "source": "/musica/:id", "destination": "/index.html" },
+    { "source": "/auth/callback", "destination": "/index.html" }
   ],
   "crons": [
     {

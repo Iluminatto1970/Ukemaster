@@ -5,8 +5,14 @@
  *  - signup:     POST {url}/auth/v1/signup            { email, password, data }
  *  - login:      POST {url}/auth/v1/token?grant_type=password
  *  - refresh:    POST {url}/auth/v1/token?grant_type=refresh_token
+ *  - oauth:      GET  {url}/auth/v1/authorize?provider=google  (PKCE)
+ *  - pkce:       POST {url}/auth/v1/token?grant_type=pkce      (troca o code)
  *  - logout:     POST {url}/auth/v1/logout            (Bearer access_token)
  *  - user:       GET  {url}/auth/v1/user              (Bearer access_token)
+ *
+ * Login social (Google) usa o fluxo PKCE nativo do GoTrue: o app gera um
+ * code_verifier, redireciona para o authorize, e quando o Google devolve o
+ * code no callback (/auth/callback), troca por uma sessão completa.
  *
  * A sessão (access_token + refresh_token + user) fica no localStorage e é
  * restaurada no bootstrap com refresh automático quando expirada. Sem chave
@@ -31,6 +37,7 @@ export interface SupabaseSession {
 }
 
 const SESSION_KEY = 'ukemaster_supabase_session_v1';
+const OAUTH_VERIFIER_KEY = 'ukemaster_oauth_code_verifier';
 
 /** Carrega a sessão salva (sem validar). */
 export function loadStoredSession(): SupabaseSession | null {
@@ -157,6 +164,102 @@ export async function signInWithPassword(
   if (!session) throw new Error('Não foi possível iniciar a sessão.');
   storeSession(session);
   return session;
+}
+
+// ── OAuth (Google) com PKCE ──────────────────────────────────────────────
+
+function base64UrlEncode(bytes: Uint8Array): string {
+  let bin = '';
+  bytes.forEach((b) => {
+    bin += String.fromCharCode(b);
+  });
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+/** Gera um code_verifier aleatório (43+ bytes, base64url). */
+function generateCodeVerifier(): string {
+  const arr = new Uint8Array(48);
+  crypto.getRandomValues(arr);
+  return base64UrlEncode(arr);
+}
+
+/** code_challenge = base64url(SHA-256(code_verifier)) — método S256. */
+async function sha256Challenge(verifier: string): Promise<string> {
+  const data = new TextEncoder().encode(verifier);
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  return base64UrlEncode(new Uint8Array(digest));
+}
+
+/**
+ * Inicia o login social (ex.: 'google'). Redireciona o navegador para o
+ * authorize do Supabase com PKCE; ao voltar, o App processa /auth/callback.
+ * `redirectTo` é a URL do callback (ex.: `${origin}/auth/callback`) e precisa
+ * estar na lista de Redirect URLs do projeto no painel do Supabase.
+ */
+export async function signInWithOAuth(
+  provider: string,
+  redirectTo: string
+): Promise<void> {
+  const sb = getSupabase();
+  if (!sb) throw new Error('Supabase não configurado.');
+
+  const verifier = generateCodeVerifier();
+  try {
+    localStorage.setItem(OAUTH_VERIFIER_KEY, verifier);
+  } catch {
+    // segue sem persistir — o verifier é exigido no callback, então sem
+    // localStorage o fluxo PKCE falha; mas o try mantém o app estável.
+  }
+  const challenge = await sha256Challenge(verifier);
+
+  const params = new URLSearchParams({
+    provider,
+    redirect_to: redirectTo,
+    code_challenge: challenge,
+    code_challenge_method: 's256',
+    scopes: 'email profile',
+  });
+  window.location.href = `${sb.url}/auth/v1/authorize?${params.toString()}`;
+}
+
+/**
+ * Processa o retorno do OAuth: se a URL atual tem ?code=, troca pelo
+ * code_verifier salvo e devolve a sessão (ou null se não for um callback).
+ * Chamar no bootstrap ANTES de restoreSession().
+ */
+export async function handleOAuthCallback(): Promise<SupabaseSession | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if (!code) return null;
+
+  let verifier = '';
+  try {
+    verifier = localStorage.getItem(OAUTH_VERIFIER_KEY) || '';
+    localStorage.removeItem(OAUTH_VERIFIER_KEY);
+  } catch {
+    // sem localStorage → PKCE falha (sem verifier não há troca segura)
+  }
+  if (!verifier) return null;
+
+  const r = await postForm('/auth/v1/token?grant_type=pkce', {
+    auth_code: code,
+    code_verifier: verifier,
+  });
+  if (!r) return null;
+  const session = toSession(r);
+  if (session) storeSession(session);
+  return session;
+}
+
+/** Remove o ?code=... da URL após processar o callback (SPA limpo). */
+export function cleanupOAuthUrl(): void {
+  try {
+    window.history.replaceState({}, '', window.location.pathname);
+  } catch {
+    // ignora
+  }
 }
 
 /** Renova a sessão com o refresh_token (chamado quando expira). */

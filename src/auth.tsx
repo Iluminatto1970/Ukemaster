@@ -18,6 +18,8 @@ import {
   signUp,
   signOutSession,
   toAuthUser,
+  handleOAuthCallback,
+  cleanupOAuthUrl,
   SupabaseSession,
 } from './lib/supabaseAuth';
 
@@ -58,14 +60,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [modalMode, setModalMode] = useState<AuthModalMode | null>(null);
   const [signUpPrefill, setSignUpPrefill] = useState<SignUpPrefill | undefined>(undefined);
 
-  // Restaura a sessão do localStorage no bootstrap (com refresh automático).
+  // Bootstrap: 1) se veio do OAuth (Google) com ?code=, troca pela sessão;
+  // 2) se veio com ?error= (usuário cancelou/recusou no Google), apenas
+  //    limpa a URL e segue; 3) senão, restaura a sessão do localStorage
+  //    (com refresh automático).
   useEffect(() => {
     let cancelled = false;
-    restoreSession().then((s) => {
-      if (cancelled) return;
-      setSession(s);
-      setIsLoaded(true);
-    });
+    (async () => {
+      const params = new URLSearchParams(window.location.search);
+      const oauthError = params.get('error');
+      const oauthCode = params.get('code');
+
+      if (oauthError) {
+        // Login Google recusado/cancelado — não loga sessão antiga por engano.
+        console.warn('[auth] OAuth recusado:', oauthError);
+        cleanupOAuthUrl();
+        setIsLoaded(true);
+        return;
+      }
+
+      if (oauthCode) {
+        try {
+          const oauthSession = await handleOAuthCallback();
+          cleanupOAuthUrl(); // remove o ?code=... da URL
+          if (cancelled) return;
+          if (oauthSession) {
+            setSession(oauthSession);
+            setIsLoaded(true);
+            return;
+          }
+          // Troca falhou (verifier ausente/erro) — não cair numa sessão
+          // antiga como se o Google tivesse funcionado.
+          await signOutSession(null);
+        } catch (e) {
+          console.error('[auth] Falha no callback OAuth:', e);
+          cleanupOAuthUrl();
+          await signOutSession(null);
+        }
+      }
+
+      restoreSession().then((s) => {
+        if (cancelled) return;
+        setSession(s);
+        setIsLoaded(true);
+      });
+    })();
     return () => {
       cancelled = true;
     };
