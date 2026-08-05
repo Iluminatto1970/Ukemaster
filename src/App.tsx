@@ -42,7 +42,7 @@ import { LeadCaptureModal } from './components/LeadCaptureModal';
 
 /** Máximo de anúncios intersticiais por dia (por dispositivo) — equilíbrio
  * entre receita e experiência: depois do limite, cifras abrem direto. */
-const ADS_DAILY_LIMIT = 12;
+const ADS_DAILY_LIMIT = 6;
 import {
   loadRepertoire,
   saveRepertoire,
@@ -66,6 +66,7 @@ import {
   persistVote,
 } from './lib/ratings';
 import { trackEvent, trackPageView } from './lib/analytics';
+import { markAdOverlayActive, markAdOverlayIdle } from './lib/adCoordinator';
 
 
 const LOCAL_STORAGE_SONGS_KEY = 'ukemaster_songs_v1';
@@ -188,8 +189,12 @@ export default function App() {
 
   // Limite diário de intersticiais: monetiza sem destruir a experiência.
   // O usuário vê no máximo 6 anúncios intersticiais por dia (contador em
-  // localStorage por data); depois disso, cifras abrem direto.
+  // localStorage por data); depois disso, cifras abrem direto. Além disso,
+  // há um intervalo mínimo entre dois intersticiais (3 min) para o usuário
+  // conseguir navegar/ler sem ser interrompido a cada ação.
   const adsShownRef = useRef<{ date: string; count: number }>({ date: '', count: 0 });
+  const lastAdAtRef = useRef<number>(0);
+  const MIN_AD_INTERVAL_MS = 3 * 60 * 1000; // 3 minutos entre intersticiais
   const getAdsToday = (): number => {
     const today = new Date().toISOString().slice(0, 10);
     const saved = adsShownRef.current;
@@ -522,10 +527,14 @@ export default function App() {
       genre: song.category || '',
     });
 
-    // Show interstitial ad gate on every 2nd song view attempt — mas com
-    // LIMITE DIÁRIO: depois de N anúncios no dia o restante abre direto,
-    // para não afastar o usuário (equilíbrio receita × experiência).
-    if (nextCount % 2 === 0 && getAdsToday() < ADS_DAILY_LIMIT) {
+    // Show interstitial ad gate on every 6th song view attempt — mas com
+    // LIMITE DIÁRIO + intervalo mínimo: depois de N anúncios no dia (ou se
+    // o último foi há menos de 3 min) o restante abre direto, para não
+    // afastar o usuário (equilíbrio receita × experiência).
+    const now = Date.now();
+    const enoughTime = now - lastAdAtRef.current >= MIN_AD_INTERVAL_MS;
+    if (nextCount % 6 === 0 && getAdsToday() < ADS_DAILY_LIMIT && enoughTime) {
+      lastAdAtRef.current = now;
       bumpAdsToday();
       setPendingSongToView(song);
       setIsAdInterstitialOpen(true);
@@ -542,7 +551,16 @@ export default function App() {
       setPendingSongToView(null);
     }
     setIsAdInterstitialOpen(false);
+    markAdOverlayIdle();
   };
+
+  // Ao abrir o intersticial, avisa o coordenador de anúncios (a vignette
+  // da Monetag espera este overlay fechar antes de abrir — nunca 2 overlays).
+  useEffect(() => {
+    if (isAdInterstitialOpen) {
+      markAdOverlayActive();
+    }
+  }, [isAdInterstitialOpen]);
 
   // Fluxo de cadastro: primeiro captura o lead, depois abre o Clerk
   const handleOpenAuth = (mode?: 'signup' | 'login') => {
