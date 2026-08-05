@@ -1,5 +1,6 @@
 /**
- * Entrada do app (bootstrap): monta o React no DOM, configura Clerk (auth), analytics e o ThemeProvider/estilos globais.
+ * Entrada do app (bootstrap): monta o React no DOM, configura a autenticação
+ * (Supabase direto), analytics e os estilos globais.
  */
 import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
@@ -11,17 +12,12 @@ import './index.css';
 // Analytics (GA4/Plausible) — injeta o script antes do render se houver chave
 initAnalytics();
 
-// Chave pública do Clerk (vem do .env.local / variável de ambiente do Vercel).
-// Aceita os dois padrões de nome: VITE_CLERK_PUBLISHABLE_KEY (Vite) e
-// NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY (padrão Next.js/Clerk).
-// Sem chave, o AuthProvider renderiza o app em "modo visitante" (sem quebrar).
-const PUBLISHABLE_KEY =
-  (import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string | undefined) ||
-  (import.meta.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY as string | undefined);
-
+// A autenticação é feita DIRETO no Supabase (e-mail + senha) usando as mesmas
+// variáveis do banco (VITE_SUPABASE_URL / chave publishable). Sem elas, o app
+// roda em "modo visitante" sem quebrar.
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <AuthProvider publishableKey={PUBLISHABLE_KEY}>
+    <AuthProvider>
       <App />
     </AuthProvider>
   </StrictMode>,

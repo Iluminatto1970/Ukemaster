@@ -4,13 +4,12 @@
 import React, { useState } from 'react';
 import { X, Sparkles, Check, ArrowRight, Phone, Mail, User, PartyPopper } from 'lucide-react';
 import { saveLead, normalizeWhatsApp } from '../lib/leads';
-import { useAuth } from '../auth';
 
 interface LeadCaptureModalProps {
   isOpen: boolean;
   onClose: () => void;
-  /** Chamado após salvar o lead — abre o cadastro real (Clerk). */
-  onComplete: () => void;
+  /** Chamado após salvar o lead — abre o cadastro real (Supabase) com os dados. */
+  onComplete: (lead: { name: string; email: string; whatsapp?: string }) => void;
 }
 
 /**
@@ -32,7 +31,6 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
-  const { available: clerkAvailable } = useAuth();
 
   if (!isOpen) return null;
 
@@ -47,13 +45,12 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
         whatsapp: normalizeWhatsApp(whatsapp),
         source: 'signup',
       });
-      if (clerkAvailable) {
-        onComplete();
-      } else {
-        // Sem Clerk configurado (modo visitante): mostra o sucesso aqui mesmo.
-        setSubmitted(true);
-        setSubmitting(false);
-      }
+      // Repassa os dados para o cadastro real (Supabase) pré-preenchido.
+      onComplete({
+        name: name.trim(),
+        email: email.trim(),
+        whatsapp: normalizeWhatsApp(whatsapp),
+      });
     } catch (err) {
       setError('Não foi possível salvar seus dados. Tente novamente.');
       setSubmitting(false);

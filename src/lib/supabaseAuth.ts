@@ -1,0 +1,243 @@
+/**
+ * Autenticação direta no Supabase (Auth REST) — substitui o Clerk.
+ *
+ * Usa os endpoints /auth/v1 do Supabase GoTrue com a chave anon/publishable:
+ *  - signup:     POST {url}/auth/v1/signup            { email, password, data }
+ *  - login:      POST {url}/auth/v1/token?grant_type=password
+ *  - refresh:    POST {url}/auth/v1/token?grant_type=refresh_token
+ *  - logout:     POST {url}/auth/v1/logout            (Bearer access_token)
+ *  - user:       GET  {url}/auth/v1/user              (Bearer access_token)
+ *
+ * A sessão (access_token + refresh_token + user) fica no localStorage e é
+ * restaurada no bootstrap com refresh automático quando expirada. Sem chave
+ * Supabase configurada, todas as funções retornam null/false — o app segue
+ * em modo visitante (guest), igual ao comportamento anterior do Clerk.
+ */
+import { getSupabase } from './supabase';
+
+export interface SupabaseUser {
+  id: string;
+  email?: string;
+  user_metadata?: { name?: string; whatsapp?: string; [k: string]: unknown };
+  app_metadata?: Record<string, unknown>;
+  created_at?: string;
+}
+
+export interface SupabaseSession {
+  access_token: string;
+  refresh_token: string;
+  expires_at: number; // epoch em SEGUNDOS
+  user: SupabaseUser | null;
+}
+
+const SESSION_KEY = 'ukemaster_supabase_session_v1';
+
+/** Carrega a sessão salva (sem validar). */
+export function loadStoredSession(): SupabaseSession | null {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const s = JSON.parse(raw) as SupabaseSession;
+    return s && s.access_token ? s : null;
+  } catch {
+    return null;
+  }
+}
+
+function storeSession(s: SupabaseSession | null) {
+  try {
+    if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s));
+    else localStorage.removeItem(SESSION_KEY);
+  } catch {
+    // cota cheia/privado — segue sem persistir
+  }
+}
+
+interface GoTrueTokenResponse {
+  access_token: string;
+  refresh_token: string;
+  expires_in?: number;
+  expires_at?: number;
+  token_type?: string;
+  user?: SupabaseUser | null;
+}
+
+function toSession(r: GoTrueTokenResponse): SupabaseSession | null {
+  if (!r.access_token) return null;
+  const expiresAt =
+    r.expires_at && r.expires_at > 0
+      ? r.expires_at
+      : Math.floor(Date.now() / 1000) + (r.expires_in || 3600);
+  return {
+    access_token: r.access_token,
+    refresh_token: r.refresh_token,
+    expires_at: expiresAt,
+    user: r.user || null,
+  };
+}
+
+async function postForm(
+  path: string,
+  body: Record<string, unknown>,
+  headers: Record<string, string> = {}
+): Promise<GoTrueTokenResponse | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const res = await fetch(`${sb.url}${path}`, {
+      method: 'POST',
+      headers: {
+        apikey: sb.anonKey,
+        'Content-Type': 'application/json',
+        ...headers,
+      },
+      body: JSON.stringify(body),
+    });
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : {};
+    if (!res.ok) {
+      // Erro conhecido: expõe a mensagem do Supabase para o usuário.
+      const err = new Error(data?.msg || data?.error_description || data?.message || `Erro ${res.status}`);
+      (err as any).status = res.status;
+      (err as any).code = data?.error_code || data?.code || '';
+      throw err;
+    }
+    return data as GoTrueTokenResponse;
+  } catch (e) {
+    if (e instanceof Error) throw e;
+    return null;
+  }
+}
+
+export interface SignUpMetadata {
+  name?: string;
+  whatsapp?: string;
+}
+
+/**
+ * Cria a conta (e-mail + senha). Se o projeto Supabase tiver "Confirm email"
+ * LIGADO, a resposta vem sem access_token — nesse caso o usuário precisa
+ * confirmar o e-mail antes do primeiro login (comportamento seguro padrão).
+ * Retorna { session } quando a sessão já nasce ativa, ou { needsConfirmation }
+ * quando falta confirmar o e-mail.
+ */
+export async function signUp(
+  email: string,
+  password: string,
+  metadata?: SignUpMetadata
+): Promise<{ session: SupabaseSession | null; needsConfirmation: boolean; message?: string }> {
+  const r = await postForm('/auth/v1/signup', {
+    email,
+    password,
+    data: metadata || {},
+  });
+  if (!r) return { session: null, needsConfirmation: false, message: 'Supabase não configurado.' };
+  const session = toSession(r);
+  if (session) {
+    storeSession(session);
+    return { session, needsConfirmation: false };
+  }
+  // Sem token → conta criada mas aguardando confirmação de e-mail.
+  return {
+    session: null,
+    needsConfirmation: true,
+    message:
+      'Conta criada! Enviamos um link de confirmação para o seu e-mail. Confirme e depois faça login.',
+  };
+}
+
+/** Login com e-mail + senha. Lança erro com mensagem amigável se falhar. */
+export async function signInWithPassword(
+  email: string,
+  password: string
+): Promise<SupabaseSession> {
+  const r = await postForm('/auth/v1/token?grant_type=password', { email, password });
+  if (!r) throw new Error('Supabase não configurado.');
+  const session = toSession(r);
+  if (!session) throw new Error('Não foi possível iniciar a sessão.');
+  storeSession(session);
+  return session;
+}
+
+/** Renova a sessão com o refresh_token (chamado quando expira). */
+export async function refreshSession(session: SupabaseSession): Promise<SupabaseSession | null> {
+  if (!session.refresh_token) return null;
+  const r = await postForm('/auth/v1/token?grant_type=refresh_token', {
+    refresh_token: session.refresh_token,
+  });
+  if (!r || !r.access_token) return null;
+  const next = toSession(r);
+  if (next) storeSession(next);
+  return next;
+}
+
+/** Busca os dados atualizados do usuário com o access_token. */
+export async function fetchUser(accessToken: string): Promise<SupabaseUser | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const res = await fetch(`${sb.url}/auth/v1/user`, {
+      headers: {
+        apikey: sb.anonKey,
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return (data as SupabaseUser) || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Restaura a sessão do localStorage no bootstrap:
+ *  - sem sessão → null (visitante)
+ *  - sessão válida → retorna como está
+ *  - sessão expirada → tenta refresh automático; se falhar, limpa e retorna null
+ */
+export async function restoreSession(): Promise<SupabaseSession | null> {
+  const stored = loadStoredSession();
+  if (!stored) return null;
+  const now = Math.floor(Date.now() / 1000);
+  if (stored.expires_at > now + 60) return stored;
+  const refreshed = await refreshSession(stored);
+  if (refreshed) return refreshed;
+  storeSession(null);
+  return null;
+}
+
+/** Encerra a sessão no servidor e limpa o localStorage. */
+export async function signOutSession(session: SupabaseSession | null): Promise<void> {
+  const sb = getSupabase();
+  if (sb && session?.access_token) {
+    try {
+      await fetch(`${sb.url}/auth/v1/logout`, {
+        method: 'POST',
+        headers: {
+          apikey: sb.anonKey,
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+    } catch {
+      // rede falhou — segue limpando a sessão local de qualquer forma
+    }
+  }
+  storeSession(null);
+}
+
+/** Converte um usuário do Supabase para o AuthUser do app. */
+export function toAuthUser(u: SupabaseUser): {
+  id: string;
+  name: string;
+  email: string;
+} | null {
+  if (!u.id) return null;
+  const email = u.email || '';
+  const meta = u.user_metadata || {};
+  return {
+    id: u.id,
+    name: (meta.name as string) || email.split('@')[0] || 'Músico',
+    email,
+  };
+}

@@ -129,26 +129,25 @@ export default function App() {
     }
   });
 
-  // Autenticação real via Clerk (substitui o login falso em localStorage)
-  const { isSignedIn, user: clerkUser, openSignIn, openSignUp } = useAuth();
+  // Autenticação real via Supabase (e-mail + senha, direto no banco)
+  const { isSignedIn, user, openSignIn, openSignUp } = useAuth();
 
   const currentUser = useMemo(() => {
-    if (!isSignedIn || !clerkUser) return null;
-    const email = clerkUser.primaryEmailAddress?.emailAddress || '';
+    if (!isSignedIn || !user) return null;
     return {
-      name: clerkUser.fullName || clerkUser.username || email.split('@')[0] || 'Músico',
-      email,
+      name: user.name || user.email.split('@')[0] || 'Músico',
+      email: user.email,
     };
-  }, [isSignedIn, clerkUser]);
+  }, [isSignedIn, user]);
 
   // Área ADMIN — visível apenas para o proprietário
   const isAdmin = currentUser?.email?.toLowerCase() === 'iluminatto@gmail.com';
 
   // ── Repertório INDIVIDUAL (cada usuário tem o seu) ───────────────────────
   // As MÚSICAS são públicas para todos; o REPERTÓRIO é chaveado pelo id do
-  // Clerk (visitantes usam uma área "guest" separada). Toggle para torná-lo
-  // público e compartilhar com a comunidade fica no Dashboard.
-  const currentUserId = clerkUser?.id || 'guest';
+  // usuário no Supabase (visitantes usam uma área "guest" separada). Toggle
+  // para torná-lo público e compartilhar com a comunidade fica no Dashboard.
+  const currentUserId = user?.id || 'guest';
 
   const [repertoireSongIds, setRepertoireSongIds] = useState<string[]>([]);
   const [repertoireLoadedFor, setRepertoireLoadedFor] = useState<string>('');
@@ -163,7 +162,7 @@ export default function App() {
 
   // ── Votação (rating): 1 voto por usuário por música ───────────────────────
   const [myVotes, setMyVotes] = useState<Set<string>>(new Set());
-  const voterId = useMemo(() => getVoterId(clerkUser?.id), [clerkUser?.id]);
+  const voterId = useMemo(() => getVoterId(user?.id), [user?.id]);
 
   const [activeTab, setActiveTab] = useState<ActiveTab>('musicas');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -348,14 +347,10 @@ export default function App() {
   useEffect(() => {
     if (repertoirePublicLoadedFor !== currentUserId) return;
     saveRepertoirePublic(currentUserId, isRepertoirePublic);
-    if (isRepertoirePublic && isSignedIn && clerkUser) {
+    if (isRepertoirePublic && isSignedIn && user) {
       setPublicRepertoire(currentUserId, {
         userId: currentUserId,
-        name:
-          clerkUser.fullName ||
-          clerkUser.username ||
-          clerkUser.primaryEmailAddress?.emailAddress?.split('@')[0] ||
-          'Músico',
+        name: user.name || 'Músico',
         songIds: repertoireSongIds,
         updatedAt: new Date().toISOString(),
       });
@@ -367,7 +362,7 @@ export default function App() {
     repertoireSongIds,
     currentUserId,
     isSignedIn,
-    clerkUser,
+    user,
     repertoirePublicLoadedFor,
   ]);
 
@@ -377,11 +372,8 @@ export default function App() {
     if (currentUserId === 'guest') return;
     if (!isSupabaseConfigured()) return;
     const name =
-      isSignedIn && clerkUser
-        ? clerkUser.fullName ||
-          clerkUser.username ||
-          clerkUser.primaryEmailAddress?.emailAddress?.split('@')[0] ||
-          'Músico'
+      isSignedIn && user
+        ? user.name || 'Músico'
         : 'Músico';
     pushRepertoireToCloud(currentUserId, name, repertoireSongIds, isRepertoirePublic);
   }, [
@@ -390,7 +382,7 @@ export default function App() {
     currentUserId,
     repertoireLoadedFor,
     isSignedIn,
-    clerkUser,
+    user,
   ]);
 
   const handleToggleRepertoire = (songId: string) => {
@@ -566,7 +558,7 @@ export default function App() {
     }
   }, [isAdInterstitialOpen]);
 
-  // Fluxo de cadastro: primeiro captura o lead, depois abre o Clerk
+  // Fluxo de cadastro: primeiro captura o lead, depois abre o cadastro Supabase
   const handleOpenAuth = (mode?: 'signup' | 'login') => {
     trackEvent(mode === 'login' ? 'login_start' : 'signup_start');
     if (mode === 'login') {
@@ -576,10 +568,14 @@ export default function App() {
     setIsLeadCaptureOpen(true);
   };
 
-  const handleLeadComplete = () => {
+  const handleLeadComplete = (lead?: { name?: string; email?: string; whatsapp?: string }) => {
     setIsLeadCaptureOpen(false);
     trackEvent('lead_captured');
-    openSignUp();
+    openSignUp({
+      name: lead?.name,
+      email: lead?.email,
+      whatsapp: lead?.whatsapp,
+    });
   };
 
   const handleCreateNewSong = () => {

@@ -1,13 +1,12 @@
 /**
- * Cabeçalho fixo: busca global, logo, botões de apoio/doação, notificações e autenticação (Clerk).
+ * Cabeçalho fixo: busca global, logo, botões de apoio/doação, notificações e autenticação (Supabase direto).
  */
 import React, { useState } from 'react';
 import { ActiveTab } from '../types';
 import { Logo } from './Logo';
 import { DonationModal } from './DonationModal';
-import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from '@clerk/clerk-react';
 import { useAuth } from '../auth';
-import { Search, Menu, Sparkles, Bell, Mail } from 'lucide-react';
+import { Search, Menu, Sparkles, Bell, Mail, LogOut } from 'lucide-react';
 
 interface HeaderProps {
   setActiveTab: (tab: ActiveTab) => void;
@@ -30,7 +29,7 @@ export const Header: React.FC<HeaderProps> = ({
   onCloseDonation,
 }) => {
   const [localDonationOpen, setLocalDonationOpen] = useState(false);
-  const { available, isLoaded, user } = useAuth();
+  const { available, isLoaded, isSignedIn, user, openSignIn, openSignUp, signOut } = useAuth();
 
   // Suporte a ambos: estado interno (fallback) e controlado pelo App
   const isDonationOpen = onOpenDonation ? donationOpen : localDonationOpen;
@@ -102,46 +101,51 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
 
 
-              {/* Autenticação via Clerk (quando disponível e carregada) */}
+              {/* Autenticação direta no Supabase (quando configurado) */}
               {available && isLoaded ? (
-                <>
-                  {/* Visitante: botões de autenticação do Clerk */}
-                  <SignedOut>
-                    <div className="flex items-center gap-1.5">
-                      <SignInButton
-                        mode="modal"
-                        className="px-3 py-1.5 rounded-xl text-xs font-extrabold text-[#1D2D44] hover:bg-slate-100 transition-colors cursor-pointer hidden sm:block"
-                      >
-                        Entrar
-                      </SignInButton>
-                      <SignUpButton
-                        mode="modal"
-                        className="px-3.5 py-1.5 rounded-xl bg-[#F26419] hover:bg-[#D9530D] text-white font-black text-xs tracking-wider uppercase shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
-                      >
-                        <span className="flex items-center gap-1.5">
-                          <Sparkles className="w-3.5 h-3.5" />
-                          <span className="hidden md:inline">Cadastrar Grátis</span>
-                          <span className="md:hidden">Cadastrar</span>
-                        </span>
-                      </SignUpButton>
+                isSignedIn && user ? (
+                  /* Usuário autenticado: nome + avatar com iniciais + sair */
+                  <div className="flex items-center gap-2 pl-2 py-1 pr-1.5 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors">
+                    <div className="w-7 h-7 rounded-full bg-[#0E7C7B] text-white flex items-center justify-center text-[11px] font-black shrink-0">
+                      {(user.name || 'M').slice(0, 1).toUpperCase()}
                     </div>
-                  </SignedOut>
-
-                  {/* Usuário autenticado: nome + perfil do Clerk */}
-                  <SignedIn>
-                    <div className="flex items-center gap-2.5 pl-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors">
-                      <span className="text-right hidden sm:block">
-                        <span className="font-extrabold text-xs text-[#1D2D44] leading-tight block truncate max-w-[110px]">
-                          {displayName}
-                        </span>
-                        <span className="text-[9px] font-bold text-emerald-600 block leading-tight">
-                          Membro Ativo
-                        </span>
+                    <span className="text-right hidden sm:block">
+                      <span className="font-extrabold text-xs text-[#1D2D44] leading-tight block truncate max-w-[110px]">
+                        {displayName}
                       </span>
-                      <UserButton afterSignOutUrl="/" />
-                    </div>
-                  </SignedIn>
-                </>
+                      <span className="text-[9px] font-bold text-emerald-600 block leading-tight">
+                        Membro Ativo
+                      </span>
+                    </span>
+                    <button
+                      onClick={() => signOut()}
+                      title="Sair"
+                      className="p-1.5 rounded-full text-slate-500 hover:text-[#F26419] hover:bg-white transition-colors cursor-pointer"
+                    >
+                      <LogOut className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  /* Visitante: botões Entrar / Cadastrar Grátis */
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => openSignIn()}
+                      className="px-3 py-1.5 rounded-xl text-xs font-extrabold text-[#1D2D44] hover:bg-slate-100 transition-colors cursor-pointer hidden sm:block"
+                    >
+                      Entrar
+                    </button>
+                    <button
+                      onClick={() => openSignUp()}
+                      className="px-3.5 py-1.5 rounded-xl bg-[#F26419] hover:bg-[#D9530D] text-white font-black text-xs tracking-wider uppercase shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span className="hidden md:inline">Cadastrar Grátis</span>
+                        <span className="md:hidden">Cadastrar</span>
+                      </span>
+                    </button>
+                  </div>
+                )
               ) : null}
             </div>
           </div>

@@ -1,34 +1,42 @@
 /**
- * Camada de autenticação: wrapper do Clerk com fallback de sessão local (guest) para o app funcionar sem login; expõe useAuth(), ClerkProvider e utilitários de usuário atual.
- */
-import React, { createContext, useContext } from 'react';
-import { ClerkProvider, useClerk, useUser } from '@clerk/clerk-react';
-
-/**
- * Camada de autenticação do UkeMaster Pro.
+ * Camada de autenticação do UkeMaster Pro — login/cadastro DIRETO no Supabase.
  *
- * Usa o Clerk quando uma chave pública válida está configurada e degrada
- * graciosamente para "modo visitante" quando:
- *  - a chave VITE_CLERK_PUBLISHABLE_KEY está ausente, ou
- *  - a chave é inválida (formato errado / placeholder).
+ * Substitui o Clerk por e-mail + senha nativos do Supabase Auth (REST), sem
+ * dependência externa. A sessão fica no localStorage com refresh automático.
  *
- * Consumo nos componentes: `const { available, isSignedIn, user, openSignIn, ... } = useAuth();`
+ * Quando o Supabase não está configurado, o app degrada para "modo visitante"
+ * (guest) e segue 100% funcional — a mesma garantia do comportamento anterior.
+ *
+ * Consumo nos componentes:
+ *   const { available, isLoaded, isSignedIn, user, openSignIn, openSignUp, signOut } = useAuth();
  */
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { AuthModal, AuthModalMode, SignUpPrefill } from './components/AuthModal';
+import {
+  restoreSession,
+  signInWithPassword,
+  signUp,
+  signOutSession,
+  toAuthUser,
+  SupabaseSession,
+} from './lib/supabaseAuth';
 
 export interface AuthUser {
-  id: string; // id único do Clerk (chaveia dados individuais: repertório, etc.)
+  id: string; // id do usuário no Supabase (chaveia repertório, votos etc.)
   name: string;
   email: string;
 }
 
 interface AuthContextValue {
-  /** true quando o Clerk está ativo (chave válida). */
+  /** true quando o Supabase está configurado (auth disponível). */
   available: boolean;
   isLoaded: boolean;
   isSignedIn: boolean;
   user: AuthUser | null;
+  /** Abre o modal de login. */
   openSignIn: () => void;
-  openSignUp: () => void;
+  /** Abre o modal de cadastro (aceita dados do lead capturado antes). */
+  openSignUp: (prefill?: SignUpPrefill) => void;
   signOut: () => Promise<void>;
 }
 
@@ -44,103 +52,72 @@ const AuthContext = createContext<AuthContextValue>({
 
 export const useAuth = () => useContext(AuthContext);
 
-// Modo visitante (sem Clerk): autenticação desligada, app segue funcionando.
-const guestAuth: AuthContextValue = {
-  available: false,
-  isLoaded: true,
-  isSignedIn: false,
-  user: null,
-  openSignIn: () => {},
-  openSignUp: () => {},
-  signOut: async () => {},
-};
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [session, setSession] = useState<SupabaseSession | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [modalMode, setModalMode] = useState<AuthModalMode | null>(null);
+  const [signUpPrefill, setSignUpPrefill] = useState<SignUpPrefill | undefined>(undefined);
 
-const GuestMode: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <AuthContext.Provider value={guestAuth}>{children}</AuthContext.Provider>
-);
+  // Restaura a sessão do localStorage no bootstrap (com refresh automático).
+  useEffect(() => {
+    let cancelled = false;
+    restoreSession().then((s) => {
+      if (cancelled) return;
+      setSession(s);
+      setIsLoaded(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-// Ponte: dentro do ClerkProvider, alimenta o AuthContext com os dados reais.
-const ClerkBridge: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isLoaded, isSignedIn, user } = useUser();
-  const { openSignIn, openSignUp, signOut } = useClerk();
+  const user = session?.user ? toAuthUser(session.user) : null;
+
+  const openSignIn = useCallback(() => {
+    setSignUpPrefill(undefined);
+    setModalMode('signin');
+  }, []);
+
+  const openSignUp = useCallback((prefill?: SignUpPrefill) => {
+    setSignUpPrefill(prefill);
+    setModalMode('signup');
+  }, []);
+
+  const closeModal = useCallback(() => setModalMode(null), []);
+
+  const handleAuthenticated = useCallback((s: SupabaseSession) => {
+    setSession(s);
+    setModalMode(null);
+  }, []);
+
+  const handleSignOut = useCallback(async () => {
+    await signOutSession(session);
+    setSession(null);
+  }, [session]);
 
   const value: AuthContextValue = {
     available: true,
     isLoaded,
-    isSignedIn,
-    user:
-      isSignedIn && user
-        ? {
-            id: user.id,
-            name:
-              user.fullName ||
-              user.username ||
-              user.primaryEmailAddress?.emailAddress?.split('@')[0] ||
-              'Músico',
-            email: user.primaryEmailAddress?.emailAddress || '',
-          }
-        : null,
+    isSignedIn: !!user,
+    user,
     openSignIn,
     openSignUp,
-    signOut,
+    signOut: handleSignOut,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-/**
- * Validação leve da chave pública do Clerk: apenas o prefixo estável
- * (`pk_test_` / `pk_live_`). NÃO decodificamos o payload — chaves reais usam
- * base64url e uma checagem manual poderia rejeitar uma chave válida e
- * desativar a autenticação silenciosamente.
- *
- * Chaves que passem aqui mas sejam inválidas em runtime são capturadas pelo
- * ClerkErrorBoundary, que degrada para o modo visitante sem quebrar o app.
- */
-function isValidClerkKey(key?: string): boolean {
-  return !!key && (key.startsWith('pk_test_') || key.startsWith('pk_live_'));
-}
-
-interface ClerkErrorBoundaryProps {
-  fallback: React.ReactNode;
-  children: React.ReactNode;
-}
-
-// Rede de segurança: se o ClerkProvider lançar erro em runtime (ex.: chave que
-// passa na nossa validação leve mas é rejeitada pelo Clerk), o app cai para o
-// modo visitante em vez de quebrar com página em branco.
-class ClerkErrorBoundary extends React.Component<ClerkErrorBoundaryProps, { hasError: boolean }> {
-  props: ClerkErrorBoundaryProps;
-  state: { hasError: boolean };
-
-  constructor(props: ClerkErrorBoundaryProps) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-
-  render() {
-    if (this.state.hasError) return this.props.fallback;
-    return this.props.children;
-  }
-}
-
-export const AuthProvider: React.FC<{ publishableKey?: string; children: React.ReactNode }> = ({
-  publishableKey,
-  children,
-}) => {
-  if (!isValidClerkKey(publishableKey)) {
-    return <GuestMode>{children}</GuestMode>;
-  }
-
   return (
-    <ClerkErrorBoundary fallback={<GuestMode>{children}</GuestMode>}>
-      <ClerkProvider publishableKey={publishableKey as string} afterSignOutUrl="/">
-        <ClerkBridge>{children}</ClerkBridge>
-      </ClerkProvider>
-    </ClerkErrorBoundary>
+    <AuthContext.Provider value={value}>
+      {children}
+      <AuthModal
+        isOpen={modalMode !== null}
+        mode={modalMode || 'signin'}
+        prefill={signUpPrefill}
+        onClose={closeModal}
+        onAuthenticated={handleAuthenticated}
+      />
+    </AuthContext.Provider>
   );
 };
+
+// Re-exporta as funções de auth do Supabase para quem precisar chamar direto.
+export { signInWithPassword, signUp };
