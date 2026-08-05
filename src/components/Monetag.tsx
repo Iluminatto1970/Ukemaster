@@ -1,21 +1,23 @@
 /**
- * Injeção dos scripts Monetag no <head>.
+ * Monetag — apenas VIGNETTE ativa (2026-08, meio-termo após feedbacks).
  *
  * ─────────────────────────────────────────────────────────────────────────
- * ESTRATÉGIA FINAL (revisada 2026-08, após feedbacks de UX):
+ * O QUE FICA LIGADO:
+ *   - VIGNETTE (zona 11510035): overlay de tela cheia por IMPRESSÃO.
+ *     Ela NÃO intercepta cliques (diferente dos popunders): o usuário
+ *     navega normalmente e a vignette abre por cima quando o Monetag
+ *     dispara. Injetada só após 90s de sessão para não incomodar a
+ *     entrada, e espera o intersticial do app fechar (nunca 2 overlays).
  *
- * O usuário relatou que a navegação ficava travada porque "tudo que clica
- * abria anúncio". Causa raiz: TODAS as tags da Monetag do tipo
- * `tag.min.js` / `ntfc.php` são POPUNDER — interceptam o clique e abrem
- * novas abas/janelas. Mesmo "in-page", elas sequestram a interação.
+ * O QUE FICA DESLIGADO (sequestravam cliques — "qualquer clique abre
+ * anúncio"):
+ *   - PUSH (ntfc.php): popup de permissão + popunder.
+ *   - TAGS in-page (nap5k/quge5 tag.min.js): popunder, abriam nova aba
+ *     a cada interação.
  *
- * Portanto, da Monetag mantemos APENAS a VIGNETTE (overlay tela cheia),
- * injetada só após 60s de sessão e nunca sobreposta ao intersticial do
- * app. Ela monetiza por impressão sem travar a navegação. Os popunders
- * (push, nap5k, quge5) ficam DESATIVADOS de vez.
- *
- * A receita de banner fica com o Google AdSense (in-page, não abre nada)
- * + intersticial próprio espaçado (a cada 6ª música, máx 6/dia).
+ * Receita adicional que NÃO abre nada: Google AdSense (banners), sticky
+ * bottom (mobile, fechável), intersticial próprio (a cada 6ª música,
+ * máx 6/dia) e banner APOIA.se (sempre visível).
  * ─────────────────────────────────────────────────────────────────────────
  */
 import React, { useEffect } from 'react';
@@ -41,11 +43,9 @@ export const Monetag: React.FC = () => {
       document.head.appendChild(script);
     };
 
-    // Única tag Monetag ativa: VIGNETTE (zona 11510035).
-    // Injeta o script só após 60s de sessão, e espera o overlay do app
-    // (intersticial) fechar para nunca abrir dois ao mesmo tempo.
-    // O timing interno de reexibição é do próprio Monetag
-    // (configurável no painel: frequency capping).
+    // Única tag Monetag: VIGNETTE — após 90s de sessão e nunca sobreposta
+    // ao intersticial do app. O timing interno de reexibição é do Monetag
+    // (configurável no painel: frequency capping — recomendo 1 por visita).
     const vignetteTimer = window.setTimeout(() => {
       if (document.getElementById('monetag-vignette-script')) return;
       const injectVignette = () => {
@@ -54,7 +54,6 @@ export const Monetag: React.FC = () => {
           'data-zone': MONETAG_VIGNETTE.zone,
         });
       };
-      // Se o intersticial do app estiver aberto, espera liberar.
       if (isAdOverlayBusy()) {
         const off = onAdOverlayChange(() => {
           if (!isAdOverlayBusy()) {
@@ -65,12 +64,7 @@ export const Monetag: React.FC = () => {
       } else {
         injectVignette();
       }
-    }, 60000);
-
-    // ── DESATIVADOS (eram POPUNDER — abriam abas a cada clique) ────────
-    // - MONETAG_SCRIPT_URL (push, ntfc.php)
-    // - MONETAG_TAG_NAP5K (tag.min.js, zona 11510029)
-    // - MONETAG_TAG_QUGE5 (tag.min.js, zona 267181)
+    }, 90000);
 
     return () => window.clearTimeout(vignetteTimer);
   }, []);
