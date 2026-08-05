@@ -11,6 +11,10 @@ interface HeaderProps {
   onToggleMobileSidebar?: () => void;
   searchQuery?: string;
   setSearchQuery?: (query: string) => void;
+  /** Estado do modal de doação controlado pelo App (disparo automático). */
+  donationOpen?: boolean;
+  onOpenDonation?: () => void;
+  onCloseDonation?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -18,9 +22,17 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleMobileSidebar,
   searchQuery = '',
   setSearchQuery,
+  donationOpen = false,
+  onOpenDonation,
+  onCloseDonation,
 }) => {
-  const [donationOpen, setDonationOpen] = useState(false);
+  const [localDonationOpen, setLocalDonationOpen] = useState(false);
   const { available, isLoaded, user } = useAuth();
+
+  // Suporte a ambos: estado interno (fallback) e controlado pelo App
+  const isDonationOpen = onOpenDonation ? donationOpen : localDonationOpen;
+  const openDonation = () => (onOpenDonation ? onOpenDonation() : setLocalDonationOpen(true));
+  const closeDonation = () => (onCloseDonation ? onCloseDonation() : setLocalDonationOpen(false));
 
   const displayName = user?.name || 'Músico';
 
@@ -68,8 +80,8 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 order-2 sm:order-3 ml-auto sm:ml-0">
               {/* Envelope (Apoio — visível também no mobile) */}
               <button
-                onClick={() => setDonationOpen(true)}
-                title="Apoiar o projeto"
+                onClick={openDonation}
+                title="Apoiar o projeto — doação ou ver um anúncio"
                 className="flex p-2 rounded-xl text-[#1D2D44] hover:text-[#0E7C7B] hover:bg-slate-100 transition-colors cursor-pointer"
               >
                 <Mail className="w-5 h-5" />
@@ -132,7 +144,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
       </header>
-      <DonationModal isOpen={donationOpen} onClose={() => setDonationOpen(false)} />
+      <DonationModal isOpen={isDonationOpen} onClose={closeDonation} />
     </>
   );
 };

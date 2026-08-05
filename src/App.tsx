@@ -174,6 +174,11 @@ export default function App() {
   // Import Monetag and SupportPrompt
   const [songOpenCount, setSongOpenCount] = useState<number>(0);
 
+  // Modal de doação (APOIA.se + Pix) — abre no botão do header e, 1x por
+  // sessão, automaticamente após a 4ª música aberta (conversão sem irritar).
+  const [donationOpen, setDonationOpen] = useState<boolean>(false);
+  const donationShownRef = useRef(false);
+
   // Sync state to localStorage — versão ENXUTA: com o acervo de 3.000+ cifras
   // completas o JSON estouraria a cota de ~5MB do localStorage, então o cache
   // local guarda só os metadados (id, título, artista, tom...). O conteúdo
@@ -456,6 +461,15 @@ export default function App() {
     const nextCount = songOpenCount + 1;
     setSongOpenCount(nextCount);
 
+    // Convite automático de apoio (1x por sessão). Dispara só quando o
+    // intersticial de anúncio NÃO abre nesta abertura (aberturas ímpares) —
+    // evita dois modais sobrepostos (doação por cima do anúncio).
+    if (nextCount >= 4 && nextCount % 2 !== 0 && !donationShownRef.current) {
+      donationShownRef.current = true;
+      // Pequeno atraso para o usuário já estar lendo a cifra.
+      window.setTimeout(() => setDonationOpen(true), 4500);
+    }
+
     // URL compartilhável da cifra (a Vercel serve a SPA; crawlers recebem
     // o prerender via api/musica.ts)
     if (window.location.pathname !== `/musica/${song.id}`) {
@@ -672,6 +686,9 @@ export default function App() {
           }
         }}
         onToggleMobileSidebar={() => setIsMobileSidebarOpen((prev) => !prev)}
+        donationOpen={donationOpen}
+        onOpenDonation={() => setDonationOpen(true)}
+        onCloseDonation={() => setDonationOpen(false)}
         searchQuery={searchQuery}
         setSearchQuery={(q) => {
           setSearchQuery(q);

@@ -13,6 +13,13 @@
 
 ---
 
+## ✅ Estado atual (2026-08-05 — após deploy 7294b71)
+
+- **Reparo do acervo**: vazias caíram de 3987 → **514** (cron `--repair` no acer a cada 30min; segue rodando).
+- **Bugs corrigidos**: catálogo `/musicas.html` (bug de profundidade), dedupe upsert (erro 21000), preservação de metadados no repair, Chitãozinho restaurado (398 músicas), Tom Jobim re-importado (119).
+- **Monetização**: AdSenseSlot real, intersticial 10s, sticky mobile, 3 novas zonas Monetag (11510035, 11510029, 267181).
+- **UX**: HOME, ESTUDO DE RITMOS, exclusão só admin (iluminatto@gmail.com), enviar/importar só logado, CONFIGURAÇÕES removido.
+
 ## 🔴 TRABALHO EM ANDAMENTO (sessão atual)
 
 ### Incidente: acervo inteiro com `content` vazio (CRÍTICO)
