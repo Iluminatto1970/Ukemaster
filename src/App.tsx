@@ -531,10 +531,10 @@ export default function App() {
       genre: song.category || '',
     });
 
-    // Show interstitial ad gate on every 6th song view attempt — mas com
+    // Show interstitial ad gate on every 6th song view attempt — meio termo
+    // (nem a cada 2 páginas, que irrita, nem tão raro que some a receita).
     // LIMITE DIÁRIO + intervalo mínimo: depois de N anúncios no dia (ou se
-    // o último foi há menos de 3 min) o restante abre direto, para não
-    // afastar o usuário (equilíbrio receita × experiência).
+    // o último foi há menos de 3 min) o restante abre direto.
     const now = Date.now();
     const enoughTime = now - lastAdAtRef.current >= MIN_AD_INTERVAL_MS;
     if (nextCount % 6 === 0 && getAdsToday() < ADS_DAILY_LIMIT && enoughTime) {
