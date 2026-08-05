@@ -31,6 +31,43 @@ export interface SongParsedLine {
 // Regex matching valid musical chord names
 const SINGLE_CHORD_REGEX = /^[A-G][#b]?(m|maj|min|dim|aug|sus|add|7|9|11|13|6|5|4|2|M|\+|-|\/)*$/i;
 
+/**
+ * Divide um acorde com baixo invertido (slash chord) em base + baixo.
+ * Ex.: "Dm/C" → { base: 'Dm', bass: 'C' }; "G/B" → { base: 'G', bass: 'B' }.
+ *
+ * Regras da teoria musical: em "X/Y", Y é a nota mais grave (baixo).
+ * No ukulele, quando o diagrama do acorde completo não existe, a
+ * simplificação padrão é tocar apenas a BASE (X) — o baixo invertido é
+ * uma nuance de acompanhamento, não muda a mão do acorde na maioria dos
+ * casos práticos.
+ */
+export function splitSlashChord(chordName: string): {
+  base: string;
+  bass?: string;
+} {
+  if (!chordName) return { base: chordName || '' };
+  const clean = chordName.trim();
+  const idx = clean.lastIndexOf('/');
+  if (idx <= 0) return { base: clean };
+  const base = clean.slice(0, idx).trim();
+  const bass = clean.slice(idx + 1).trim();
+  // Só trata como slash chord se a base for um acorde válido (raiz + qualidade)
+  // e o baixo for uma nota simples (ex.: C, C#, Db) — evita falsos positivos.
+  if (/^[A-G][#b]?/.test(base) && /^[A-G][#b]?$/.test(bass)) {
+    return { base, bass };
+  }
+  return { base: clean };
+}
+
+/**
+ * Simplifica um acorde com baixo invertido para a base.
+ * Ex.: "Dm/C" → "Dm"; "G/C" → "G"; "F/C" → "F"; "G/B" → "G".
+ * Se não for slash chord, retorna o próprio nome.
+ */
+export function simplifySlashChord(chordName: string): string {
+  return splitSlashChord(chordName).base;
+}
+
 export function isChordToken(token: string): boolean {
   if (!token) return false;
   const cleaned = token.replace(/[\(\)\[\]\{\},]/g, '').trim();

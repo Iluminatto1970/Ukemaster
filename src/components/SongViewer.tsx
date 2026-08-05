@@ -3,7 +3,12 @@
  */
 import React, { useState, useEffect, useRef } from 'react';
 import { Song } from '../types';
-import { parseChordPro, extractUniqueChords, extractYouTubeId } from '../utils/chordUtils';
+import {
+  parseChordPro,
+  extractUniqueChords,
+  extractYouTubeId,
+  splitSlashChord,
+} from '../utils/chordUtils';
 import { useSongSeo } from '../hooks/useSongSeo';
 import { findChord } from '../data/chords';
 import { ChordDiagram } from './ChordDiagram';
@@ -216,7 +221,24 @@ export const SongViewer: React.FC<SongViewerProps> = ({
     return groupedRenderItems.some((item) => item.type === 'tab');
   }, [groupedRenderItems]);
 
-  const modalChordDef = selectedChordModal ? findChord(selectedChordModal) : null;
+  // Resolve acordes com baixo invertido (slash chord): se o diagrama exato
+  // (ex.: "Dm/C") não existir no dicionário, simplifica para a base pela
+  // teoria musical (ex.: "Dm") e avisa com a flag `simplified` para exibir
+  // a legenda "tocar como Dm" ao lado do diagrama.
+  const resolveChordForDisplay = (chordName: string) => {
+    const direct = findChord(chordName);
+    if (direct) return { name: chordName, def: direct, simplified: false };
+    const { base } = splitSlashChord(chordName);
+    if (base !== chordName) {
+      const def = findChord(base);
+      if (def) return { name: chordName, def, simplified: true };
+    }
+    return { name: chordName, def: undefined, simplified: false };
+  };
+
+  const modalChordDef = selectedChordModal
+    ? resolveChordForDisplay(selectedChordModal)
+    : null;
 
   return (
     <div className="space-y-6 text-slate-900">
@@ -495,8 +517,8 @@ export const SongViewer: React.FC<SongViewerProps> = ({
             </span>
             <div className="flex flex-wrap gap-3 overflow-x-auto pb-2">
               {uniqueChords.map((chordName) => {
-                const chordDef = findChord(chordName);
-                if (!chordDef) {
+                const resolved = resolveChordForDisplay(chordName);
+                if (!resolved.def) {
                   return (
                     <div
                       key={chordName}
@@ -513,12 +535,18 @@ export const SongViewer: React.FC<SongViewerProps> = ({
                     key={chordName}
                     onClick={() => setSelectedChordModal(chordName)}
                     className="cursor-pointer transform transition-transform hover:scale-105"
+                    title={resolved.simplified ? `Sem diagrama de ${chordName}; toque como ${resolved.def.name}` : undefined}
                   >
                     <ChordDiagram
                       chordName={chordName}
-                      fingering={chordDef.fingerings[0]}
+                      fingering={resolved.def.fingerings[0]}
                       size="sm"
                     />
+                    {resolved.simplified && (
+                      <p className="text-[10px] text-center mt-0.5 text-[#0E7C7B] font-bold">
+                        toque como {resolved.def.name}
+                      </p>
+                    )}
                   </div>
                 );
               })}
@@ -579,9 +607,9 @@ export const SongViewer: React.FC<SongViewerProps> = ({
                           {token.chord ? (
                             <button
                               onClick={() => {
-                                const chordDef = findChord(token.chord!);
-                                if (chordDef) {
-                                  playUkuleleChord(chordDef.fingerings[0].frets);
+                                const resolved = resolveChordForDisplay(token.chord!);
+                                if (resolved.def) {
+                                  playUkuleleChord(resolved.def.fingerings[0].frets);
                                 }
                                 setSelectedChordModal(token.chord!);
                               }}
@@ -658,15 +686,22 @@ export const SongViewer: React.FC<SongViewerProps> = ({
 
             {modalChordDef ? (
               <div className="space-y-4">
+                {modalChordDef.simplified && (
+                  <p className="text-xs text-[#0E7C7B] font-bold bg-[#0E7C7B]/5 border border-[#0E7C7B]/15 rounded-xl px-3 py-2">
+                    Não há diagrama específico de <span className="font-mono">{selectedChordModal}</span>.
+                    Pela teoria musical, toque como <span className="font-mono font-black">{modalChordDef.def.name}</span>
+                    (o baixo invertido não muda a mão do acorde no ukulele).
+                  </p>
+                )}
                 <div className="flex justify-center py-2">
                   <ChordDiagram
-                    chordName={modalChordDef.name}
-                    fingering={modalChordDef.fingerings[0]}
+                    chordName={selectedChordModal || ''}
+                    fingering={modalChordDef.def.fingerings[0]}
                     size="lg"
                   />
                 </div>
                 <button
-                  onClick={() => playUkuleleChord(modalChordDef.fingerings[0].frets)}
+                  onClick={() => playUkuleleChord(modalChordDef.def.fingerings[0].frets)}
                   className="w-full py-3 rounded-xl bg-[#0E7C7B] hover:bg-[#0A5F5E] text-white font-extrabold text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-[#0E7C7B]/20"
                 >
                   <Volume2 className="w-4 h-4" /> Tocar Som
