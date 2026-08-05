@@ -362,6 +362,40 @@ function normalize(s: string): string {
 
 const songKey = (s: { title: string; artist: string }) => normalize(`${s.title}|${s.artist}`);
 
+/**
+ * Match flexível de título para o modo REPARO.
+ *
+ * O scraper original (do incidente) gravou títulos sujos tipo "Coldplay\n42"
+ * (artista embutido no título). A chave exata normalize(título|artista) então
+ * NÃO bate com a cifra limpa que o scraper atual produz ("42") — e o repair
+ * acabava criando uma linha NOVA em vez de preencher a existente, gerando
+ * duplicatas. Aqui comparamos com tolerância: remove o nome do artista do
+ * início do título do banco antes de comparar, e aceita contenção mútua.
+ */
+function flexibleTitleMatch(scraperTitle: string, scraperArtist: string, dbTitle: string): boolean {
+  const t1 = normalize(scraperTitle);
+  const t2 = normalize(dbTitle);
+  if (!t1 || !t2) return false;
+  if (t1 === t2) return true;
+  // Remove nome do artista repetido no início do título do banco (lixo do incidente)
+  const art = normalize(scraperArtist);
+  let t2clean = t2;
+  if (art && t2.startsWith(art) && t2.length > art.length) {
+    t2clean = t2.slice(art.length);
+  }
+  if (!t2clean) return false;
+  if (t1 === t2clean) return true;
+  // Aceita contenção mútua com um mínimo de caracteres (evita falso-positivo tipo "42" vs "402")
+  const a = t1.length >= 4 ? t1 : '';
+  const b = t2clean.length >= 4 ? t2clean : '';
+  if (a && b && (a.includes(b) || b.includes(a))) return true;
+  // Título curto (ex.: "42"): só casa se um terminar com o outro após remover artista
+  if (t1.length < 4 || t2clean.length < 4) {
+    return t2clean.endsWith(t1) || t1.endsWith(t2clean);
+  }
+  return false;
+}
+
 /** Constrói a fila de artistas a partir das plataformas habilitadas. */
 function buildArtistQueue(): ArtistJob[] {
   const queue: ArtistJob[] = [];
@@ -432,9 +466,21 @@ export async function runPlatformCron(options: PlatformCronOptions = {}): Promis
   // Lenha / No Rancho Fundo (Pot-Pourri)" vs slug "Obras de Poeta") — no
   // repair preservamos título/artista do banco e só atualizamos o conteúdo.
   const emptyContentById = new Map<string, { id: string; title: string; artist: string }>();
+  // Índice secundário por ARTISTA normalizado: usado quando a chave exata
+  // (título|artista) não bate por causa de títulos sujos no banco (ex.:
+  // "Coldplay\n42"). O repair então casa por artista + match flexível de
+  // título, atualizando a linha EXISTENTE em vez de criar duplicata.
+  const emptyByArtist = new Map<string, { id: string; title: string; artist: string }[]>();
   if (options.repairContent && hasDb) {
     const emptyRows = await fetchEmptyContentSongs(sb.url, sb.key);
-    emptyRows.forEach((r) => emptyContentById.set(songKey(r), r));
+    emptyRows.forEach((r) => {
+      emptyContentById.set(songKey(r), r);
+      const a = normalize(r.artist);
+      if (!a) return;
+      const list = emptyByArtist.get(a) || [];
+      list.push(r);
+      emptyByArtist.set(a, list);
+    });
   }
 
   // Modo manual: fila só com o solicitado
@@ -514,13 +560,29 @@ export async function runPlatformCron(options: PlatformCronOptions = {}): Promis
       // comando inteiro (21000: ON CONFLICT DO UPDATE cannot affect row a
       // second time) e nenhuma música seria salva nesta rodada.
       const seenThisArtist = new Set<string>();
+      // Ids já agendados para reparo nesta rodada (impede o mesmo id aparecer
+      // duas vezes no upsert — Postgres rejeitaria o lote com 21000).
+      const repairedIdsThisArtist = new Set<string>();
       for (const s of songs) {
         if (isJunkArtistName(s.artist) || isJunkTitle(s.title)) continue;
         const k = songKey(s);
         if (seenThisArtist.has(k)) continue;
         seenThisArtist.add(k);
-        const existing = emptyContentById.get(k);
+        let existing = emptyContentById.get(k);
+        if (!existing) {
+          // Chave exata não bateu → tenta artista + match flexível de título.
+          // Cobre títulos sujos do incidente ("Coldplay\n42" vs "42").
+          const art = normalize(s.artist);
+          const candidates = art ? emptyByArtist.get(art) || [] : [];
+          existing = candidates.find(
+            (c) =>
+              !repairedIdsThisArtist.has(c.id) &&
+              flexibleTitleMatch(s.title, s.artist, c.title)
+          );
+        }
         if (existing) {
+          if (repairedIdsThisArtist.has(existing.id)) continue;
+          repairedIdsThisArtist.add(existing.id);
           // Preserva metadados ORIGINAIS do banco (título/artista podem ser
           // mais ricos que os do scraper) — só o conteúdo é atualizado.
           repairs.push({ ...s, id: existing.id, title: existing.title, artist: existing.artist });
@@ -537,6 +599,12 @@ export async function runPlatformCron(options: PlatformCronOptions = {}): Promis
           repairs.forEach((s) => {
             existingKeys.add(songKey(s));
             emptyContentById.delete(songKey(s));
+            // limpa também o índice por artista (não reparar de novo)
+            const a = normalize(s.artist);
+            if (a) {
+              const list = emptyByArtist.get(a);
+              if (list) emptyByArtist.set(a, list.filter((c) => c.id !== s.id));
+            }
           });
           entry.repaired = repairs.length;
         } else {
