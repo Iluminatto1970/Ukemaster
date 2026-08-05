@@ -38,6 +38,8 @@ interface SongViewerProps {
   onEdit: (song: Song) => void;
   onAddToPlaylist?: (song: Song) => void;
   onDelete?: (songId: string) => void;
+  /** Só o admin (iluminatto@gmail.com) pode excluir músicas do acervo. */
+  isAdmin?: boolean;
   currentUser?: { name: string; email: string } | null;
   isInRepertoire?: boolean;
   onToggleRepertoire?: () => void;
@@ -52,6 +54,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   onEdit,
   onAddToPlaylist,
   onDelete,
+  isAdmin = false,
   currentUser,
   isInRepertoire = false,
   onToggleRepertoire,
@@ -306,7 +309,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
             <Edit3 className="w-4 h-4" /> Editar Cifra
           </button>
 
-          {onDelete && (
+          {onDelete && isAdmin && (
             <button
               onClick={() => setShowDeleteModal(true)}
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 text-rose-600 border border-slate-200 hover:border-rose-300 hover:bg-rose-50 transition-colors cursor-pointer"
@@ -403,6 +406,8 @@ export const SongViewer: React.FC<SongViewerProps> = ({
                 <Plus className="w-3.5 h-3.5" />
               </button>
             </div>
+          </div>
+
             {/* Auto-Scroll Control */}
           <div className="bg-slate-100/80 border border-slate-200 rounded-xl p-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -711,7 +716,6 @@ export const SongViewer: React.FC<SongViewerProps> = ({
           </div>
         </div>
       )}
-    </div>
     </div>
   );
 };

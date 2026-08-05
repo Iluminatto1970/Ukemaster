@@ -179,17 +179,25 @@ export async function fetchSongsFromCloud(): Promise<Song[] | null> {
 /**
  * Envia o acervo local para a nuvem (UPSERT only — nunca deleta).
  *
- * IMPORTANTE: o acervo é PÚBLICO e alimentado por vários clientes (app + cron
- * de plataformas). Apagar músicas que "sumiram" da lista local seria
- * destrutivo: a API limita leituras a 1000 linhas, então um usuário com a
- * página local incompleta apagaria o acervo inteiro da nuvem.
+ * IMPORTANTE — 2 regras de segurança (aprendidas com incidente real):
+ * 1) NUNCA envia música sem `content`. O cache local (localStorage) guarda
+ *    as músicas SEM conteúdo de propósito (cota de ~5MB), e o upsert com
+ *    `content: null` SOBRESCREVERIA o acervo inteiro da nuvem com cifras
+ *    vazias quando o fetch inicial falha (o app roda com dados locais).
+ * 2) UPSERT only — nunca deleta: o acervo é PÚBLICO e alimentado por vários
+ *    clientes (app + cron de plataformas); a API limita leituras a 1000
+ *    linhas e um cliente com a lista local incompleta apagaria a nuvem.
  */
 export async function pushSongsToCloud(songs: Song[]): Promise<boolean> {
   if (!isSupabaseConfigured()) return false;
+  // Só sobe músicas com conteúdo REAL (criadas/editadas no app ou vindas da
+  // nuvem). Músicas sem content = cache local enxuto — ignorar evita apagar
+  // o acervo compartilhado quando a nuvem não pôde ser lida.
+  const withContent = songs.filter((s) => (s.content || '').trim().length > 0);
   // Se a coluna votes ainda não existe (schema não migrado), envia sem ela
   // para o push não quebrar — o voto volta a funcionar após a migração.
   const hasVotes = await checkVotesColumn();
-  const rows = songs.map((s) => (hasVotes ? songToRow(s) : songToRowWithoutVotes(s)));
+  const rows = withContent.map((s) => (hasVotes ? songToRow(s) : songToRowWithoutVotes(s)));
   // Chunked: com 3.000+ músicas o corpo do POST único passaria do limite
   // aceito pela API — divide em lotes de 400.
   return upsertRowsChunked('songs', rows);

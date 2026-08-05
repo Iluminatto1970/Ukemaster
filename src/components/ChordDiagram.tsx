@@ -6,7 +6,7 @@ import { Volume2 } from 'lucide-react';
 interface ChordDiagramProps {
   chordName: string;
   fingering: ChordFingering;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'xs' | 'sm' | 'md' | 'lg';
   showPlayButton?: boolean;
   className?: string;
 }
@@ -22,6 +22,7 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({
 
   // Dimensions based on size
   const dimensions = {
+    xs: { width: 76, height: 96, padding: 12, fontSize: 9 },
     sm: { width: 100, height: 130, padding: 16, fontSize: 11 },
     md: { width: 140, height: 180, padding: 20, fontSize: 13 },
     lg: { width: 190, height: 240, padding: 26, fontSize: 16 },
@@ -181,7 +182,7 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({
               <circle
                 cx={x}
                 cy={y}
-                r={size === 'sm' ? 8 : size === 'md' ? 10 : 12}
+                r={size === 'xs' ? 6 : size === 'sm' ? 8 : size === 'md' ? 10 : 12}
                 fill="#1D2D44"
                 stroke="#F26419"
                 strokeWidth={1.5}
@@ -190,9 +191,9 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({
               {fingerNum > 0 && (
                 <text
                   x={x}
-                  y={y + (size === 'sm' ? 3 : 4)}
+                  y={y + (size === 'xs' ? 2.5 : size === 'sm' ? 3 : 4)}
                   fill="#ffffff"
-                  fontSize={size === 'sm' ? 9 : 11}
+                  fontSize={size === 'xs' ? 7 : size === 'sm' ? 9 : 11}
                   fontWeight="bold"
                   textAnchor="middle"
                 >

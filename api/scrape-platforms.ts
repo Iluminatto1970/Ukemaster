@@ -9,7 +9,9 @@
  * Retorna { ok, ranAt, results: [...], totalImported, ... }.
  */
 
-import { runPlatformCron } from '../src/lib/platformCron';
+// Extensão .ts explícita: sem ela a Vercel (ESM) não resolve o módulo em
+// runtime (ERR_MODULE_NOT_FOUND). O tsconfig tem allowImportingTsExtensions.
+import { runPlatformCron } from '../src/lib/platformCron.ts';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
 export const maxDuration = 60;

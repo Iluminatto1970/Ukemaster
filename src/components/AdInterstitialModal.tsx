@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AdSenseSlot } from './AdSenseSlot';
-import { X, Sparkles, Clock, Music, ExternalLink, ArrowRight } from 'lucide-react';
+import { Sparkles, Clock, Music, ArrowRight } from 'lucide-react';
 
 interface AdInterstitialModalProps {
   isOpen: boolean;
@@ -9,23 +9,30 @@ interface AdInterstitialModalProps {
   artist?: string;
 }
 
+/**
+ * Tempo mínimo de permanência (segundos) para que a impressão do anúncio
+ * seja contabilizada e o usuário tenha chance real de clicar. Aumenta a
+ * receita por sessão (eCPM/cliques) sem tornar o portal pago.
+ */
+const MIN_WATCH_SECONDS = 10;
+
 export const AdInterstitialModal: React.FC<AdInterstitialModalProps> = ({
   isOpen,
   onComplete,
   title,
   artist,
 }) => {
-  const [countdown, setCountdown] = useState(3);
+  const [countdown, setCountdown] = useState(MIN_WATCH_SECONDS);
   const [canSkip, setCanSkip] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
-      setCountdown(3);
+      setCountdown(MIN_WATCH_SECONDS);
       setCanSkip(false);
       return;
     }
 
-    setCountdown(3);
+    setCountdown(MIN_WATCH_SECONDS);
     setCanSkip(false);
 
     const timer = setInterval(() => {
@@ -68,7 +75,7 @@ export const AdInterstitialModal: React.FC<AdInterstitialModalProps> = ({
           ) : (
             <div className="flex items-center gap-1.5 text-xs text-teal-200 font-bold bg-white/10 px-2.5 py-1 rounded-full">
               <Clock className="w-3.5 h-3.5 animate-spin" />
-              <span>Aguarde {countdown}s</span>
+              <span>Anúncio libera em {countdown}s</span>
             </div>
           )}
         </div>
@@ -91,13 +98,14 @@ export const AdInterstitialModal: React.FC<AdInterstitialModalProps> = ({
             </h3>
             <p className="text-xs text-slate-500">
               Os anúncios mantêm o acervo de cifras 100% gratuito para todos os músicos.
+              {!canSkip && ` Aguarde ${countdown}s para liberar a cifra.`}
             </p>
           </div>
 
           <AdSenseSlot
-            format="auto"
+            format="rectangle"
             label="Anúncio Intersticial • Google AdSense"
-            className="my-2 min-h-[200px]"
+            className="my-2 min-h-[280px]"
           />
 
           {/* Action Button */}
@@ -119,7 +127,7 @@ export const AdInterstitialModal: React.FC<AdInterstitialModalProps> = ({
               ) : (
                 <>
                   <Clock className="w-4 h-4 animate-spin" />
-                  <span>Aguardando Anúncio ({countdown}s)...</span>
+                  <span>Anúncio em exibição — libera em {countdown}s</span>
                 </>
               )}
             </button>

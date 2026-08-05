@@ -32,7 +32,6 @@ const AdminScraper = lazy(() =>
 );
 // import { AdSenseSlot } from './components/AdSenseSlot'; // placeholder // placeholder
 import { StickyBottomAd } from './components/StickyBottomAd';
-import { AdSenseSettingsModal } from './components/AdSenseSettingsModal';
 import { AdInterstitialModal } from './components/AdInterstitialModal';
 import { Monetag } from './components/Monetag';
 import { SupportPrompt } from './components/SupportPrompt';
@@ -163,7 +162,6 @@ export default function App() {
   const [editingSong, setEditingSong] = useState<Song | null>(null);
   const [isCreatingNew, setIsCreatingNew] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<'list' | 'viewer' | 'editor' | 'playlists'>('list');
-  const [isAdSenseModalOpen, setIsAdSenseModalOpen] = useState<boolean>(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
 
   // Interstitial Ad State (Shows advertisement gating periodically before opening lyrics)
@@ -709,7 +707,6 @@ export default function App() {
             setActiveTab('musicas');
             setViewMode('playlists');
           }}
-          onOpenAdSenseSettings={() => setIsAdSenseModalOpen(true)}
           isOpenMobile={isMobileSidebarOpen}
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
           isAdmin={isAdmin}
@@ -780,6 +777,9 @@ export default function App() {
                     setSearchQuery={setSearchQuery}
                     myVotes={myVotes}
                     onVoteSong={handleVoteSong}
+                    isAdmin={isAdmin}
+                    isLoggedIn={!!isSignedIn}
+                    onOpenAuth={handleOpenAuth}
                   />
                 )}
 
@@ -790,6 +790,7 @@ export default function App() {
                     onEdit={handleEditSong}
                     onAddToPlaylist={() => setViewMode('playlists')}
                     onDelete={handleDeleteSong}
+                    isAdmin={isAdmin}
                     currentUser={currentUser}
                     isInRepertoire={repertoireSongIds.includes(selectedSong.id)}
                     onToggleRepertoire={() => handleToggleRepertoire(selectedSong.id)}
@@ -804,6 +805,7 @@ export default function App() {
                     initialSong={isCreatingNew ? undefined : editingSong || undefined}
                     onSave={handleSaveSong}
                     onDelete={handleDeleteSong}
+                    isAdmin={isAdmin}
                     onCancel={() => {
                       if (selectedSong) {
                         setViewMode('viewer');
@@ -866,12 +868,6 @@ export default function App() {
 
       {/* Sticky Bottom Ad Banner (mobile: apenas se houver conteúdo — hoje é placeholder) */}
       <StickyBottomAd />
-
-      {/* AdSense Settings Modal */}
-      <AdSenseSettingsModal
-        isOpen={isAdSenseModalOpen}
-        onClose={() => setIsAdSenseModalOpen(false)}
-      />
 
       {/* Interstitial Ad Modal (Gates song opening periodically with countdown) */}
       <AdInterstitialModal

@@ -1,13 +1,12 @@
 import React from 'react';
 import { ActiveTab } from '../types';
 import {
-  LayoutDashboard,
+  Home,
   FolderHeart,
   BookOpen,
   ListMusic,
-  Compass,
+  Music4,
   Radio,
-  Settings,
   Sparkles,
   ShieldCheck,
 } from 'lucide-react';
@@ -19,7 +18,6 @@ interface SidebarProps {
   playlistsCount?: number;
   viewMode?: 'list' | 'viewer' | 'editor' | 'playlists';
   onOpenPlaylists?: () => void;
-  onOpenAdSenseSettings?: () => void;
   isOpenMobile?: boolean;
   onCloseMobile?: () => void;
   isAdmin?: boolean;
@@ -32,7 +30,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   playlistsCount = 0,
   viewMode = 'list',
   onOpenPlaylists,
-  onOpenAdSenseSettings,
   isOpenMobile = false,
   onCloseMobile,
   isAdmin = false,
@@ -40,11 +37,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const navItems = [
     {
       id: 'musicas',
-      label: 'DASHBOARD',
-      icon: LayoutDashboard,
+      label: 'HOME',
+      icon: Home,
       badge: songsCount,
       onClick: () => setActiveTab('musicas'),
-      // Não destaca DASHBOARD quando a aba de PLAYLISTS está aberta
+      // Não destaca HOME quando a aba de PLAYLISTS está aberta
       isActive: activeTab === 'musicas' && viewMode !== 'playlists',
     },
     {
@@ -69,8 +66,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     },
     {
       id: 'ritmos',
-      label: 'EXPLORAR',
-      icon: Compass,
+      label: 'ESTUDO DE RITMOS',
+      icon: Music4,
       onClick: () => setActiveTab('ritmos'),
     },
     {
@@ -78,12 +75,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'AFINADOR',
       icon: Radio,
       onClick: () => setActiveTab('afinador'),
-    },
-    {
-      id: 'settings',
-      label: 'CONFIGURAÇÕES',
-      icon: Settings,
-      onClick: () => onOpenAdSenseSettings?.(),
     },
     ...(isAdmin
       ? [

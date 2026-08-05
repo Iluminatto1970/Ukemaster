@@ -1,11 +1,69 @@
 /**
  * Vercel Serverless Function — /sitemap.xml (via rewrite)
  * Gera o sitemap com todas as cifras do acervo (paginação completa).
+ *
+ * NOTA: esta function é AUTOCONTIDA (não importa de src/) — a Vercel compila
+ * cada arquivo de api/ isoladamente e imports ESM relativos para src/ sem
+ * extensão falham em runtime (ERR_MODULE_NOT_FOUND). Mantém o fetch do
+ * Supabase inline, como no api/fetch-url.ts.
  */
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { fetchAllSongsServer, getSiteUrl } from '../src/lib/supabaseServer';
 
 export const maxDuration = 30;
+
+/** Lê a config do Supabase das env vars da Vercel. */
+function getSupabase() {
+  const url =
+    process.env.VITE_SUPABASE_URL ||
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    '';
+  const key =
+    process.env.VITE_SUPABASE_ANON_KEY ||
+    process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    '';
+  if (!url || !key) return null;
+  return { url: url.replace(/\/+$/, ''), key };
+}
+
+function getSiteUrl(): string {
+  return (
+    process.env.SITE_URL ||
+    process.env.APP_URL ||
+    'https://ukemasterpro.vercel.app'
+  );
+}
+
+interface SongRow {
+  id: string;
+  title: string;
+  updated_at?: string | null;
+}
+
+/** Busca TODAS as músicas paginando (o PostgREST limita a 1000 por página). */
+async function fetchAllSongsServer(): Promise<SongRow[] | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  const all: SongRow[] = [];
+  let offset = 0;
+  for (let page = 0; page < 20; page++) {
+    const res = await fetch(
+      `${sb.url}/rest/v1/songs?select=id,title,updated_at&limit=1000&offset=${offset}`,
+      {
+        headers: {
+          apikey: sb.key,
+          Authorization: `Bearer ${sb.key}`,
+        },
+      }
+    );
+    if (!res.ok) return null;
+    const rows = (await res.json()) as SongRow[];
+    if (rows.length) all.push(...rows);
+    if (rows.length < 1000) break;
+    offset += 1000;
+  }
+  return all;
+}
 
 function send(res: ServerResponse, status: number, body: string, type = 'application/xml') {
   res.statusCode = status;

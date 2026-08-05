@@ -12,7 +12,9 @@
  * comportar lotes pequenos no plano gratuito (Hobby).
  */
 
-import { discoverSongLinks, fetchHtml, scrapeSong } from '../src/lib/scraper';
+// Extensão .ts explícita: sem ela a Vercel (ESM) não resolve o módulo em
+// runtime (ERR_MODULE_NOT_FOUND). O tsconfig tem allowImportingTsExtensions.
+import { discoverSongLinks, fetchHtml, scrapeSong } from '../src/lib/scraper.ts';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
 // Vercel: permite até 60s no Hobby (padrão 10s)

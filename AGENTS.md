@@ -2,6 +2,11 @@
 
 Este arquivo define as instrucoes do projeto para o Codex CLI.
 
+> ## 🤝 LEIA PRIMEIRO — HANDOFF
+> Antes de qualquer trabalho, leia `HANDOFF.md` (estado vivo: onde paramos, raciocínio
+> e próximos passos) e, se precisar de mais contexto, rode `node scripts/handoff.ts`.
+> Ao terminar a sessão, atualize `HANDOFF.md` para a próxima IA/CLI retomar.
+
 <!-- AIOX-MANAGED-START: core -->
 ## Core Rules
 

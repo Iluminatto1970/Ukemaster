@@ -14,6 +14,8 @@ interface SongEditorProps {
   onSave: (song: Song) => void;
   onCancel: () => void;
   onDelete?: (songId: string) => void;
+  /** Só o admin (iluminatto@gmail.com) pode excluir músicas do acervo. */
+  isAdmin?: boolean;
 }
 
 const COMMON_QUICK_CHORDS = ['C', 'G', 'Am', 'F', 'Dm', 'Em', 'E7', 'D', 'A7', 'C7', 'A', 'Bm', 'G7', 'Cmaj7'];
@@ -23,6 +25,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({
   onSave,
   onCancel,
   onDelete,
+  isAdmin = false,
 }) => {
   const [title, setTitle] = useState<string>(initialSong?.title || '');
   const [artist, setArtist] = useState<string>(initialSong?.artist || '');
@@ -282,7 +285,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {initialSong && onDelete && (
+          {initialSong && onDelete && isAdmin && (
             <button
               type="button"
               onClick={() => setShowDeleteModal(true)}

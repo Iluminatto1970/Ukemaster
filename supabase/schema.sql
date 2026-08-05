@@ -107,6 +107,7 @@ create table if not exists public.cron_log (
   imported integer not null default 0,
   duplicates integer not null default 0,
   errors integer not null default 0,
+  repaired integer not null default 0,
   duration_ms integer,
   message text
 );

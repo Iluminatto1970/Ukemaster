@@ -37,6 +37,13 @@ export interface PlatformCronOptions {
   reset?: boolean;
   /** Orçamento de tempo em ms (padrão 50s — dentro do limite Vercel 60s). */
   timeBudgetMs?: number;
+  /**
+   * Modo REPARO: re-scrapeia e atualiza o CONTEÚDO de músicas existentes que
+   * estão vazias (`content = ''`), preservando o id (votos/playlists intactos).
+   * Usado após incidentes em que o push do frontend sobrescreveu o acervo com
+   * cifras vazias. Sem ele, o dedupe pula essas músicas para sempre.
+   */
+  repairContent?: boolean;
 }
 
 export interface PlatformCronResult {
@@ -46,6 +53,8 @@ export interface PlatformCronResult {
   totalImported: number;
   totalDuplicates: number;
   totalErrors: number;
+  /** Músicas existentes com conteúdo vazio que foram REPARADAS (preservando id). */
+  totalRepaired: number;
   /** Músicas já presentes no acervo/histórico (artista já sincronizado). */
   totalAlreadyKnown: number;
   artistsProcessed: number;
@@ -56,6 +65,7 @@ export interface PlatformCronResult {
     imported: number;
     duplicates: number;
     errors: number;
+    repaired: number;
     errorMessage?: string;
   }[];
 }
@@ -222,6 +232,8 @@ async function upsertRows(url: string, key: string, table: string, rows: any[]):
     });
     if (!res.ok) {
       const text = await res.text().catch(() => '');
+      // eslint-disable-next-line no-console
+      console.error(`[upsert ${table}] HTTP ${res.status}: ${text.slice(0, 300)}`);
       throw new Error(`Supabase upsert em ${table} falhou (${res.status}): ${text.slice(0, 200)}`);
     }
     return true;
@@ -236,10 +248,60 @@ async function fetchExistingSongs(url: string, key: string): Promise<Song[]> {
   return rows as Song[];
 }
 
+/**
+ * Busca as músicas com conteúdo VAZIO (`content = ''`) — alvo do modo reparo.
+ * O incidente real: o push do frontend (que roda com cache local sem content)
+ * sobrescreveu o acervo inteiro com cifras vazias. Estas linhas mantêm
+ * metadados bons (título/artista) e ids que votos/playlists referenciam.
+ */
+async function fetchEmptyContentSongs(
+  url: string,
+  key: string
+): Promise<{ id: string; title: string; artist: string }[]> {
+  const rows: { id: string; title: string; artist: string }[] = [];
+  const pageSize = 1000;
+  for (let offset = 0; offset < 20_000; offset += pageSize) {
+    try {
+      const res = await fetch(
+        `${url}/rest/v1/songs?select=${encodeURIComponent('id,title,artist')}&content=eq.&limit=${pageSize}&offset=${offset}`,
+        { headers: { apikey: key, Authorization: `Bearer ${key}` } }
+      );
+      if (!res.ok) return rows;
+      const page = (await res.json()) as { id: string; title: string; artist: string }[];
+      rows.push(...page);
+      if (page.length < pageSize) break;
+    } catch {
+      return rows;
+    }
+  }
+  return rows;
+}
+
 /** Chaves ("titulo|artista" normalizado) do histórico de importações. */
 async function fetchCronImportKeys(url: string, key: string): Promise<Set<string>> {
   const rows = await fetchAllRows(url, key, 'cron_imports', 'song_key');
   return new Set(rows.map((r) => r.song_key as string));
+}
+
+/**
+ * true se a coluna existe na tabela (cache). O schema.sql ganha a coluna
+ * `repaired` no cron_log — mas se o banco ainda não foi migrado, o log NÃO
+ * pode incluí-la (PostgREST rejeita chaves desconhecidas e o histórico da
+ * rodada inteira deixaria de ser gravado em silêncio).
+ */
+let repairedColumnCache: { exists: boolean } | null = null;
+async function hasRepairedColumn(url: string, key: string): Promise<boolean> {
+  if (repairedColumnCache) return repairedColumnCache.exists;
+  try {
+    const res = await fetch(
+      `${url}/rest/v1/cron_log?select=${encodeURIComponent('repaired')}&limit=1`,
+      { headers: { apikey: key, Authorization: `Bearer ${key}` } }
+    );
+    repairedColumnCache = { exists: res.ok };
+  } catch {
+    repairedColumnCache = { exists: false };
+  }
+  return repairedColumnCache.exists;
 }
 
 async function readCursor(url: string, key: string): Promise<{ platformIndex: number; artistIndex: number }> {
@@ -326,6 +388,7 @@ export async function runPlatformCron(options: PlatformCronOptions = {}): Promis
     totalImported: 0,
     totalDuplicates: 0,
     totalErrors: 0,
+    totalRepaired: 0,
     totalAlreadyKnown: 0,
     artistsProcessed: 0,
     cursor: null,
@@ -357,6 +420,19 @@ export async function runPlatformCron(options: PlatformCronOptions = {}): Promis
   const existing = hasDb ? await fetchExistingSongs(sb.url, sb.key) : [];
   const existingKeys = new Set(existing.map(songKey));
   const cronKeys = hasDb ? await fetchCronImportKeys(sb.url, sb.key) : new Set<string>();
+
+  // Modo REPARO: mapa chave → id das músicas com conteúdo vazio. Estas serão
+  // re-scrapeadas e ATUALIZADAS no mesmo id (não importadas de novo), então
+  // votos (song_votes) e playlists que referenciam o id continuam válidos.
+  // Guarda o REGISTRO completo (id + metadados originais): o título do banco
+  // pode ser mais rico que o do scraper (ex.: "Obras de Poeta / Fogão de
+  // Lenha / No Rancho Fundo (Pot-Pourri)" vs slug "Obras de Poeta") — no
+  // repair preservamos título/artista do banco e só atualizamos o conteúdo.
+  const emptyContentById = new Map<string, { id: string; title: string; artist: string }>();
+  if (options.repairContent && hasDb) {
+    const emptyRows = await fetchEmptyContentSongs(sb.url, sb.key);
+    emptyRows.forEach((r) => emptyContentById.set(songKey(r), r));
+  }
 
   // Modo manual: fila só com o solicitado
   let jobs: ArtistJob[] = [];
@@ -393,12 +469,14 @@ export async function runPlatformCron(options: PlatformCronOptions = {}): Promis
       imported: 0,
       duplicates: 0,
       errors: 0,
+      repaired: 0,
     } as {
       platform: string;
       artistUrl: string;
       imported: number;
       duplicates: number;
       errors: number;
+      repaired: number;
       errorMessage?: string;
     };
 
@@ -422,11 +500,47 @@ export async function runPlatformCron(options: PlatformCronOptions = {}): Promis
       // Dedupe em 3 camadas: histórico de importações + acervo atual.
       // Rede de segurança extra: descarta lixo (artista/título inválido)
       // que porventura tenha escapado do scraper.
-      const fresh = songs.filter((s) => {
-        if (isJunkArtistName(s.artist) || isJunkTitle(s.title)) return false;
+      //
+      // No modo REPARO, músicas com conteúdo vazio NÃO são puladas: são
+      // atualizadas no MESMO id (s.id = id existente) com a cifra recém-lida.
+      const fresh: Song[] = [];
+      const repairs: Song[] = [];
+      // Dedupe por chave normalizada: duas URLs do catálogo podem scrapear
+      // para o MESMO título|artista (ex.: variação de pot-pourri). Se dois
+      // reparos levassem o mesmo id no mesmo upsert, o Postgres rejeita o
+      // comando inteiro (21000: ON CONFLICT DO UPDATE cannot affect row a
+      // second time) e nenhuma música seria salva nesta rodada.
+      const seenThisArtist = new Set<string>();
+      for (const s of songs) {
+        if (isJunkArtistName(s.artist) || isJunkTitle(s.title)) continue;
         const k = songKey(s);
-        return !cronKeys.has(k) && !existingKeys.has(k);
-      });
+        if (seenThisArtist.has(k)) continue;
+        seenThisArtist.add(k);
+        const existing = emptyContentById.get(k);
+        if (existing) {
+          // Preserva metadados ORIGINAIS do banco (título/artista podem ser
+          // mais ricos que os do scraper) — só o conteúdo é atualizado.
+          repairs.push({ ...s, id: existing.id, title: existing.title, artist: existing.artist });
+        } else if (!cronKeys.has(k) && !existingKeys.has(k)) {
+          fresh.push(s);
+        }
+      }
+
+      if (repairs.length > 0 && hasDb) {
+        // Upsert pela PK (id): como o id é o MESMO da linha existente, o
+        // content é sobrescrito com a cifra nova — votos/playlists intactos.
+        const repairOk = await upsertRows(sb.url, sb.key, 'songs', repairs.map(songToRow));
+        if (repairOk) {
+          repairs.forEach((s) => {
+            existingKeys.add(songKey(s));
+            emptyContentById.delete(songKey(s));
+          });
+          entry.repaired = repairs.length;
+        } else {
+          entry.errorMessage = 'Falha ao reparar conteúdo no Supabase.';
+          entry.errors += repairs.length;
+        }
+      }
 
       if (fresh.length > 0 && hasDb) {
         const upsertOk = await upsertRows(sb.url, sb.key, 'songs', fresh.map(songToRow));
@@ -456,8 +570,8 @@ export async function runPlatformCron(options: PlatformCronOptions = {}): Promis
       } else if (fresh.length > 0) {
         entry.imported = fresh.length;
         entry.errorMessage = 'Supabase não configurado — músicas detectadas mas não persistidas.';
-      } else if (songs.length > 0) {
-        // Nada novo: o artista já está 100% sincronizado (no-op saudável)
+      } else if (songs.length === 0 && repairs.length === 0 && errors.length === 0) {
+        // Artista sem novas músicas E sem reparos: já está 100% sincronizado
         result.totalAlreadyKnown += songs.length;
       }
 
@@ -476,10 +590,13 @@ export async function runPlatformCron(options: PlatformCronOptions = {}): Promis
     result.totalImported += entry.imported;
     result.totalDuplicates += entry.duplicates;
     result.totalErrors += entry.errors;
+    result.totalRepaired += entry.repaired;
     result.artistsProcessed++;
 
-    // Linha de log da execução deste artista (histórico do cron)
-    runLogRows.push({
+    // Linha de log da execução deste artista (histórico do cron). A coluna
+    // `repaired` só entra se o schema migrado já a tiver — pré-migração,
+    // omiti-la mantém o log funcionando (PostgREST rejeita chaves ausentes).
+    const logRow: any = {
       id: `run-${ranAt}-${result.artistsProcessed}`,
       ran_at: new Date().toISOString(),
       platform: item.platformName,
@@ -489,7 +606,11 @@ export async function runPlatformCron(options: PlatformCronOptions = {}): Promis
       errors: entry.errors,
       duration_ms: Date.now() - artistStart,
       message: entry.errorMessage || null,
-    });
+    };
+    if (hasDb && (await hasRepairedColumn(sb.url, sb.key))) {
+      logRow.repaired = entry.repaired;
+    }
+    runLogRows.push(logRow);
 
     // Persiste o progresso (rotação justa): o cursor SEMPRE avança para o
     // próximo artista, mesmo quando o atual estourou o tempo (catálogo
@@ -536,6 +657,7 @@ export async function runPlatformCron(options: PlatformCronOptions = {}): Promis
   result.ok =
     result.artistsProcessed > 0 &&
     (result.totalImported > 0 ||
+      result.totalRepaired > 0 ||
       result.totalAlreadyKnown > 0 ||
       result.totalDuplicates > 0 ||
       result.totalErrors === 0);

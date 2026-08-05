@@ -176,6 +176,9 @@ function slugToTitle(slug: string): string {
  */
 function cleanSongTitle(raw: string): string {
   let t = (raw || '').trim();
+  // Normaliza quebras de linha/espaços múltiplos — o Guitaretab vaza títulos
+  // com \n\n e indentação no h1 (ex.: "Coldplay\nA Head Full Of Dreams").
+  t = t.replace(/[\r\n]+/g, ' ').replace(/\s{2,}/g, ' ').trim();
   t = t.replace(/^~+\s*/, ''); // Guitaretab prefixa títulos com "~"
   t = t.replace(/\s+(?:tabs?|chords?|tablatures?)\s+ver\.?\s*\d+[\s\S]*$/i, '');
   t = t.replace(/\s+(?:tabs?|chords?)\s+with\s+lyrics[\s\S]*$/i, '');
@@ -590,6 +593,14 @@ export async function scrapeSong(url: string): Promise<Song> {
 
   // Reaproveita o pipeline do app: formato [C], acordes detectados, tom, SEO
   const { content, detectedChords, suggestedKey } = autoConvertTextToChordPro(sanitizedChords);
+
+  // Cifra VAZIA/BLOQUEADA (ex.: Guitaretab "not in a position to display"
+  // por licença) — converte para nada e não deve entrar no acervo. Antes
+  // disso, músicas assim eram importadas com content vazio (acervo poluído).
+  if (!content || content.trim().length < 10 || detectedChords.length === 0) {
+    throw new Error('Cifra vazia ou bloqueada nesta página (licença/estrutura).');
+  }
+
   const extractedMeta = extractSongMetadata(rawChords, meta.title || meta.artist || '');
 
   // Título: prioriza o <h1>/og:title do HTML (com limpeza para sites INT,
@@ -606,12 +617,15 @@ export async function scrapeSong(url: string): Promise<Song> {
     !/^[)\]}\s]+\s*\[/.test(t) &&
     !/[A-Ga-g]\s*\|/.test(t) && // linha de tablatura (ex.: "E|----|")
     !/menu principal|página inicial|acessibilidade|tab ver\.|chords ver\./i.test(t);
+  // Normaliza também o título extraído do texto e o slug (mesmo caso do h1).
+  const normTitle = (t?: string) =>
+    (t || '').replace(/[\r\n]+/g, ' ').replace(/\s{2,}/g, ' ').trim();
   const title =
-    looksCleanTitle(cleanMetaTitle)
-      ? cleanMetaTitle
+    looksCleanTitle(normTitle(cleanMetaTitle))
+      ? normTitle(cleanMetaTitle)
       : extractedMeta.title !== 'Nova Música' && looksCleanTitle(extractedMeta.title)
-      ? extractedMeta.title
-      : slugToTitle(urlTitle) || 'Música sem título';
+      ? normTitle(extractedMeta.title)
+      : normTitle(slugToTitle(urlTitle)) || 'Música sem título';
   // Prioridade do artista: meta extraída (se limpa) > "with lyrics by X" do
   // título (Guitaretab) > meta HTML > slug da URL. Rejeita lixo com acordes.
   const metaArtist = meta.artist || '';
@@ -736,12 +750,23 @@ export async function scrapeArtistPage(
   // Completa com o CATÁLOGO COMPLETO do artista (CifraClub: /musicas.html
   // lista todas as músicas; a raiz mostra só as principais).
   const catalogUrls = discoverCatalogUrls(html, url);
+  const artistPrefix = new URL(url).pathname.replace(/\/$/, '');
   const seenUrls = new Set(links.map((l) => l.url));
   for (const catalogUrl of catalogUrls) {
     if (timeoutMs > 0 && Date.now() - startedAt > timeoutMs) break;
     try {
       const catHtml = await fetchHtml(catalogUrl);
-      const catLinks = discoverSongLinks(catHtml, catalogUrl);
+      // BUGFIX: o catálogo (/artista/musicas.html) TEM profundidade 2, e as
+      // músicas também têm 2 — usar a URL do catálogo como base faz o filtro
+      // `parts.length <= baseDepth` descartar TODAS as músicas. Usamos a raiz
+      // do ARTISTA (profundidade 1) como base e filtramos só links do próprio
+      // artista (evita trazer músicas de artistas vizinhos da navegação).
+      const catLinks = discoverSongLinks(catHtml, url).filter((l) => {
+        const p = new URL(l.url).pathname.replace(/\/$/, '');
+        // Só links DENTRO do catálogo do próprio artista (evita prefixo
+        // comum falso-positivo: /chitaozinho-e-xororo2/musica/ não passa).
+        return p === artistPrefix || p.startsWith(artistPrefix + '/');
+      });
       for (const l of catLinks) {
         if (!seenUrls.has(l.url)) {
           seenUrls.add(l.url);

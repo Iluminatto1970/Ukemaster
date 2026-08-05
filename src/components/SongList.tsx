@@ -39,6 +39,11 @@ interface SongListProps {
   setSearchQuery?: (query: string) => void;
   myVotes?: Set<string>;
   onVoteSong?: (song: Song) => void;
+  /** Só o admin (iluminatto@gmail.com) pode excluir músicas do acervo. */
+  isAdmin?: boolean;
+  /** Enviar/importar músicas exige login (usuário autenticado). */
+  isLoggedIn?: boolean;
+  onOpenAuth?: (mode?: 'signup' | 'login') => void;
 }
 
 export const SongList: React.FC<SongListProps> = ({
@@ -53,6 +58,9 @@ export const SongList: React.FC<SongListProps> = ({
   onImportSongs,
   searchQuery: externalSearchQuery,
   setSearchQuery: externalSetSearchQuery,
+  isAdmin = false,
+  isLoggedIn = false,
+  onOpenAuth,
   myVotes,
   onVoteSong,
 }) => {
@@ -182,13 +190,22 @@ export const SongList: React.FC<SongListProps> = ({
   const cChord = findChord('C')?.fingerings[0] || { frets: [0, 0, 0, 3], fingers: [0, 0, 0, 3] };
   const amChord = findChord('Am')?.fingerings[0] || { frets: [2, 0, 0, 0], fingers: [2, 0, 0, 0] };
 
-  // ── Mais Votadas: top 8 por votos da comunidade (com empate por título) ──
+  // ── Mais Votadas: top 10 por votos da comunidade (com empate por título) ──
   const topVotedSongs = useMemo(() => {
     return [...songs]
       .filter((s) => (s.votes ?? 0) > 0)
       .sort((a, b) => (b.votes ?? 0) - (a.votes ?? 0) || a.title.localeCompare(b.title))
-      .slice(0, 8);
+      .slice(0, 10);
   }, [songs]);
+
+  // ── Ranking principal (hero estilo CifraClub): se ainda não há votos,
+  // usa as músicas mais RECENTES (novidades) para o ranking nunca ficar vazio.
+  const heroSongs = useMemo(() => {
+    if (topVotedSongs.length > 0) return topVotedSongs;
+    return [...songs]
+      .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
+      .slice(0, 10);
+  }, [topVotedSongs, songs]);
 
   // ── EM ALTA: top 8 por votos RECENTES (14 dias) — o "que está bombando" ──
   const [trendingMap, setTrendingMap] = useState<Map<string, number>>(new Map());
@@ -280,6 +297,14 @@ export const SongList: React.FC<SongListProps> = ({
   const shownSongs = filteredSongs.slice(0, visibleCount);
   const hasMore = filteredSongs.length > visibleCount;
 
+  // Ranking hero estilo CifraClub: escondido quando há busca ou filtro ativo
+  // (aí o foco é o resultado filtrado, não o ranking global — igual ao CifraClub).
+  const isFiltering =
+    searchQuery.trim().length > 0 ||
+    selectedArtistFilter !== 'all' ||
+    selectedCategory !== 'all' ||
+    selectedDifficulty !== 'all';
+
   return (
     <div className="space-y-6 text-slate-900">
       {/* Header: BIBLIOTECA (LIBRARY) + tabs — conforme template */}
@@ -297,7 +322,8 @@ export const SongList: React.FC<SongListProps> = ({
           {/* Ações */}
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setIsImportModalOpen(true)}
+              onClick={() => (isLoggedIn ? setIsImportModalOpen(true) : onOpenAuth?.('signup'))}
+              title={isLoggedIn ? 'Importar cifras' : 'Faça login para importar músicas'}
               className="px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold text-xs hover:border-orange-400 flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
             >
               <Upload className="w-3.5 h-3.5 text-orange-500" /> Importar
@@ -309,7 +335,8 @@ export const SongList: React.FC<SongListProps> = ({
               <Download className="w-3.5 h-3.5 text-orange-500" /> Exportar
             </button>
             <button
-              onClick={onCreateNewSong}
+              onClick={() => (isLoggedIn ? onCreateNewSong() : onOpenAuth?.('signup'))}
+              title={isLoggedIn ? 'Criar nova cifra' : 'Faça login para enviar músicas'}
               className="px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs flex items-center gap-1.5 shadow-md shadow-orange-500/20 transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4 stroke-[3]" /> Nova Cifra
@@ -483,6 +510,111 @@ export const SongList: React.FC<SongListProps> = ({
             </div>
           </div>
 
+          {/* RANKING HERO estilo CifraClub: lista numerada com medalhas, thumbnail,
+              tom, nível, votos e botão TOCAR — o protagonista da página inicial.
+              Escondido quando o usuário busca/filtra (foco nos resultados). */}
+          {!isFiltering && heroSongs.length > 0 && (
+            <div className="bg-white border border-slate-200/90 rounded-2xl shadow-2xs overflow-hidden">
+              {/* Cabeçalho do ranking (fundo grafite da marca) */}
+              <div className="flex items-center justify-between gap-3 px-4 py-3 bg-gradient-to-r from-[#1D2D44] to-[#0E7C7B]">
+                <h3 className="font-black text-white uppercase text-xs tracking-wider flex items-center gap-2">
+                  <Star className="w-4 h-4 text-amber-400 fill-current" />
+                  {topVotedSongs.length > 0 ? 'Mais Votadas' : 'Novidades'}
+                </h3>
+                <span className="text-[10px] font-black text-amber-300 shrink-0">
+                  {topVotedSongs.length > 0
+                    ? `${totalVotes} ${totalVotes === 1 ? 'voto' : 'votos'} da comunidade`
+                    : 'Recém-adicionadas ao acervo'}
+                </span>
+              </div>
+
+              <div className="divide-y divide-slate-100">
+                {heroSongs.map((song, idx) => {
+                  const medalClass =
+                    idx === 0
+                      ? 'bg-[#F26419] text-white shadow-sm'
+                      : idx === 1
+                      ? 'bg-amber-400 text-[#1D2D44] shadow-sm'
+                      : idx === 2
+                      ? 'bg-[#F8B833] text-[#1D2D44] shadow-sm'
+                      : 'bg-slate-100 text-slate-400';
+                  const isTop3 = idx < 3;
+
+                  return (
+                    <div
+                      key={song.id}
+                      onClick={() => onSelectSong(song)}
+                      className={`group flex items-center gap-2.5 sm:gap-3 px-3 sm:px-4 py-2 transition-colors cursor-pointer ${
+                        isTop3 ? 'bg-orange-50/40 hover:bg-orange-50' : 'hover:bg-slate-50'
+                      }`}
+                    >
+                      {/* Medalha do ranking */}
+                      <span
+                        className={`w-7 h-7 shrink-0 rounded-lg flex items-center justify-center text-xs font-black leading-none ${medalClass}`}
+                      >
+                        {idx + 1}
+                      </span>
+
+                      {/* Thumbnail (vídeo) ou ícone */}
+                      <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg overflow-hidden shrink-0 border border-slate-100 bg-slate-50">
+                        {song.youtubeId ? (
+                          <img
+                            src={`https://img.youtube.com/vi/${song.youtubeId}/default.jpg`}
+                            alt={song.title}
+                            loading="lazy"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-[#0E7C7B]/10 via-white to-orange-50 flex items-center justify-center">
+                            <Music className="w-4 h-4 text-orange-500" />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Título + artista */}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-black text-slate-900 truncate group-hover:text-orange-600 transition-colors leading-tight">
+                          {song.title}
+                        </p>
+                        <p className="text-[10px] text-slate-400 font-semibold truncate">
+                          {song.artist}
+                          {song.key ? ` · Tom ${song.key}` : ''}
+                        </p>
+                      </div>
+
+                      {/* Nível + votos (desktop) */}
+                      <div className="hidden md:flex items-center gap-2 shrink-0">
+                        {song.difficulty && (
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-extrabold border shrink-0 ${getDifficultyBadgeClass(song.difficulty)}`}
+                          >
+                            <Gauge className="w-2.5 h-2.5" />
+                            {song.difficulty}
+                          </span>
+                        )}
+                        <span className="flex items-center gap-1 text-[10px] font-black text-amber-500 shrink-0">
+                          <Star className="w-3 h-3 fill-current" />
+                          <span className="tabular-nums">{song.votes ?? 0}</span>
+                        </span>
+                      </div>
+
+                      {/* TOCAR */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onSelectSong(song);
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-[#F26419] hover:bg-[#D9530D] text-white font-black text-[10px] transition-colors flex items-center gap-1 shadow-2xs cursor-pointer shrink-0"
+                      >
+                        <Play className="w-3 h-3 fill-white" /> TOCAR
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Lista DENSA de canções (estilo CifraClub) — linhas compactas */}
           {shownSongs.length > 0 ? (
             <div className="space-y-2">
@@ -598,16 +730,18 @@ export const SongList: React.FC<SongListProps> = ({
                         >
                           <Edit3 className="w-3.5 h-3.5" />
                         </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSongToDelete(song);
-                          }}
-                          title="Excluir Música"
-                          className="p-1.5 rounded-lg bg-slate-100 text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                        >
-                          <Trash2 className="w-3.5 h-3.5 text-rose-500" />
-                        </button>
+                        {isAdmin && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSongToDelete(song);
+                            }}
+                            title="Excluir Música"
+                            className="p-1.5 rounded-lg bg-slate-100 text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                          </button>
+                        )}
                       </div>
 
                       {/* TOCAR */}
@@ -707,52 +841,6 @@ export const SongList: React.FC<SongListProps> = ({
               <p className="text-[10px] text-slate-400 font-semibold leading-relaxed">
                 As músicas com mais votos nos últimos 14 dias aparecem aqui — vote em suas
                 favoritas para colocá-las em alta! 🔥
-              </p>
-            )}
-          </div>
-
-          {/* Widget 1: MAIS VOTADAS — ranking numerado estilo CifraClub */}
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs space-y-2">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <h3 className="font-black text-slate-900 uppercase text-xs tracking-wider flex items-center gap-1.5">
-                <Star className="w-3.5 h-3.5 text-amber-400 fill-current" /> Mais Votadas
-              </h3>
-              <span className="text-[10px] text-amber-500 font-black shrink-0">
-                {totalVotes} {totalVotes === 1 ? 'voto' : 'votos'}
-              </span>
-            </div>
-
-            {topVotedSongs.length > 0 ? (
-              <div className="space-y-0.5">
-                {topVotedSongs.map((song, idx) => (
-                  <button
-                    key={song.id}
-                    onClick={() => onSelectSong(song)}
-                    className="w-full flex items-center gap-2.5 p-1.5 rounded-lg hover:bg-orange-50/70 transition-colors text-left group/rank cursor-pointer"
-                  >
-                    <span
-                      className={`w-6 text-center font-black text-sm shrink-0 transition-colors ${
-                        idx < 3 ? 'text-orange-500' : 'text-slate-300'
-                      } group-hover/rank:text-amber-500`}
-                    >
-                      {idx + 1}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[11px] font-bold text-slate-900 truncate group-hover/rank:text-orange-600">
-                        {song.title}
-                      </p>
-                      <p className="text-[10px] text-slate-400 truncate">{song.artist}</p>
-                    </div>
-                    <span className="flex items-center gap-0.5 text-[10px] font-black text-amber-500 shrink-0">
-                      <Star className="w-2.5 h-2.5 fill-current" />
-                      {song.votes ?? 0}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <p className="text-[10px] text-slate-400 font-semibold leading-relaxed">
-                Nenhum voto ainda — toque ⭐ em uma música e ajude a criar o ranking do portal!
               </p>
             )}
           </div>
@@ -930,15 +1018,16 @@ export const SongList: React.FC<SongListProps> = ({
               </span>
             </div>
 
-            <div className="flex justify-center gap-1.5">
+            {/* Diagramas em tamanho xs NATIVO (sem scale/margem negativa) —
+                antes o hack scale-[0.82] + -my-2.5 fazia o layout colapsar e
+                os diagramas vazarem por cima do widget acima ao rolar. */}
+            <div className="flex justify-center gap-1.5 items-start">
               {[
                 { name: 'G', fingering: gChord },
                 { name: 'C', fingering: cChord },
                 { name: 'Am', fingering: amChord },
               ].map((ch) => (
-                <div key={ch.name} className="scale-[0.82] origin-center -my-2.5">
-                  <ChordDiagram chordName={ch.name} fingering={ch.fingering} size="sm" showPlayButton={false} />
-                </div>
+                <ChordDiagram key={ch.name} chordName={ch.name} fingering={ch.fingering} size="xs" showPlayButton={false} />
               ))}
             </div>
           </div>
