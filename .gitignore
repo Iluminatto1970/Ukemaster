@@ -35,3 +35,6 @@ Thumbs.db
 # Agentes/ferramentas — runtime local (não versionar)
 .aiox-core/node_modules/
 .freebuff/
+
+# Cron bundle standalone (build artifact)
+dist-cron/

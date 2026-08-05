@@ -31,6 +31,7 @@ export interface Song {
   tags?: string[];
   seoDescription?: string;
   hashtags?: string[];
+  votes?: number; // total de votos da comunidade
   createdAt: string;
   updatedAt: string;
 }
@@ -81,7 +82,7 @@ export interface StrummingPattern {
   beats: ('down' | 'up' | 'mute' | 'rest')[];
 }
 
-export type ActiveTab = 'dashboard' | 'musicas' | 'dicionario' | 'afinador' | 'ritmos';
+export type ActiveTab = 'dashboard' | 'musicas' | 'dicionario' | 'afinador' | 'ritmos' | 'admin';
 
 export interface AdSenseConfig {
   publisherId: string; // e.g., 'ca-pub-1234567890123456'

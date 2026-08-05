@@ -4,7 +4,7 @@ import { autoConvertTextToChordPro, extractUniqueChords, extractYouTubeId, extra
 import { findChord, ALL_KEYS } from '../data/chords';
 import { ChordDiagram } from './ChordDiagram';
 import { YouTubePlayer } from './YouTubePlayer';
-import { FileText, Upload, Sparkles, X, Check, Music, FileCode, Edit3, Volume2, Link, Globe, Loader2, AlertCircle, Youtube, Search, ExternalLink, Copy, Share2, Tag, RefreshCw } from 'lucide-react';
+import { FileText, Upload, Sparkles, X, Check, Music, FileCode, Edit3, Volume2, Link, Globe, Loader2, AlertCircle, Youtube, Search, ExternalLink, Share2, RefreshCw } from 'lucide-react';
 import { playUkuleleChord } from '../utils/audio';
 
 interface ImportSongModalProps {
@@ -42,7 +42,6 @@ export const ImportSongModal: React.FC<ImportSongModalProps> = ({
   const [seoDescription, setSeoDescription] = useState<string>('');
   const [hashtags, setHashtags] = useState<string[]>([]);
   const [tags, setTags] = useState<string[]>([]);
-  const [copiedHashtags, setCopiedHashtags] = useState<boolean>(false);
   const [isProcessed, setIsProcessed] = useState<boolean>(false);
 
   const duplicateMatch = isProcessed ? findDuplicateSong(title, artist, existingSongs) : undefined;
@@ -800,7 +799,7 @@ Tu [C]vens chegando pra brincar no meu [G]quintal...`}
               <div className="bg-stone-950 border border-stone-800 rounded-xl p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-                    <Share2 className="w-4 h-4 text-amber-500" /> SEO & Hashtags Automáticos para Redes Sociais
+                    <Share2 className="w-4 h-4 text-amber-500" /> SEO Automático para Redes Sociais
                   </span>
                   <button
                     type="button"
@@ -824,34 +823,6 @@ Tu [C]vens chegando pra brincar no meu [G]quintal...`}
                   />
                 </div>
 
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="text-[11px] font-bold text-stone-400 flex items-center gap-1">
-                      <Tag className="w-3 h-3 text-amber-400" /> Hashtags Sugeridas:
-                    </label>
-                    {hashtags.length > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          navigator.clipboard.writeText(hashtags.join(' '));
-                          setCopiedHashtags(true);
-                          setTimeout(() => setCopiedHashtags(false), 2000);
-                        }}
-                        className="text-[11px] text-amber-400 hover:underline flex items-center gap-1 font-bold cursor-pointer"
-                      >
-                        {copiedHashtags ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                        {copiedHashtags ? 'Hashtags Copiadas!' : 'Copiar Hashtags'}
-                      </button>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap gap-1.5 p-2 bg-stone-900 border border-stone-800 rounded-lg max-h-24 overflow-y-auto">
-                    {hashtags.map((tag, idx) => (
-                      <span key={idx} className="px-2 py-0.5 bg-amber-500/10 border border-amber-500/20 text-amber-300 rounded text-[11px] font-mono">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
               </div>
 
               {/* Song Content Live View */}

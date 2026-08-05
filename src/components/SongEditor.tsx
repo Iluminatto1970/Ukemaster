@@ -45,7 +45,6 @@ export const SongEditor: React.FC<SongEditorProps> = ({
   const [content, setContent] = useState<string>(initialSong?.content || '');
   const [seoDescription, setSeoDescription] = useState<string>(initialSong?.seoDescription || '');
   const [hashtags, setHashtags] = useState<string[]>(initialSong?.hashtags || []);
-  const [copiedHashtags, setCopiedHashtags] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'editor' | 'split' | 'preview'>('split');
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
 
@@ -492,10 +491,10 @@ export const SongEditor: React.FC<SongEditorProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-800/60 pb-3">
             <div>
               <span className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-                <Share2 className="w-4 h-4 text-amber-500" /> SEO & Hashtags Automáticos (Gerados em Tempo Real)
+                <Share2 className="w-4 h-4 text-amber-500" /> SEO Automático (Gerado em Tempo Real)
               </span>
               <p className="text-[11px] text-stone-400 mt-0.5">
-                Sempre que você altera o título e artista, os metatags, título SEO e hashtags são gerados e sincronizados automaticamente.
+                Sempre que você altera o título e artista, a descrição SEO e os metatags são gerados e sincronizados automaticamente.
               </p>
             </div>
             <button
@@ -530,40 +529,6 @@ export const SongEditor: React.FC<SongEditorProps> = ({
             />
           </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-semibold text-slate-700 flex items-center gap-1">
-                <Tag className="w-3.5 h-3.5 text-[#0E7C7B]" /> Hashtags Geradas:
-              </label>
-              {hashtags.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    navigator.clipboard.writeText(hashtags.join(' '));
-                    setCopiedHashtags(true);
-                    setTimeout(() => setCopiedHashtags(false), 2000);
-                  }}
-                  className="text-xs text-[#0E7C7B] hover:underline flex items-center gap-1 font-bold cursor-pointer"
-                >
-                  {copiedHashtags ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                  {copiedHashtags ? 'Hashtags Copiadas!' : 'Copiar Todas as Hashtags'}
-                </button>
-              )}
-            </div>
-            {hashtags.length > 0 ? (
-              <div className="flex flex-wrap gap-1.5 p-3 bg-slate-50 border border-slate-200 rounded-xl">
-                {hashtags.map((tag, idx) => (
-                  <span key={idx} className="px-2.5 py-1 bg-[#0E7C7B]/10 border border-[#0E7C7B]/20 text-[#0E7C7B] rounded-lg text-xs font-mono font-bold">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <p className="text-[11px] text-slate-400 italic">
-                As hashtags serão geradas automaticamente com base no nome da música e artista.
-              </p>
-            )}
-          </div>
         </div>
       </div>
 

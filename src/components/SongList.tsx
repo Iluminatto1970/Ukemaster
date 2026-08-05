@@ -12,15 +12,18 @@ import {
   Play,
   User,
   ChevronRight,
+  ChevronDown,
   Star,
   Tag,
   Gauge,
+  TrendingUp,
+  Flame,
 } from 'lucide-react';
 import { ImportSongModal } from './ImportSongModal';
 import { AdSenseSlot } from './AdSenseSlot';
 import { ChordDiagram } from './ChordDiagram';
 import { findChord } from '../data/chords';
-import { extractUniqueChords } from '../utils/chordUtils';
+import { fetchTrendingSongIds } from '../lib/ratings';
 
 interface SongListProps {
   songs: Song[];
@@ -34,6 +37,8 @@ interface SongListProps {
   onImportSongs: (importedSongs: Song[]) => void;
   searchQuery?: string;
   setSearchQuery?: (query: string) => void;
+  myVotes?: Set<string>;
+  onVoteSong?: (song: Song) => void;
 }
 
 export const SongList: React.FC<SongListProps> = ({
@@ -48,6 +53,8 @@ export const SongList: React.FC<SongListProps> = ({
   onImportSongs,
   searchQuery: externalSearchQuery,
   setSearchQuery: externalSetSearchQuery,
+  myVotes,
+  onVoteSong,
 }) => {
   const [internalSearchQuery, setInternalSearchQuery] = useState<string>('');
   
@@ -57,9 +64,18 @@ export const SongList: React.FC<SongListProps> = ({
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedArtistFilter, setSelectedArtistFilter] = useState<string>('all');
+  const [showAllArtists, setShowAllArtists] = useState<boolean>(false);
+  // Lista de artistas secundária: no celular já nasce recolhida (só o cabeçalho
+  // visível) para não roubar o protagonismo das músicas; no desktop abre normal.
+  const [artistsCollapsed, setArtistsCollapsed] = useState<boolean>(
+    () => typeof window !== 'undefined' && window.innerWidth < 1024
+  );
   const [activeSubTab, setActiveSubTab] = useState<'artistas' | 'listas' | 'todas'>('todas');
   const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
   const [songToDelete, setSongToDelete] = useState<Song | null>(null);
+  // Paginação da lista (estilo CifraClub): mostra 24 e carrega mais sob demanda —
+  // essencial para o acervo de milhares de canções não travar o navegador.
+  const [visibleCount, setVisibleCount] = useState<number>(24);
 
   // Nova busca limpa o filtro de artista selecionado (evita "nenhuma cifra
   // encontrada" quando artista + busca se combinam e dão zero resultados).
@@ -68,6 +84,11 @@ export const SongList: React.FC<SongListProps> = ({
       setSelectedArtistFilter('all');
     }
   }, [searchQuery]);
+
+  // Qualquer mudança de filtro/busca reinicia a paginação.
+  useEffect(() => {
+    setVisibleCount(24);
+  }, [searchQuery, selectedCategory, selectedDifficulty, selectedArtistFilter]);
 
   // Extract unique list of artists with counts
   const artistsList = useMemo(() => {
@@ -93,28 +114,53 @@ export const SongList: React.FC<SongListProps> = ({
       }
     });
 
-    return Array.from(artistMap.entries()).map(([name, count]) => ({
-      name,
-      count,
-      // Avatar inicial confiável (DiceBear) — URLs falsas do Unsplash não carregam.
-      avatar: `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(
-        name
-      )}&backgroundColor=0e7c7b&fontWeight=600`,
-    }));
+    return Array.from(artistMap.entries())
+      .map(([name, count]) => ({
+        name,
+        count,
+        // Avatar inicial confiável (DiceBear) — URLs falsas do Unsplash não carregam.
+        avatar: `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(
+          name
+        )}&backgroundColor=0e7c7b&fontWeight=600`,
+      }))
+      // Artistas com músicas primeiro (os demais são exemplos/placeholders)
+      .sort((a, b) => b.count - a.count);
   }, [songs]);
 
+  // Mostra no máximo 5 artistas; o resto fica sob "Ver todos" para a lista
+  // não roubar o protagonismo das músicas na página inicial.
+  // Se o artista selecionado estiver além dos 5, ele entra na lista visível
+  // para a seleção nunca sumir silenciosamente.
+  const visibleArtists = useMemo(() => {
+    if (showAllArtists) return artistsList;
+    const top = artistsList.slice(0, 5);
+    const selected = selectedArtistFilter === 'all'
+      ? null
+      : artistsList.find(
+          (a) => a.name.toLowerCase() === selectedArtistFilter.toLowerCase()
+        );
+    if (selected && !top.some((a) => a.name === selected.name)) {
+      return [...top, selected];
+    }
+    return top;
+  }, [artistsList, showAllArtists, selectedArtistFilter]);
+
+  // Normaliza texto para busca: minúsculas + remove acentos (caetano == caetano).
+  const normalizeSearch = (s: string) =>
+    s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
   const filteredSongs = songs.filter((s) => {
-    const query = searchQuery.trim().toLowerCase();
+    const query = normalizeSearch(searchQuery.trim());
 
     // Comprehensive search match across title (música), artist (autor/artista), category (categoria/gênero), tags, key, content
     const matchSearch =
       !query ||
-      s.title.toLowerCase().includes(query) ||
-      s.artist.toLowerCase().includes(query) ||
-      (s.category && s.category.toLowerCase().includes(query)) ||
-      (s.tags && s.tags.some((tag) => tag.toLowerCase().includes(query))) ||
-      (s.key && s.key.toLowerCase().includes(query)) ||
-      (s.content && s.content.toLowerCase().includes(query));
+      normalizeSearch(s.title || '').includes(query) ||
+      normalizeSearch(s.artist || '').includes(query) ||
+      (s.category && normalizeSearch(s.category).includes(query)) ||
+      (s.tags && s.tags.some((tag) => normalizeSearch(tag).includes(query))) ||
+      (s.key && normalizeSearch(s.key).includes(query)) ||
+      (s.content && normalizeSearch(s.content).includes(query));
 
     const matchDifficulty =
       selectedDifficulty === 'all' ||
@@ -136,29 +182,90 @@ export const SongList: React.FC<SongListProps> = ({
   const cChord = findChord('C')?.fingerings[0] || { frets: [0, 0, 0, 3], fingers: [0, 0, 0, 3] };
   const amChord = findChord('Am')?.fingerings[0] || { frets: [2, 0, 0, 0], fingers: [2, 0, 0, 0] };
 
-  // Pares de acordes de prévia por música (conforme template: G/C, Am/F, Em/D...)
-  const songPreviewChords = useMemo(() => {
-    const map = new Map<string, { name: string; fingering: { frets: number[]; fingers?: number[] } }[]>();
+  // ── Mais Votadas: top 8 por votos da comunidade (com empate por título) ──
+  const topVotedSongs = useMemo(() => {
+    return [...songs]
+      .filter((s) => (s.votes ?? 0) > 0)
+      .sort((a, b) => (b.votes ?? 0) - (a.votes ?? 0) || a.title.localeCompare(b.title))
+      .slice(0, 8);
+  }, [songs]);
+
+  // ── EM ALTA: top 8 por votos RECENTES (14 dias) — o "que está bombando" ──
+  const [trendingMap, setTrendingMap] = useState<Map<string, number>>(new Map());
+  useEffect(() => {
+    let cancelled = false;
+    fetchTrendingSongIds(14, 300).then((map) => {
+      if (!cancelled) setTrendingMap(map);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // Depende de myVotes para o widget refletir um voto dado na sessão atual.
+  }, [myVotes?.size]);
+
+  const trendingSongs = useMemo(() => {
+    return [...songs]
+      .filter((s) => (trendingMap.get(s.id) ?? 0) > 0)
+      .sort(
+        (a, b) =>
+          (trendingMap.get(b.id) ?? 0) - (trendingMap.get(a.id) ?? 0) ||
+          (b.votes ?? 0) - (a.votes ?? 0) ||
+          a.title.localeCompare(b.title)
+      )
+      .slice(0, 8);
+  }, [songs, trendingMap]);
+
+  const totalVotes = useMemo(
+    () => songs.reduce((acc, s) => acc + (s.votes ?? 0), 0),
+    [songs]
+  );
+
+  // Trecho da LETRA para o preview do card — o foco visual é a letra,
+  // não os diagramas de acordes (que ficam no viewer da cifra).
+  const lyricsPreviewMap = useMemo(() => {
+    const map = new Map<string, string>();
     songs.forEach((song) => {
-      const names = extractUniqueChords(song.content, 0).slice(0, 2);
-      const defs = names
-        .map((n) => {
-          const def = findChord(n);
-          return def ? { name: n, fingering: def.fingerings[0] } : null;
-        })
-        .filter((x): x is { name: string; fingering: { frets: number[]; fingers?: number[] } } => !!x);
-      if (defs.length === 0) {
-        defs.push({ name: 'G', fingering: gChord });
-      }
-      if (defs.length === 1) {
-        defs.push({ name: 'C', fingering: cChord });
-      }
-      map.set(song.id, defs.slice(0, 2));
+      // Extrai linhas de LETRA REAL: remove acordes/parênteses, exige ao
+      // menos 2 palavras (descarta 'Intro:', '(Riff)', símbolos e tabs).
+      const lines = (song.content || '')
+        .split('\n')
+        // Linha que é SÓ um cabeçalho/acorde em colchetes ([Intro], [Primeira
+        // Parte], [G]) NÃO é letra — checa ANTES de remover os colchetes.
+        .filter((l) => !/^\[[^\[\]]*\]\s*$/.test(l.trim()))
+        .map((l) => l.replace(/\[[^\]]*\]/g, '').replace(/\([^)]*\)/g, ' ').trim())
+        .filter((l) => /[a-zà-ú]/i.test(l))
+        .filter((l) => l.split(/\s+/).filter(Boolean).length >= 2)
+        .filter((l) => !/^(intro|verso|refrão|refrao|ponte|solo|final|outro|bridge|chorus|verse|instrumental|primeira|segunda|terceira|quarta)[\s:]*(parte|estrofe)?$/i.test(l))
+        .filter((l) => !/^\s*[A-Ga-g]\|/.test(l) && !/^\|?\s*[\d\-xphv/\\~ ]+\|?$/.test(l) && !/^\{\/?[a-z]+\}$/i.test(l))
+        .filter((l) => !/transcrita por|digitada por|letra por|envie por|colaboração/i.test(l))
+        .slice(0, 3);
+      map.set(song.id, lines.join('\n') || song.title);
     });
     return map;
   }, [songs]);
 
   const todayScrollRef = useRef<HTMLDivElement>(null);
+
+  // Ref para rolar até a seção de canções quando um artista é escolhido.
+  const songsSectionRef = useRef<HTMLDivElement>(null);
+
+  const handleArtistClick = (name: string) => {
+    const isSelected = selectedArtistFilter.toLowerCase() === name.toLowerCase();
+    setSelectedArtistFilter(isSelected ? 'all' : name);
+    if (!isSelected) {
+      // Leva o usuário até a seção com os itens do artista escolhido.
+      requestAnimationFrame(() => {
+        songsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+  };
+
+  const selectedArtistCount =
+    selectedArtistFilter === 'all'
+      ? 0
+      : songs.filter(
+          (s) => s.artist.toLowerCase() === selectedArtistFilter.toLowerCase()
+        ).length;
 
   const getDifficultyBadgeClass = (diff?: string) => {
     if (diff === 'Simplificado' || diff === 'Iniciante') {
@@ -169,6 +276,9 @@ export const SongList: React.FC<SongListProps> = ({
     }
     return 'bg-amber-50 text-amber-700 border-amber-200'; // Médio / Intermediário
   };
+
+  const shownSongs = filteredSongs.slice(0, visibleCount);
+  const hasMore = filteredSongs.length > visibleCount;
 
   return (
     <div className="space-y-6 text-slate-900">
@@ -242,71 +352,11 @@ export const SongList: React.FC<SongListProps> = ({
         </div>
       </div>
 
-      {/* Main 3-Column Dashboard Layout matching user screenshot */}
+      {/* Layout estilo CifraClub: coluna principal com a LISTA DENSA de canções
+          (o foco) + sidebar com ranking, artistas e widgets. */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* COLUMN 1: Listas de Artistas (Left Sidebar Panel) */}
-        <div className="lg:col-span-3 space-y-4">
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <h3 className="font-black text-slate-900 uppercase text-sm tracking-wider flex items-center gap-1.5">
-                <User className="w-4 h-4 text-orange-500" /> LISTAS DE ARTISTAS
-              </h3>
-              {selectedArtistFilter !== 'all' && (
-                <button
-                  onClick={() => setSelectedArtistFilter('all')}
-                  className="text-[10px] text-orange-600 font-bold hover:underline"
-                >
-                  Limpar
-                </button>
-              )}
-            </div>
-
-            <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
-              {artistsList.map((artist, idx) => {
-                const isSelected = selectedArtistFilter.toLowerCase() === artist.name.toLowerCase();
-                return (
-                  <div
-                    key={idx}
-                    onClick={() =>
-                      setSelectedArtistFilter(isSelected ? 'all' : artist.name)
-                    }
-                    className={`flex items-center gap-3 p-2 rounded-xl transition-all cursor-pointer ${
-                      isSelected
-                        ? 'bg-slate-100 border border-slate-200 font-bold'
-                        : 'hover:bg-slate-100 text-slate-700'
-                    }`}
-                  >
-                    <img
-                      src={artist.avatar}
-                      alt={artist.name}
-                      loading="lazy"
-                      className="w-8 h-8 rounded-full object-cover border border-slate-200/80 shrink-0 bg-slate-100"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.onerror = null;
-                        target.src =
-                          'https://ui-avatars.com/api/?name=' +
-                          encodeURIComponent(artist.name) +
-                          '&background=0E7C7B&color=fff&bold=true&size=128';
-                      }}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-xs font-bold truncate ${isSelected ? 'text-slate-900' : 'text-slate-900'}`}>
-                        {artist.name}
-                      </p>
-                      <p className={`text-[10px] ${isSelected ? 'text-slate-500' : 'text-slate-400'}`}>
-                        {artist.count > 0 ? `${artist.count} músicas` : 'Artista Ukulele'}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* COLUMN 2: Songs Main Grid (Middle Panel) */}
-        <div className="lg:col-span-6 space-y-4">
+        {/* COLUNA PRINCIPAL (8/12): CANÇÕES — primeiro no mobile */}
+        <div ref={songsSectionRef} className="lg:col-span-8 space-y-4 scroll-mt-24 order-1">
           {/* Header: CANÇÕES (conforme template) */}
           <div className="flex items-center justify-between">
             <h3 className="font-black text-slate-900 uppercase text-sm tracking-wider flex items-center gap-1.5">
@@ -326,6 +376,37 @@ export const SongList: React.FC<SongListProps> = ({
               Inéditos <ChevronRight className="w-3 h-3" />
             </button>
           </div>
+
+          {/* Banner do artista escolhido — leva a uma seção com os itens do artista */}
+          {selectedArtistFilter !== 'all' && (
+            <div className="flex items-center justify-between gap-3 bg-[#0E7C7B]/[0.06] border border-[#0E7C7B]/25 rounded-2xl px-4 py-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <img
+                  src={`https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(
+                    selectedArtistFilter
+                  )}&backgroundColor=0e7c7b&fontWeight=600`}
+                  alt={selectedArtistFilter}
+                  className="w-10 h-10 rounded-full border-2 border-white shadow-sm shrink-0"
+                />
+                <div className="min-w-0">
+                  <p className="text-sm font-black text-slate-900 truncate leading-tight">
+                    {selectedArtistFilter}
+                  </p>
+                  <p className="text-[10px] font-extrabold text-[#0E7C7B]">
+                    {selectedArtistCount > 0
+                      ? `${selectedArtistCount} canções deste artista`
+                      : 'Nenhuma canção encontrada'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedArtistFilter('all')}
+                className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-orange-600 hover:border-orange-300 font-bold text-[11px] transition-colors cursor-pointer shrink-0"
+              >
+                Ver todas as canções
+              </button>
+            </div>
+          )}
 
           {/* Filter Bar */}
           <div className="bg-white border border-slate-200/90 rounded-2xl p-3 shadow-2xs space-y-2.5">
@@ -402,135 +483,163 @@ export const SongList: React.FC<SongListProps> = ({
             </div>
           </div>
 
-          {/* Songs Grid */}
-          {filteredSongs.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {filteredSongs.map((song, index) => {
-                const showFeedAd = index > 0 && index % 6 === 0;
+          {/* Lista DENSA de canções (estilo CifraClub) — linhas compactas */}
+          {shownSongs.length > 0 ? (
+            <div className="space-y-2">
+              {shownSongs.map((song, index) => {
+                const showFeedAd = index > 0 && index % 8 === 0;
 
                 return (
                   <React.Fragment key={song.id}>
                     {showFeedAd && (
-                      <div className="col-span-1 sm:col-span-2 my-1">
+                      <div className="my-1">
                         <AdSenseSlot format="horizontal" label="Anúncio do Repertório" />
                       </div>
                     )}
 
-                    {/* Song Card matching screenshot style */}
+                    {/* Linha de música — foco no título, artista e ação (como o CifraClub) */}
                     <div
                       onClick={() => onSelectSong(song)}
-                      className="bg-white border border-slate-200/90 hover:border-orange-400/80 rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group cursor-pointer space-y-3"
+                      className="group flex items-center gap-3 px-3 py-2.5 bg-white border border-slate-200/80 hover:border-orange-300/80 hover:shadow-md rounded-xl transition-all cursor-pointer"
                     >
-                      {/* Top Visual Box (Album cover ou par de acordes da música) */}
-                      <div className="bg-slate-50 border border-slate-100 rounded-xl p-2.5 flex items-center justify-center gap-2 overflow-hidden min-h-[90px]">
+                      {/* Thumbnail (vídeo) ou ícone de música */}
+                      <div className="w-11 h-11 rounded-lg overflow-hidden shrink-0 border border-slate-100 bg-slate-50">
                         {song.youtubeId ? (
-                          <div className="relative w-full h-24 rounded-lg overflow-hidden group-hover:scale-102 transition-transform">
-                            <img
-                              src={`https://img.youtube.com/vi/${song.youtubeId}/mqdefault.jpg`}
-                              alt={song.title}
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-slate-900/30 flex items-center justify-center">
-                              <div className="w-9 h-9 rounded-full bg-orange-500 text-white flex items-center justify-center shadow-md">
-                                <Play className="w-4 h-4 fill-white ml-0.5" />
-                              </div>
-                            </div>
-                          </div>
+                          <img
+                            src={`https://img.youtube.com/vi/${song.youtubeId}/default.jpg`}
+                            alt={song.title}
+                            className="w-full h-full object-cover"
+                          />
                         ) : (
-                          <div className="flex items-center gap-1 scale-75 transform -my-4">
-                            {(songPreviewChords.get(song.id) || []).map((pc) => (
-                              <ChordDiagram
-                                key={pc.name}
-                                chordName={pc.name}
-                                fingering={pc.fingering}
-                                size="sm"
-                                showPlayButton={false}
-                              />
-                            ))}
+                          <div className="w-full h-full bg-gradient-to-br from-[#0E7C7B]/10 via-white to-orange-50 flex items-center justify-center">
+                            <Music className="w-4 h-4 text-orange-500" />
                           </div>
                         )}
                       </div>
 
-                      {/* Song Details */}
-                      <div className="space-y-2">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0">
-                            <h3 className="text-base font-black text-slate-900 group-hover:text-orange-600 transition-colors truncate">
-                              {song.title}
-                            </h3>
-                            <p className="text-slate-500 text-xs font-semibold truncate">
-                              {song.artist}
-                            </p>
-                          </div>
-                          <span className="px-2 py-0.5 rounded-full bg-orange-50 text-orange-600 font-mono font-bold text-[10px] border border-orange-200 shrink-0">
-                            Tom: {song.key}
-                          </span>
-                        </div>
-
-                        {/* Badges for Category & Mode */}
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          {song.category && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-[#0E7C7B]/10 text-[#0E7C7B] border border-[#0E7C7B]/20">
-                              <Tag className="w-2.5 h-2.5" />
-                              {song.category}
-                            </span>
-                          )}
-                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold border ${getDifficultyBadgeClass(song.difficulty)}`}>
-                            <Gauge className="w-2.5 h-2.5" />
-                            {song.difficulty || 'Simplificado'}
-                          </span>
+                      {/* Título + linha de detalhe. Mobile: mostra a LETRA real
+                          sempre (foco no conteúdo). Desktop: artista/tom/gênero
+                          e a letra aparece no hover. */}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-black text-slate-900 truncate group-hover:text-orange-600 transition-colors leading-tight">
+                          {song.title}
+                        </p>
+                        {/* Mobile (sem hover): letra sempre visível */}
+                        <p className="sm:hidden text-[11px] text-[#0E7C7B] font-semibold truncate leading-snug">
+                          {lyricsPreviewMap.get(song.id) || song.title}
+                        </p>
+                        {/* Desktop: artista/tom/gênero, trocado pela letra no hover */}
+                        <div className="hidden sm:block">
+                          <p className="text-[11px] text-slate-500 font-semibold truncate leading-snug group-hover:hidden">
+                            {song.artist}
+                            {song.key ? ` · Tom ${song.key}` : ''}
+                            {song.category ? ` · ${song.category}` : ''}
+                          </p>
+                          <p className="hidden group-hover:block text-[11px] text-[#0E7C7B] font-semibold truncate leading-snug">
+                            {lyricsPreviewMap.get(song.id) || song.title}
+                          </p>
                         </div>
                       </div>
 
-                      {/* Actions */}
-                      <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-1.5">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onSelectSong(song);
-                          }}
-                          className="flex-1 py-1.5 px-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black text-xs transition-colors flex items-center justify-center gap-1 shadow-2xs cursor-pointer"
+                      {/* Nível (desktop largo) */}
+                      {song.difficulty && (
+                        <span
+                          className={`hidden xl:inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-extrabold border shrink-0 ${getDifficultyBadgeClass(song.difficulty)}`}
                         >
-                          <Play className="w-3.5 h-3.5 fill-white" /> TOCAR
-                        </button>
+                          <Gauge className="w-2.5 h-2.5" />
+                          {song.difficulty}
+                        </span>
+                      )}
 
+                      {/* Voto */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onVoteSong?.(song);
+                        }}
+                        title={
+                          myVotes?.has(song.id)
+                            ? 'Remover meu voto'
+                            : 'Votar nesta música'
+                        }
+                        className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-[10px] font-black border transition-colors cursor-pointer shrink-0 ${
+                          myVotes?.has(song.id)
+                            ? 'bg-amber-400 text-[#1D2D44] border-amber-400 shadow-sm'
+                            : 'bg-slate-50 text-slate-500 border-slate-200 hover:border-amber-400 hover:text-amber-600'
+                        }`}
+                      >
+                        <Star
+                          className={`w-3 h-3 ${
+                            myVotes?.has(song.id) ? 'fill-current' : ''
+                          }`}
+                        />
+                        <span className="tabular-nums">{song.votes ?? 0}</span>
+                      </button>
+
+                      {/* Ações rápidas (aparecem no hover) */}
+                      <div className="hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             onAddToPlaylist(song);
                           }}
                           title="Adicionar à Playlist"
-                          className="p-1.5 rounded-xl bg-slate-100 text-slate-600 hover:text-orange-600 hover:bg-orange-50 transition-colors cursor-pointer"
+                          className="p-1.5 rounded-lg bg-slate-100 text-slate-600 hover:text-orange-600 hover:bg-orange-50 transition-colors cursor-pointer"
                         >
-                          <ListPlus className="w-4 h-4" />
+                          <ListPlus className="w-3.5 h-3.5" />
                         </button>
-
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             onEditSong(song);
                           }}
                           title="Editar Cifra"
-                          className="p-1.5 rounded-xl bg-slate-100 text-slate-600 hover:text-orange-600 hover:bg-orange-50 transition-colors cursor-pointer"
+                          className="p-1.5 rounded-lg bg-slate-100 text-slate-600 hover:text-orange-600 hover:bg-orange-50 transition-colors cursor-pointer"
                         >
-                          <Edit3 className="w-4 h-4" />
+                          <Edit3 className="w-3.5 h-3.5" />
                         </button>
-
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             setSongToDelete(song);
                           }}
                           title="Excluir Música"
-                          className="p-1.5 rounded-xl bg-slate-100 text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                          className="p-1.5 rounded-lg bg-slate-100 text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                         >
-                          <Trash2 className="w-4 h-4 text-rose-500" />
+                          <Trash2 className="w-3.5 h-3.5 text-rose-500" />
                         </button>
                       </div>
+
+                      {/* TOCAR */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onSelectSong(song);
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-black text-[10px] transition-colors flex items-center gap-1 shadow-2xs cursor-pointer shrink-0"
+                      >
+                        <Play className="w-3 h-3 fill-white" /> TOCAR
+                      </button>
                     </div>
                   </React.Fragment>
                 );
               })}
+
+              {/* Paginação: Mostrar mais */}
+              {hasMore && (
+                <div className="pt-2">
+                  <button
+                    onClick={() => setVisibleCount((c) => c + 24)}
+                    className="w-full py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-extrabold text-slate-600 hover:text-orange-600 hover:border-orange-300 transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    Mostrar mais ({filteredSongs.length - visibleCount} restantes)
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  </button>
+                  <p className="text-center text-[10px] text-slate-400 font-bold mt-1.5">
+                    Mostrando {shownSongs.length} de {filteredSongs.length} canções
+                  </p>
+                </div>
+              )}
             </div>
           ) : (
             <div className="text-center py-12 bg-white border border-slate-200/90 rounded-2xl p-6">
@@ -549,37 +658,205 @@ export const SongList: React.FC<SongListProps> = ({
           )}
         </div>
 
-        {/* COLUMN 3: Right Sidebar Widgets — conforme template */}
-        <div className="lg:col-span-3 space-y-4">
-          {/* Widget 1: REPERTÓRIO ATUAL — cards verticais grandes (G, C, Am) */}
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <h3 className="font-black text-slate-900 uppercase text-xs tracking-wider">
-                REPERTÓRIO ATUAL
+        {/* SIDEBAR (4/12): ranking + artistas + widgets — depois das músicas no mobile */}
+        <div className="lg:col-span-4 space-y-4 order-2">
+          {/* Widget 0: EM ALTA — o que está bombando nos últimos 14 dias */}
+          <div className="bg-gradient-to-br from-[#F26419]/10 via-white to-amber-100/60 border border-orange-200/70 rounded-2xl p-4 shadow-2xs space-y-2">
+            <div className="flex items-center justify-between border-b border-orange-200/60 pb-2">
+              <h3 className="font-black text-slate-900 uppercase text-xs tracking-wider flex items-center gap-1.5">
+                <TrendingUp className="w-3.5 h-3.5 text-[#F26419]" /> Em Alta
               </h3>
-              <span className="text-[10px] text-orange-500 font-bold flex items-center gap-0.5 cursor-pointer">
-                Inéditos <ChevronRight className="w-3 h-3" />
+              <span className="text-[10px] font-black text-[#F26419] flex items-center gap-0.5 shrink-0">
+                <Flame className="w-3 h-3 fill-current" /> 14 dias
               </span>
             </div>
 
-            <div className="grid grid-cols-1 gap-2">
-              {[
-                { name: 'G', fingering: gChord },
-                { name: 'C', fingering: cChord },
-                { name: 'Am', fingering: amChord },
-              ].map((ch) => (
-                <div
-                  key={ch.name}
-                  className="bg-white border border-slate-200/90 rounded-xl p-2 flex items-center justify-center gap-3 shadow-2xs"
-                >
-                  <ChordDiagram chordName={ch.name} fingering={ch.fingering} size="md" showPlayButton={false} />
-                  <span className="font-mono font-black text-slate-900 text-sm">{ch.name}</span>
-                </div>
-              ))}
-            </div>
+            {trendingSongs.length > 0 ? (
+              <div className="space-y-0.5">
+                {trendingSongs.map((song, idx) => (
+                  <button
+                    key={song.id}
+                    onClick={() => onSelectSong(song)}
+                    className="w-full flex items-center gap-2.5 p-1.5 rounded-lg hover:bg-orange-50/80 transition-colors text-left group/trend cursor-pointer"
+                  >
+                    <span
+                      className={`w-6 text-center font-black text-sm shrink-0 transition-colors ${
+                        idx === 0
+                          ? 'text-[#F26419]'
+                          : idx < 3
+                          ? 'text-amber-500'
+                          : 'text-slate-300'
+                      } group-hover/trend:text-[#F26419]`}
+                    >
+                      {idx + 1}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] font-bold text-slate-900 truncate group-hover/trend:text-orange-600">
+                        {song.title}
+                      </p>
+                      <p className="text-[10px] text-slate-400 truncate">{song.artist}</p>
+                    </div>
+                    <span className="flex items-center gap-0.5 text-[10px] font-black text-[#F26419] shrink-0">
+                      <Flame className="w-2.5 h-2.5 fill-current" />
+                      {trendingMap.get(song.id) ?? 0}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-[10px] text-slate-400 font-semibold leading-relaxed">
+                As músicas com mais votos nos últimos 14 dias aparecem aqui — vote em suas
+                favoritas para colocá-las em alta! 🔥
+              </p>
+            )}
           </div>
 
-          {/* Widget 2: REPERTÓRIO DE HOJE — lista horizontal com PLAY + seta */}
+          {/* Widget 1: MAIS VOTADAS — ranking numerado estilo CifraClub */}
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs space-y-2">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+              <h3 className="font-black text-slate-900 uppercase text-xs tracking-wider flex items-center gap-1.5">
+                <Star className="w-3.5 h-3.5 text-amber-400 fill-current" /> Mais Votadas
+              </h3>
+              <span className="text-[10px] text-amber-500 font-black shrink-0">
+                {totalVotes} {totalVotes === 1 ? 'voto' : 'votos'}
+              </span>
+            </div>
+
+            {topVotedSongs.length > 0 ? (
+              <div className="space-y-0.5">
+                {topVotedSongs.map((song, idx) => (
+                  <button
+                    key={song.id}
+                    onClick={() => onSelectSong(song)}
+                    className="w-full flex items-center gap-2.5 p-1.5 rounded-lg hover:bg-orange-50/70 transition-colors text-left group/rank cursor-pointer"
+                  >
+                    <span
+                      className={`w-6 text-center font-black text-sm shrink-0 transition-colors ${
+                        idx < 3 ? 'text-orange-500' : 'text-slate-300'
+                      } group-hover/rank:text-amber-500`}
+                    >
+                      {idx + 1}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] font-bold text-slate-900 truncate group-hover/rank:text-orange-600">
+                        {song.title}
+                      </p>
+                      <p className="text-[10px] text-slate-400 truncate">{song.artist}</p>
+                    </div>
+                    <span className="flex items-center gap-0.5 text-[10px] font-black text-amber-500 shrink-0">
+                      <Star className="w-2.5 h-2.5 fill-current" />
+                      {song.votes ?? 0}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-[10px] text-slate-400 font-semibold leading-relaxed">
+                Nenhum voto ainda — toque ⭐ em uma música e ajude a criar o ranking do portal!
+              </p>
+            )}
+          </div>
+
+          {/* Widget 2: Lista de Artistas — compacta, visível mas secundária */}
+          <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-3 shadow-2xs space-y-2">
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => setArtistsCollapsed((prev) => !prev)}
+                className="flex items-center gap-1.5 text-slate-700 hover:text-slate-900 uppercase font-black text-[11px] tracking-wider cursor-pointer transition-colors group"
+                title={artistsCollapsed ? 'Mostrar lista de artistas' : 'Recolher lista de artistas'}
+              >
+                <User className="w-3.5 h-3.5 text-orange-500" />
+                Artistas
+                <span className="text-[9px] font-bold text-slate-500 bg-white border border-slate-200 rounded-full px-1.5 py-px leading-none">
+                  {artistsList.length}
+                </span>
+                <ChevronDown
+                  className={`w-3 h-3 text-slate-400 transition-transform duration-200 group-hover:text-orange-500 ${
+                    artistsCollapsed ? '' : 'rotate-180'
+                  }`}
+                />
+              </button>
+              {selectedArtistFilter !== 'all' && (
+                <button
+                  onClick={() => setSelectedArtistFilter('all')}
+                  className="text-[10px] text-orange-600 font-bold hover:underline"
+                >
+                  Limpar
+                </button>
+              )}
+            </div>
+
+            {artistsCollapsed ? (
+              <p className="text-[10px] text-slate-400 font-semibold leading-relaxed px-0.5">
+                Toque para navegar por artista. As canções continuam logo ao lado ⬅️
+              </p>
+            ) : (
+              <div className="space-y-0.5 max-h-[300px] overflow-y-auto pr-1">
+              {visibleArtists.map((artist, idx) => {
+                const isSelected = selectedArtistFilter.toLowerCase() === artist.name.toLowerCase();
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => artist.count > 0 && handleArtistClick(artist.name)}
+                    title={
+                      artist.count > 0
+                        ? 'Ver as canções deste artista'
+                        : 'Este artista ainda não tem canções no acervo'
+                    }
+                    className={`flex items-center gap-2.5 p-1.5 rounded-lg transition-all ${
+                      isSelected
+                        ? 'bg-slate-100 border border-slate-200 cursor-default'
+                        : artist.count > 0
+                        ? 'hover:bg-slate-100 text-slate-700 cursor-pointer'
+                        : 'text-slate-300 cursor-default'
+                    }`}
+                  >
+                    <img
+                      src={artist.avatar}
+                      alt={artist.name}
+                      loading="lazy"
+                      className="w-6 h-6 rounded-full object-cover border border-slate-200/80 shrink-0 bg-slate-100"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.onerror = null;
+                        target.src =
+                          'https://ui-avatars.com/api/?name=' +
+                          encodeURIComponent(artist.name) +
+                          '&background=0E7C7B&color=fff&bold=true&size=64';
+                      }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] font-bold truncate text-slate-900 leading-tight">
+                        {artist.name}
+                      </p>
+                      <p className={`text-[9px] ${isSelected ? 'text-[#0E7C7B] font-bold' : 'text-slate-400'}`}>
+                        {artist.count > 0 ? `${artist.count} músicas` : 'Artista Ukulele'}
+                      </p>
+                    </div>
+                    <ChevronRight
+                      className={`w-3.5 h-3.5 shrink-0 transition-colors ${
+                        isSelected ? 'text-orange-500' : 'text-slate-300'
+                      }`}
+                    />
+                  </div>
+                );
+              })}
+
+                {artistsList.length > 5 && (
+                  <button
+                    onClick={() => setShowAllArtists((prev) => !prev)}
+                    className="w-full py-1.5 text-[10px] font-extrabold text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                  >
+                    {showAllArtists
+                      ? `▲ Ver menos (${visibleArtists.length})`
+                      : `▼ Ver todos (${artistsList.length})`}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Widget 3: REPERTÓRIO DE HOJE — lista horizontal com PLAY + seta */}
           <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs space-y-3">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2">
               <h3 className="font-black text-slate-900 uppercase text-xs tracking-wider">
@@ -642,40 +919,29 @@ export const SongList: React.FC<SongListProps> = ({
             </div>
           </div>
 
-          {/* Widget 3: Card em destaque — horizontal com estrelas + PLAY */}
-          {songs.length > 0 && (
-            <div className="bg-white border border-slate-200/90 rounded-2xl p-3.5 shadow-2xs flex items-center gap-3">
-              <div className="w-16 h-16 rounded-xl overflow-hidden bg-orange-500/10 flex items-center justify-center shrink-0">
-                {songs[0].youtubeId ? (
-                  <img
-                    src={`https://img.youtube.com/vi/${songs[0].youtubeId}/default.jpg`}
-                    alt={songs[0].title}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <Music className="w-7 h-7 text-orange-500" />
-                )}
-              </div>
-              <div className="flex-1 min-w-0 space-y-1">
-                <p className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">
-                  Repertório de Hoje
-                </p>
-                <p className="text-xs font-black text-slate-900 truncate">{songs[0].title}</p>
-                <p className="text-[10px] text-orange-600 font-bold truncate">{songs[0].artist}</p>
-                <div className="flex text-amber-400">
-                  {[0, 1, 2, 3, 4].map((i) => (
-                    <Star key={i} className="w-3 h-3 fill-amber-400" />
-                  ))}
-                </div>
-              </div>
-              <button
-                onClick={() => onSelectSong(songs[0])}
-                className="px-3 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black text-xs shrink-0 flex items-center gap-1 cursor-pointer shadow-2xs"
-              >
-                <Play className="w-3 h-3 fill-white" /> PLAY
-              </button>
+          {/* Widget 4: REPERTÓRIO ATUAL — acordes compactos em linha */}
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-3 shadow-2xs space-y-2">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2 px-1">
+              <h3 className="font-black text-slate-900 uppercase text-xs tracking-wider">
+                REPERTÓRIO ATUAL
+              </h3>
+              <span className="text-[10px] text-orange-500 font-bold flex items-center gap-0.5 cursor-pointer">
+                Inéditos <ChevronRight className="w-3 h-3" />
+              </span>
             </div>
-          )}
+
+            <div className="flex justify-center gap-1.5">
+              {[
+                { name: 'G', fingering: gChord },
+                { name: 'C', fingering: cChord },
+                { name: 'Am', fingering: amChord },
+              ].map((ch) => (
+                <div key={ch.name} className="scale-[0.82] origin-center -my-2.5">
+                  <ChordDiagram chordName={ch.name} fingering={ch.fingering} size="sm" showPlayButton={false} />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 

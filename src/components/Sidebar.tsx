@@ -9,6 +9,7 @@ import {
   Radio,
   Settings,
   Sparkles,
+  ShieldCheck,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -21,6 +22,7 @@ interface SidebarProps {
   onOpenAdSenseSettings?: () => void;
   isOpenMobile?: boolean;
   onCloseMobile?: () => void;
+  isAdmin?: boolean;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -33,6 +35,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenAdSenseSettings,
   isOpenMobile = false,
   onCloseMobile,
+  isAdmin = false,
 }) => {
   const navItems = [
     {
@@ -82,6 +85,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: Settings,
       onClick: () => onOpenAdSenseSettings?.(),
     },
+    ...(isAdmin
+      ? [
+          {
+            id: 'admin' as const,
+            label: 'ADMIN',
+            icon: ShieldCheck,
+            onClick: () => setActiveTab('admin'),
+          },
+        ]
+      : []),
   ];
 
   const content = (

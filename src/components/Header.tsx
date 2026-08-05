@@ -22,11 +22,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [donationOpen, setDonationOpen] = useState(false);
   const { available, isLoaded, user } = useAuth();
 
-  const displayName =
-    user?.fullName ||
-    user?.username ||
-    user?.primaryEmailAddress?.emailAddress?.split('@')[0] ||
-    'Músico';
+  const displayName = user?.name || 'Músico';
 
   return (
     <>
@@ -107,9 +103,11 @@ export const Header: React.FC<HeaderProps> = ({
                         mode="modal"
                         className="px-3.5 py-1.5 rounded-xl bg-[#F26419] hover:bg-[#D9530D] text-white font-black text-xs tracking-wider uppercase shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
                       >
-                        <Sparkles className="w-3.5 h-3.5" />
-                        <span className="hidden md:inline">Cadastrar Grátis</span>
-                        <span className="md:hidden">Cadastrar</span>
+                        <span className="flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5" />
+                          <span className="hidden md:inline">Cadastrar Grátis</span>
+                          <span className="md:hidden">Cadastrar</span>
+                        </span>
                       </SignUpButton>
                     </div>
                   </SignedOut>

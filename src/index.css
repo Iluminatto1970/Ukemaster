@@ -79,6 +79,86 @@
   --color-slate-700: #3E4E61;
   --color-slate-800: #2B3A4B;
   --color-slate-900: #1D2D44;
+
+  /* ============================================================
+     Cores SEMÂNTICAS harmonizadas com a paleta da marca
+     (sucesso = teal, perigo = vermelho quente, info = azul-marinho)
+     ============================================================ */
+
+  /* Emerald / Verde (sucesso, "Iniciante", check) → família Teal da marca */
+  --color-emerald-50: #EDF7F6;
+  --color-emerald-100: #D5ECEA;
+  --color-emerald-200: #AAD9D6;
+  --color-emerald-300: #78C0BC;
+  --color-emerald-400: #3F9F9B;
+  --color-emerald-500: #0E7C7B;
+  --color-emerald-600: #0A5F5E;
+  --color-emerald-700: #084D4C;
+  --color-emerald-800: #073D3C;
+  --color-emerald-900: #06302F;
+
+  /* Red / Rose (perigo, excluir, erros) → vermelho quente que conversa
+     com o laranja da marca (não é um vermelho frio genérico) */
+  --color-red-50: #FDF2EF;
+  --color-red-100: #FADED6;
+  --color-red-200: #F3B9AB;
+  --color-red-300: #E98D7B;
+  --color-red-400: #D95F4E;
+  --color-red-500: #C13B2C;
+  --color-red-600: #A82F23;
+  --color-red-700: #8C281F;
+  --color-red-800: #73221B;
+  --color-red-900: #5E1D16;
+
+  --color-rose-50: #FDF2EF;
+  --color-rose-100: #FADED6;
+  --color-rose-200: #F3B9AB;
+  --color-rose-300: #E98D7B;
+  --color-rose-400: #D95F4E;
+  --color-rose-500: #C13B2C;
+  --color-rose-600: #A82F23;
+  --color-rose-700: #8C281F;
+  --color-rose-800: #73221B;
+  --color-rose-900: #5E1D16;
+
+  /* Blue (informativo) → família Azul-Marinho/Grafite da marca */
+  --color-blue-50: #F2F5F9;
+  --color-blue-100: #E1E8F1;
+  --color-blue-200: #C3CFE0;
+  --color-blue-300: #97ABC8;
+  --color-blue-400: #64809F;
+  --color-blue-500: #3F5A78;
+  --color-blue-600: #2C4864;
+  --color-blue-700: #263C54;
+  --color-blue-800: #203247;
+  --color-blue-900: #1A293B;
+
+  /* Purple (badges secundários, ex.: repertório "Misto") → violeta suave
+     que mantém contraste com teal e laranja sem fugir da identidade */
+  --color-purple-50: #F5F4F9;
+  --color-purple-100: #E6E4F0;
+  --color-purple-200: #CBC7E0;
+  --color-purple-300: #A8A1C7;
+  --color-purple-400: #7F76A8;
+  --color-purple-500: #5E548A;
+  --color-purple-600: #4A4270;
+  --color-purple-700: #3C365C;
+  --color-purple-800: #302B4A;
+  --color-purple-900: #27223C;
+
+  /* Stone (painéis escuros: afinador, editor) → família Azul-Marinho da
+     marca em vez do cinza frio padrão do Tailwind */
+  --color-stone-50: #F5F7F9;
+  --color-stone-100: #E8EDF1;
+  --color-stone-200: #D4DCE4;
+  --color-stone-300: #B1BECC;
+  --color-stone-400: #8C9BAE;
+  --color-stone-500: #6C7E93;
+  --color-stone-600: #52647A;
+  --color-stone-700: #3E4E61;
+  --color-stone-800: #2B3A4B;
+  --color-stone-900: #1D2D44;
+  --color-stone-950: #152138;
 }
 
 body {

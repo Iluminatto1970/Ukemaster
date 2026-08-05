@@ -23,14 +23,12 @@ import {
   Bookmark,
   ChevronUp,
   ChevronDown,
-  Share2,
   Tag,
-  Copy,
-  Check,
   Trash2,
   Eye,
   EyeOff,
   FolderHeart,
+  Star,
 } from 'lucide-react';
 import { playUkuleleChord } from '../utils/audio';
 
@@ -44,6 +42,8 @@ interface SongViewerProps {
   isInRepertoire?: boolean;
   onToggleRepertoire?: () => void;
   onOpenAuth?: (mode?: 'signup' | 'login') => void;
+  isVoted?: boolean;
+  onVoteSong?: (song: Song) => void;
 }
 
 export const SongViewer: React.FC<SongViewerProps> = ({
@@ -56,6 +56,8 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   isInRepertoire = false,
   onToggleRepertoire,
   onOpenAuth,
+  isVoted = false,
+  onVoteSong,
 }) => {
   const videoId = extractYouTubeId(song.youtubeId || song.youtubeUrl || '');
   const [transposeSemitones, setTransposeSemitones] = useState<number>(0);
@@ -63,7 +65,6 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   const [showVideo, setShowVideo] = useState<boolean>(Boolean(videoId));
   const [floatingVideo, setFloatingVideo] = useState<boolean>(false);
   const [selectedChordModal, setSelectedChordModal] = useState<string | null>(null);
-  const [copiedHashtags, setCopiedHashtags] = useState<boolean>(false);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [showTablatures, setShowTablatures] = useState<boolean>(true);
 
@@ -77,8 +78,8 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   const uniqueChords = extractUniqueChords(song.content, transposeSemitones);
   const parsedLines = parseChordPro(song.content, transposeSemitones);
 
-  // Automatically generate SEO metatags, title & hashtags based on Title and Artist
-  const generatedSeo = useSongSeo({
+  // SEO: atualiza <title> e <meta> no head (as hashtags ficam apenas nos dados, sem UI visível)
+  useSongSeo({
     title: song.title,
     artist: song.artist,
     key: song.key,
@@ -89,10 +90,61 @@ export const SongViewer: React.FC<SongViewerProps> = ({
     autoUpdateHead: true, // Dynamically updates <title> and <meta> tags in document head
   });
 
-  const seoData = {
-    seoDescription: song.seoDescription || generatedSeo.seoDescription,
-    hashtags: song.hashtags && song.hashtags.length > 0 ? song.hashtags : generatedSeo.hashtags,
-  };
+  // SEO estruturado: JSON-LD MusicRecording + canonical + og:url — para o
+  // Google/WhatsApp/redes entenderem que esta página É uma música (crawlers
+  // também recebem o prerender completo via /api/musica no servidor).
+  useEffect(() => {
+    // Usa o origin real (produção = ukemasterpro.vercel.app; dev = localhost)
+    const siteUrl = window.location.origin;
+    const pageUrl = `${siteUrl}/musica/${encodeURIComponent(song.id)}`;
+
+    // Só remove no cleanup o que ESTE componente criou (se já existia um
+    // canonical/og:url de outra origem, não apagamos o de outra pessoa)
+    const created: HTMLElement[] = [];
+
+    let link = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'canonical';
+      document.head.appendChild(link);
+      created.push(link);
+    }
+    link.href = pageUrl;
+
+    let ogUrl = document.querySelector<HTMLMetaElement>('meta[property="og:url"]');
+    if (!ogUrl) {
+      ogUrl = document.createElement('meta');
+      ogUrl.setAttribute('property', 'og:url');
+      document.head.appendChild(ogUrl);
+      created.push(ogUrl);
+    }
+    ogUrl.setAttribute('content', pageUrl);
+
+    const jsonLd = {
+      '@context': 'https://schema.org',
+      '@type': 'MusicRecording',
+      name: song.title,
+      byArtist: { '@type': 'MusicGroup', name: song.artist },
+      ...(song.key ? { inKey: song.key } : {}),
+      ...(song.category ? { genre: song.category } : {}),
+      url: pageUrl,
+      publisher: { '@type': 'Organization', name: 'UkeMaster Pro', url: siteUrl },
+    };
+    let script = document.querySelector<HTMLScriptElement>('script[data-song-jsonld]');
+    if (!script) {
+      script = document.createElement('script');
+      script.type = 'application/ld+json';
+      script.setAttribute('data-song-jsonld', '1');
+      document.head.appendChild(script);
+      created.push(script);
+    }
+    script.textContent = JSON.stringify(jsonLd);
+
+    return () => {
+      // Remove só o que criamos — JSON-LD de uma música não vaza para outra
+      created.forEach((el) => el.remove());
+    };
+  }, [song.id, song.title, song.artist, song.key, song.category]);
 
   // Handle Auto-Scroll
   useEffect(() => {
@@ -173,6 +225,21 @@ export const SongViewer: React.FC<SongViewerProps> = ({
 
         {/* Right Actions */}
         <div className="flex flex-wrap items-center gap-2">
+          {/* Community Vote Button (rating) */}
+          <button
+            onClick={() => onVoteSong?.(song)}
+            title={isVoted ? 'Remover meu voto' : 'Votar nesta música'}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black border transition-all cursor-pointer ${
+              isVoted
+                ? 'bg-amber-400 text-[#1D2D44] border-amber-400 shadow-sm'
+                : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-400 hover:text-[#1D2D44]'
+            }`}
+          >
+            <Star className={`w-4 h-4 ${isVoted ? 'fill-current' : ''}`} />
+            {isVoted ? 'Votado' : 'Votar'}
+            <span className="tabular-nums opacity-80">({song.votes ?? 0})</span>
+          </button>
+
           {/* Private Repertoire Button */}
           {isInRepertoire ? (
             <button
@@ -451,40 +518,6 @@ export const SongViewer: React.FC<SongViewerProps> = ({
           </div>
         )}
 
-        {/* Automatic SEO & Hashtags Card */}
-        <div className="pt-3 border-t border-slate-200">
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <span className="text-xs font-bold text-[#0E7C7B] flex items-center gap-1.5">
-                <Share2 className="w-3.5 h-3.5 text-[#0E7C7B]" /> SEO & Hashtags para Redes Sociais
-              </span>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(seoData.hashtags.join(' '));
-                  setCopiedHashtags(true);
-                  setTimeout(() => setCopiedHashtags(false), 2000);
-                }}
-                className="text-xs text-[#0E7C7B] hover:underline font-bold flex items-center gap-1 bg-[#0E7C7B]/10 px-2.5 py-1 rounded-lg border border-[#0E7C7B]/20 cursor-pointer self-start sm:self-auto"
-                title="Copiar todas as hashtags formatadas para postagem"
-              >
-                {copiedHashtags ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                {copiedHashtags ? 'Hashtags Copiadas!' : 'Copiar Hashtags (#)'}
-              </button>
-            </div>
-
-            <p className="text-xs text-slate-600 leading-relaxed italic">
-              "{seoData.seoDescription}"
-            </p>
-
-            <div className="flex flex-wrap gap-1.5 pt-1">
-              {seoData.hashtags.map((tag, idx) => (
-                <span key={idx} className="px-2 py-0.5 bg-white border border-slate-200 text-[#1D2D44] rounded text-[11px] font-mono">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Floating Picture-in-Picture YouTube Player */}

@@ -214,19 +214,19 @@ export const Tuner: React.FC = () => {
                 <path
                   d="M 20 100 A 80 80 0 0 1 180 100"
                   fill="none"
-                  stroke="#27272a"
+                  stroke="#152138"
                   strokeWidth="12"
                   strokeLinecap="round"
                 />
 
-                {/* Target In-Tune Zone (Green center) */}
+                {/* Target In-Tune Zone (centro) */}
                 <path
                   d="M 92 21 A 80 80 0 0 1 108 21"
                   fill="none"
-                  stroke="#10b981"
+                  stroke="#0E7C7B"
                   strokeWidth="14"
                   strokeLinecap="round"
-                  className="drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                  className="drop-shadow-[0_0_8px_rgba(14,124,123,0.5)]"
                 />
 
                 {/* Ticks */}
@@ -244,7 +244,7 @@ export const Tuner: React.FC = () => {
                       y1={y1}
                       x2={x2}
                       y2={y2}
-                      stroke={c === 0 ? '#10b981' : '#52525b'}
+                      stroke={c === 0 ? '#0E7C7B' : '#6C7E93'}
                       strokeWidth={c === 0 ? 3 : 1.5}
                     />
                   );
@@ -266,15 +266,15 @@ export const Tuner: React.FC = () => {
                       y2="24"
                       stroke={
                         pitchResult.isInTune
-                          ? '#10b981'
+                          ? '#0E7C7B'
                           : Math.abs(pitchResult.cents) < 18
-                          ? '#f59e0b'
-                          : '#ef4444'
+                          ? '#F6AE2D'
+                          : '#C13B2C'
                       }
                       strokeWidth="3.5"
                       strokeLinecap="round"
                     />
-                    <circle cx="100" cy="100" r="7" fill="#f59e0b" />
+                    <circle cx="100" cy="100" r="7" fill="#F6AE2D" />
                   </g>
                 )}
               </svg>
@@ -286,7 +286,7 @@ export const Tuner: React.FC = () => {
                     <span
                       className={`text-4xl font-black font-mono tracking-tight ${
                         pitchResult.isInTune
-                          ? 'text-emerald-400 drop-shadow-[0_0_12px_rgba(16,185,129,0.8)]'
+                          ? 'text-emerald-400 drop-shadow-[0_0_12px_rgba(14,124,123,0.8)]'
                           : 'text-amber-400'
                       }`}
                     >

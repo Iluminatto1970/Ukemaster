@@ -430,7 +430,24 @@ export function extractSongMetadata(
   // Option B: Inspect first non-empty line of text if still missing
   if (!title && lines.length > 0) {
     const firstLine = lines[0];
-    if (/[-–—]/.test(firstLine)) {
+    // Rejeita linhas com acordes embutidos ([G], "C Am F") ou lixo de cifra
+    // (ex.: ")] [G#7] [C#m7]") — não são títulos de música.
+    const hasBracketChord = /\[[A-G][#b]?[^\]]*\]/.test(firstLine);
+    const isChordSoup = /^[)\]}\s]+\s*\[[A-G]/.test(firstLine);
+    if (hasBracketChord || isChordSoup || isChordLine(firstLine)) {
+      // pula — linha de acordes solta, tenta a próxima linha significativa
+      // (ignora também headers de seção como [Intro], [Primeira Parte])
+      const nextLine = lines.find(
+        (l) =>
+          !isChordLine(l) &&
+          !/\[[A-G][#b]?[^\]]*\]/.test(l) &&
+          !/^\[[^\]]*\]$/.test(l.trim()) &&
+          l.length > 2
+      );
+      if (nextLine) {
+        title = nextLine.replace(/^["']|["']$/g, '').trim();
+      }
+    } else if (/[-–—]/.test(firstLine)) {
       const parts = firstLine.split(/[-–—]/).map(p => p.trim()).filter(Boolean);
       if (parts.length >= 2) {
         artist = parts[0];
@@ -480,7 +497,8 @@ export function generateSongSeoAndHashtags(
   songKey: string = 'C',
   difficulty: string = 'Iniciante',
   detectedChords: string[] = [],
-  strummingPattern?: string
+  strummingPattern?: string,
+  category?: string
 ): SongSeoOutput {
   const result = generateSongSeo({
     title,
@@ -489,6 +507,7 @@ export function generateSongSeoAndHashtags(
     difficulty,
     chords: detectedChords,
     strummingPattern,
+    category,
   });
 
   return {

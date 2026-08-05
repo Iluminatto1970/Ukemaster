@@ -52,11 +52,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
   // Filter songs in private repertoire
   const repertoireSongs = songs.filter((s) => repertoireSongIds.includes(s.id));
 
+  // Busca insensível a acentos (caetano == caetano) e maiúsculas
+  const normalizeSearch = (s: string) =>
+    s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const query = normalizeSearch(searchQuery.trim());
+
   const filteredRepertoire = repertoireSongs.filter((s) => {
     const matchSearch =
-      s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.artist.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (s.category && s.category.toLowerCase().includes(searchQuery.toLowerCase()));
+      !query ||
+      normalizeSearch(s.title || '').includes(query) ||
+      normalizeSearch(s.artist || '').includes(query) ||
+      (s.category && normalizeSearch(s.category).includes(query));
     return matchSearch;
   });
 

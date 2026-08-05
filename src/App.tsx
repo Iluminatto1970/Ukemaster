@@ -1,20 +1,38 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, lazy, Suspense } from 'react';
 import { useAuth } from './auth';
 import { Song, Playlist, ActiveTab } from './types';
 import { DEFAULT_SONGS, DEFAULT_PLAYLISTS } from './data/defaultSongs';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
-import { ChordDictionary } from './components/ChordDictionary';
-import { Tuner } from './components/Tuner';
 import { SongList } from './components/SongList';
-import { SongViewer } from './components/SongViewer';
-import { SongEditor } from './components/SongEditor';
-import { PlaylistManager } from './components/PlaylistManager';
-import { StrummingGuide } from './components/StrummingGuide';
+
+// Lazy-loading: telas pesadas (afinador, editor, player...) só são baixadas
+// quando o usuário abre a tela — o bundle inicial fica ~3x menor no celular.
+const ChordDictionary = lazy(() =>
+  import('./components/ChordDictionary').then((m) => ({ default: m.ChordDictionary }))
+);
+const Tuner = lazy(() => import('./components/Tuner').then((m) => ({ default: m.Tuner })));
+const SongViewer = lazy(() =>
+  import('./components/SongViewer').then((m) => ({ default: m.SongViewer }))
+);
+const SongEditor = lazy(() =>
+  import('./components/SongEditor').then((m) => ({ default: m.SongEditor }))
+);
+const PlaylistManager = lazy(() =>
+  import('./components/PlaylistManager').then((m) => ({ default: m.PlaylistManager }))
+);
+const StrummingGuide = lazy(() =>
+  import('./components/StrummingGuide').then((m) => ({ default: m.StrummingGuide }))
+);
+const Dashboard = lazy(() =>
+  import('./components/Dashboard').then((m) => ({ default: m.Dashboard }))
+);
+const AdminScraper = lazy(() =>
+  import('./components/AdminScraper').then((m) => ({ default: m.AdminScraper }))
+);
 // import { AdSenseSlot } from './components/AdSenseSlot'; // placeholder // placeholder
 import { StickyBottomAd } from './components/StickyBottomAd';
 import { AdSenseSettingsModal } from './components/AdSenseSettingsModal';
-import { Dashboard } from './components/Dashboard';
 import { AdInterstitialModal } from './components/AdInterstitialModal';
 import { Monetag } from './components/Monetag';
 import { SupportPrompt } from './components/SupportPrompt';
@@ -35,10 +53,53 @@ import {
   pushRepertoireToCloud,
   isSupabaseConfigured,
 } from './lib/cloudSync';
+import {
+  getVoterId,
+  mergeLocalVotes,
+  fetchMyVotes,
+  persistVote,
+} from './lib/ratings';
+import { trackEvent, trackPageView } from './lib/analytics';
 
 
 const LOCAL_STORAGE_SONGS_KEY = 'ukemaster_songs_v1';
 const LOCAL_STORAGE_PLAYLISTS_KEY = 'ukemaster_playlists_v1';
+
+// Error boundary para os chunks lazy: se o download falhar (rede 3G caiu),
+// mostra um aviso com botão de tentar de novo em vez de derrubar o app.
+class LazyErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  props: { children: React.ReactNode };
+  state: { hasError: boolean };
+
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="text-center py-16">
+          <p className="text-sm font-bold text-slate-500">
+            Não foi possível carregar esta tela (conexão instável).
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-3 px-4 py-2 rounded-xl bg-[#F26419] text-white text-xs font-bold cursor-pointer"
+          >
+            Recarregar página
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export default function App() {
   // Load initial state from localStorage or default dataset
@@ -72,6 +133,9 @@ export default function App() {
     };
   }, [isSignedIn, clerkUser]);
 
+  // Área ADMIN — visível apenas para o proprietário
+  const isAdmin = currentUser?.email?.toLowerCase() === 'iluminatto@gmail.com';
+
   // ── Repertório INDIVIDUAL (cada usuário tem o seu) ───────────────────────
   // As MÚSICAS são públicas para todos; o REPERTÓRIO é chaveado pelo id do
   // Clerk (visitantes usam uma área "guest" separada). Toggle para torná-lo
@@ -88,6 +152,10 @@ export default function App() {
   // Marca se o usuário editou dados locais antes do primeiro load da nuvem
   // terminar — nesse caso a nuvem NÃO sobrescreve a edição local.
   const localEditedRef = useRef<boolean>(false);
+
+  // ── Votação (rating): 1 voto por usuário por música ───────────────────────
+  const [myVotes, setMyVotes] = useState<Set<string>>(new Set());
+  const voterId = useMemo(() => getVoterId(clerkUser?.id), [clerkUser?.id]);
 
   const [activeTab, setActiveTab] = useState<ActiveTab>('musicas');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -108,14 +176,35 @@ export default function App() {
   // Import Monetag and SupportPrompt
   const [songOpenCount, setSongOpenCount] = useState<number>(0);
 
-  // Sync state to localStorage
+  // Sync state to localStorage — versão ENXUTA: com o acervo de 3.000+ cifras
+  // completas o JSON estouraria a cota de ~5MB do localStorage, então o cache
+  // local guarda só os metadados (id, título, artista, tom...). O conteúdo
+  // completo vem da nuvem no carregamento; o cache local serve para listar e
+  // buscar mesmo offline.
+  const localSongsCache = useMemo(
+    () =>
+      songs.map((s) => ({
+        ...s,
+        content: undefined,
+        simplifiedContent: undefined,
+      })),
+    [songs]
+  );
   useEffect(() => {
     try {
-      localStorage.setItem(LOCAL_STORAGE_SONGS_KEY, JSON.stringify(songs));
+      localStorage.setItem(LOCAL_STORAGE_SONGS_KEY, JSON.stringify(localSongsCache));
     } catch (e) {
-      console.error('Error saving songs to localStorage:', e);
+      // Cota estourada mesmo assim — tenta salvar só ids (melhor que nada)
+      try {
+        localStorage.setItem(
+          LOCAL_STORAGE_SONGS_KEY,
+          JSON.stringify(songs.map((s) => ({ id: s.id, title: s.title, artist: s.artist })))
+        );
+      } catch (e2) {
+        console.error('Error saving songs to localStorage:', e2);
+      }
     }
-  }, [songs]);
+  }, [localSongsCache, songs]);
 
   useEffect(() => {
     try {
@@ -139,7 +228,8 @@ export default function App() {
       if (cancelled) return;
       // Se o usuário editou algo antes da resposta chegar, não sobrescreve
       if (cloudSongs && cloudSongs.length > 0 && !localEditedRef.current) {
-        setSongs(cloudSongs);
+        // Aplica os votos locais (fallback offline) sobre o acervo da nuvem
+        setSongs(mergeLocalVotes(cloudSongs));
       }
       if (cloudPlaylists && cloudPlaylists.length > 0 && !localEditedRef.current) {
         setPlaylists(cloudPlaylists);
@@ -150,6 +240,17 @@ export default function App() {
       cancelled = true;
     };
   }, []);
+
+  // Carrega os votos do usuário atual (dedupe 1 voto por música)
+  useEffect(() => {
+    let cancelled = false;
+    fetchMyVotes(voterId).then((votes) => {
+      if (!cancelled) setMyVotes(votes);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [voterId]);
 
   // Push (debounce) songs/playlists para a nuvem a cada alteração
   useEffect(() => {
@@ -255,9 +356,123 @@ export default function App() {
     localEditedRef.current = true;
   };
 
+  // Vota/desvota numa música: atualiza a UI imediatamente (otimista) e
+  // persiste em segundo plano. Se a nuvem falhar, reverte o estado local.
+  // Usa updaters funcionais (estado anterior) para cliques rápidos não
+  // derivarem do mesmo valor base e perderem voto.
+  const handleVoteSong = (song: Song) => {
+    const isVoted = myVotes.has(song.id);
+    const vote = !isVoted;
+    const delta = vote ? 1 : -1;
+
+    trackEvent(vote ? 'song_vote' : 'song_unvote', {
+      song_id: song.id,
+      title: song.title,
+      artist: song.artist,
+    });
+
+    // UI otimista (com base no estado anterior, não no prop velho)
+    setMyVotes((prev) => {
+      const next = new Set(prev);
+      if (vote) next.add(song.id);
+      else next.delete(song.id);
+      return next;
+    });
+    setSongs((prev) =>
+      prev.map((s) =>
+        s.id === song.id
+          ? { ...s, votes: Math.max(0, (s.votes ?? 0) + delta) }
+          : s
+      )
+    );
+
+    persistVote(song, voterId, vote).then((newCount) => {
+      if (newCount === null) {
+        // Falhou — reverte a UI
+        setMyVotes((prev) => {
+          const next = new Set(prev);
+          if (vote) next.delete(song.id);
+          else next.add(song.id);
+          return next;
+        });
+        setSongs((prev) =>
+          prev.map((s) =>
+            s.id === song.id
+              ? { ...s, votes: Math.max(0, (s.votes ?? 0) - delta) }
+              : s
+          )
+        );
+      } else {
+        // Confirma o total vindo da nuvem (fonte da verdade)
+        setSongs((prev) =>
+          prev.map((s) => (s.id === song.id ? { ...s, votes: newCount } : s))
+        );
+      }
+    });
+  };
+
+  // ── Rota /musica/:id — abre a cifra pela URL (links compartilháveis/SEO) ──
+  // Ao carregar uma URL tipo /musica/abc, o app abre essa cifra direto.
+  const openedUrlSongRef = useRef<string>('');
+  useEffect(() => {
+    const m = window.location.pathname.match(/^\/musica\/(.+)$/);
+    if (!m) return;
+    const id = decodeURIComponent(m[1]);
+    if (openedUrlSongRef.current === id) return;
+    const song = songs.find((s) => s.id === id);
+    if (!song) return;
+    openedUrlSongRef.current = id;
+    setActiveTab('musicas');
+    setSelectedSong(song);
+    setViewMode('viewer');
+  }, [songs]);
+
+  // Botão voltar do navegador: volta para a lista quando sai de /musica/:id
+  useEffect(() => {
+    const onPop = () => {
+      const m = window.location.pathname.match(/^\/musica\/(.+)$/);
+      if (!m) {
+        setViewMode((prev) => (prev === 'viewer' ? 'list' : prev));
+        return;
+      }
+      const song = songs.find((s) => s.id === decodeURIComponent(m[1]));
+      if (song) {
+        setSelectedSong(song);
+        setViewMode('viewer');
+      }
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, [songs]);
+
+  // Fecha o viewer e sincroniza a URL (remove /musica/:id do histórico)
+  // — senão o botão voltar do navegador reabriria a cifra fechada.
+  const handleCloseViewer = () => {
+    setViewMode('list');
+    if (/^\/musica\//.test(window.location.pathname)) {
+      window.history.pushState({}, '', '/');
+    }
+  };
+
   const handleSelectSong = (song: Song) => {
     const nextCount = songOpenCount + 1;
     setSongOpenCount(nextCount);
+
+    // URL compartilhável da cifra (a Vercel serve a SPA; crawlers recebem
+    // o prerender via api/musica.ts)
+    if (window.location.pathname !== `/musica/${song.id}`) {
+      window.history.pushState({}, '', `/musica/${song.id}`);
+    }
+
+    // Analytics: page_view virtual + evento de abertura de cifra
+    trackPageView(`Cifra: ${song.title} — ${song.artist}`, `/musica/${song.id}`);
+    trackEvent('song_view', {
+      song_id: song.id,
+      title: song.title,
+      artist: song.artist,
+      key: song.key || '',
+      genre: song.category || '',
+    });
 
     // Show interstitial ad gate on every 2nd song view attempt
     if (nextCount % 2 === 0) {
@@ -280,6 +495,7 @@ export default function App() {
 
   // Fluxo de cadastro: primeiro captura o lead, depois abre o Clerk
   const handleOpenAuth = (mode?: 'signup' | 'login') => {
+    trackEvent(mode === 'login' ? 'login_start' : 'signup_start');
     if (mode === 'login') {
       openSignIn();
       return;
@@ -289,6 +505,7 @@ export default function App() {
 
   const handleLeadComplete = () => {
     setIsLeadCaptureOpen(false);
+    trackEvent('lead_captured');
     openSignUp();
   };
 
@@ -343,6 +560,21 @@ export default function App() {
       setViewMode('list');
     }
   };
+
+  // Analytics: page_view virtual ao trocar de aba/tela (SPA)
+  useEffect(() => {
+    const labels: Record<ActiveTab, string> = {
+      dashboard: 'Dashboard / Repertório',
+      musicas: 'Músicas da Comunidade',
+      dicionario: 'Dicionário de Acordes',
+      afinador: 'Afinador',
+      ritmos: 'Ritmos e Batidas',
+      admin: 'Admin',
+    };
+    trackPageView(labels[activeTab] || activeTab);
+    trackEvent('tab_view', { tab: activeTab });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   // Handlers for Playlists
   const handleCreatePlaylist = (
@@ -480,6 +712,7 @@ export default function App() {
           onOpenAdSenseSettings={() => setIsAdSenseModalOpen(true)}
           isOpenMobile={isMobileSidebarOpen}
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
+          isAdmin={isAdmin}
         />
 
         {/* Right Main Content Panel */}
@@ -492,6 +725,21 @@ export default function App() {
                 : 'bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-6 shadow-2xs min-h-[600px]'
             }
           >
+            {/* Suspense: fallback leve enquanto o lazy-load de uma tela baixa.
+                ErrorBoundary: se um chunk falhar no 3G, mostra retry em vez
+                de tela branca. */}
+            <LazyErrorBoundary>
+            <Suspense
+              fallback={
+                <div className="flex items-center justify-center py-24">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-8 h-8 rounded-full border-4 border-[#0E7C7B]/20 border-t-[#0E7C7B] animate-spin" />
+                    <span className="text-xs font-bold text-slate-400">Carregando…</span>
+                  </div>
+                </div>
+              }
+            >
+
             {/* Tab 1: Dashboard (Repertório Privado) */}
             {activeTab === 'dashboard' && (
               <Dashboard
@@ -530,13 +778,15 @@ export default function App() {
                     onImportSongs={handleImportSongs}
                     searchQuery={searchQuery}
                     setSearchQuery={setSearchQuery}
+                    myVotes={myVotes}
+                    onVoteSong={handleVoteSong}
                   />
                 )}
 
                 {viewMode === 'viewer' && selectedSong && (
                   <SongViewer
                     song={selectedSong}
-                    onBack={() => setViewMode('list')}
+                    onBack={handleCloseViewer}
                     onEdit={handleEditSong}
                     onAddToPlaylist={() => setViewMode('playlists')}
                     onDelete={handleDeleteSong}
@@ -544,6 +794,8 @@ export default function App() {
                     isInRepertoire={repertoireSongIds.includes(selectedSong.id)}
                     onToggleRepertoire={() => handleToggleRepertoire(selectedSong.id)}
                     onOpenAuth={handleOpenAuth}
+                    isVoted={myVotes.has(selectedSong.id)}
+                    onVoteSong={handleVoteSong}
                   />
                 )}
 
@@ -584,6 +836,18 @@ export default function App() {
 
             {/* Tab 5: Strumming & Rhythm Guide */}
             {activeTab === 'ritmos' && <StrummingGuide />}
+
+            {/* Tab 6: Admin (scraping/cron) — apenas para o proprietário */}
+            {activeTab === 'admin' && isAdmin && (
+              <AdminScraper songs={songs} onImportSongs={handleImportSongs} />
+            )}
+            {activeTab === 'admin' && !isAdmin && (
+              <div className="text-center py-16">
+                <p className="text-sm font-bold text-slate-500">Acesso restrito ao proprietário.</p>
+              </div>
+            )}
+            </Suspense>
+            </LazyErrorBoundary>
           </div>
         </main>
       </div>

@@ -42,6 +42,8 @@ interface RequestOptions {
   query?: string; // ex.: "?select=*&id=eq.abc"
   body?: unknown;
   prefer?: string; // ex.: "resolution=merge-duplicates,return=minimal"
+  range?: string; // ex.: "offset=0-999" (paginador do PostgREST)
+  silent?: boolean; // suprime o log de erro (introspecção esperada de falhar)
 }
 
 /**
@@ -63,6 +65,9 @@ export async function supabaseRequest<T = unknown>(
   };
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
   if (options.prefer) headers['Prefer'] = options.prefer;
+  // Página solicitada (ex.: "offset=0-999") — sem Range o PostgREST devolve
+  // no máximo 1000 linhas.
+  if (options.range) headers['Range'] = options.range;
 
   try {
     const res = await fetch(
@@ -75,7 +80,9 @@ export async function supabaseRequest<T = unknown>(
     );
 
     if (!res.ok) {
-      console.error(`[supabase] ${method} ${table} → ${res.status}`, await res.text().catch(() => ''));
+      if (!options.silent) {
+        console.error(`[supabase] ${method} ${table} → ${res.status}`, await res.text().catch(() => ''));
+      }
       return { ok: false, data: null, status: res.status };
     }
 
@@ -92,16 +99,51 @@ export async function supabaseRequest<T = unknown>(
 /**
  * Busca linhas: GET /rest/v1/{table}?select={colunas}{filtros}
  * `columns` padrão "*" (todas). Para só ids: fetchRows('songs', '', 'id').
+ * `silent` suprime o log de erro (introspecção que falha de propósito).
  */
 export async function fetchRows<T>(
   table: string,
   query = '',
-  columns = '*'
+  columns = '*',
+  silent = false
 ): Promise<T[] | null> {
   const { ok, data } = await supabaseRequest<T[]>(table, {
     query: `?select=${encodeURIComponent(columns)}${query}`,
+    silent,
   });
   return ok ? (data as T[]) : null;
+}
+
+/**
+ * Busca TODAS as linhas de uma tabela, paginando com `limit`/`offset` na QUERY
+ * (o PostgREST limita a resposta em 1000 linhas por padrão). Usa query params
+ * e não header `Range` porque o navegador pode descartar o header em CORS
+ * (pré-flight) — o que faria o loop repetir a mesma página indefinidamente.
+ * Retorna `[]` se a tabela estiver vazia e `null` se alguma página falhar.
+ */
+export async function fetchAllRows<T>(
+  table: string,
+  query = '',
+  columns = '*',
+  pageSize = 1000,
+  silent = false
+): Promise<T[] | null> {
+  const all: T[] = [];
+  let offset = 0;
+  // Normaliza o filtro: callers passam '' ou "&filtro=..." (sem o '?')
+  const filter = query.startsWith('&') ? query.slice(1) : query.replace(/^\?/, '');
+  // Limite de segurança: 50 páginas (50k linhas) — nunca deve ser alcançado.
+  for (let page = 0; page < 50; page++) {
+    const { ok, data } = await supabaseRequest<T[]>(table, {
+      query: `?select=${encodeURIComponent(columns)}&${filter}limit=${pageSize}&offset=${offset}`,
+      silent,
+    });
+    if (!ok) return null;
+    if (data && data.length) all.push(...data);
+    if (!data || data.length < pageSize) break;
+    offset += pageSize;
+  }
+  return all;
 }
 
 /** Upsert em lote (POST + resolution=merge-duplicates, usa a PK). */
@@ -115,11 +157,51 @@ export async function upsertRows<T>(table: string, rows: T[]): Promise<boolean> 
   return ok;
 }
 
+/**
+ * Upsert em lote com PAGINAÇÃO (a API rejeita corpos muito grandes). Divide
+ * em chunks de `chunkSize` e envia sequencialmente. Retorna false se algum
+ * chunk falhar.
+ */
+export async function upsertRowsChunked<T>(
+  table: string,
+  rows: T[],
+  chunkSize = 400
+): Promise<boolean> {
+  if (!rows.length) return true;
+  for (let i = 0; i < rows.length; i += chunkSize) {
+    const chunk = rows.slice(i, i + chunkSize);
+    const ok = await upsertRows(table, chunk);
+    if (!ok) return false;
+  }
+  return true;
+}
+
 /** Apaga linhas por um filtro. Ex.: deleteRows('songs', '?id=in.("a","b")') */
 export async function deleteRows(table: string, query: string): Promise<boolean> {
   const { ok } = await supabaseRequest(table, {
     method: 'DELETE',
     query,
+  });
+  return ok;
+}
+
+/**
+ * Atualiza campos específicos de linhas existentes por filtro (PATCH).
+ * Diferente do upsert (POST + merge-duplicates), o PATCH não exige os
+ * campos NOT NULL da tabela — ideal para atualizar só `votes` em `songs`
+ * sem reenviar title/artist/content. Ex.: patchRows('songs', '?id=eq.abc',
+ * { votes: 3 }). Retorna true se a chamada foi aceita.
+ */
+export async function patchRows(
+  table: string,
+  query: string,
+  body: Record<string, unknown>
+): Promise<boolean> {
+  const { ok } = await supabaseRequest(table, {
+    method: 'PATCH',
+    query,
+    body,
+    prefer: 'return=minimal',
   });
   return ok;
 }

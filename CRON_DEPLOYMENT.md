@@ -1,0 +1,194 @@
+# ⏰ Cron de Plataformas — Deploy em Qualquer Máquina
+
+O cron varre os sites de cifras **nacionais e internacionais** (CifraClub
+Brasil + GuitarTabs/INT), converte para o formato do UkeMaster Pro (tom,
+dificuldade, categoria, SEO, vídeo do YouTube opcional) e publica no Supabase
+— **até o acervo ficar 100% sincronizado**, sem duplicar músicas (dedupe em
+3 camadas + histórico persistente `cron_imports`/`cron_log`).
+
+> Plataformas configuradas em `src/lib/platforms.ts` (`CHORD_PLATFORMS`):
+> **cifraclub-br** (BR) e **guitaretab-int** (INT). Sites com anti-bot
+> (Ultimate-Guitar, E-chords) ficaram desativados porque bloqueiam o scraper.
+> A rotação da fila é justa: artistas gigantes (Roberto Carlos, Caetano) são
+> retomados incrementalmente a cada ciclo, e o cursor avança mesmo em timeout
+> (artista incompleto não bloqueia mais a fila).
+
+> Idealmente roda numa máquina ligada 24/7. A Vercel já roda 1x/dia (limite
+> do plano grátis); nas suas máquinas ele roda **a cada 30 minutos** com
+> orçamento de 15 min por rodada — a sincronização completa fica em dias.
+
+---
+
+## ✅ Requisitos (mínimos)
+
+| Item | Exigência |
+|---|---|
+| **Node.js** | ≥ 18 (tem `fetch` nativo). Baixe em https://nodejs.org |
+| **Internet** | Acesso ao site de origem + ao Supabase |
+| **Máquina** | Ligada 24/7 (pode ser um PC, notebook velho, VPS ou Raspberry) |
+| **Repositório** | `git clone` do projeto **OU** apenas a pasta `dist-cron/` copiada |
+
+Nada mais é necessário: **zero dependências** no runtime (o bundle é único e
+autocontido — 34 KB).
+
+---
+
+## 🚀 Caminho A — Instalação automática (recomendado)
+
+Na máquina nova, com o projeto clonado:
+
+```bash
+# 1. Entra no projeto e instala as dependências de build (esbuild)
+git clone <seu-repo> UkeMaster && cd UkeMaster
+npm install
+
+# 2. Instala o cron (gera o bundle, cria o .env, agenda e testa)
+npm run cron:install -- --test
+```
+
+O instalador (`scripts/cron/install.sh`) faz tudo:
+
+1. **Valida** o Node ≥ 18;
+2. **Gera** `dist-cron/ukemaster-cron.mjs` (bundle único);
+3. **Cria** `dist-cron/.env` — preenche automaticamente com as chaves do
+   `.env.local` se ele existir na máquina; senão, copia o exemplo e pede
+   para você editar;
+4. **Agenda** a execução (a cada 30 min por padrão):
+   - **Linux/macOS** → `crontab`
+   - **Windows (Git Bash)** → Agendador de Tarefas (`schtasks`), com wrapper
+     `dist-cron/run-cron.cmd`
+5. **Testa** (com `--test`): roda uma execução rápida — o dedupe garante que
+   nada duplica.
+
+### Editar o .env (só a 1ª vez)
+
+```bash
+nano dist-cron/.env
+```
+
+```text
+NEXT_PUBLIC_SUPABASE_URL=https://SEU-PROJETO.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sua-chave
+CRON_TIME_BUDGET_MS=900000
+```
+
+> Só 2 chaves do Supabase são necessárias — **públicas por design** (são as
+> mesmas do frontend). Nenhum segredo fica na máquina.
+
+---
+
+## 🛠 Caminho B — Instalação manual (só o bundle)
+
+Se preferir não clonar o repositório (ou a máquina não tiver git/npm):
+
+1. Copie a pasta `dist-cron/` gerada em outra máquina:
+   ```
+   dist-cron/
+   ├── ukemaster-cron.mjs   # bundle único (34 KB)
+   ├── .env                 # chaves do Supabase
+   └── cron.log             # (criado automaticamente)
+   ```
+2. Crie o `dist-cron/.env` (veja o template em
+   `scripts/cron/cron.env.example`).
+3. Agende manualmente:
+
+   **Linux/macOS** (`crontab -e`):
+   ```
+   */30 * * * * cd /CAMINHO/dist-cron && node ukemaster-cron.mjs >> cron.log 2>&1
+   ```
+
+   **Windows** — Agendador de Tarefas:
+   - Programa: `node`
+   - Argumentos: `C:\CAMINHO\dist-cron\ukemaster-cron.mjs`
+   - Iniciar em: `C:\CAMINHO\dist-cron`
+   - Disparador: a cada 30 minutos (repetição)
+
+---
+
+## 📦 Variáveis de ambiente (todas opcionais)
+
+| Variável | Padrão | Descrição |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | — | URL do Supabase (obrigatória) |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | — | Chave publishable/anon (obrigatória) |
+| `CRON_TIME_BUDGET_MS` | `900000` | Orçamento por execução (ms). 15 min = 900000 |
+| `CRON_SCHEDULE` | `*/30 * * * *` | Expressão cron (usada pelo instalador) |
+| `CRON_TASK_NAME` | `UkeMasterCron` | Nome da tarefa no Windows |
+
+Argumentos do bundle (modo manual):
+
+```bash
+node dist-cron/ukemaster-cron.mjs                     # modo automático (cursor)
+node dist-cron/ukemaster-cron.mjs --artist <url>      # 1 artista específico
+node dist-cron/ukemaster-cron.mjs --platform cifraclub-br
+node dist-cron/ukemaster-cron.mjs --fast              # sem delays (teste)
+node dist-cron/ukemaster-cron.mjs --reset             # recomeça a varredura
+```
+
+---
+
+## 🔍 Verificação
+
+**1. Log local:**
+```bash
+tail -20 dist-cron/cron.log
+```
+
+**2. Nuvem (Supabase) — quanto importou:**
+```sql
+-- no SQL Editor do Supabase
+select count(*) from songs;
+select platform, imported, duplicates, errors, duration_ms, ran_at
+from cron_log order by ran_at desc limit 10;
+select count(*) from cron_imports;  -- histórico anti-duplicidade
+```
+
+**3. Rodada manual imediata:**
+```bash
+npm run cron:test
+```
+
+---
+
+## 🗑 Desinstalar
+
+```bash
+npm run cron:uninstall      # ou: bash scripts/cron/uninstall.sh
+rm -rf dist-cron            # opcional — apaga bundle/.env/logs locais
+```
+
+O histórico na nuvem (`cron_imports`/`cron_log`) **não é apagado** — ao
+reinstalar em outra máquina, a varredura continua de onde parou.
+
+---
+
+## 🧠 Como funciona (para não duplicar nada)
+
+- **Cursor persistente** (`scrape_state`): cada rodada processa artistas
+  completos e salva onde parou; na próxima, continua. Ao fim da lista,
+  recomeça para pegar músicas novas.
+- **Dedupe em 3 camadas**: (1) histórico `cron_imports` (chave normalizada
+  `título|artista`) → nunca reimporta, mesmo com a nuvem fora; (2) acervo
+  atual de `songs`; (3) memória da rodada.
+- **Histórico** (`cron_log`): o que cada rodada importou/pulou/errou.
+- **Resiliência**: fetch com timeout de 15s + retry educado (429/503);
+  orçamento de tempo respeitado; erro num link não derruba a rodada.
+
+### ⚠️ Pré-requisito único: o schema
+
+Antes da 1ª execução, rode **uma vez** o `supabase/schema.sql` no SQL Editor
+do Supabase (cria `songs`, `cron_imports`, `cron_log`, `scrape_state`, RLS).
+Sem ele o cron **continua funcionando** (importa e dedupa via `songs`), mas
+sem histórico/cursor persistente.
+
+---
+
+## 💡 Dicas
+
+- **2+ máquinas**: use agendamentos defasados (ex.: `*/30` numa e
+  `15,45 * * * *` na outra) para não disputarem o mesmo artista — embora o
+  dedupe torne a disputa inofensiva.
+- **Orçamento**: aumente `CRON_TIME_BUDGET_MS` se quiser sincronizar mais
+  rápido (respeitando o site de origem); reduza se a máquina for fraca.
+- **Log rotativo**: o `cron.log` cresce pouco; se incomodar, adicione
+  `>> cron.log 2>&1` com `logrotate` ou limpe manualmente.
