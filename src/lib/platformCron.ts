@@ -137,12 +137,12 @@ function getSupabaseEnv() {
   return { url: url.replace(/\/+$/, ''), key };
 }
 
-// ── Autenticação como UkeMater (conta do cron) ──────────────────────────
+// ── Autenticação como UkeMaster (conta do cron) ─────────────────────────
 // O cron escreve no acervo (songs, cron_imports, cron_log, scrape_state).
 // Para "nunca contribuir sem login" valer DE FATO no banco, o cron não usa
-// mais o papel anônimo: faz login com a conta dedicada UkeMater (password
+// mais o papel anônimo: faz login com a conta dedicada UkeMaster (password
 // grant do Supabase Auth) e usa o JWT da sessão em todas as chamadas REST.
-// Assim o RLS trata o cron como usuário autenticado (auth.uid() = UkeMater).
+// Assim o RLS trata o cron como usuário autenticado (auth.uid() = UkeMaster).
 //
 // Configuração (env):
 //   CRON_UKEMATER_EMAIL      e-mail da conta UkeMater (ukemater@...)
@@ -180,7 +180,7 @@ async function getCronToken(url: string): Promise<string | null> {
       body: JSON.stringify({ email, password }),
     });
     if (!res.ok) {
-      console.error(`[cron-auth] login UkeMater falhou (HTTP ${res.status}) — usando anon key.`);
+      console.error(`[cron-auth] login UkeMaster falhou (HTTP ${res.status}) — usando anon key.`);
       cachedCronToken = null;
       cronTokenFetchedAt = fetchedAt;
       return null;
@@ -189,7 +189,7 @@ async function getCronToken(url: string): Promise<string | null> {
     cachedCronToken = data.access_token || null;
     cronTokenFetchedAt = fetchedAt;
   } catch (e) {
-    console.error('[cron-auth] erro ao autenticar UkeMater — usando anon key.', e);
+    console.error('[cron-auth] erro ao autenticar UkeMaster — usando anon key.', e);
     cachedCronToken = null;
     cronTokenFetchedAt = fetchedAt;
   }
@@ -197,7 +197,7 @@ async function getCronToken(url: string): Promise<string | null> {
 }
 
 /** Headers padrão das chamadas REST: apikey do projeto + Bearer (JWT do
- * UkeMater quando disponível, senão a anon key como fallback de transição). */
+ * UkeMaster quando disponível, senão a anon key como fallback de transição). */
 async function cronHeaders(key: string): Promise<Record<string, string>> {
   const token = await getCronToken(getSupabaseEnv().url);
   return { apikey: key, Authorization: `Bearer ${token || key}` };

@@ -116,13 +116,13 @@ nano dist-cron/.env
 ```text
 NEXT_PUBLIC_SUPABASE_URL=https://SEU-PROJETO.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sua-chave
-CRON_UKEMATER_EMAIL=ukemater@ukemasterpro.com.br
-CRON_UKEMATER_PASSWORD=senha-da-conta-ukemater
+CRON_UKEMATER_EMAIL=ukemaster@ukemasterpro.com.br
+CRON_UKEMATER_PASSWORD=senha-da-conta-ukemaster
 CRON_TIME_BUDGET_MS=900000
 ```
 
-> **Conta UkeMater (obrigatória desde 2026-08)**: o cron agora escreve
-> autenticado como o usuário `UkeMater` do Supabase Auth (não usa mais o
+> **Conta UkeMaster (obrigatória desde 2026-08)**: o cron agora escreve
+> autenticado como o usuário `UkeMaster` do Supabase Auth (não usa mais o
 > papel anônimo). Crie a conta **uma vez** com o e-mail/senha acima no
 > cadastro do app (ou peça a senha ao proprietário) e configure as duas
 > vars `CRON_UKEMATER_*` em TODAS as máquinas + Vercel. Sem elas o cron
@@ -168,8 +168,8 @@ Se preferir não clonar o repositório (ou a máquina não tiver git/npm):
 | `CRON_TIME_BUDGET_MS` | `900000` | Orçamento por execução (ms). 15 min = 900000 |
 | `CRON_SCHEDULE` | `*/30 * * * *` | Expressão cron (usada pelo instalador) |
 | `CRON_TASK_NAME` | `UkeMasterCron` | Nome da tarefa no Windows |
-| `CRON_UKEMATER_EMAIL` | — | E-mail da conta UkeMater (autenticação do cron) |
-| `CRON_UKEMATER_PASSWORD` | — | Senha da conta UkeMater (fica no .env da máquina) |
+| `CRON_UKEMATER_EMAIL` | — | E-mail da conta UkeMaster (autenticação do cron) |
+| `CRON_UKEMATER_PASSWORD` | — | Senha da conta UkeMaster (fica no .env da máquina) |
 
 Argumentos do bundle (modo manual):
 
