@@ -6,6 +6,7 @@ import { Playlist, Song, SONG_CATEGORIES, PLAYLIST_DIFFICULTIES } from '../types
 import { List, Plus, Trash2, Edit2, Play, Music, ChevronRight, X, Sparkles, Check, Tag, Gauge, Filter, FolderHeart, Globe, Download, Loader2, Search } from 'lucide-react';
 import { Logo } from './Logo';
 import { useT } from '../lib/i18n';
+import { difficultyLabel } from '../utils/difficultyLabel';
 import { PublicRepertoire } from '../lib/repertoires';
 import { getPublicRepertoiresWithCloud } from '../lib/cloudSync';
 
@@ -225,7 +226,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
                       )}
                       {pl.difficulty && (
                         <span className={`px-1.5 py-0.2 rounded text-[9px] font-extrabold border ${getDifficultyBadgeClass(pl.difficulty)}`}>
-                          {pl.difficulty}
+                          {difficultyLabel(t, pl.difficulty)}
                         </span>
                       )}
                     </div>
@@ -261,7 +262,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
                     {activePlaylist.difficulty && (
                       <span className={`px-2 py-0.5 rounded-md text-xs font-extrabold border inline-flex items-center gap-1 ${getDifficultyBadgeClass(activePlaylist.difficulty)}`}>
                         <Gauge className="w-3 h-3" />
-                        Modo {activePlaylist.difficulty}
+                        {t('playlist.mode')} {difficultyLabel(t, activePlaylist.difficulty)}
                       </span>
                     )}
                   </div>

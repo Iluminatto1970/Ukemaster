@@ -4,6 +4,7 @@
 import React, { useState } from 'react';
 import { Song, Playlist } from '../types';
 import { useT } from '../lib/i18n';
+import { difficultyLabel } from '../utils/difficultyLabel';
 import {
   FolderHeart,
   Sparkles,
@@ -350,7 +351,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     )}
                     {song.difficulty && (
                       <span className="px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        {song.difficulty}
+                        {difficultyLabel(t, song.difficulty)}
                       </span>
                     )}
                   </div>

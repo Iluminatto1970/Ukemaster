@@ -53,6 +53,7 @@ import { Download } from 'lucide-react';
 import { Logo } from './Logo';
 import { schedulePersistGeneratedChords } from '../lib/chordCache';
 import { useT } from '../lib/i18n';
+import { difficultyLabel } from '../utils/difficultyLabel';
 
 interface SongViewerProps {
   song: Song;
@@ -509,7 +510,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
               )}
               {song.difficulty && (
                 <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-extrabold border border-emerald-200">
-                  Modo {song.difficulty}
+                  {t('playlist.mode')} {difficultyLabel(t, song.difficulty)}
                 </span>
               )}
             </div>

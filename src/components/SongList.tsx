@@ -43,6 +43,7 @@ import { PartnersSection } from './PartnersSection';
 import type { AffiliateLink, PartnerLink, BlogPost } from '../types';
 import { fetchTrendingSongIds } from '../lib/ratings';
 import { useT } from '../lib/i18n';
+import { difficultyLabel } from '../utils/difficultyLabel';
 
 // ── Mini-ranking genérico da vitrine (Em Alta / Mais Acessadas / Novidades) ──
 // Definido FORA do componente: com 5k músicas e re-renders frequentes, um
@@ -592,7 +593,7 @@ export const SongList: React.FC<SongListProps> = ({
                             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-extrabold border shrink-0 ${getDifficultyBadgeClass(song.difficulty)}`}
                           >
                             <Gauge className="w-2.5 h-2.5" />
-                            {song.difficulty}
+                            {difficultyLabel(t, song.difficulty)}
                           </span>
                         )}
                         <span className="flex items-center gap-1 text-[10px] font-black text-amber-500 shrink-0">
@@ -811,7 +812,7 @@ export const SongList: React.FC<SongListProps> = ({
                 <option value="all">{t('library.allLevels')}</option>
                 {SONG_DIFFICULTIES.map((diff) => (
                   <option key={diff} value={diff}>
-                    Modo {diff}
+                    {t('playlist.mode')} {difficultyLabel(t, diff)}
                   </option>
                 ))}
               </select>
@@ -929,7 +930,7 @@ export const SongList: React.FC<SongListProps> = ({
                           className={`hidden xl:inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-extrabold border shrink-0 ${getDifficultyBadgeClass(song.difficulty)}`}
                         >
                           <Gauge className="w-2.5 h-2.5" />
-                          {song.difficulty}
+                          {difficultyLabel(t, song.difficulty)}
                         </span>
                       )}
 
@@ -1256,7 +1257,7 @@ export const SongList: React.FC<SongListProps> = ({
                       </p>
                       <p className="text-[9px] text-slate-400 font-semibold">
                         {pl.songIds.length} {pl.songIds.length === 1 ? t('library.songSingular') : t('library.songsCount')}
-                        {pl.difficulty ? ` · ${pl.difficulty}` : ''}
+                        {pl.difficulty ? ` · ${difficultyLabel(t, pl.difficulty)}` : ''}
                       </p>
                     </div>
                     <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-orange-500 shrink-0 transition-colors" />
