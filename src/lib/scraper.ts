@@ -16,7 +16,7 @@ import {
   extractSongMetadata,
   generateSongSeoAndHashtags,
   extractUniqueChords,
-} from '../utils/chordUtils';
+} from '../utils/chordUtils.js';
 import type { Song } from '../types';
 
 export interface ScrapedLink {

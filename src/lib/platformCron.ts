@@ -25,8 +25,8 @@
  *  - Resultado: o acervo fica 100% alinhado com o site, sem duplicatas.
  */
 
-import { scrapeArtistPage, isJunkArtistName, isJunkTitle } from './scraper';
-import { CHORD_PLATFORMS } from './platforms';
+import { scrapeArtistPage, isJunkArtistName, isJunkTitle } from './scraper.js';
+import { CHORD_PLATFORMS } from './platforms.js';
 import type { Song } from '../types';
 
 export interface PlatformCronOptions {

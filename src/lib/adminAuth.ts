@@ -12,7 +12,7 @@
  *  - header `x-admin-secret` → token compartilhado (ADMIN_SECRET), para
  *    disparos fora do navegador (CLI/scripts) — nunca no bundle.
  */
-import { getSupabaseServer } from './supabaseServer';
+import { getSupabaseServer } from './supabaseServer.js';
 
 /** E-mail do proprietário (admin). Configurável via env ADMIN_EMAIL. */
 export const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'iluminatto@gmail.com').toLowerCase();

@@ -523,7 +523,7 @@ export function extractSongMetadata(
   };
 }
 
-import { generateSongSeo } from './seoUtils';
+import { generateSongSeo } from './seoUtils.js';
 
 export interface SongSeoOutput {
   seoDescription: string;
