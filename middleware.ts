@@ -1,6 +1,9 @@
 /**
  * Edge Middleware (Vercel) — camada de segurança na BORDA, antes do app.
  *
+ * Projeto Vite (sem Next.js): o Edge Function usa a API web padrão
+ * (Request/Response) — NÃO importar de next/server (o bundler rejeita).
+ *
  * Defesas (todas executam em ~1ms no edge, sem custo de cold start):
  *  1. BLOQUEIO DE BOTS de scraping/automação em rotas caras (/api/* e
  *     /musica/* — o prerender consulta o Supabase por requisição). Os
@@ -14,11 +17,11 @@
  *  4. Headers de segurança extras + X-Robots-Tag: noindex em /api/* (as
  *     respostas JSON/HTML das funções não devem ser indexadas).
  *
- * AUTOCONTIDO (sem imports de src/) — o bundler da Vercel compila o
- * middleware isolado; duplicamos aqui os regexes para não arriscar
- * resolução de módulo em runtime (mesmo padrão das api/*.ts).
+ * AUTOCONTIDO — duplicamos aqui os regexes para não arriscar resolução de
+ * módulo em runtime (mesmo padrão das api/*.ts).
  */
-import { NextRequest, NextResponse } from 'next/server';
+
+import { next } from '@vercel/functions';
 
 /** Crawlers de busca/redes sociais — SEMPRE permitidos (indexação/SEO). */
 const SEO_CRAWLERS =
@@ -47,14 +50,14 @@ function take(ip: string, group: string, max: number, windowMs: number): boolean
 }
 
 /** IP real do cliente (a Vercel garante o header; nunca confiar em XFF cru). */
-function clientIp(req: NextRequest): string {
+function clientIp(req: Request): string {
   const vff = req.headers.get('x-vercel-forwarded-for');
   if (vff) return vff.split(',')[0].trim() || 'unknown';
   return req.headers.get('x-real-ip') || 'unknown';
 }
 
-function json(status: number, body: unknown, extra: Record<string, string> = {}): NextResponse {
-  return new NextResponse(JSON.stringify(body), {
+function json(status: number, body: unknown, extra: Record<string, string> = {}): Response {
+  return new Response(JSON.stringify(body), {
     status,
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
@@ -65,23 +68,25 @@ function json(status: number, body: unknown, extra: Record<string, string> = {})
   });
 }
 
-function blockedText(): NextResponse {
-  return new NextResponse('Acesso negado.', {
+function blockedText(): Response {
+  return new Response('Acesso negado.', {
     status: 403,
     headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },
   });
 }
 
-/** Aplica headers de segurança e noindex em TODA resposta que passa. */
-function harden(res: NextResponse, isApi: boolean): NextResponse {
+/** Headers extras a fixar quando a requisição segue o fluxo (next()). */
+function extraHarden(isApi: boolean): Record<string, string> {
+  const h: Record<string, string> = {
+    'X-Permitted-Cross-Domain-Policies': 'none',
+    'Origin-Agent-Cluster': '?2',
+    'X-XSS-Protection': '0',
+  };
   if (isApi) {
-    res.headers.set('X-Robots-Tag', 'noindex, nofollow');
-    res.headers.set('Cache-Control', 'no-store');
+    h['X-Robots-Tag'] = 'noindex, nofollow';
+    h['Cache-Control'] = 'no-store';
   }
-  res.headers.set('X-Permitted-Cross-Domain-Policies', 'none');
-  res.headers.set('Origin-Agent-Cluster', '?2');
-  res.headers.set('X-XSS-Protection', '0');
-  return res;
+  return h;
 }
 
 // Roda em tudo exceto assets estáticos (o Vite usa /assets/, e o público
@@ -92,8 +97,8 @@ export const config = {
   ],
 };
 
-export default function middleware(req: NextRequest): NextResponse {
-  const { pathname } = req.nextUrl;
+export default function middleware(req: Request): Response {
+  const pathname = new URL(req.url).pathname;
   const ip = clientIp(req);
   const ua = req.headers.get('user-agent') || '';
 
@@ -104,11 +109,11 @@ export default function middleware(req: NextRequest): NextResponse {
 
   // Isenções legítimas: cron da Vercel e chamadas admin (CLI/scripts).
   if (req.headers.get('x-vercel-cron') === '1') {
-    return harden(NextResponse.next(), isApi);
+    return next({ headers: extraHarden(isApi) });
   }
   const expected = process.env.ADMIN_SECRET;
   if (expected && req.headers.get('x-admin-secret') === expected) {
-    return harden(NextResponse.next(), isApi);
+    return next({ headers: extraHarden(isApi) });
   }
 
   // Bots de scraping em rotas que entregam dados/custo → 403.
@@ -129,5 +134,6 @@ export default function middleware(req: NextRequest): NextResponse {
     return blockedText();
   }
 
-  return harden(NextResponse.next(), isApi);
+  // Continua a requisição para a função serverless/estático normalmente.
+  return next({ headers: extraHarden(isApi) });
 }
