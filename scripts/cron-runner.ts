@@ -11,6 +11,9 @@
  *   node ukemaster-cron.mjs --artist "https://www.cifraclub.com.br/alceu-valenca/"
  *   node ukemaster-cron.mjs --reset         # recomeça a varredura do início
  *   node ukemaster-cron.mjs --repair        # re-scrapeia e repara conteúdo vazio (preserva ids)
+ *   node ukemaster-cron.mjs --update        # re-scrapeia o que JÁ TEMOS e atualiza (conteúdo,
+ *                                           # dificuldade, tom, categoria, SEO) + importa as
+ *                                           # variações simplificadas novas
  *
  * Configuração via ambiente (ou .env ao lado do script):
  *   CRON_ENV_FILE          Caminho do .env (padrão: ".env")
@@ -51,6 +54,7 @@ const getArg = (name: string) => {
 const fast = args.includes('--fast');
 const reset = args.includes('--reset');
 const repair = args.includes('--repair');
+const update = args.includes('--update');
 
 // Orçamento: prioriza --budget <ms> (cross-platform), depois env, depois padrão
 const budgetArg = getArg('--budget');
@@ -74,6 +78,7 @@ async function main() {
     fast,
     reset,
     repairContent: repair,
+    updateExisting: update,
     timeBudgetMs,
   });
 
@@ -87,6 +92,7 @@ async function main() {
         totalDuplicates: result.totalDuplicates,
         totalErrors: result.totalErrors,
         totalRepaired: result.totalRepaired,
+        totalUpdated: result.totalUpdated,
         totalAlreadyKnown: result.totalAlreadyKnown,
         artistsProcessed: result.artistsProcessed,
         cursor: result.cursor,
@@ -96,6 +102,7 @@ async function main() {
           duplicates: r.duplicates,
           errors: r.errors,
           repaired: r.repaired,
+          updated: r.updated,
           errorMessage: r.errorMessage,
         })),
       },

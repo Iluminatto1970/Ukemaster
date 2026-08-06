@@ -4,6 +4,7 @@
 import React, { useState } from 'react';
 import { X, Sparkles, Check, ArrowRight, Phone, Mail, User, PartyPopper } from 'lucide-react';
 import { saveLead, normalizeWhatsApp } from '../lib/leads';
+import { Logo } from './Logo';
 
 interface LeadCaptureModalProps {
   isOpen: boolean;
@@ -67,9 +68,8 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-[#F26419] text-white flex items-center justify-center shadow-md shrink-0">
-            <Sparkles className="w-5 h-5" />
-          </div>
+          {/* Logomarca oficial do portal */}
+          <Logo size="sm" />
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-slate-800 font-bold text-lg p-1 cursor-pointer"

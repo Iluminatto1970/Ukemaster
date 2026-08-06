@@ -16,6 +16,9 @@ export interface ChordDefinition {
   fingerings: ChordFingering[]; // multiple variations
   difficulty?: 'fácil' | 'médio' | 'difícil';
   aliases?: string[]; // e.g. ["G7M", "G7m", "GM7", "G7+"]
+  /** Verdadeiro quando o diagrama foi GERADO pelo motor de teoria musical
+   *  (chordGenerator) — acorde que não existia no dicionário estático. */
+  generated?: boolean;
 }
 
 export interface Song {
@@ -28,13 +31,15 @@ export interface Song {
   youtubeUrl?: string;
   youtubeId?: string;
   content: string; // ChordPro format: "Eu quero [C]saber [G]onde..." or custom lines
-  simplifiedContent?: string; // Optional simplified chord layout
+  simplifiedContent?: string; // Versão SIMPLES gerada pela teoria musical
+  mediumContent?: string; // Versão MÉDIA gerada pela teoria musical
   difficulty?: 'Simplificado' | 'Médio' | 'Avançado';
   category?: string; // e.g. "MPB", "Pop", "Rock", "Gospel", "Reggae", "Sertanejo", "Infantil", "Internacional", "Outros"
   tags?: string[];
   seoDescription?: string;
   hashtags?: string[];
   votes?: number; // total de votos da comunidade
+  views?: number; // total de visualizações (ranking "Mais Acessadas")
   createdAt: string;
   updatedAt: string;
 }
@@ -85,7 +90,72 @@ export interface StrummingPattern {
   beats: ('down' | 'up' | 'mute' | 'rest')[];
 }
 
-export type ActiveTab = 'dashboard' | 'musicas' | 'dicionario' | 'afinador' | 'ritmos' | 'admin';
+export type ActiveTab =
+  | 'dashboard'
+  | 'musicas'
+  | 'dicionario'
+  | 'afinador'
+  | 'ritmos'
+  | 'metronomo'
+  | 'videos'
+  | 'blog'
+  | 'admin';
+
+/** Link de afiliado (Mercado Livre, Shopee, Amazon...) — importado por TXT pelo admin. */
+export interface AffiliateLink {
+  id: string;
+  /** Nome do produto/loja exibido no card. */
+  title: string;
+  url: string;
+  /** Loja de origem derivada da URL (ex.: "Mercado Livre"). */
+  store?: string;
+  /** Card ativo (aparece no site) ou pausado. */
+  enabled: boolean;
+  /** Posição relativa de exibição (menor primeiro). */
+  sortOrder: number;
+  createdAt: string;
+}
+
+/** Tipo de parceiro exibido no site (área de parceiros). */
+export type PartnerType = 'youtube' | 'course' | 'link';
+
+/** Parceiro: vídeo do YouTube, curso ou link — gerenciado pelo admin. */
+export interface PartnerLink {
+  id: string;
+  type: PartnerType;
+  title: string;
+  url: string;
+  description?: string;
+  enabled: boolean;
+  sortOrder: number;
+  createdAt: string;
+}
+
+/** Post de BLOG/artigo — gerenciado pelo admin (SEO + links de afiliado). */
+export interface BlogPost {
+  id: string;
+  title: string;
+  /** Texto curto exibido no card da listagem. */
+  excerpt: string;
+  /** Corpo do artigo — markdown-lite (## títulos, - listas, **negrito**, links). */
+  content: string;
+  /** Categoria/tema (ex.: "Iniciante", "Afinação", "Técnica"). */
+  category?: string;
+  /** Tags para agrupamento/busca. */
+  tags?: string[];
+  enabled: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Comentário da comunidade em uma música (fórum leve por cifra). */
+export interface SongComment {
+  id: string;
+  songId: string;
+  authorName: string;
+  text: string;
+  createdAt: string;
+}
 
 export interface AdSenseConfig {
   publisherId: string; // e.g., 'ca-pub-1234567890123456'

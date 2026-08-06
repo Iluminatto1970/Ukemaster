@@ -524,6 +524,8 @@ export function extractSongMetadata(
 }
 
 import { generateSongSeo } from './seoUtils.js';
+import { findChord } from '../data/chords';
+import type { ChordDefinition } from '../types';
 
 export interface SongSeoOutput {
   seoDescription: string;
@@ -555,6 +557,376 @@ export function generateSongSeoAndHashtags(
     hashtags: result.hashtags,
     tags: result.tags,
   };
+}
+
+/* ════════════════════════════════════════════════════════════════════
+ * RESOLUÇÃO DE ACORDES PELA TEORIA MUSICAL
+ *
+ * Quando um acorde importado não existe no dicionário (ex.: "D7(9)",
+ * "Bb7M(9)", "Am7M", "F#9-/7"), procuramos a representação mais fiel
+ * que EXISTE no dicionário, reduzindo as extensões/tensões pela teoria
+ * musical. Assim nunca apresentamos notas inexistentes ao usuário.
+ * ════════════════════════════════════════════════════════════════════ */
+
+/** Resultado da resolução de um acorde contra o dicionário. */
+export interface ChordResolution {
+  /** Nome original (como veio da cifra). */
+  original: string;
+  /** Nome que existe no dicionário (o que deve ser exibido/tocado). */
+  resolved: string;
+  /** Definição completa (diagrama) do acorde resolvido. */
+  def: ChordDefinition;
+  /** Se houve simplificação pela teoria musical (não é o nome exato). */
+  simplified: boolean;
+  /** Se o diagrama foi GERADO pelo motor de voicings (acorde que não existia). */
+  generated?: boolean;
+  /** Explicação musical em português (quando simplified/generated). */
+  reason?: string;
+}
+
+// Tabela de simplificação de QUALIDADES por teoria musical, da mais
+// específica para a mais simples. Cada linha: regex da qualidade e a
+// ordem de candidatos (o primeiro que existir no dicionário vence).
+const QUALITY_LADDER: Array<{ test: RegExp; candidates: string[] }> = [
+  // Menor com 7ª maior (m7M / mMaj7): rara no ukulele → tríade menor
+  { test: /^m(aj)?7m$/i, candidates: ['m', 'maj7', ''] },
+  { test: /^maj7m$/i, candidates: ['m', 'maj7', ''] },
+  // Nona maior (maj9) → 7ª maior ou nona adicionada
+  { test: /^maj9$/i, candidates: ['maj7', 'add9', ''] },
+  // Nonas/menores extensões de acordes menores
+  { test: /^m9$/i, candidates: ['m7', 'm'] },
+  { test: /^m11$/i, candidates: ['m7', 'm'] },
+  { test: /^m13$/i, candidates: ['m7', 'm6', 'm'] },
+  // Nona adicionada (9 → add9; se não existir, 7ª dominante ou tríade)
+  { test: /^9$/i, candidates: ['add9', '7', ''] },
+  // Nona menor (9- / b9): dominante com nona bemol → 7ª dominante
+  { test: /^(9-|b9)$/i, candidates: ['7', ''] },
+  // 11ª → 4ª suspensa (mesma nota) ou dominante
+  { test: /^11$/i, candidates: ['sus4', '7', ''] },
+  // 13ª → 6ª (mesma nota, oitava abaixo) ou dominante
+  { test: /^13$/i, candidates: ['6', '7', ''] },
+  // Dominante com tensões alteradas → 7ª simples
+  {
+    test: /^7(b9|#9|b5|#5|b13|#11|sus4|sus)$/i,
+    candidates: ['7', 'sus4', ''],
+  },
+  // 6/9 → sexta
+  { test: /^6\/9$/i, candidates: ['6', ''] },
+  // 11ª adicionada → suspensa (a 11ª substitui a 3ª)
+  { test: /^add11$/i, candidates: ['sus4', ''] },
+  // Aumentado (+ / aug / #5): não existe → tríade maior (1-3-5, a mais próxima)
+  { test: /^(aug|aug5|\+|\+5|#5)$/i, candidates: ['', 'maj7', '7'] },
+  // Power chord (5): sem 3ª → tríade maior
+  { test: /^5$/i, candidates: ['', '7'] },
+  // Suspensas
+  { test: /^sus2$/i, candidates: ['sus2', ''] },
+  { test: /^sus4$/i, candidates: ['sus4', ''] },
+  { test: /^add9$/i, candidates: ['add9', ''] },
+  // Meio-diminuta
+  { test: /^m7b5$/i, candidates: ['m7b5', 'm7', 'm'] },
+  // Diminuta
+  { test: /^dim$/i, candidates: ['dim', 'm7b5', ''] },
+  // Menor com sexta
+  { test: /^m6$/i, candidates: ['m6', 'm'] },
+  // Sexta
+  { test: /^6$/i, candidates: ['6', ''] },
+  // 7ª maior
+  { test: /^maj7$/i, candidates: ['maj7', ''] },
+  // Menor com sétima
+  { test: /^m7$/i, candidates: ['m7', 'm'] },
+  // Sétima dominante
+  { test: /^7$/i, candidates: ['7', ''] },
+  // Menor
+  { test: /^m$/i, candidates: ['m'] },
+  // Tríade maior (fallback universal — todas as 12 raízes existem)
+  { test: /^$/i, candidates: [''] },
+];
+
+/**
+ * Gera a ordem de candidatos de QUALIDADE (ex.: 'maj7', 'add9', '') a partir
+ * de uma qualidade crua (ex.: 'maj9', '7(9)', 'm7M'), pela teoria musical.
+ */
+function qualityCandidates(rawQuality: string): string[] {
+  // Remove extensões entre parênteses: "7(9)" → "7", "maj7(9)" → "maj7"
+  let q = (rawQuality || '').replace(/\([^)]*\)/g, '').trim();
+
+  // Notação brasileira comum: 7M/7+/M7 → maj7; dim7/° → dim; Ø → m7b5
+  q = q
+    .replace(/^(7M|7\+|M7|7m)$/i, 'maj7')
+    .replace(/^(dim7|°|°7)$/i, 'dim')
+    .replace(/^Ø$/i, 'm7b5');
+
+  // Barra com baixo não-nota (ex.: "F#9-/7" = F#7(b9)): usa a parte antes da /
+  if (q.includes('/')) q = q.split('/')[0].trim();
+  if (q.includes('(')) q = q.split('(')[0].trim();
+
+  const candidates: string[] = [];
+  const seen = new Set<string>();
+  const push = (...names: string[]) => {
+    for (const n of names) {
+      if (!seen.has(n)) {
+        seen.add(n);
+        candidates.push(n);
+      }
+    }
+  };
+
+  // Tenta a própria qualidade limpa primeiro (ex.: "maj7", "7")
+  push(q);
+
+  for (const { test, candidates: cands } of QUALITY_LADDER) {
+    if (test.test(q)) {
+      push(...cands);
+      break;
+    }
+  }
+
+  // Fallback absoluto: tríade maior
+  push('');
+  return candidates;
+}
+
+/**
+ * Resolve um nome de acorde para a representação MAIS FIEL que existe no
+ * dicionário, usando teoria musical para simplificar extensões inexistentes.
+ *
+ * Ordem:
+ *  1. Nome exato (findChord já normaliza sustenidos/bemóis e 7M→maj7)
+ *  2. Baixo invertido (G/B → G)
+ *  3. Ladder de teoria musical (C13 → C6 → C7 → C; D7(9) → D7; Am7M → Am)
+ *
+ * NUNCA retorna um acorde que não exista no dicionário: no pior caso cai na
+ * tríade da raiz (todas as 12 raízes maiores/menores existem).
+ */
+export function resolveChordWithTheory(chordName: string): ChordResolution | undefined {
+  if (!chordName) return undefined;
+  const clean = chordName.trim();
+
+  // 1. Tenta o nome exato (findChord também resolve Bb→A#, 7M→maj7, e agora
+  //    GERA acordes inexistentes pelo motor de voicings — D7(9), Am7M, etc.)
+  const direct = findChord(clean);
+  if (direct) {
+    if (direct.generated) {
+      return {
+        original: clean,
+        resolved: direct.name,
+        def: direct,
+        simplified: false,
+        generated: true,
+        reason: `acorde gerado pelo UkeMaster — toque ${direct.name}`,
+      };
+    }
+    return { original: clean, resolved: direct.name, def: direct, simplified: false };
+  }
+
+  // 2. Baixo invertido (slash chord): G/B → G
+  const { base, bass } = splitSlashChord(clean);
+  if (bass && base !== clean) {
+    const baseRes = resolveChordWithTheory(base);
+    if (baseRes) {
+      return {
+        ...baseRes,
+        original: clean,
+        simplified: true,
+        reason: `baixo invertido (${bass}) — toque ${baseRes.resolved}`,
+      };
+    }
+  }
+
+  // 3. Ladder de teoria musical
+  const rootMatch = clean.match(/^([A-G][#b]?)(.*)$/);
+  if (!rootMatch) return undefined;
+  const root = rootMatch[1];
+  const rawQuality = rootMatch[2];
+
+  for (const quality of qualityCandidates(rawQuality)) {
+    const name = root + quality;
+    const def = findChord(name);
+    if (def) {
+      const simplified = name !== clean && name.toLowerCase() !== (root + rawQuality).toLowerCase();
+      let reason: string | undefined;
+      if (simplified) {
+        const hadExtension = /\([^)]*\)/.test(rawQuality) || /\d+/.test(rawQuality.replace(/^(7|maj7|m7|m|6|m6|sus2|sus4|add9|dim|m7b5)$/, ''));
+        reason = hadExtension
+          ? `extensão simplificada — toque ${name}`
+          : `versão mais simples no dicionário — toque ${name}`;
+      }
+      return { original: clean, resolved: def.name, def, simplified, reason };
+    }
+  }
+
+  return undefined;
+}
+
+/**
+ * Sanitiza o conteúdo ChordPro de uma cifra: substitui todo acorde que não
+ * exista no dicionário pela versão resolvida pela teoria musical, para nunca
+ * apresentar notas inexistentes. Retorna o conteúdo limpo + a lista de
+ * substituições feitas (para exibir um aviso ao usuário).
+ */
+export function sanitizeChordProContent(content: string): {
+  content: string;
+  substitutions: { from: string; to: string; reason?: string }[];
+} {
+  if (!content) return { content: '', substitutions: [] };
+  const substitutions: { from: string; to: string; reason?: string }[] = [];
+  const seen = new Set<string>();
+
+  const newContent = content.replace(/\[([^\]]+)\]/g, (match, raw) => {
+    const chord = String(raw).trim();
+    // Ignora cabeçalhos de seção ([Intro], [Refrão]...) — não são acordes
+    if (/^(Intro|Verso|Refrão|Ponte|Outro|Solo|Final|Chorus|Verse|Bridge)/i.test(chord)) {
+      return match;
+    }
+    const res = resolveChordWithTheory(chord);
+    if (!res) return match;
+    if (res.simplified && res.resolved !== chord) {
+      const key = `${chord}→${res.resolved}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        substitutions.push({ from: chord, to: res.resolved, reason: res.reason });
+      }
+      return `[${res.resolved}]`;
+    }
+    return match;
+  });
+
+  return { content: newContent, substitutions };
+}
+
+/* ════════════════════════════════════════════════════════════════════
+ * VERSÕES SIMPLIFICADAS DE CIFRAS (Simples / Média / Profissional)
+ *
+ * Toda música difícil (acordes com extensões 9/11/13, 7M, m7b5, baixos
+ * invertidos...) recebe automaticamente versões SIMPLES e MÉDIA pela
+ * teoria musical. A versão PROFISSIONAL é a original. Assim qualquer
+ * iniciante consegue tocar, e o app deixa explícito quando a cifra foi
+ * adaptada.
+ * ════════════════════════════════════════════════════════════════════ */
+
+export type SimplificationLevel = 'simple' | 'medium';
+
+// Qualidades que a versão MÉDIA mantém (fáceis e comuns no ukulele)
+const MEDIUM_KEEP = [
+  '', // tríade maior
+  'm',
+  '7',
+  'm7',
+  'maj7',
+  '6',
+  'm6',
+  'sus2',
+  'sus4',
+  'add9',
+  'dim',
+];
+
+/**
+ * Simplifica UM acorde para o nível pedido, pela teoria musical.
+ *  - simple: tríade pura (maior/menor) — sempre existe no dicionário e é
+ *    o conjunto mais fácil do ukulele (0–3 dedos, sem pestana na maioria).
+ *  - medium: mantém a família de sétima/suspensa (7, m7, maj7, sus...),
+ *    removendo apenas extensões exóticas (9/11/13/b9/#9) e baixos
+ *    invertidos.
+ * A versão PROFISSIONAL é o próprio acorde original.
+ */
+export function simplifyChordName(
+  chordName: string,
+  level: SimplificationLevel
+): string {
+  if (!chordName) return chordName;
+  const clean = chordName.trim();
+
+  // Baixo invertido (G/B, Dm/C): a simplificação toca a base
+  const { base } = splitSlashChord(clean);
+  const rootMatch = base.match(/^([A-G][#b]?)(.*)$/);
+  if (!rootMatch) return clean;
+  const root = rootMatch[1];
+  // Remove extensões entre parênteses para analisar a qualidade base
+  let q = rootMatch[2].replace(/\([^)]*\)/g, '').trim();
+  // Notação brasileira: 7M/7m(maior)/7+ → maj7; M7 → maj7 (CASE-SENSITIVE,
+  // pois com flag /i "M7" casaria "m7" — menor com 7ª, que é outro acorde);
+  // dim7/° → dim; Ø → m7b5.
+  q = q
+    .replace(/^(7M|7m|7\+)$/i, 'maj7')
+    .replace(/^M7$/, 'maj7')
+    .replace(/^(dim7|°)$/i, 'dim')
+    .replace(/^Ø$/i, 'm7b5');
+  // Artefato de slash residual (F#9-/7 → F#9-)
+  q = q.replace(/\/[A-G][#b]?$/, '');
+
+  const isMinor = /^m/i.test(q); // m, m7, m6, m9, mMaj7, m7b5...
+
+  if (level === 'simple') {
+    // Tríade pura — a versão mais fácil possível
+    return root + (isMinor ? 'm' : '');
+  }
+
+  // ── Média: mantém a família de sétima, simplifica extensões ────────
+  // Já é uma qualidade mantida?
+  if (MEDIUM_KEEP.includes(q)) return root + q;
+  if (/^(m7b5|7sus4|7sus)$/.test(q)) return root + (q === 'm7b5' ? 'm7' : '7');
+  // Extensões de sétima dominante → 7
+  if (/^(9|11|13|7b9|7#9|7b5|7#5)$/.test(q)) return root + '7';
+  // Extensões maiores → maj7
+  if (/^(maj9|maj11|maj13)$/.test(q)) return root + 'maj7';
+  // Extensões menores → m7
+  if (/^(m9|m11|m13)$/.test(q)) return root + 'm7';
+  // Menor com 7ª maior → m7 (a 7M é exótica no ukulele)
+  if (/^m(aj)?7m$|^mM7$/i.test(q)) return root + 'm7';
+  // 6/9 → 6
+  if (/^6\/9$/.test(q)) return root + '6';
+  // 5 (power chord) → tríade maior
+  if (/^5$/.test(q)) return root;
+  // Aumentado → tríade maior (1-3-#5 → 1-3-5)
+  if (/^(aug|\+|aug5|\+5|#5)$/i.test(q)) return root;
+  // Diminuta → tríade menor (1-b3-b5 → 1-b3-5)
+  if (/^dim$/.test(q)) return root + 'm';
+  // Qualquer coisa não reconhecida → tríade da família
+  return root + (isMinor ? 'm' : '');
+}
+
+/**
+ * Gera a cifra inteira no nível pedido (simple/medium), substituindo cada
+ * acorde pelo simplificado. Cabeçalhos de seção ([Intro], [Refrão]...) e
+ * tablaturas são preservados. Se nada mudar, retorna o conteúdo original.
+ */
+export function generateSimplifiedContent(
+  content: string,
+  level: SimplificationLevel
+): string {
+  if (!content) return content;
+  let changed = false;
+  const next = content.replace(/\[([^\]]+)\]/g, (match, raw) => {
+    const chord = String(raw).trim();
+    if (/^(Intro|Verso|Refrão|Ponte|Outro|Solo|Final|Chorus|Verse|Bridge)/i.test(chord)) {
+      return match;
+    }
+    const simple = simplifyChordName(chord, level);
+    if (simple === chord) return match;
+    changed = true;
+    return `[${simple}]`;
+  });
+  return changed ? next : content;
+}
+
+/**
+ * Detecta se uma cifra é "difícil" (precisa de versões simplificadas):
+ * existe acorde que muda ao simplificar para o nível médio (extensões
+ * 9/11/13, 7M, m7b5, baixos invertidos, aumentado...) OU algum acorde
+ * precisou ser GERADO pelo motor (não estava no dicionário estático).
+ */
+export function isHardSong(content: string): boolean {
+  if (!content) return false;
+  const chords = extractUniqueChords(content);
+  if (chords.length === 0) return false;
+  for (const chord of chords) {
+    const medium = simplifyChordName(chord, 'medium');
+    if (medium !== chord) return true;
+    const res = resolveChordWithTheory(chord);
+    if (res?.generated) return true;
+  }
+  return false;
 }
 
 /**

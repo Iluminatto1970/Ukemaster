@@ -5,6 +5,8 @@ import React from 'react';
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg';
+  /** 'light' para fundos escuros (wordmark branco/âmbar em vez de teal). */
+  variant?: 'dark' | 'light';
 }
 
 const iconSizes = {
@@ -25,14 +27,19 @@ const textSizes = {
  * fica o wordmark "UKEMASTER PRO" nas cores da marca (teal + âmbar) para
  * garantir a leitura do nome em qualquer tamanho.
  */
-export const Logo: React.FC<LogoProps> = ({ size = 'md' }) => {
+export const Logo: React.FC<LogoProps> = ({ size = 'md', variant = 'dark' }) => {
+  // Variante clara (fundos escuros): wordmark branco/âmbar; na escura (fundos
+  // claros) usa o teal da marca. O emblema (logo.png) funciona nos dois.
+  const wordColor = variant === 'light' ? 'text-white' : 'text-[#0E7C7B]';
+  const tagColor = variant === 'light' ? 'text-teal-100/90' : 'text-[#0E7C7B]';
+
   return (
     <div className="flex items-center gap-3 select-none" title="UkeMaster Pro">
       {/* Emblema oficial da logomarca */}
       <img
         src="/logo.png"
         alt="UkeMaster Pro"
-        className={`${iconSizes[size]} object-contain shrink-0 rounded-xl`}
+        className={`${iconSizes[size]} object-contain shrink-0 rounded-xl bg-white/90 p-0.5`}
         draggable={false}
       />
 
@@ -40,13 +47,13 @@ export const Logo: React.FC<LogoProps> = ({ size = 'md' }) => {
           dar espaço à busca; emblema permanece sempre visível */}
       <div className="hidden min-[420px]:block">
         <div className={`font-black ${textSizes[size]} tracking-tight flex items-center leading-none`}>
-          <span className="text-[#0E7C7B]">UKE</span>
-          <span className="text-[#0E7C7B]">MASTER</span>
+          <span className={wordColor}>UKE</span>
+          <span className={wordColor}>MASTER</span>
           <span className="text-[#F6AE2D] ml-1">PRO</span>
         </div>
         <div className="text-[10px] font-extrabold tracking-widest uppercase mt-0.5 flex items-center gap-1">
           <span className="text-[#F6AE2D]">★</span>
-          <span className="text-[#0E7C7B]">Seu Portal do Ukulele</span>
+          <span className={tagColor}>Seu Portal do Ukulele</span>
         </div>
       </div>
     </div>

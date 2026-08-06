@@ -6,8 +6,11 @@
  * Alvo do CRON diário (vercel.json) + disparo manual pela área admin.
  *
  * POST com corpo opcional:
- *   { "platformId": "cifraclub-br", "artistUrl": "https://...", "limit": 5, "fast": true }
- *   (vazio = cron automático com rotação diária)
+ *   { "platformId": "cifraclub-br", "artistUrl": "https://...", "limit": 5, "fast": true,
+ *     "updateExisting": true }
+ *   (vazio = cron automático com rotação diária; updateExisting = re-scrapeia
+ *   e atualiza o que já existe no acervo, aplicando novas classificações e
+ *   importando as variações simplificadas)
  *
  * Retorna { ok, ranAt, results: [...], totalImported, ... }.
  *
@@ -94,6 +97,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       artistUrl: body.artistUrl,
       limit: body.limit ? Number(body.limit) : undefined,
       fast: Boolean(body.fast),
+      updateExisting: Boolean(body.updateExisting),
     });
     return send(res, 200, result);
   } catch (e: any) {

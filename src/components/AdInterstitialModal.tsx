@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { AdSenseSlot } from './AdSenseSlot';
 import { Sparkles, Clock, Music, ArrowRight } from 'lucide-react';
+import { Logo } from './Logo';
 
 interface AdInterstitialModalProps {
   isOpen: boolean;
@@ -58,13 +59,13 @@ export const AdInterstitialModal: React.FC<AdInterstitialModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md animate-fade-in">
       <div className="bg-white border border-slate-200 rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden relative">
         {/* Header with Portal Brand */}
-        <div className="bg-gradient-to-r from-[#1D2D44] via-[#0E7C7B] to-[#1D2D44] p-5 text-white flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full bg-[#F26419] text-white font-extrabold text-[10px] tracking-wider uppercase inline-flex items-center gap-1">
-              <Sparkles className="w-3 h-3" />
-              Portal do Ukulele
+        <div className="bg-gradient-to-r from-[#1D2D44] via-[#0E7C7B] to-[#1D2D44] p-4 sm:p-5 text-white flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            {/* Logomarca oficial do portal — variante clara p/ fundo gradiente escuro */}
+            <Logo size="sm" variant="light" />
+            <span className="text-[10px] sm:text-xs text-teal-100 font-semibold hidden sm:inline">
+              Anúncio do Patrocinador
             </span>
-            <span className="text-xs text-teal-100 font-semibold">Anúncio do Patrocinador</span>
           </div>
 
           {canSkip ? (

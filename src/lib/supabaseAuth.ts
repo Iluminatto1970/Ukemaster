@@ -36,8 +36,10 @@ export interface SupabaseSession {
   user: SupabaseUser | null;
 }
 
-const SESSION_KEY = 'ukemaster_supabase_session_v1';
+export const SESSION_KEY = 'ukemaster_supabase_session_v1';
 const OAUTH_VERIFIER_KEY = 'ukemaster_oauth_code_verifier';
+/** Mensagem postMessage da popup do Google para a janela que a abriu. */
+export const OAUTH_POPUP_MESSAGE = 'ukemaster-oauth-success';
 
 /** Carrega a sessão salva (sem validar). */
 export function loadStoredSession(): SupabaseSession | null {
@@ -190,16 +192,34 @@ async function sha256Challenge(verifier: string): Promise<string> {
   return base64UrlEncode(new Uint8Array(digest));
 }
 
+export type OAuthOpenMode = 'popup' | 'redirect';
+
+export interface OAuthOpenResult {
+  mode: OAuthOpenMode;
+  /** Referência da popup aberta (para o modal monitorar se foi fechada). */
+  popup?: Window | null;
+}
+
 /**
- * Inicia o login social (ex.: 'google'). Redireciona o navegador para o
- * authorize do Supabase com PKCE; ao voltar, o App processa /auth/callback.
+ * Inicia o login social (ex.: 'google').
+ *
+ * Tenta PRIMEIRO abrir em popup (`window.open`) — funciona dentro de iframes
+ * e webviews (onde a navegação de topo é bloqueada) e preserva o estado do
+ * app na aba original. Se o navegador bloquear o popup, cai para a navegação
+ * de topo clássica (`window.location.href`). Retorna o modo usado + a popup.
+ *
+ * No fluxo popup, o Google devolve o `?code=` para a própria popup (que carrega
+ * /auth/callback); a popup troca o code por uma sessão e avisa a janela que a
+ * abriu via postMessage + storage event (AuthProvider escuta os dois).
+ *
  * `redirectTo` é a URL do callback (ex.: `${origin}/auth/callback`) e precisa
  * estar na lista de Redirect URLs do projeto no painel do Supabase.
  */
 export async function signInWithOAuth(
   provider: string,
-  redirectTo: string
-): Promise<void> {
+  redirectTo: string,
+  preferPopup = true
+): Promise<OAuthOpenResult> {
   const sb = getSupabase();
   if (!sb) throw new Error('Supabase não configurado.');
 
@@ -219,7 +239,20 @@ export async function signInWithOAuth(
     code_challenge_method: 's256',
     scopes: 'email profile',
   });
-  window.location.href = `${sb.url}/auth/v1/authorize?${params.toString()}`;
+  const authUrl = `${sb.url}/auth/v1/authorize?${params.toString()}`;
+
+  if (preferPopup) {
+    // Popup SEM `noopener` (precisamos do window.opener para o postMessage).
+    const popup = window.open(authUrl, 'ukemaster_oauth', 'width=520,height=640');
+    if (popup) {
+      popup.focus();
+      return { mode: 'popup', popup };
+    }
+    // Popup bloqueada (bloqueador/iframe restritivo) → navegação de topo.
+  }
+
+  window.location.href = authUrl;
+  return { mode: 'redirect', popup: null };
 }
 
 /**

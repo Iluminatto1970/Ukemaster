@@ -33,11 +33,16 @@ create policy "leads_insert" on public.leads
 -- Leitura pública (acervo aberto) + INSERT/UPDATE para o cron/usuários.
 -- DELETE: privilégio negado ao anon; autenticados passam pelo RLS que
 -- exige o e-mail do admin no JWT (auth.jwt() ->> 'email').
+--
+-- ATENÇÃO: o schema.sql (migração antiga) criou a política permissiva
+-- "songs_all" (for all using true). Como o RLS faz OR entre políticas,
+-- ela ANULARIA o delete só-admin abaixo — por isso a dropa aqui.
 grant select, insert, update on public.songs to anon, authenticated;
 revoke delete on public.songs from anon;
 grant delete on public.songs to authenticated;
 
 alter table public.songs enable row level security;
+drop policy if exists "songs_all" on public.songs;
 drop policy if exists "songs_select" on public.songs;
 create policy "songs_select" on public.songs for select using (true);
 drop policy if exists "songs_insert" on public.songs;
@@ -60,10 +65,33 @@ drop policy if exists "playlists_all" on public.playlists;
 create policy "playlists_all" on public.playlists
   for all using (true) with check (true);
 
+-- ── 4b) AFFILIATE / PARTNER / BLOG: públicos por design ────────────
+-- Dropa as versões antigas do schema.sql (se existirem) e recria
+-- idempotente — mesmo padrão das demais tabelas abertas.
+alter table public.affiliate_links enable row level security;
+drop policy if exists "affiliate_links_all" on public.affiliate_links;
+create policy "affiliate_links_all" on public.affiliate_links
+  for all using (true) with check (true);
+
+alter table public.partner_links enable row level security;
+drop policy if exists "partner_links_all" on public.partner_links;
+create policy "partner_links_all" on public.partner_links
+  for all using (true) with check (true);
+
+alter table public.blog_posts enable row level security;
+drop policy if exists "blog_posts_all" on public.blog_posts;
+create policy "blog_posts_all" on public.blog_posts
+  for all using (true) with check (true);
+
 -- ── 5) REPERTOIRES: dono vê/edita o seu; público vê só is_public ───
 -- O app envia o JWT do usuário (Authorization: Bearer) quando logado;
 -- auth.uid() = id do usuário no Supabase, igual ao user_id salvo.
+--
+-- ATENÇÃO: o schema.sql criou "repertoires_all" (for all using true), que
+-- ANULARIA esta restrição por usuário (RLS = OR). A dropa é obrigatória
+-- para a privacidade do repertório privado valer de fato.
 alter table public.repertoires enable row level security;
+drop policy if exists "repertoires_all" on public.repertoires;
 drop policy if exists "repertoires_select" on public.repertoires;
 create policy "repertoires_select" on public.repertoires
   for select using (user_id = auth.uid()::text or is_public = true);
@@ -92,6 +120,8 @@ create policy "cron_log_all" on public.cron_log
 -- VERIFICAÇÃO (rodar depois):
 --   SELECT tablename, policyname, cmd FROM pg_policies
 --   WHERE schemaname='public' ORDER BY tablename, cmd;
+-- Esperado: NÃO pode existir nenhuma política 'repertoires_all' nem
+-- 'songs_all' (foram dropadas — senão anulariam as restrições abaixo).
 -- Testes via anon/publishable key:
 --   SELECT * FROM public.leads;          -- 401 (bloqueado) ✅
 --   INSERT INTO public.leads (...) ...   -- 201 (permitido) ✅

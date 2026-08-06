@@ -6,12 +6,18 @@ dificuldade, categoria, SEO, vídeo do YouTube opcional) e publica no Supabase
 — **até o acervo ficar 100% sincronizado**, sem duplicar músicas (dedupe em
 3 camadas + histórico persistente `cron_imports`/`cron_log`).
 
-> Plataformas configuradas em `src/lib/platforms.ts` (`CHORD_PLATFORMS`):
-> **cifraclub-br** (BR) e **guitaretab-int** (INT). Sites com anti-bot
-> (Ultimate-Guitar, E-chords) ficaram desativados porque bloqueiam o scraper.
-> A rotação da fila é justa: artistas gigantes (Roberto Carlos, Caetano) são
-> retomados incrementalmente a cada ciclo, e o cursor avança mesmo em timeout
-> (artista incompleto não bloqueia mais a fila).
+> **Fila = ÍNDICE DE CATÁLOGO** (`src/data/cifraclubCatalog.ts`): 667 artistas
+> cobrindo os 98 gêneros do CifraClub (MPB, Sertanejo, Gospel, Rock, Pop,
+> Forró, Reggae, Infantil, Internacional...). A categoria de cada música vem
+> do **gênero oficial do CifraClub** (não de lista manual) — para adicionar
+> artistas novos, re-rode `node scripts/collect-genre-artists.mjs && node
+> scripts/build-catalog.mjs` e faça deploy (o cron detecta o diff pela fila).
+
+> **MULTIMÁQUINA SEM DUPLICAÇÃO**: a Vercel (1x/dia) e as máquinas locais
+> (a cada 30 min) compartilham a mesma fila e o mesmo cursor, protegidos por
+> um **lease atômico** na tabela `scrape_state` (key `worker_lease`): só uma
+> execução processa por vez; a que perde espera a próxima rodada. Heartbeat
+> a cada artista + expiração automática (25 min) se a máquina cair.
 
 > Idealmente roda numa máquina ligada 24/7. A Vercel já roda 1x/dia (limite
 > do plano grátis); nas suas máquinas ele roda **a cada 30 minutos** com
@@ -30,6 +36,47 @@ dificuldade, categoria, SEO, vídeo do YouTube opcional) e publica no Supabase
 
 Nada mais é necessário: **zero dependências** no runtime (o bundle é único e
 autocontido — 34 KB).
+
+---
+
+## 🌍 Fontes por idioma (alinhadas ao seletor do portal)
+
+O cron captura músicas dos idiomas que o portal oferece (pt/en/es/fr/de/ja/zh/ar):
+
+| Idioma | Plataforma | Instrumento | Status |
+|---|---|---|---|
+| **pt (BR)** | CifraClub (667 artistas × 98 gêneros) | violão/guitarra/ukulele | ✅ habilitada |
+| **en** | UkuTabs (`ukutabs-en`) | ukulele | ✅ habilitada |
+| **ja** | U-FRET (`ufret-ja`) | violão/ukulele/piano | ✅ habilitada |
+| **es / fr / de** | GuitarTabs (`guitaretab-int`, agregador global com artistas desses países) | violão | ✅ habilitada |
+| **es nativo** | LaCuerda | violão | ⚠️ desabilitada (redirect JS + 404) |
+| **fr nativo** | Partoch | violão | ⚠️ desabilitada (tab via AJAX — exige headless) |
+| **de nativo** | E-Chords | violão | ⚠️ desabilitada (Cloudflare) |
+| **zh** | 17Jita / Tan8 | violão/piano | ⚠️ desabilitadas (anti-bot JS / partituras em imagem) |
+| **ar** | — | — | ⚠️ sem site de cifras em HTML puro estável |
+
+Cada fonte desabilitada tem `disabledReason` no registro (`src/lib/platforms.ts`)
+com o motivo — se um dia passar a servir HTML puro, basta habilitar e ajustar
+um seletor no scraper.
+
+### 🖥️ Dividir entre o Acer e o Windows (sem duplicar)
+
+As máquinas compartilham a mesma fila e o **lease atômico** já impede que
+duas executem o mesmo artista ao mesmo tempo. Para dar prioridade por idioma
+(um japonês vê conteúdo JA mais rápido), cada máquina pode processar só um
+grupo de plataformas via `CRON_PLATFORMS`:
+
+```bash
+# Acer (Linux) — pt + japonês
+CRON_PLATFORMS=cifraclub-br,ufret-ja
+
+# Windows — inglês + internacional (es/fr/de)
+CRON_PLATFORMS=ukutabs-en,guitaretab-int
+```
+
+Edite `dist-cron/.env` em cada máquina (ou use `--platform` no agendamento).
+Deixe `CRON_PLATFORMS` vazio se preferir que as duas rodem tudo (o lease
+alterna quem processa a cada 30 min).
 
 ---
 
@@ -69,11 +116,18 @@ nano dist-cron/.env
 ```text
 NEXT_PUBLIC_SUPABASE_URL=https://SEU-PROJETO.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sua-chave
+CRON_UKEMATER_EMAIL=ukemater@ukemasterpro.com.br
+CRON_UKEMATER_PASSWORD=senha-da-conta-ukemater
 CRON_TIME_BUDGET_MS=900000
 ```
 
-> Só 2 chaves do Supabase são necessárias — **públicas por design** (são as
-> mesmas do frontend). Nenhum segredo fica na máquina.
+> **Conta UkeMater (obrigatória desde 2026-08)**: o cron agora escreve
+> autenticado como o usuário `UkeMater` do Supabase Auth (não usa mais o
+> papel anônimo). Crie a conta **uma vez** com o e-mail/senha acima no
+> cadastro do app (ou peça a senha ao proprietário) e configure as duas
+> vars `CRON_UKEMATER_*` em TODAS as máquinas + Vercel. Sem elas o cron
+> degrada para a anon key — e passa a falhar assim que o RLS de `songs`
+> exigir login (migration-ukemater-cron.sql).
 
 ---
 
@@ -114,6 +168,8 @@ Se preferir não clonar o repositório (ou a máquina não tiver git/npm):
 | `CRON_TIME_BUDGET_MS` | `900000` | Orçamento por execução (ms). 15 min = 900000 |
 | `CRON_SCHEDULE` | `*/30 * * * *` | Expressão cron (usada pelo instalador) |
 | `CRON_TASK_NAME` | `UkeMasterCron` | Nome da tarefa no Windows |
+| `CRON_UKEMATER_EMAIL` | — | E-mail da conta UkeMater (autenticação do cron) |
+| `CRON_UKEMATER_PASSWORD` | — | Senha da conta UkeMater (fica no .env da máquina) |
 
 Argumentos do bundle (modo manual):
 
@@ -185,9 +241,9 @@ sem histórico/cursor persistente.
 
 ## 💡 Dicas
 
-- **2+ máquinas**: use agendamentos defasados (ex.: `*/30` numa e
-  `15,45 * * * *` na outra) para não disputarem o mesmo artista — embora o
-  dedupe torne a disputa inofensiva.
+- **2+ máquinas**: não precisa defasar agendamentos — o **lease atômico**
+  garante que só uma execução processa por vez (a que perde aguarda a
+  próxima rodada). O dedupe em 3 camadas é a rede final de segurança.
 - **Orçamento**: aumente `CRON_TIME_BUDGET_MS` se quiser sincronizar mais
   rápido (respeitando o site de origem); reduza se a máquina for fraca.
 - **Log rotativo**: o `cron.log` cresce pouco; se incomodar, adicione

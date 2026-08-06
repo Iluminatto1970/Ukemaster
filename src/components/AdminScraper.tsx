@@ -55,6 +55,10 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
   // Cron state
   const [cronRunning, setCronRunning] = useState<boolean>(false);
   const [cronResult, setCronResult] = useState<string>('');
+  // Modo ATUALIZAÇÃO: re-scrapeia e renova o que JÁ EXISTE no acervo
+  // (conteúdo, dificuldade, tom, categoria, SEO) + importa as variações
+  // simplificadas novas. Sem ele, o cron só adiciona músicas novas.
+  const [cronUpdateExisting, setCronUpdateExisting] = useState<boolean>(false);
 
   const handleDiscover = async () => {
     const url = urlInput.trim();
@@ -165,15 +169,20 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
       const res = await fetch('/api/scrape-platforms', {
         method: 'POST',
         headers: adminHeaders(),
-        body: JSON.stringify(platformId ? { platformId, artistUrl, fast: true } : { fast: true }),
+        body: JSON.stringify(
+          platformId
+            ? { platformId, artistUrl, fast: true, updateExisting: cronUpdateExisting }
+            : { fast: true, updateExisting: cronUpdateExisting }
+        ),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Falha no cron.');
       const lines = (data.results || []).map(
-        (r: any) => `${r.artistUrl.split('/').filter(Boolean).pop()} → +${r.imported} novas, ${r.duplicates} dup, ${r.errors} err`
+        (r: any) =>
+          `${r.artistUrl.split('/').filter(Boolean).pop()} → +${r.imported} novas, ${r.updated ?? 0} atualizadas, ${r.duplicates} dup, ${r.errors} err`
       );
       setCronResult(
-        `Cron executado: ${data.totalImported} importada(s), ${data.totalDuplicates} duplicada(s), ${data.totalErrors} erro(s).\n` +
+        `Cron executado: ${data.totalImported} nova(s), ${data.totalUpdated ?? 0} atualizada(s), ${data.totalDuplicates} duplicada(s), ${data.totalErrors} erro(s).\n` +
           lines.join('\n')
       );
     } catch (e: any) {
@@ -391,7 +400,7 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
           ))}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => handleRunCron()}
             disabled={cronRunning}
@@ -400,6 +409,24 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
             {cronRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
             {cronRunning ? 'Executando cron...' : 'Executar Cron Completo (rotacionado)'}
           </button>
+          <label
+            className={`flex items-center gap-2 px-3 py-2 rounded-xl border cursor-pointer transition-colors select-none ${
+              cronUpdateExisting
+                ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                : 'bg-white border-slate-200 text-slate-500 hover:border-emerald-300'
+            }`}
+            title="Re-scrapeia o que já existe no acervo: renova conteúdo, dificuldade, tom, categoria e SEO; também importa as variações Simplificadas novas. Preserva ids/votos/playlists."
+          >
+            <input
+              type="checkbox"
+              checked={cronUpdateExisting}
+              onChange={(e) => setCronUpdateExisting(e.target.checked)}
+              className="w-4 h-4 accent-emerald-600 cursor-pointer shrink-0"
+            />
+            <span className="text-[11px] font-extrabold flex items-center gap-1">
+              <RefreshCw className="w-3 h-3" /> Atualizar o que já temos
+            </span>
+          </label>
           <a
             href="https://vercel.com/docs/cron-jobs"
             target="_blank"

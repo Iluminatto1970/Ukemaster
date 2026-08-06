@@ -21,6 +21,8 @@ import {
   handleOAuthCallback,
   cleanupOAuthUrl,
   SupabaseSession,
+  SESSION_KEY,
+  OAUTH_POPUP_MESSAGE,
 } from './lib/supabaseAuth';
 
 export interface AuthUser {
@@ -75,6 +77,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Login Google recusado/cancelado — não loga sessão antiga por engano.
         console.warn('[auth] OAuth recusado:', oauthError);
         cleanupOAuthUrl();
+        // Popup: fechou/recusou no Google → fecha a popup (evita aba órfã).
+        if (window.opener && window.opener !== window) {
+          window.setTimeout(() => window.close(), 400);
+        }
         setIsLoaded(true);
         return;
       }
@@ -87,6 +93,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (oauthSession) {
             setSession(oauthSession);
             setIsLoaded(true);
+            // Fluxo POPUP: avisa a janela que abriu (já salva a sessão no
+            // localStorage — ela também recebe o evento `storage`) e fecha a
+            // popup sozinha. No fluxo redirect (mesma aba), não há opener.
+            if (window.opener && window.opener !== window) {
+              try {
+                window.opener.postMessage(
+                  { type: OAUTH_POPUP_MESSAGE, session: oauthSession },
+                  window.location.origin
+                );
+              } catch {
+                // origem não permitida — o storage event cobre o fallback
+              }
+              window.setTimeout(() => window.close(), 500);
+            }
             return;
           }
           // Troca falhou (verifier ausente/erro) — não cair numa sessão
@@ -107,6 +127,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     })();
     return () => {
       cancelled = true;
+    };
+  }, []);
+
+  // Popup do Google: a sessão pode chegar por dois canais — o postMessage
+  // direto da popup OU o evento `storage` (a popup salva no localStorage e
+  // outras abas da MESMA origem recebem o evento). Escuta os dois para não
+  // depender de um só. Fecha o modal de login ao autenticar.
+  useEffect(() => {
+    const onMessage = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin) return;
+      if (e.data?.type !== OAUTH_POPUP_MESSAGE || !e.data?.session) return;
+      setSession(e.data.session as SupabaseSession);
+      setModalMode(null);
+    };
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== SESSION_KEY) return;
+      try {
+        const raw = e.newValue;
+        const s = raw ? (JSON.parse(raw) as SupabaseSession) : null;
+        if (s?.access_token) {
+          setSession(s);
+          setModalMode(null);
+        }
+      } catch {
+        // valor corrompido — ignora
+      }
+    };
+    window.addEventListener('message', onMessage);
+    window.addEventListener('storage', onStorage);
+    return () => {
+      window.removeEventListener('message', onMessage);
+      window.removeEventListener('storage', onStorage);
     };
   }, []);
 

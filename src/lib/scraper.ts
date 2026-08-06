@@ -17,6 +17,7 @@ import {
   generateSongSeoAndHashtags,
   extractUniqueChords,
 } from '../utils/chordUtils.js';
+import { CIFRACLUB_CATALOG } from '../data/cifraclubCatalog.js';
 import type { Song } from '../types';
 
 export interface ScrapedLink {
@@ -79,20 +80,82 @@ function normalizeUrl(raw: string): string {
  * Funciona para CifraClub (href="/artista/musica.html" ou "/artista/musica/")
  * e para a maioria dos sites de cifra que listam músicas por artista.
  */
+/**
+ * U-FRET (Japão): a página do artista lista as músicas como links
+ * "/song.php?data=<id>" com o título japonês no texto do <a>. O artista
+ * sai do <h1 class="p-artist__name"> (ou do parâmetro data= da própria URL).
+ */
+function discoverUfretLinks(html: string, baseUrl: string): ScrapedLink[] {
+  const links: ScrapedLink[] = [];
+  const seen = new Set<string>();
+  // Artista: h1 do próprio site (formato: B&#039;z) — senão, do slug data= da URL
+  const h1 = html.match(/<h1[^>]*class="[^"]*p-artist__name[^"]*"[^>]*>([\s\S]*?)<\/h1>/i);
+  const clean = (s: string) =>
+    s.replace(/<[^>]+>/g, '').replace(/&#0?39;|&apos;/g, "'").replace(/&amp;/g, '&').trim();
+  let artist = h1 ? clean(h1[1]) : '';
+  if (!artist) {
+    try {
+      const q = new URL(baseUrl).searchParams.get('data') || '';
+      if (q) artist = decodeURIComponent(q);
+    } catch {
+      // URL inválida
+    }
+  }
+
+  const re = /<a[^>]*href="[^"]*song\.php\?data=(\d+)"[^>]*>([\s\S]*?)<\/a>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) {
+    const id = m[1];
+    // O <a> traz o título + espaços + sufixos do site ("初心者ver" = versão
+    // iniciante) e o nome do ARTISTA no fim — remove tudo isso do título.
+    let title = clean(m[2]).replace(/\s+/g, ' ').trim();
+    if (artist && title.endsWith(artist)) {
+      title = title.slice(0, title.length - artist.length).trim();
+    }
+    if (!title || seen.has(id)) continue;
+    seen.add(id);
+    links.push({
+      url: `https://www.ufret.jp/song.php?data=${id}`,
+      title,
+      artist,
+    });
+  }
+  return links;
+}
+
 export function discoverSongLinks(html: string, baseUrl: string): ScrapedLink[] {
   const links: ScrapedLink[] = [];
   const seen = new Set<string>();
   const base = new URL(baseUrl);
+  // U-FRET (Japão): estrutura própria (song.php?data=ID) — o regex genérico
+  // de "/artista/musica" não captura query strings.
+  if (base.hostname.includes('ufret')) {
+    return discoverUfretLinks(html, baseUrl);
+  }
   const baseDepth = base.pathname.split('/').filter(Boolean).length;
 
-  // Regex de hrefs relativos de música: "/artista/musica" (+ .html ou /)
-  // Ex.: /alceu-valenca/anunciacao.html | /alceu-valenca/anunciacao/
-  const hrefRegex = /href="(\/(?:[a-z0-9-]+\/)+[a-z0-9-]+(?:\.[a-z]+)?\/?)"/gi;
+  // Regex de hrefs: captura RELATIVOS ("/artista/musica.html") e ABSOLUTOS
+  // do mesmo domínio ("https://site/artista/musica/", ex.: UkuTabs). Os
+  // absolutos de outros domínios e os utilitários são filtrados adiante.
+  const hrefRegex = /href="([^"]+)"/gi;
   let match: RegExpExecArray | null;
 
   while ((match = hrefRegex.exec(html)) !== null) {
-    const rawHref = match[1];
-    if (!rawHref || rawHref.includes('://')) continue;
+    let rawHref = match[1];
+    if (!rawHref || rawHref.startsWith('#') || rawHref.startsWith('javascript:')) continue;
+
+    // URLs absolutas do MESMO domínio são válidas (ex.: UkuTabs usa
+    // href="https://ukutabs.com/a/adele/all-i-ask/") — normaliza para o
+    // pathname e segue o fluxo igual ao relativo. Outros domínios: ignora.
+    if (rawHref.includes('://')) {
+      try {
+        const u = new URL(rawHref);
+        if (u.origin !== base.origin) continue;
+        rawHref = u.pathname;
+      } catch {
+        continue;
+      }
+    }
 
     // Ignora caminhos de imagem/arquivo/âncora
     if (/\.(jpg|jpeg|png|gif|webp|svg|css|js|ico|pdf|zip|woff2?|mp3|mp4)$/i.test(rawHref)) continue;
@@ -320,6 +383,30 @@ export function extractChordsFromHtml(html: string): string {
       .replace(/<span[^>]*class="[^"]*js-tab-row[^"]*"[^>]*>/gi, '\n')
       .replace(/<div[^>]*class="js-text-tab[^"]*"[^>]*>/gi, '');
   } else {
+    // UkuTabs (EN): a cifra vive no <pre id="ukutabs-song"> com os acordes
+    // em <a class="ukutabschord"> — vira [X] inline (formato ChordPro).
+    const utPre = text.match(/<pre[^>]*id="ukutabs-song"[^>]*>([\s\S]*?)<\/pre>/i);
+    if (utPre) {
+      text = utPre[1]
+        .replace(/<a[^>]*class="[^"]*ukutabschord[^"]*"[^>]*>([^<]*)<\/a>/gi, '[$1]')
+        .replace(/<span[^>]*class="[^"]*uku-cl-chord[^"]*"[^>]*>([^<]*)<\/span>/gi, '[$1]')
+        .replace(/<br\s*\/?>/gi, '\n');
+    }
+
+    // U-FRET (JA): a cifra completa (letra + acordes [X]) vem numa variável
+    // JS `ufret_chord_datas = ["[D]さよなら[G]...", "..."]` — JSON válido
+    // com \u escapes; cada elemento é uma linha/estrofe.
+    const ufretMatch = text.match(/var ufret_chord_datas\s*=\s*(\[[\s\S]*?\])\s*;\s*\r?\n/);
+    if (ufretMatch) {
+      try {
+        const rows = JSON.parse(ufretMatch[1]) as string[];
+        if (Array.isArray(rows) && rows.length > 0) {
+          text = rows.join('\n');
+        }
+      } catch {
+        // JSON malformado — cai no fallback genérico
+      }
+    }
     // <pre> geralmente guarda a cifra inteira
     const preMatch = text.match(/<pre[^>]*data-chord-content[^>]*>([\s\S]*?)<\/pre>/i);
     const preFallback = preMatch || text.match(/<pre[^>]*>([\s\S]*?)<\/pre>/i);
@@ -429,6 +516,17 @@ function decodeEntities(s: string): string {
 export function extractMetaFromHtml(html: string): { title?: string; artist?: string } {
   const clean = (s: string) => decodeEntities(s.replace(/<[^>]+>/g, '')).trim();
 
+  // U-FRET (Japão): o <title> é "Música / Artista ギターコード/... - U-FRET" —
+  // parse direto (o h1/h2 genérico não expõe o artista de forma estável).
+  const rawTitle = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || '';
+  if (rawTitle && /U-FRET/i.test(rawTitle)) {
+    const t = clean(rawTitle);
+    const m = t.match(/^(.+?)\s*\/\s*(.+?)\s+[^\u4e00-\u9fff\w]*コード/);
+    if (m && m[1] && m[2]) {
+      return { title: m[1].trim(), artist: m[2].trim() };
+    }
+  }
+
   // Ignora elementos de acessibilidade (u-srOnly) — o CifraClub usa h2 "Menu
   // principal" como primeiro <h2> só para leitores de tela.
   const notSrOnly = (s: string) => !/u-srOnly|sr-only|visually-hidden/i.test(s);
@@ -512,6 +610,24 @@ const ARTIST_CATEGORY: Record<string, string> = {
   'zezé di camargo e luciano': 'Sertanejo',
   'chitãozinho e xororó': 'Sertanejo',
   'henrique e juliano': 'Sertanejo',
+  // Gospel / música cristã — sem isso as cifras gospel caíam em 'Outros'
+  // (o índice CIFRACLUB_CATALOG também cobre 33 artistas gospel).
+  // (antes não havia NENHUM artista gospel no mapa nem na fila do cron).
+  'aline barros': 'Gospel',
+  'gabriela rocha': 'Gospel',
+  'fernanda brum': 'Gospel',
+  'preto no branco': 'Gospel',
+  'diante do trono': 'Gospel',
+  'marcelo rossi': 'Gospel',
+  'cassiane': 'Gospel',
+  'ana paula valadão': 'Gospel',
+  'casa worship': 'Gospel',
+  'isadora pompeo': 'Gospel',
+  'luma elpidio': 'Gospel',
+  'midian lima': 'Gospel',
+  'paulo césar baruk': 'Gospel',
+  'daniela araujo': 'Gospel',
+  'hillsong': 'Gospel',
   'legião urbana': 'Rock',
   'engenheiros do hawaii': 'Rock',
   'paralamas do sucesso': 'Rock',
@@ -529,26 +645,82 @@ const ARTIST_CATEGORY: Record<string, string> = {
   'claudia leitte': 'Pop',
   'kate perry': 'Pop',
   'miley cyrus': 'Pop',
+  'taylor swift': 'Internacional',
+  'bruno mars': 'Internacional',
+  'bob marley': 'Reggae',
+  'skank': 'Rock',
+  'rihanna': 'Internacional',
+  'priscilla alcantara': 'Gospel',
 };
 
-/** Inferência simples de categoria a partir do artista. */
+/** Normaliza um nome p/ comparação (sem acentos, minúsculas, & → e). */
+function normalizeForMatch(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/&/g, ' e ')
+    .replace(/[^a-z0-9 ]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Índice de lookup PRÉ-COMPUTADO (uma vez, no import do módulo): nome
+// normalizado → categoria. Evita re-normalizar os 667 nomes do catálogo a
+// cada música importada (o scraper chama inferCategory por MÚSICA).
+const CATALOG_NORM_INDEX: { exact: Map<string, string>; fuzzy: { name: string; cat: string }[] } = (() => {
+  const exact = new Map<string, string>();
+  const fuzzy: { name: string; cat: string }[] = [];
+  for (const entry of CIFRACLUB_CATALOG) {
+    const n = normalizeForMatch(entry.name);
+    if (n) {
+      exact.set(n, entry.category);
+      if (n.length >= 4) fuzzy.push({ name: n, cat: entry.category });
+    }
+  }
+  return { exact, fuzzy };
+})();
+
+/**
+ * Inferência de categoria a partir do artista, com 2 fontes em ORDEM:
+ *  1. Mapa MANUAL curado (ARTIST_CATEGORY): os artistas reais do acervo
+ *     histórico (Roberto Carlos→MPB, Tim Maia→MPB, Coldplay→Internacional,
+ *     Ivete→Pop...) — corrige casos em que o gênero do CifraClub engana
+ *     (Tim Maia é listado como "soul" mas é música BR; Elvis como
+ *     "rockabilly" mas é Internacional).
+ *  2. ÍNDICE DE CATÁLOGO do CifraClub (667 artistas × 98 gêneros): cobre
+ *     gospel, forró, reggae, infantil etc. sem depender de lista manual.
+ *  Fallback final: 'Outros'.
+ */
 export function inferCategory(artist: string): string {
-  const normalizeForMatch = (s: string) =>
-    s
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9 ]/g, '')
-      .trim();
-
   const normalized = normalizeForMatch(artist);
+  if (!normalized) return 'Outros';
 
-  // Match parcial: "jorge e mateus" casa com qualquer nome contendo.
-  // Chaves do mapa são normalizadas (sem acentos) para casar com o artista.
-  for (const [key, cat] of Object.entries(ARTIST_CATEGORY)) {
-    const normKey = normalizeForMatch(key);
-    if (normalized.includes(normKey) || normKey.includes(normalized)) {
-      return cat;
+  // 1) Mapa manual curado primeiro (nacionalidade/orientação editorial)
+  // Guarda: artista e chave com ≥ 4 letras — "tom" (3) não casa com
+  // "tom jobim", e lixo curto não é classificado por engano.
+  if (normalized.length >= 4) {
+    for (const [key, cat] of Object.entries(ARTIST_CATEGORY)) {
+      const normKey = normalizeForMatch(key);
+      if (normKey.length >= 4 && (normalized.includes(normKey) || normKey.includes(normalized))) {
+        return cat;
+      }
+    }
+  }
+
+  // 2) Catálogo do CifraClub: match exato do nome normalizado
+  const exactCat = CATALOG_NORM_INDEX.exact.get(normalized);
+  if (exactCat) return exactCat;
+
+  // Match FUZZY por contenção ("priscilla alcantara & whindersson" contém
+  // "priscilla alcantara"; "chitaozinho e xororo" casa com o índice).
+  // Só com nome do índice ≥ 4 letras E artista de entrada ≥ 6 letras —
+  // evita "tom" casar com "tom jobim" e lixo curto ("Super", "Doo").
+  if (normalized.length >= 6) {
+    for (const { name, cat } of CATALOG_NORM_INDEX.fuzzy) {
+      if (normalized.includes(name) || name.includes(normalized)) {
+        return cat;
+      }
     }
   }
   return 'Outros';
@@ -577,12 +749,61 @@ async function fetchHtmlWithRetry(url: string): Promise<string> {
 }
 
 /**
+ * Detecta a URL da versão SIMPLIFICADA (chip "Simplificada" do CifraClub) na
+ * página da cifra. Formato real: "/artista/musica/simplificada.html".
+ * Retorna null quando a música não tem essa variação.
+ */
+export function detectSimplifiedVersionUrl(html: string, baseUrl: string): string | null {
+  const m = html.match(/href="(\/[a-z0-9-]+\/[a-z0-9-]+\/simplificada\.html)"/i);
+  if (!m) return null;
+  try {
+    return new URL(m[1], new URL(baseUrl).origin).href;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Infere a dificuldade pela COMPLEXIDADE REAL dos acordes (quando a meta do
+ * site não diz). Acordes "pesados" no ukulele: raiz sustenida/bemol (quase
+ * sempre pestana: F, B, Bb, F#, C#m...) ou qualidades complexas (maj7, 9,
+ * 11, 13, dim, aug, sus4, add). Isso torna os filtros Modo Médio/Avançado
+ * reais no acervo (antes quase tudo caía em 'Simplificado' por padrão).
+ */
+function inferDifficultyFromChords(
+  chords: string[],
+  metaDifficulty?: string
+): Song['difficulty'] {
+  // Meta do site tem prioridade quando diz o nível
+  if (metaDifficulty === 'Avançado' || metaDifficulty === 'Difícil') return 'Avançado';
+  if (metaDifficulty === 'Intermediário' || metaDifficulty === 'Médio') return 'Médio';
+
+  let complex = 0;
+  for (const c of chords) {
+    const root = (c.match(/^[A-G][#b]?/) || [''])[0];
+    if (/[#b]/.test(root)) complex++;
+    else if (/(maj7|m7b5|dim|aug|sus4|sus2|add[0-9]*|9|11|13)/i.test(c)) complex++;
+  }
+  if (complex >= 3) return 'Avançado';
+  if (complex >= 1) return 'Médio';
+  return 'Simplificado';
+}
+
+/**
  * Faz o scrape de UMA música: busca o HTML, extrai a cifra, roda o conversor
  * automático (formato [C], tom, dificuldade) e o gerador de SEO.
  * Retorna uma Song pronta para ser adicionada ao acervo.
  */
 export async function scrapeSong(url: string): Promise<Song> {
   const html = await fetchHtmlWithRetry(url);
+  return scrapeSongFromHtml(url, html);
+}
+
+/**
+ * Parseia a cifra de um HTML JÁ baixado (sem fetch) — separado do scrape
+ * para a versão com variantes reutilizar o mesmo pipeline sem baixar 2x.
+ */
+export function scrapeSongFromHtml(url: string, html: string): Song {
   const rawChords = extractChordsFromHtml(html);
   const meta = extractMetaFromHtml(html);
   const urlArtist = artistFromUrl(url);
@@ -664,9 +885,7 @@ export async function scrapeSong(url: string): Promise<Song> {
   const youtubeId = extractYoutubeFromHtml(html);
 
   const finalKey = extractedMeta.suggestedKey || suggestedKey || 'C';
-  const difficulty = (extractedMeta.difficulty === 'Iniciante' ? 'Simplificado'
-    : extractedMeta.difficulty === 'Intermediário' ? 'Médio'
-    : extractedMeta.difficulty || 'Simplificado') as Song['difficulty'];
+  const difficulty = inferDifficultyFromChords(detectedChords, extractedMeta.difficulty);
 
   // Categoria/estilo inferida (mapa de artistas + fallback 'Outros')
   const category = inferCategory(artist);
@@ -692,6 +911,57 @@ export async function scrapeSong(url: string): Promise<Song> {
   };
 
   return song;
+}
+
+/**
+ * Scrape de UMA música com TODAS as variações disponíveis no site de origem.
+ *
+ * O CifraClub expõe a versão SIMPLIFICADA em "/artista/musica/simplificada.html"
+ * (chip "Simplificada"): acordes mais fáceis para quem está começando. Quando
+ * ela existe, retornamos DUAS músicas:
+ *   - a ORIGINAL (dificuldade real, Médio/Avançado quando há variação simples);
+ *   - a SIMPLIFICADA como entrada própria "Título (Simplificada)", dificuldade
+ *     Simplificado — o filtro "Modo Simplificado" do app passa a mostrá-la.
+ * Músicas sem variação continuam retornando só a original.
+ */
+export async function scrapeSongWithVariants(url: string): Promise<Song[]> {
+  const html = await fetchHtmlWithRetry(url);
+  const song = scrapeSongFromHtml(url, html);
+  const out: Song[] = [song];
+
+  // Variação simplificada: só quando o próprio HTML da página a anuncia
+  // (link /artista/musica/simplificada.html) — zero requisições extras para
+  // músicas que não têm versão simplificada.
+  const simplifiedUrl = detectSimplifiedVersionUrl(html, url);
+  if (!simplifiedUrl) return out;
+
+  try {
+    const sHtml = await fetchHtmlWithRetry(simplifiedUrl);
+    const v = scrapeSongFromHtml(simplifiedUrl, sHtml);
+    // Rede de segurança: variação vazia/indisponível não entra
+    if ((v.content || '').trim().length < 10) return out;
+
+    out.push({
+      ...v,
+      id: `scraped-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      title: `${song.title} (Simplificada)`,
+      difficulty: 'Simplificado',
+      key: v.key || song.key,
+      category: v.category && v.category !== 'Outros' ? v.category : song.category,
+      youtubeId: v.youtubeId || song.youtubeId,
+      youtubeUrl: v.youtubeUrl || song.youtubeUrl,
+      createdAt: song.createdAt,
+      updatedAt: song.updatedAt,
+    });
+
+    // Existe uma versão simplificada → a ORIGINAL não é para iniciantes:
+    // sobe a dificuldade dela para Médio (a simples já cobre o nível básico).
+    if (song.difficulty === 'Simplificado') song.difficulty = 'Médio';
+  } catch {
+    // Simplificada indisponível (404/rate-limit) — segue só com a original
+  }
+
+  return out;
 }
 
 /**
@@ -808,13 +1078,17 @@ export async function scrapeArtistPage(
     seenKeys.add(key);
 
     try {
-      const song = await scrapeSong(link.url);
-      // Rede de segurança: nunca deixa um trecho de cifra virar artista/título
-      if (isJunkArtistName(song.artist) || isJunkTitle(song.title)) {
-        errors.push({ url: link.url, error: 'Metadados inválidos (artista/título-lixo) descartados.' });
-        continue;
+      // Uma música pode gerar MAIS de uma entrada: a versão original + a
+      // SIMPLIFICADA ("Título (Simplificada)") quando o CifraClub a oferece.
+      const variants = await scrapeSongWithVariants(link.url);
+      for (const song of variants) {
+        // Rede de segurança: nunca deixa um trecho de cifra virar artista/título
+        if (isJunkArtistName(song.artist) || isJunkTitle(song.title)) {
+          errors.push({ url: link.url, error: 'Metadados inválidos (artista/título-lixo) descartados.' });
+          continue;
+        }
+        songs.push(song);
       }
-      songs.push(song);
     } catch (e: any) {
       errors.push({ url: link.url, error: e?.message || 'Erro desconhecido' });
     }

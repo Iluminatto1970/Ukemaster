@@ -14,6 +14,13 @@
         "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}",
         "SUPABASE_PROJECT_REF": "${SUPABASE_PROJECT_REF}"
       }
+    },
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${CTX7_API_KEY}"
+      }
     }
   }
 }

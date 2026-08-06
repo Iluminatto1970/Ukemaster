@@ -48,3 +48,10 @@ scripts/handoff.ts
 
 # Cron bundle standalone (build artifact)
 dist-cron/
+
+# Ferramentas de IA locais (skills MCP / instruções de agente)
+.agents/
+GEMINI.md
+
+# Supabase CLI local (não versionar)
+supabase/.temp/

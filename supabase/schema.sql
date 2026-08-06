@@ -28,19 +28,24 @@ create table if not exists public.songs (
   youtube_id text,
   content text,
   simplified_content text,
+  medium_content text,
   difficulty text,
   category text,
   tags jsonb default '[]'::jsonb,
   seo_description text,
   hashtags jsonb default '[]'::jsonb,
   votes integer not null default 0,
+  views integer not null default 0,
   created_at text not null,
   updated_at text not null
 );
 
--- Se a tabela songs JÁ existia (antes desta migração), garante a coluna votes
--- (o create table if not exists acima não altera tabelas existentes).
+-- Se a tabela songs JÁ existia (antes desta migração), garante as colunas
+-- votes e views (o create table if not exists acima não altera tabelas
+-- existentes).
 alter table public.songs add column if not exists votes integer not null default 0;
+alter table public.songs add column if not exists views integer not null default 0;
+alter table public.songs add column if not exists medium_content text;
 
 -- ── 2b) SONG_VOTES (1 voto por usuário por música) ────────────────────
 -- PK composta (song_id + user_id) garante que cada usuário vota UMA vez.
@@ -112,6 +117,82 @@ create table if not exists public.cron_log (
   message text
 );
 
+-- ── 8) AFFILIATE_LINKS (anúncios de afiliado — Mercado Livre, Shopee...) ──
+-- Links de afiliado do proprietário (importados por TXT na área admin).
+-- Leitura pública (aparecem no site como cards "Patrocinado"); escrita
+-- pelo admin (mesma chave do app, RLS aberto como o resto do acervo).
+create table if not exists public.affiliate_links (
+  id text primary key,
+  title text not null,
+  url text not null,
+  store text,
+  enabled boolean not null default true,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+-- ── 9) PARTNER_LINKS (parceiros — vídeos, cursos, links) ────────────────
+-- Conteúdo de parceiros do proprietário (importado por TXT/área admin):
+-- vídeos do YouTube, cursos e links úteis. Mesma política de acesso.
+create table if not exists public.partner_links (
+  id text primary key,
+  type text not null default 'link', -- 'youtube' | 'course' | 'link'
+  title text not null,
+  url text not null,
+  description text,
+  enabled boolean not null default true,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+-- ── 10) BLOG_POSTS (artigos do proprietário — SEO + afiliados) ───────────
+-- Posts gerenciados na área admin; publicados aparecem na aba Blog.
+create table if not exists public.blog_posts (
+  id text primary key,
+  title text not null,
+  excerpt text,
+  content text not null,
+  category text,
+  tags jsonb default '[]'::jsonb,
+  enabled boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- ── 11) SONG_COMMENTS (comunidade por música) ────────────────────────────
+-- Fórum leve: qualquer visitante pode comentar (mesma política do leads).
+create table if not exists public.song_comments (
+  id text primary key,
+  song_id text not null,
+  author_name text not null,
+  text text not null,
+  created_at timestamptz not null default now()
+);
+create index if not exists song_comments_song_idx on public.song_comments (song_id);
+
+-- ── 12) VIDEO_REQUESTS ("Pedir videoaula") ───────────────────────────────
+-- Pedidos de aula do público (nome/e-mail/WhatsApp + música desejada).
+create table if not exists public.video_requests (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  email text not null,
+  whatsapp text,
+  song text,
+  message text,
+  created_at timestamptz not null default now()
+);
+
+-- ── 13) SONG_FEEDBACK ("Corrigir letra/cifra" — colaboração da comunidade) ─
+create table if not exists public.song_feedback (
+  id uuid primary key default gen_random_uuid(),
+  song_id text,
+  song_title text,
+  name text,
+  email text,
+  message text not null,
+  created_at timestamptz not null default now()
+);
+
 -- ── Índices úteis ────────────────────────────────────────────────────
 create index if not exists songs_artist_idx on public.songs (artist);
 create index if not exists songs_title_idx on public.songs (title);
@@ -130,6 +211,12 @@ alter table public.repertoires enable row level security;
 alter table public.cron_imports enable row level security;
 alter table public.cron_log enable row level security;
 alter table public.song_votes enable row level security;
+alter table public.affiliate_links enable row level security;
+alter table public.partner_links enable row level security;
+alter table public.blog_posts enable row level security;
+alter table public.song_comments enable row level security;
+alter table public.video_requests enable row level security;
+alter table public.song_feedback enable row level security;
 
 -- leads: qualquer um pode INSERIR (captura de lead), ninguém lê via anon
 drop policy if exists "leads_insert" on public.leads;
@@ -160,3 +247,36 @@ create policy "cron_log_all" on public.cron_log
 drop policy if exists "song_votes_all" on public.song_votes;
 create policy "song_votes_all" on public.song_votes
   for all using (true) with check (true);
+
+drop policy if exists "affiliate_links_all" on public.affiliate_links;
+create policy "affiliate_links_all" on public.affiliate_links
+  for all using (true) with check (true);
+
+drop policy if exists "partner_links_all" on public.partner_links;
+create policy "partner_links_all" on public.partner_links
+  for all using (true) with check (true);
+
+drop policy if exists "blog_posts_all" on public.blog_posts;
+create policy "blog_posts_all" on public.blog_posts
+  for all using (true) with check (true);
+
+-- song_comments: leitura pública + qualquer um pode COMENTAR (insert-only,
+-- mesmo modelo do leads — ninguém edita/exclui comentário alheio via anon)
+drop policy if exists "song_comments_select" on public.song_comments;
+create policy "song_comments_select" on public.song_comments
+  for select using (true);
+
+drop policy if exists "song_comments_insert" on public.song_comments;
+create policy "song_comments_insert" on public.song_comments
+  for insert with check (true);
+
+-- video_requests: INSERT anônimo (captura de pedido); leitura restrita
+-- (só o admin logado via management). Mesmo modelo do leads.
+drop policy if exists "video_requests_insert" on public.video_requests;
+create policy "video_requests_insert" on public.video_requests
+  for insert with check (true);
+
+-- song_feedback: INSERT anônimo (colaboração); leitura restrita.
+drop policy if exists "song_feedback_insert" on public.song_feedback;
+create policy "song_feedback_insert" on public.song_feedback
+  for insert with check (true);

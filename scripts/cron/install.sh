@@ -61,9 +61,13 @@ elif [ -f "$ROOT/.env.local" ]; then
     const get = (k) => { const m = local.match(new RegExp('^' + k + '=\\\"?(.*?)\\\"?\\\\s*\$', 'm')); return m ? m[1].trim() : ''; };
     const url = get('NEXT_PUBLIC_SUPABASE_URL') || get('VITE_SUPABASE_URL') || get('SUPABASE_URL');
     const key = get('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY') || get('VITE_SUPABASE_PUBLISHABLE_KEY') || get('VITE_SUPABASE_ANON_KEY') || get('SUPABASE_ANON_KEY');
+    const cEmail = get('CRON_UKEMATER_EMAIL');
+    const cPass = get('CRON_UKEMATER_PASSWORD');
     let env = fs.readFileSync('scripts/cron/cron.env.example', 'utf8');
     if (url) env = env.replace(/^NEXT_PUBLIC_SUPABASE_URL=.*$/m, 'NEXT_PUBLIC_SUPABASE_URL=' + url);
     if (key) env = env.replace(/^NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=.*$/m, 'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=' + key);
+    if (cEmail) env = env.replace(/^CRON_UKEMATER_EMAIL=.*$/m, 'CRON_UKEMATER_EMAIL=' + cEmail);
+    if (cPass) env = env.replace(/^CRON_UKEMATER_PASSWORD=.*$/m, 'CRON_UKEMATER_PASSWORD=' + cPass);
     fs.writeFileSync('dist-cron/.env', env);
     console.log('✔ .env criado com as chaves do .env.local');
   ")

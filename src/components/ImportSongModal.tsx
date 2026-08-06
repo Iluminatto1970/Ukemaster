@@ -3,12 +3,14 @@
  */
 import React, { useState } from 'react';
 import { Song } from '../types';
-import { autoConvertTextToChordPro, extractUniqueChords, extractYouTubeId, extractSongMetadata, generateSongSeoAndHashtags, findDuplicateSong } from '../utils/chordUtils';
+import { autoConvertTextToChordPro, extractUniqueChords, extractYouTubeId, extractSongMetadata, generateSongSeoAndHashtags, findDuplicateSong, resolveChordWithTheory, generateSimplifiedContent, isHardSong } from '../utils/chordUtils';
 import { findChord, ALL_KEYS } from '../data/chords';
+import { schedulePersistGeneratedChords } from '../lib/chordCache';
 import { ChordDiagram } from './ChordDiagram';
 import { YouTubePlayer } from './YouTubePlayer';
 import { FileText, Upload, Sparkles, X, Check, Music, FileCode, Edit3, Volume2, Link, Globe, Loader2, AlertCircle, Youtube, Search, ExternalLink, Share2, RefreshCw } from 'lucide-react';
 import { playUkuleleChord } from '../utils/audio';
+import { Logo } from './Logo';
 
 interface ImportSongModalProps {
   isOpen: boolean;
@@ -46,6 +48,18 @@ export const ImportSongModal: React.FC<ImportSongModalProps> = ({
   const [hashtags, setHashtags] = useState<string[]>([]);
   const [tags, setTags] = useState<string[]>([]);
   const [isProcessed, setIsProcessed] = useState<boolean>(false);
+  // Relatório dos acordes que não existiam no dicionário: quantos foram
+  // GERADOS pelo motor de voicings e quantos foram SIMPLIFICADOS pela teoria.
+  const [chordReport, setChordReport] = useState<{
+    generated: string[];
+    simplified: string[];
+  }>({ generated: [], simplified: [] });
+  // Versões facilitadas da música geradas automaticamente (teoria musical).
+  // Toda música difícil ganha versão SIMPLES e MÉDIA — fica explícito ao
+  // usuário que a cifra pode ser tocada em 3 níveis.
+  const [simplifiedContent, setSimplifiedContent] = useState<string>('');
+  const [mediumContent, setMediumContent] = useState<string>('');
+  const [isHard, setIsHard] = useState<boolean>(false);
 
   const duplicateMatch = isProcessed ? findDuplicateSong(title, artist, existingSongs) : undefined;
 
@@ -119,6 +133,33 @@ export const ImportSongModal: React.FC<ImportSongModalProps> = ({
       chordsFound
     );
 
+    // Analisa cada acorde detectado: dicionário → gerado → simplificado.
+    // Acordes gerados recebem diagrama REAL na hora (motor de voicings);
+    // acordes simplificados mostram "toque como X". Nunca fica nota vazia.
+    const report = { generated: [] as string[], simplified: [] as string[] };
+    for (const ch of chordsFound) {
+      const res = resolveChordWithTheory(ch);
+      if (!res) continue;
+      if (res.generated) {
+        report.generated.push(`${ch} → ${res.resolved}`);
+      } else if (res.simplified) {
+        report.simplified.push(`${ch} → ${res.resolved}`);
+      }
+    }
+    // Persiste os novos acordes gerados (localStorage + Supabase, upsert)
+    if (report.generated.length > 0) {
+      schedulePersistGeneratedChords(800);
+    }
+
+    // Gera as versões facilitadas pela teoria musical (simples + média).
+    // A versão PROFISSIONAL é a cifra original.
+    const hard = isHardSong(content);
+    const simple = hard ? generateSimplifiedContent(content, 'simple') : '';
+    const medium = hard ? generateSimplifiedContent(content, 'medium') : '';
+    setIsHard(hard);
+    setSimplifiedContent(simple);
+    setMediumContent(medium);
+
     setTitle(meta.title);
     setArtist(meta.artist);
     setSongKey(finalKey);
@@ -128,6 +169,7 @@ export const ImportSongModal: React.FC<ImportSongModalProps> = ({
     setSeoDescription(seoData.seoDescription);
     setHashtags(seoData.hashtags);
     setTags(seoData.tags);
+    setChordReport(report);
     setIsProcessed(true);
   };
 
@@ -383,6 +425,9 @@ export const ImportSongModal: React.FC<ImportSongModalProps> = ({
       key: songKey,
       difficulty,
       content: formattedContent,
+      // Versões facilitadas geradas pela teoria musical (simples + média)
+      simplifiedContent: simplifiedContent || undefined,
+      mediumContent: mediumContent || undefined,
       youtubeUrl: youtubeUrl.trim() || undefined,
       youtubeId: cleanYtId || undefined,
       seoDescription: seoDescription.trim() || undefined,
@@ -401,11 +446,10 @@ export const ImportSongModal: React.FC<ImportSongModalProps> = ({
       <div className="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden my-8">
         {/* Modal Header */}
         <div className="p-5 border-b border-stone-800 flex items-center justify-between bg-stone-950/50">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
-              <Upload className="w-5 h-5" />
-            </div>
-            <div>
+          <div className="flex items-center gap-3 min-w-0">
+            {/* Logomarca oficial do portal — variante clara p/ fundo escuro */}
+            <Logo size="sm" variant="light" />
+            <div className="min-w-0">
               <h3 className="text-lg font-bold text-stone-100 flex items-center gap-2">
                 Importar Música & Detecção de Notas
               </h3>
@@ -627,6 +671,8 @@ Tu [C]vens chegando pra brincar no meu [G]quintal...`}
                           key: songKey,
                           difficulty,
                           content: formattedContent,
+                          simplifiedContent: simplifiedContent || duplicateMatch.simplifiedContent,
+                          mediumContent: mediumContent || duplicateMatch.mediumContent,
                           youtubeUrl: youtubeUrl.trim() || duplicateMatch.youtubeUrl,
                           youtubeId: extractYouTubeId(youtubeUrl) || duplicateMatch.youtubeId,
                           seoDescription: seoDescription.trim() || duplicateMatch.seoDescription,
@@ -654,6 +700,71 @@ Tu [C]vens chegando pra brincar no meu [G]quintal...`}
                         <ExternalLink className="w-3.5 h-3.5 text-amber-400" /> Abrir Música Existente
                       </button>
                     )}
+                  </div>
+                </div>
+              )}
+
+              {/* Banner: versões facilitadas geradas automaticamente */}
+              {isHard && (
+                <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3.5 flex flex-wrap items-center gap-3">
+                  <span className="px-2 py-1 rounded-lg bg-amber-500/20 text-amber-300 font-bold text-[10px] uppercase border border-amber-500/30 shrink-0">
+                    ⚡ 3 Versões Geradas
+                  </span>
+                  <p className="text-xs text-amber-200 font-medium flex-1 min-w-[200px]">
+                    Esta música tem acordes avançados — o app gerou automaticamente as versões
+                    <strong className="text-amber-100"> Média</strong> (extensões removidas) e
+                    <strong className="text-amber-100"> Simples</strong> (só tríades) pela teoria
+                    musical. Ao abrir a cifra, o usuário escolhe o nível.
+                  </p>
+                </div>
+              )}
+
+              {/* Banner de acordes GERADOS pelo motor (não existiam no dicionário) */}
+              {chordReport.generated.length > 0 && (
+                <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3.5 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono font-bold text-[10px] uppercase border border-amber-500/30">
+                      ⚡ Acordes Gerados
+                    </span>
+                    <span className="text-xs text-amber-200 font-semibold">
+                      {chordReport.generated.length} acorde(s) não existiam no dicionário e ganharam
+                      diagrama real gerado pela teoria musical:
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {chordReport.generated.map((g) => (
+                      <span
+                        key={g}
+                        className="px-2 py-0.5 rounded-lg bg-stone-950 border border-amber-500/25 text-amber-300 font-mono text-[11px] font-bold"
+                      >
+                        {g}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Banner de acordes SIMPLIFICADOS pela teoria musical */}
+              {chordReport.simplified.length > 0 && (
+                <div className="bg-[#0E7C7B]/10 border border-[#0E7C7B]/30 rounded-xl p-3.5 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded bg-[#0E7C7B]/20 text-[#5EC8C6] font-mono font-bold text-[10px] uppercase border border-[#0E7C7B]/30">
+                      Teoria Musical
+                    </span>
+                    <span className="text-xs text-[#0E7C7B] font-semibold">
+                      {chordReport.simplified.length} acorde(s) impraticáveis no ukulele foram
+                      simplificados (toque como a versão mais próxima):
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {chordReport.simplified.map((s) => (
+                      <span
+                        key={s}
+                        className="px-2 py-0.5 rounded-lg bg-stone-950 border border-[#0E7C7B]/25 text-[#5EC8C6] font-mono text-[11px] font-bold"
+                      >
+                        {s}
+                      </span>
+                    ))}
                   </div>
                 </div>
               )}

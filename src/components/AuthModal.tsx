@@ -10,10 +10,11 @@
  * mensagem de confirmação; com a confirmação desligada (recomendado para este
  * produto), o usuário já entra autenticado na hora.
  */
-import React, { useState, useEffect } from 'react';
-import { X, Mail, Lock, User, Phone, Loader2, Sparkles, AlertCircle, LogIn, UserPlus } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, Mail, Lock, User, Phone, Loader2, Sparkles, AlertCircle } from 'lucide-react';
 import { signInWithPassword, signUp, signInWithOAuth, SupabaseSession } from '../lib/supabaseAuth';
 import { saveLead, normalizeWhatsApp } from '../lib/leads';
+import { Logo } from './Logo';
 
 export type AuthModalMode = 'signin' | 'signup';
 
@@ -63,6 +64,24 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   }, [isOpen, mode, prefill]);
 
+  // Ref da popup do Google — monitorada para reativar o botão se fechada.
+  const googlePopupRef = useRef<Window | null>(null);
+  const googleWatchRef = useRef<number | null>(null);
+  const googleTimeoutRef = useRef<number | null>(null);
+  // true quando o Google autenticou com sucesso — o watchdog NÃO deve
+  // mostrar "fechada sem login" depois do sucesso (a popup se fecha sozinha).
+  const googleDoneRef = useRef(false);
+
+  // Limpa os watchdogs ao desmontar e ao REABRIR o modal (evita setState
+  // após unmount e evita erro fantasma vindo de uma tentativa anterior).
+  useEffect(() => {
+    if (googleWatchRef.current) window.clearInterval(googleWatchRef.current);
+    if (googleTimeoutRef.current) window.clearTimeout(googleTimeoutRef.current);
+    googlePopupRef.current = null;
+    googleWatchRef.current = null;
+    googleTimeoutRef.current = null;
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const switchMode = (m: AuthModalMode) => {
@@ -71,15 +90,66 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setInfo('');
   };
 
-  /** Inicia o login com Google (OAuth PKCE → redireciona para o authorize). */
+  /**
+   * Inicia o login com Google (OAuth PKCE).
+   *
+   * 1) POPUP (padrão): abre a janela do Google e monitora o fechamento dela.
+   *    Se o usuário completar o login, a popup posta a sessão e o AuthProvider
+   *    fecha o modal automaticamente. Se a popup for FECHADA sem login, o
+   *    watchdog reativa o botão (sem erro de navegação).
+   * 2) REDIRECT (fallback, popup bloqueada): navega a página para o Google;
+   *    um watchdog de beforeunload reativa o botão com aviso se a navegação
+   *    for bloqueada (iframe restritivo/bloqueador).
+   */
   const handleGoogle = async () => {
     setError('');
+    setInfo('');
     setSubmitting(true);
+
     try {
       const redirectTo = `${window.location.origin}/auth/callback`;
-      await signInWithOAuth('google', redirectTo);
-      // A página é redirecionada; quando o Google devolver o code, o
-      // AuthProvider processa o callback e autentica automaticamente.
+      const result = await signInWithOAuth('google', redirectTo);
+
+      if (result.mode === 'popup' && result.popup) {
+        googlePopupRef.current = result.popup;
+        googleDoneRef.current = false;
+        setInfo(
+          'Abra a janela do Google e faça login. Ao concluir, você volta automaticamente.'
+        );
+        // Monitora a popup: se o usuário fechar SEM autenticar, libera o botão
+        // de novo (com aviso em vez de ficar preso em "carregando" para sempre).
+        // No SUCESSO, o AuthProvider fecha o modal (isOpen=false) → o cleanup
+        // acima cancela o intervalo antes de ele ver a popup fechada.
+        googleWatchRef.current = window.setInterval(() => {
+          if (googlePopupRef.current?.closed && !googleDoneRef.current) {
+            if (googleWatchRef.current) window.clearInterval(googleWatchRef.current);
+            googleWatchRef.current = null;
+            setSubmitting(false);
+            setInfo('');
+            setError('A janela do Google foi fechada sem login. Tente novamente quando quiser.');
+          }
+        }, 800);
+        return;
+      }
+
+      // REDIRECT: detecta se a página realmente navegou. Se não navegou em ~7s,
+      // algo bloqueou — reativa o botão e orienta o usuário.
+      googleDoneRef.current = false;
+      let navigated = false;
+      const onBeforeUnload = () => {
+        navigated = true;
+      };
+      window.addEventListener('beforeunload', onBeforeUnload);
+      googleTimeoutRef.current = window.setTimeout(() => {
+        window.removeEventListener('beforeunload', onBeforeUnload);
+        if (!navigated) {
+          setSubmitting(false);
+          setError(
+            'O Google não abriu — pode ser bloqueador de pop-ups ou a navegação estar restrita. ' +
+              'Permita pop-ups para este site e tente de novo.'
+          );
+        }
+      }, 7000);
     } catch (err: any) {
       setError(translateError(err?.message || 'Não foi possível conectar com o Google.'));
       setSubmitting(false);
@@ -151,13 +221,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       >
         {/* Header */}
         <div className="flex items-start justify-between gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-[#F26419] text-white flex items-center justify-center shadow-md shrink-0">
-            {formMode === 'signin' ? (
-              <LogIn className="w-5 h-5" />
-            ) : (
-              <UserPlus className="w-5 h-5" />
-            )}
-          </div>
+          {/* Logomarca oficial do portal — consistência de marca em todos os modais */}
+          <Logo size="sm" />
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-slate-800 font-bold text-lg p-1 cursor-pointer"

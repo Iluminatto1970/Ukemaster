@@ -5,6 +5,7 @@
 import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import {AuthProvider} from './auth.tsx';
+import {LanguageProvider} from './lib/i18n';
 import {initAnalytics} from './lib/analytics';
 import App from './App.tsx';
 import './index.css';
@@ -17,8 +18,10 @@ initAnalytics();
 // roda em "modo visitante" sem quebrar.
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </LanguageProvider>
   </StrictMode>,
 );

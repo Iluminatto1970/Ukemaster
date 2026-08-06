@@ -22,6 +22,8 @@ import {
   Award,
   Play,
   ShieldAlert,
+  Download,
+  Loader2,
 } from 'lucide-react';
 
 interface DashboardProps {
@@ -35,6 +37,8 @@ interface DashboardProps {
   onRemoveFromRepertoire: (songId: string) => void;
   onOpenAuth: (mode?: 'signup' | 'login') => void;
   onGoToPublicSongs: () => void;
+  /** Baixa o repertório completo (letra + diagramas de todas as cifras). */
+  onDownloadRepertoire?: (title: string, songs: Song[]) => Promise<void> | void;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -48,7 +52,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onRemoveFromRepertoire,
   onOpenAuth,
   onGoToPublicSongs,
+  onDownloadRepertoire,
 }) => {
+  const [downloading, setDownloading] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'estudando' | 'dominado'>('all');
 
@@ -68,6 +74,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
       (s.category && normalizeSearch(s.category).includes(query));
     return matchSearch;
   });
+
+  // Baixa o REPERTÓRIO COMPLETO (não só o filtrado pela busca ativa — o
+  // arquivo "Meu Repertório" deve refletir a lista inteira do usuário).
+  const handleDownloadRepertoire = async () => {
+    if (downloading || !onDownloadRepertoire || repertoireSongs.length === 0) return;
+    setDownloading(true);
+    try {
+      await onDownloadRepertoire('Meu Repertório', repertoireSongs);
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   // If user is not logged in, show guest teaser screen for Private Dashboard
   if (!currentUser) {
@@ -222,6 +240,23 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
 
           <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            {/* Baixar repertório (letra + diagramas) */}
+            {onDownloadRepertoire && (
+              <button
+                onClick={handleDownloadRepertoire}
+                disabled={downloading || repertoireSongs.length === 0}
+                title={filteredRepertoire.length === 0 ? 'Adicione músicas para baixar' : 'Baixar seu repertório com letras e diagramas'}
+                className="px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5 border transition-all cursor-pointer bg-[#0E7C7B] text-white border-[#0E7C7B] shadow-xs hover:bg-[#0A5F5E] disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {downloading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4" />
+                )}
+                {downloading ? 'Preparando…' : 'Baixar Repertório'}
+              </button>
+            )}
+
             {/* Public/Private Toggle */}
             <button
               onClick={onToggleRepertoirePublic}

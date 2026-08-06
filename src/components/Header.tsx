@@ -1,12 +1,13 @@
 /**
  * Cabeçalho fixo: busca global, logo, botões de apoio/doação, notificações e autenticação (Supabase direto).
  */
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ActiveTab } from '../types';
 import { Logo } from './Logo';
 import { DonationModal } from './DonationModal';
 import { useAuth } from '../auth';
-import { Search, Menu, Sparkles, Bell, Mail, LogOut } from 'lucide-react';
+import { useT, LANGS } from '../lib/i18n';
+import { Search, Menu, Sparkles, Bell, Mail, LogOut, Globe, Check } from 'lucide-react';
 
 interface HeaderProps {
   setActiveTab: (tab: ActiveTab) => void;
@@ -37,6 +38,20 @@ export const Header: React.FC<HeaderProps> = ({
   const closeDonation = () => (onCloseDonation ? onCloseDonation() : setLocalDonationOpen(false));
 
   const displayName = user?.name || 'Músico';
+  const { t, lang, setLang } = useT();
+
+  // Seletor de idioma — dropdown ao clicar no globo (fecha ao clicar fora)
+  const [langOpen, setLangOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+        setLangOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, []);
 
   return (
     <>
@@ -49,7 +64,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <button
                   onClick={onToggleMobileSidebar}
                   className="lg:hidden p-2 text-[#1D2D44] hover:text-[#0E7C7B] hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
-                  title="Abrir Menu"
+                  title={t('header.openMenu')}
                 >
                   <Menu className="w-5 h-5" />
                 </button>
@@ -58,7 +73,7 @@ export const Header: React.FC<HeaderProps> = ({
               <div
                 onClick={() => setActiveTab('musicas')}
                 className="cursor-pointer select-none"
-                title="Ir para o início"
+                title={t('header.goHome')}
               >
                 <Logo size="sm" />
               </div>
@@ -72,7 +87,7 @@ export const Header: React.FC<HeaderProps> = ({
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery && setSearchQuery(e.target.value)}
-                  placeholder="Buscar por música, autor, artista, categoria ou gênero..."
+                  placeholder={t('header.searchPlaceholder')}
                   className="w-full bg-slate-100/90 border border-slate-200 rounded-full pl-10 pr-4 py-2 text-xs font-medium text-[#1D2D44] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#F26419] focus:ring-2 focus:ring-[#F26419]/20 transition-all"
                 />
               </div>
@@ -80,10 +95,59 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Right: Icons & Profile */}
             <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 order-2 sm:order-3 ml-auto sm:ml-0">
+              {/* Seletor de IDIOMA — traduz apenas a interface do portal
+                  (as cifras/músicas permanecem no idioma original) */}
+              <div className="relative" ref={langRef}>
+                <button
+                  onClick={() => setLangOpen((v) => !v)}
+                  title={t('header.language')}
+                  aria-expanded={langOpen}
+                  aria-haspopup="menu"
+                  className={`flex items-center gap-1.5 p-2 rounded-xl transition-colors cursor-pointer ${
+                    langOpen
+                      ? 'bg-[#0E7C7B]/10 text-[#0E7C7B]'
+                      : 'text-[#1D2D44] hover:text-[#0E7C7B] hover:bg-slate-100'
+                  }`}
+                >
+                  <Globe className="w-5 h-5" />
+                  <span className="hidden sm:inline text-xs font-black uppercase tracking-wide">
+                    {lang.toUpperCase()}
+                  </span>
+                </button>
+
+                {langOpen && (
+                  <div
+                    role="menu"
+                    aria-label={t('header.language')}
+                    className="absolute right-0 top-full mt-2 z-50 w-56 max-h-[75vh] overflow-y-auto bg-white border border-slate-200 rounded-2xl shadow-xl p-1.5 animate-fade-in"
+                  >
+                    {LANGS.map((l) => (
+                      <button
+                        key={l.id}
+                        role="menuitem"
+                        onClick={() => {
+                          setLang(l.id);
+                          setLangOpen(false);
+                        }}
+                        className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-xs font-bold transition-colors cursor-pointer ${
+                          lang === l.id
+                            ? 'bg-amber-50 text-[#F26419]'
+                            : 'text-slate-700 hover:bg-slate-50'
+                        }`}
+                      >
+                        <span className="text-sm">{l.flag}</span>
+                        <span className="flex-1">{l.label}</span>
+                        {lang === l.id && <Check className="w-3.5 h-3.5" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {/* Envelope (Apoio — visível também no mobile) */}
               <button
                 onClick={openDonation}
-                title="Apoiar o projeto — doação ou ver um anúncio"
+                title={t('header.support')}
                 className="flex p-2 rounded-xl text-[#1D2D44] hover:text-[#0E7C7B] hover:bg-slate-100 transition-colors cursor-pointer"
               >
                 <Mail className="w-5 h-5" />
@@ -91,7 +155,7 @@ export const Header: React.FC<HeaderProps> = ({
 
               {/* Bell com badge de notificação */}
               <button
-                title="Notificações"
+                title={t('header.notifications')}
                 className="hidden sm:flex p-2 rounded-xl text-[#1D2D44] hover:text-[#0E7C7B] hover:bg-slate-100 transition-colors cursor-pointer relative"
               >
                 <Bell className="w-5 h-5" />
@@ -114,12 +178,12 @@ export const Header: React.FC<HeaderProps> = ({
                         {displayName}
                       </span>
                       <span className="text-[9px] font-bold text-emerald-600 block leading-tight">
-                        Membro Ativo
+                        {t('header.activeMember')}
                       </span>
                     </span>
                     <button
                       onClick={() => signOut()}
-                      title="Sair"
+                      title={t('header.signOut')}
                       className="p-1.5 rounded-full text-slate-500 hover:text-[#F26419] hover:bg-white transition-colors cursor-pointer"
                     >
                       <LogOut className="w-4 h-4" />
@@ -132,7 +196,7 @@ export const Header: React.FC<HeaderProps> = ({
                       onClick={() => openSignIn()}
                       className="px-3 py-1.5 rounded-xl text-xs font-extrabold text-[#1D2D44] hover:bg-slate-100 transition-colors cursor-pointer hidden sm:block"
                     >
-                      Entrar
+                      {t('header.signIn')}
                     </button>
                     <button
                       onClick={() => openSignUp()}
@@ -140,8 +204,8 @@ export const Header: React.FC<HeaderProps> = ({
                     >
                       <span className="flex items-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5" />
-                        <span className="hidden md:inline">Cadastrar Grátis</span>
-                        <span className="md:hidden">Cadastrar</span>
+                        <span className="hidden md:inline">{t('header.signUp')}</span>
+                        <span className="md:hidden">{t('header.signUpShort')}</span>
                       </span>
                     </button>
                   </div>

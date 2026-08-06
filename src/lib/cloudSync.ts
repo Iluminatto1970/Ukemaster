@@ -42,12 +42,14 @@ interface SongRow {
   youtube_id?: string | null;
   content?: string | null;
   simplified_content?: string | null;
+  medium_content?: string | null;
   difficulty?: string | null;
   category?: string | null;
   tags?: string[] | null;
   seo_description?: string | null;
   hashtags?: string[] | null;
   votes?: number | null;
+  views?: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -67,12 +69,14 @@ function songToRow(s: Song): SongRow {
     youtube_id: s.youtubeId ?? null,
     content: s.content ?? null,
     simplified_content: s.simplifiedContent ?? null,
+    medium_content: s.mediumContent ?? null,
     difficulty: s.difficulty ?? null,
     category: s.category ?? null,
     tags: s.tags ?? [],
     seo_description: s.seoDescription ?? null,
     hashtags: s.hashtags ?? [],
     votes: s.votes ?? 0,
+    views: s.views ?? 0,
     created_at: s.createdAt,
     updated_at: s.updatedAt,
   };
@@ -90,12 +94,14 @@ function rowToSong(r: SongRow): Song {
     youtubeId: r.youtube_id ?? undefined,
     content: r.content || '',
     simplifiedContent: r.simplified_content ?? undefined,
+    mediumContent: r.medium_content ?? undefined,
     difficulty: r.difficulty as Song['difficulty'] | undefined,
     category: r.category ?? undefined,
     tags: r.tags ?? undefined,
     seoDescription: r.seo_description ?? undefined,
     hashtags: r.hashtags ?? undefined,
     votes: r.votes ?? 0,
+    views: r.views ?? 0,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
   };
@@ -157,6 +163,36 @@ function songToRowWithoutVotes(s: Song): Omit<SongRow, 'votes'> {
   return row;
 }
 
+// ── Coluna views (Mais Acessadas) — disponível só após a migração ──────
+// Mesmo padrão da coluna votes: detecta uma vez, usa cache, e o push
+// envia sem a coluna enquanto o schema não for aplicado.
+let viewsColumnAvailable: boolean | null = null;
+
+async function checkViewsColumn(): Promise<boolean> {
+  if (viewsColumnAvailable !== null) return viewsColumnAvailable;
+  const rows = await fetchRows<{ views?: number }>('songs', '&limit=1', 'views', true);
+  viewsColumnAvailable = rows !== null;
+  return viewsColumnAvailable;
+}
+
+/** songToRow sem as colunas votes/views (pré-migração do schema). */
+function songToRowLegacy(s: Song): Omit<SongRow, 'votes' | 'views'> {
+  const { votes: _v, views: _w, ...row } = songToRow(s);
+  return row;
+}
+
+// ── Colunas de METADADOS (sem content/simplified_content) ───────────────
+// A lista do acervo só precisa dos metadados; a cifra COMPLETA de cada música
+// é buscada sob demanda ao ABRIR (fetchSongFromCloud). Buscar tudo (content)
+// significa ~15MB para 4.600+ músicas — em conexão lenta o acervo demora
+// minutos para aparecer e parece vazio. Só metadados: ~1,5MB, carrega rápido.
+const SONG_METADATA_COLUMNS =
+  'id,title,artist,key,tempo,strumming_pattern,youtube_url,youtube_id,difficulty,category,tags,seo_description,hashtags,votes,views,created_at,updated_at';
+// Pré-migração (sem a coluna views): o fetch do catálogo não pode quebrar
+// pedindo uma coluna que o banco ainda não tem — detecta e usa esta lista.
+const SONG_METADATA_COLUMNS_LEGACY =
+  'id,title,artist,key,tempo,strumming_pattern,youtube_url,youtube_id,difficulty,category,tags,seo_description,hashtags,votes,created_at,updated_at';
+
 // ── Repertoire (uma linha por usuário) ─────────────────────────────────
 interface RepertoireRow {
   user_id: string;
@@ -170,13 +206,34 @@ interface RepertoireRow {
 
 /**
  * Busca o acervo de músicas na nuvem (PAGINADO — o PostgREST limita a
- * resposta em 1000 linhas; o acervo real tem 3.000+). null = indisponível.
+ * resposta em 1000 linhas; o acervo real tem 4.600+). Busca SÓ METADADOS
+ * (sem a cifra) para a lista carregar em segundos em qualquer conexão.
+ * null = indisponível.
  */
 export async function fetchSongsFromCloud(): Promise<Song[] | null> {
   if (!isSupabaseConfigured()) return null;
-  const rows = await fetchAllRows<SongRow>('songs');
+  // Tolera a pré-migração: se a coluna views ainda não existe no banco,
+  // busca sem ela (o ranking "Mais Acessadas" volta após aplicar o schema).
+  const hasViews = await checkViewsColumn();
+  const columns = hasViews ? SONG_METADATA_COLUMNS : SONG_METADATA_COLUMNS_LEGACY;
+  const rows = await fetchAllRows<SongRow>('songs', '', columns);
   if (!rows) return null;
   return rows.map(rowToSong);
+}
+
+/**
+ * Busca UMA música COMPLETA (com a cifra em `content`) por id — usado ao
+ * ABRIR uma música, já que a lista só tem os metadados. null = não existe.
+ */
+export async function fetchSongFromCloud(songId: string): Promise<Song | null> {
+  if (!isSupabaseConfigured()) return null;
+  const rows = await fetchRows<SongRow>(
+    'songs',
+    `&id=eq.${encodeURIComponent(songId)}&limit=1`,
+    '*'
+  );
+  if (!rows || !rows.length) return null;
+  return rowToSong(rows[0]);
 }
 
 /**
@@ -211,7 +268,15 @@ export async function pushSongsToCloud(songs: Song[]): Promise<boolean> {
   // Se a coluna votes ainda não existe (schema não migrado), envia sem ela
   // para o push não quebrar — o voto volta a funcionar após a migração.
   const hasVotes = await checkVotesColumn();
-  const rows = withContent.map((s) => (hasVotes ? songToRow(s) : songToRowWithoutVotes(s)));
+  const hasViews = await checkViewsColumn();
+  const rows = withContent.map((s) => {
+    if (hasVotes && hasViews) return songToRow(s);
+    if (hasVotes) {
+      const { views: _w, ...row } = songToRow(s);
+      return row;
+    }
+    return songToRowLegacy(s);
+  });
   // Chunked: com 3.000+ músicas o corpo do POST único passaria do limite
   // aceito pela API — divide em lotes de 400.
   return upsertRowsChunked('songs', rows);

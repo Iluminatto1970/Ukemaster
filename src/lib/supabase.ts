@@ -176,10 +176,12 @@ export async function fetchAllRows<T>(
   let offset = 0;
   // Normaliza o filtro: callers passam '' ou "&filtro=..." (sem o '?')
   const filter = query.startsWith('&') ? query.slice(1) : query.replace(/^\?/, '');
+  // Concatena corretamente: com filtro, separa com '&' antes do limit/offset
+  const filterAnd = filter ? `${filter}&` : '';
   // Limite de segurança: 50 páginas (50k linhas) — nunca deve ser alcançado.
   for (let page = 0; page < 50; page++) {
     const { ok, data } = await supabaseRequest<T[]>(table, {
-      query: `?select=${encodeURIComponent(columns)}&${filter}limit=${pageSize}&offset=${offset}`,
+      query: `?select=${encodeURIComponent(columns)}&${filterAnd}limit=${pageSize}&offset=${offset}`,
       silent,
     });
     if (!ok) return null;

@@ -1,5 +1,11 @@
 /**
  * Listagem principal do acervo: busca/filtros por gênero e nível, ranking Mais Votadas (estilo CifraClub), linhas densas de músicas, ações (votar, playlist, editar, excluir só admin) e widgets laterais (Em Alta, Artistas, Repertório).
+ *
+ * HOME DINÂMICA: quando não há busca/filtro ativo, a página abre com uma
+ * vitrine variada — ranking hero, mini-rankings (Em Alta / Mais Acessadas /
+ * Novidades / Contribuidores), parceiros, patrocinado e blog — e só DEPOIS
+ * vem a lista de canções. Cada bloco aparece apenas quando tem conteúdo,
+ * então a home nunca vira uma parede massiva de músicas.
  */
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Song, Playlist, SONG_CATEGORIES, SONG_DIFFICULTIES } from '../types';
@@ -21,16 +27,95 @@ import {
   Gauge,
   TrendingUp,
   Flame,
+  Eye,
+  BarChart3,
+  Sparkles,
+  Newspaper,
+  Calendar,
+  FolderHeart,
+  ListMusic,
 } from 'lucide-react';
 import { ImportSongModal } from './ImportSongModal';
+import { TopContributors } from './TopContributors';
 import { AdSenseSlot } from './AdSenseSlot';
-import { ChordDiagram } from './ChordDiagram';
-import { findChord } from '../data/chords';
+import { AffiliateAdCard } from './AffiliateAdCard';
+import { PartnersSection } from './PartnersSection';
+import type { AffiliateLink, PartnerLink, BlogPost } from '../types';
 import { fetchTrendingSongIds } from '../lib/ratings';
+import { useT } from '../lib/i18n';
+
+// ── Mini-ranking genérico da vitrine (Em Alta / Mais Acessadas / Novidades) ──
+// Definido FORA do componente: com 5k músicas e re-renders frequentes, um
+// componente definido no corpo seria recriado a cada render (remount churn).
+const MiniRanking: React.FC<{
+  title: string;
+  icon: React.ReactNode;
+  accent: string; // classe de cor do número #1
+  items: Song[];
+  value: (s: Song) => number;
+  valueIcon?: React.ReactNode;
+  onSelect: (s: Song) => void;
+  emptyText: string;
+}> = ({ title, icon, accent, items, value, valueIcon, onSelect, emptyText }) => (
+  <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs space-y-1.5">
+    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+      <h3 className="font-black text-slate-900 uppercase text-xs tracking-wider flex items-center gap-1.5">
+        {icon} {title}
+      </h3>
+      {items.length > 0 && (
+        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest shrink-0">
+          Top {items.length}
+        </span>
+      )}
+    </div>
+
+    {items.length === 0 ? (
+      <p className="text-[10px] text-slate-400 font-semibold leading-relaxed">{emptyText}</p>
+    ) : (
+      <div className="space-y-0.5">
+        {items.map((song, idx) => (
+          <button
+            key={song.id}
+            onClick={() => onSelect(song)}
+            className="w-full flex items-center gap-2.5 p-1.5 rounded-lg hover:bg-slate-50 transition-colors text-left group cursor-pointer"
+          >
+            <span
+              className={`w-5 text-center font-black text-sm shrink-0 transition-colors ${
+                idx === 0 ? accent : idx < 3 ? 'text-amber-500' : 'text-slate-300'
+              } group-hover:text-[#F26419]`}
+            >
+              {idx + 1}
+            </span>
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-bold text-slate-900 truncate group-hover:text-orange-600 transition-colors">
+                {song.title}
+              </p>
+              <p className="text-[10px] text-slate-400 truncate">{song.artist}</p>
+            </div>
+            <span className="flex items-center gap-0.5 text-[10px] font-black text-slate-500 shrink-0 tabular-nums">
+              {valueIcon}
+              {value(song).toLocaleString('pt-BR')}
+            </span>
+          </button>
+        ))}
+      </div>
+    )}
+  </div>
+);
 
 interface SongListProps {
   songs: Song[];
   playlists: Playlist[];
+  /** Links de afiliado (cards "Patrocinado" no feed). */
+  affiliateLinks?: AffiliateLink[];
+  /** Parceiros (vídeos/cursos/links — seção no sidebar). */
+  partnerLinks?: PartnerLink[];
+  /** Posts do blog — os mais recentes ganham vitrine na home. */
+  blogPosts?: BlogPost[];
+  /** Navega para a aba Blog ("ver todos os artigos"). */
+  onOpenBlog?: () => void;
+  /** Abre o gerenciador de playlists (widget REPERTÓRIO ATUAL). */
+  onOpenPlaylists?: () => void;
   onSelectSong: (song: Song) => void;
   onEditSong: (song: Song) => void;
   onDeleteSong: (songId: string) => void;
@@ -47,11 +132,22 @@ interface SongListProps {
   /** Enviar/importar músicas exige login (usuário autenticado). */
   isLoggedIn?: boolean;
   onOpenAuth?: (mode?: 'signup' | 'login') => void;
+  /** O acervo da nuvem ainda está carregando (mostra indicador no contador). */
+  catalogLoading?: boolean;
+  /** Usuário logado — destaque no ranking de contribuidores. */
+  currentUser?: { id: string; name: string } | null;
+  /** Incrementa a cada contribuição da sessão (o ranking re-busca). */
+  contributionsRefreshKey?: number;
 }
 
 export const SongList: React.FC<SongListProps> = ({
   songs,
   playlists,
+  affiliateLinks = [],
+  partnerLinks = [],
+  blogPosts = [],
+  onOpenBlog,
+  onOpenPlaylists,
   onSelectSong,
   onEditSong,
   onDeleteSong,
@@ -66,9 +162,13 @@ export const SongList: React.FC<SongListProps> = ({
   onOpenAuth,
   myVotes,
   onVoteSong,
+  catalogLoading = false,
+  currentUser = null,
+  contributionsRefreshKey = 0,
 }) => {
+  const { t } = useT();
   const [internalSearchQuery, setInternalSearchQuery] = useState<string>('');
-  
+
   const searchQuery = externalSearchQuery !== undefined ? externalSearchQuery : internalSearchQuery;
   const setSearchQuery = externalSetSearchQuery || setInternalSearchQuery;
 
@@ -84,9 +184,11 @@ export const SongList: React.FC<SongListProps> = ({
   const [activeSubTab, setActiveSubTab] = useState<'artistas' | 'listas' | 'todas'>('todas');
   const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
   const [songToDelete, setSongToDelete] = useState<Song | null>(null);
-  // Paginação da lista (estilo CifraClub): mostra 24 e carrega mais sob demanda —
-  // essencial para o acervo de milhares de canções não travar o navegador.
-  const [visibleCount, setVisibleCount] = useState<number>(24);
+  // Paginação da lista (estilo CifraClub): mostra 10 por vez e carrega mais sob
+  // demanda — essencial para o acervo de milhares de canções não travar o
+  // navegador nem enterrar o resto da página (parceiros, widgets) numa lista
+  // infinita logo na primeira tela.
+  const [visibleCount, setVisibleCount] = useState<number>(10);
 
   // Nova busca limpa o filtro de artista selecionado (evita "nenhuma cifra
   // encontrada" quando artista + busca se combinam e dão zero resultados).
@@ -98,7 +200,7 @@ export const SongList: React.FC<SongListProps> = ({
 
   // Qualquer mudança de filtro/busca reinicia a paginação.
   useEffect(() => {
-    setVisibleCount(24);
+    setVisibleCount(10);
   }, [searchQuery, selectedCategory, selectedDifficulty, selectedArtistFilter]);
 
   // Extract unique list of artists with counts
@@ -188,11 +290,6 @@ export const SongList: React.FC<SongListProps> = ({
     return matchSearch && matchDifficulty && matchCategory && matchArtist;
   });
 
-  // Repertoire default chords for current song widget
-  const gChord = findChord('G')?.fingerings[0] || { frets: [0, 2, 3, 2], fingers: [0, 1, 3, 2] };
-  const cChord = findChord('C')?.fingerings[0] || { frets: [0, 0, 0, 3], fingers: [0, 0, 0, 3] };
-  const amChord = findChord('Am')?.fingerings[0] || { frets: [2, 0, 0, 0], fingers: [2, 0, 0, 0] };
-
   // ── Mais Votadas: top 10 por votos da comunidade (com empate por título) ──
   const topVotedSongs = useMemo(() => {
     return [...songs]
@@ -232,8 +329,23 @@ export const SongList: React.FC<SongListProps> = ({
           (b.votes ?? 0) - (a.votes ?? 0) ||
           a.title.localeCompare(b.title)
       )
-      .slice(0, 8);
+      .slice(0, 5);
   }, [songs, trendingMap]);
+
+  // ── MAIS ACESSADAS: top 5 por visualizações ──
+  const mostViewedSongs = useMemo(() => {
+    return [...songs]
+      .filter((s) => (s.views ?? 0) > 0)
+      .sort((a, b) => (b.views ?? 0) - (a.views ?? 0) || a.title.localeCompare(b.title))
+      .slice(0, 5);
+  }, [songs]);
+
+  // ── NOVIDADES: top 5 recém-adicionadas (vitrine da home) ──
+  const recentSongs = useMemo(() => {
+    return [...songs]
+      .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
+      .slice(0, 5);
+  }, [songs]);
 
   const totalVotes = useMemo(
     () => songs.reduce((acc, s) => acc + (s.votes ?? 0), 0),
@@ -308,6 +420,19 @@ export const SongList: React.FC<SongListProps> = ({
     selectedCategory !== 'all' ||
     selectedDifficulty !== 'all';
 
+  // Posts do blog habilitados, mais recentes primeiro (vitrine: top 2).
+  const blogVisible = useMemo(
+    () =>
+      blogPosts
+        .filter((p) => p.enabled)
+        .sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''))
+        .slice(0, 2),
+    [blogPosts]
+  );
+
+  const hasAffiliates = affiliateLinks.filter((l) => l.enabled).length > 0;
+  const hasPartners = partnerLinks.filter((p) => p.enabled).length > 0;
+
   return (
     <div className="space-y-6 text-slate-900">
       {/* Header: BIBLIOTECA (LIBRARY) + tabs — conforme template */}
@@ -315,10 +440,12 @@ export const SongList: React.FC<SongListProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-3xl font-black tracking-tight text-slate-900 uppercase font-sans">
-              BIBLIOTECA
+              {t('library.title')}
             </h1>
             <p className="text-slate-400 text-[11px] font-bold uppercase tracking-widest mt-0.5">
-              {songs.length} canções da comunidade
+              {catalogLoading
+                ? t('misc.loading')
+                : `${songs.length} ${t('library.subtitle')}`}
             </p>
           </div>
 
@@ -326,23 +453,24 @@ export const SongList: React.FC<SongListProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={() => (isLoggedIn ? setIsImportModalOpen(true) : onOpenAuth?.('signup'))}
-              title={isLoggedIn ? 'Importar cifras' : 'Faça login para importar músicas'}
+              title={isLoggedIn ? 'Importar cifras' : t('library.loginToEdit')}
               className="px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold text-xs hover:border-orange-400 flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
             >
-              <Upload className="w-3.5 h-3.5 text-orange-500" /> Importar
+              <Upload className="w-3.5 h-3.5 text-orange-500" /> {t('library.import')}
             </button>
             <button
-              onClick={onExportSongs}
+              onClick={() => (isLoggedIn ? onExportSongs() : onOpenAuth?.('login'))}
+              title={isLoggedIn ? 'Exportar acervo (JSON)' : t('library.loginToEdit')}
               className="px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold text-xs hover:border-orange-400 flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
             >
-              <Download className="w-3.5 h-3.5 text-orange-500" /> Exportar
+              <Download className="w-3.5 h-3.5 text-orange-500" /> {t('library.export')}
             </button>
             <button
               onClick={() => (isLoggedIn ? onCreateNewSong() : onOpenAuth?.('signup'))}
-              title={isLoggedIn ? 'Criar nova cifra' : 'Faça login para enviar músicas'}
+              title={isLoggedIn ? 'Criar nova cifra' : t('library.loginToEdit')}
               className="px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs flex items-center gap-1.5 shadow-md shadow-orange-500/20 transition-all cursor-pointer"
             >
-              <Plus className="w-4 h-4 stroke-[3]" /> Nova Cifra
+              <Plus className="w-4 h-4 stroke-[3]" /> {t('library.newSong')}
             </button>
           </div>
         </div>
@@ -357,7 +485,7 @@ export const SongList: React.FC<SongListProps> = ({
                 : 'text-slate-400 font-bold hover:text-slate-700'
             }`}
           >
-            Listas de Artistas
+            {t('library.artistLists')}
           </button>
           <button
             onClick={() => setActiveSubTab('listas')}
@@ -367,7 +495,7 @@ export const SongList: React.FC<SongListProps> = ({
                 : 'text-slate-400 font-bold hover:text-slate-700'
             }`}
           >
-            Minhas Listas
+            {t('library.myLists')}
           </button>
           <span className="flex-1 hidden sm:block" />
           <button
@@ -377,157 +505,29 @@ export const SongList: React.FC<SongListProps> = ({
             }}
             className="text-xs font-extrabold uppercase tracking-wider pb-1 cursor-pointer whitespace-nowrap text-orange-500 hover:text-orange-600"
           >
-            Todas as Canções
+            {t('library.allSongs')}
           </button>
         </div>
       </div>
 
-      {/* Layout estilo CifraClub: coluna principal com a LISTA DENSA de canções
-          (o foco) + sidebar com ranking, artistas e widgets. */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* COLUNA PRINCIPAL (8/12): CANÇÕES — primeiro no mobile */}
-        <div ref={songsSectionRef} className="lg:col-span-8 space-y-4 scroll-mt-24 order-1">
-          {/* Header: CANÇÕES (conforme template) */}
-          <div className="flex items-center justify-between">
-            <h3 className="font-black text-slate-900 uppercase text-sm tracking-wider flex items-center gap-1.5">
-              <Music className="w-4 h-4 text-orange-500" /> CANÇÕES
-            </h3>
-            <button
-              onClick={() => {
-                setSelectedCategory('all');
-                setSelectedDifficulty('all');
-                setSelectedArtistFilter('all');
-                setSearchQuery('');
-                setActiveSubTab('todas');
-              }}
-              className="text-[10px] text-orange-500 font-bold flex items-center gap-0.5 cursor-pointer hover:text-orange-600"
-              title="Ver todas as canções"
-            >
-              Inéditos <ChevronRight className="w-3 h-3" />
-            </button>
-          </div>
-
-          {/* Banner do artista escolhido — leva a uma seção com os itens do artista */}
-          {selectedArtistFilter !== 'all' && (
-            <div className="flex items-center justify-between gap-3 bg-[#0E7C7B]/[0.06] border border-[#0E7C7B]/25 rounded-2xl px-4 py-3">
-              <div className="flex items-center gap-3 min-w-0">
-                <img
-                  src={`https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(
-                    selectedArtistFilter
-                  )}&backgroundColor=0e7c7b&fontWeight=600`}
-                  alt={selectedArtistFilter}
-                  className="w-10 h-10 rounded-full border-2 border-white shadow-sm shrink-0"
-                />
-                <div className="min-w-0">
-                  <p className="text-sm font-black text-slate-900 truncate leading-tight">
-                    {selectedArtistFilter}
-                  </p>
-                  <p className="text-[10px] font-extrabold text-[#0E7C7B]">
-                    {selectedArtistCount > 0
-                      ? `${selectedArtistCount} canções deste artista`
-                      : 'Nenhuma canção encontrada'}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setSelectedArtistFilter('all')}
-                className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-orange-600 hover:border-orange-300 font-bold text-[11px] transition-colors cursor-pointer shrink-0"
-              >
-                Ver todas as canções
-              </button>
-            </div>
-          )}
-
-          {/* Filter Bar */}
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-3 shadow-2xs space-y-2.5">
-            <div className="flex flex-col sm:flex-row gap-2">
-              <div className="relative flex-1">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Buscar por música, autor, artista, categoria ou gênero..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-orange-500 font-medium"
-                />
-              </div>
-              
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-orange-500 cursor-pointer"
-              >
-                <option value="all">Todas Categorias / Gêneros</option>
-                {SONG_CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={selectedDifficulty}
-                onChange={(e) => setSelectedDifficulty(e.target.value)}
-                className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-orange-500 cursor-pointer"
-              >
-                <option value="all">Todos Níveis</option>
-                {SONG_DIFFICULTIES.map((diff) => (
-                  <option key={diff} value={diff}>
-                    Modo {diff}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Quick Genre / Category Pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar pt-1 border-t border-slate-100">
-              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
-                <Tag className="w-3 h-3 text-orange-500" /> Gêneros:
-              </span>
-              <button
-                onClick={() => setSelectedCategory('all')}
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
-                  selectedCategory === 'all'
-                    ? 'bg-orange-500 text-white shadow-2xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                Todos
-              </button>
-              {SONG_CATEGORIES.map((cat) => {
-                const isActive = selectedCategory.toLowerCase() === cat.toLowerCase();
-                return (
-                  <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(isActive ? 'all' : cat)}
-                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
-                      isActive
-                        ? 'bg-orange-500 text-white shadow-2xs'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* RANKING HERO estilo CifraClub: lista numerada com medalhas, thumbnail,
-              tom, nível, votos e botão TOCAR — o protagonista da página inicial.
-              Escondido quando o usuário busca/filtra (foco nos resultados). */}
-          {!isFiltering && heroSongs.length > 0 && (
+      {/* ════════════════════ HOME DINÂMICA (sem busca/filtro) ════════════════════
+          Vitrine de conteúdo variado: ranking hero + mini-rankings + parceiros +
+          patrocinado + blog. Cada bloco só aparece quando há dados. */}
+      {!isFiltering && (
+        <div className="space-y-6">
+          {/* RANKING HERO estilo CifraClub: o protagonista da página inicial */}
+          {heroSongs.length > 0 && (
             <div className="bg-white border border-slate-200/90 rounded-2xl shadow-2xs overflow-hidden">
               {/* Cabeçalho do ranking (fundo grafite da marca) */}
               <div className="flex items-center justify-between gap-3 px-4 py-3 bg-gradient-to-r from-[#1D2D44] to-[#0E7C7B]">
                 <h3 className="font-black text-white uppercase text-xs tracking-wider flex items-center gap-2">
                   <Star className="w-4 h-4 text-amber-400 fill-current" />
-                  {topVotedSongs.length > 0 ? 'Mais Votadas' : 'Novidades'}
+                  {topVotedSongs.length > 0 ? t('library.mostVoted') : t('library.newest')}
                 </h3>
                 <span className="text-[10px] font-black text-amber-300 shrink-0">
                   {topVotedSongs.length > 0
-                    ? `${totalVotes} ${totalVotes === 1 ? 'voto' : 'votos'} da comunidade`
-                    : 'Recém-adicionadas ao acervo'}
+                    ? `${totalVotes} ${totalVotes === 1 ? t('library.voteSingular') : t('library.votes')}`
+                    : t('library.newest')}
                 </span>
               </div>
 
@@ -609,7 +609,7 @@ export const SongList: React.FC<SongListProps> = ({
                         }}
                         className="px-3 py-1.5 rounded-lg bg-[#F26419] hover:bg-[#D9530D] text-white font-black text-[10px] transition-colors flex items-center gap-1 shadow-2xs cursor-pointer shrink-0"
                       >
-                        <Play className="w-3 h-3 fill-white" /> TOCAR
+                        <Play className="w-3 h-3 fill-white" /> {t('library.play')}
                       </button>
                     </div>
                   );
@@ -618,14 +618,256 @@ export const SongList: React.FC<SongListProps> = ({
             </div>
           )}
 
+          {/* VITRINE de mini-rankings: Em Alta · Mais Acessadas · Novidades · Contribuidores */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 items-start">
+            <MiniRanking
+              title={t('library.trending')}
+              icon={<TrendingUp className="w-3.5 h-3.5 text-[#F26419]" />}
+              accent="text-[#F26419]"
+              items={trendingSongs}
+              value={(s) => trendingMap.get(s.id) ?? 0}
+              valueIcon={<Flame className="w-2.5 h-2.5 fill-current" />}
+              onSelect={onSelectSong}
+              emptyText={t('library.emptyTrending')}
+            />
+
+            <MiniRanking
+              title={t('library.mostViewed')}
+              icon={<BarChart3 className="w-3.5 h-3.5 text-[#0E7C7B]" />}
+              accent="text-[#F26419]"
+              items={mostViewedSongs}
+              value={(s) => s.views ?? 0}
+              valueIcon={<Eye className="w-2.5 h-2.5" />}
+              onSelect={onSelectSong}
+              emptyText={t('library.emptyMostViewed')}
+            />
+
+            <MiniRanking
+              title={t('library.newest')}
+              icon={<Sparkles className="w-3.5 h-3.5 text-[#F26419]" />}
+              accent="text-[#F26419]"
+              items={recentSongs}
+              value={(s) => s.votes ?? 0}
+              valueIcon={<Star className="w-2.5 h-2.5 fill-current" />}
+              onSelect={onSelectSong}
+              emptyText={t('library.emptyNewest')}
+            />
+
+            {/* MAIORES CONTRIBUIDORES — ranking de quem mais ajuda a comunidade */}
+            <TopContributors
+              currentUser={currentUser}
+              refreshKey={contributionsRefreshKey}
+              onOpenAuth={onOpenAuth}
+            />
+          </div>
+
+          {/* PARCEIROS & CURSOS — vídeos/cursos/links do proprietário */}
+          {hasPartners && <PartnersSection partners={partnerLinks} />}
+
+          {/* PATROCINADO em destaque (afiliado) — antes da lista de canções */}
+          {hasAffiliates && (
+            <AffiliateAdCard links={affiliateLinks} placement="home_destaque" dismissible />
+          )}
+
+          {/* BLOG — últimos artigos do proprietário */}
+          {blogVisible.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-black text-slate-900 uppercase text-xs tracking-wider flex items-center gap-1.5">
+                  <Newspaper className="w-4 h-4 text-[#0E7C7B]" /> Últimos do Blog
+                </h3>
+                {onOpenBlog && (
+                  <button
+                    onClick={onOpenBlog}
+                    className="text-[10px] text-orange-500 font-bold flex items-center gap-0.5 cursor-pointer hover:text-orange-600"
+                  >
+                    Ver todos os artigos <ChevronRight className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {blogVisible.map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={onOpenBlog}
+                    title={onOpenBlog ? 'Abrir o Blog' : undefined}
+                    className="text-left bg-white border border-slate-200/90 hover:border-orange-300 hover:shadow-md rounded-2xl p-4 shadow-2xs transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-center gap-2 flex-wrap mb-2">
+                      {p.category && (
+                        <span className="text-[9px] px-2 py-0.5 rounded-full bg-[#0E7C7B]/10 text-[#0E7C7B] font-extrabold border border-[#0E7C7B]/20 uppercase tracking-wider">
+                          {p.category}
+                        </span>
+                      )}
+                      <span className="text-[10px] text-slate-400 font-bold flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {new Date(p.updatedAt).toLocaleDateString('pt-BR')}
+                      </span>
+                    </div>
+                    <h4 className="text-sm font-black text-slate-900 leading-snug group-hover:text-orange-600 transition-colors line-clamp-2">
+                      {p.title}
+                    </h4>
+                    {p.excerpt && (
+                      <p className="text-[11px] text-slate-500 mt-1 leading-relaxed line-clamp-2">
+                        {p.excerpt}
+                      </p>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Layout estilo CifraClub: coluna principal com a LISTA DENSA de canções
+          (o foco) + sidebar com artistas e widgets. */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* COLUNA PRINCIPAL (8/12): CANÇÕES — primeiro no mobile */}
+        <div ref={songsSectionRef} className="lg:col-span-8 space-y-4 scroll-mt-24 order-1">
+          {/* Header: CANÇÕES (conforme template) */}
+          <div className="flex items-center justify-between">
+            <h3 className="font-black text-slate-900 uppercase text-sm tracking-wider flex items-center gap-1.5">
+              <Music className="w-4 h-4 text-orange-500" /> {t('library.songs')}
+            </h3>
+            <button
+              onClick={() => {
+                setSelectedCategory('all');
+                setSelectedDifficulty('all');
+                setSelectedArtistFilter('all');
+                setSearchQuery('');
+                setActiveSubTab('todas');
+              }}
+              className="text-[10px] text-orange-500 font-bold flex items-center gap-0.5 cursor-pointer hover:text-orange-600"
+              title={t('library.allSongs')}
+            >
+              {t('library.original')} <ChevronRight className="w-3 h-3" />
+            </button>
+          </div>
+
+          {/* Banner do artista escolhido — leva a uma seção com os itens do artista */}
+          {selectedArtistFilter !== 'all' && (
+            <div className="flex items-center justify-between gap-3 bg-[#0E7C7B]/[0.06] border border-[#0E7C7B]/25 rounded-2xl px-4 py-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <img
+                  src={`https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(
+                    selectedArtistFilter
+                  )}&backgroundColor=0e7c7b&fontWeight=600`}
+                  alt={selectedArtistFilter}
+                  className="w-10 h-10 rounded-full border-2 border-white shadow-sm shrink-0"
+                />
+                <div className="min-w-0">
+                  <p className="text-sm font-black text-slate-900 truncate leading-tight">
+                    {selectedArtistFilter}
+                  </p>
+                  <p className="text-[10px] font-extrabold text-[#0E7C7B]">
+                    {selectedArtistCount > 0
+                      ? `${selectedArtistCount} ${t('library.songsCount')}`
+                      : t('library.noArtistSongs')}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedArtistFilter('all')}
+                className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-orange-600 hover:border-orange-300 font-bold text-[11px] transition-colors cursor-pointer shrink-0"
+              >
+                {t('library.allSongs')}
+              </button>
+            </div>
+          )}
+
+          {/* Filter Bar */}
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-3 shadow-2xs space-y-2.5">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={t('library.search')}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-orange-500 font-medium"
+                />
+              </div>
+
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-orange-500 cursor-pointer"
+              >
+                <option value="all">{t('library.allCategories')}</option>
+                {SONG_CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={selectedDifficulty}
+                onChange={(e) => setSelectedDifficulty(e.target.value)}
+                className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-orange-500 cursor-pointer"
+              >
+                <option value="all">{t('library.allLevels')}</option>
+                {SONG_DIFFICULTIES.map((diff) => (
+                  <option key={diff} value={diff}>
+                    Modo {diff}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Quick Genre / Category Pills */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar pt-1 border-t border-slate-100">
+              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
+                <Tag className="w-3 h-3 text-orange-500" /> {t('library.genres')}
+              </span>
+              <button
+                onClick={() => setSelectedCategory('all')}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
+                  selectedCategory === 'all'
+                    ? 'bg-orange-500 text-white shadow-2xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                Todos
+              </button>
+              {SONG_CATEGORIES.map((cat) => {
+                const isActive = selectedCategory.toLowerCase() === cat.toLowerCase();
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(isActive ? 'all' : cat)}
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
+                      isActive
+                        ? 'bg-orange-500 text-white shadow-2xs'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Lista DENSA de canções (estilo CifraClub) — linhas compactas */}
           {shownSongs.length > 0 ? (
             <div className="space-y-2">
               {shownSongs.map((song, index) => {
                 const showFeedAd = index > 0 && index % 8 === 0;
+                // Afiliado 1× por página (a cada 6) para aparecer na primeira
+                // tela com a lista curta — o card "Patrocinado" é conteúdo
+                // que o proprietário quer visível, não enterrado.
+                const showAffiliate = index > 0 && index % 6 === 0;
 
                 return (
                   <React.Fragment key={song.id}>
+                    {showAffiliate && hasAffiliates && (
+                      <div className="my-1">
+                        <AffiliateAdCard links={affiliateLinks} placement="song_feed" />
+                      </div>
+                    )}
                     {showFeedAd && (
                       <div className="my-1">
                         <AdSenseSlot format="horizontal" label="Anúncio do Repertório" />
@@ -669,6 +911,11 @@ export const SongList: React.FC<SongListProps> = ({
                             {song.artist}
                             {song.key ? ` · Tom ${song.key}` : ''}
                             {song.category ? ` · ${song.category}` : ''}
+                            {(song.views ?? 0) > 0 && (
+                              <span className="inline-flex items-center gap-0.5 text-slate-400 ml-1" title="Visualizações">
+                                · <Eye className="w-2.5 h-2.5" /> {(song.views ?? 0).toLocaleString('pt-BR')}
+                              </span>
+                            )}
                           </p>
                           <p className="hidden group-hover:block text-[11px] text-[#0E7C7B] font-semibold truncate leading-snug">
                             {lyricsPreviewMap.get(song.id) || song.title}
@@ -726,9 +973,13 @@ export const SongList: React.FC<SongListProps> = ({
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            onEditSong(song);
+                            if (isLoggedIn) {
+                              onEditSong(song);
+                            } else {
+                              onOpenAuth?.('login');
+                            }
                           }}
-                          title="Editar Cifra"
+                          title={isLoggedIn ? 'Editar Cifra' : 'Faça login para editar cifras'}
                           className="p-1.5 rounded-lg bg-slate-100 text-slate-600 hover:text-orange-600 hover:bg-orange-50 transition-colors cursor-pointer"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
@@ -755,7 +1006,7 @@ export const SongList: React.FC<SongListProps> = ({
                         }}
                         className="px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-black text-[10px] transition-colors flex items-center gap-1 shadow-2xs cursor-pointer shrink-0"
                       >
-                        <Play className="w-3 h-3 fill-white" /> TOCAR
+                        <Play className="w-3 h-3 fill-white" /> {t('library.play')}
                       </button>
                     </div>
                   </React.Fragment>
@@ -766,14 +1017,14 @@ export const SongList: React.FC<SongListProps> = ({
               {hasMore && (
                 <div className="pt-2">
                   <button
-                    onClick={() => setVisibleCount((c) => c + 24)}
+                    onClick={() => setVisibleCount((c) => c + 10)}
                     className="w-full py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-extrabold text-slate-600 hover:text-orange-600 hover:border-orange-300 transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                   >
-                    Mostrar mais ({filteredSongs.length - visibleCount} restantes)
+                    {t('library.showMore')} ({filteredSongs.length - visibleCount} restantes)
                     <ChevronDown className="w-3.5 h-3.5" />
                   </button>
                   <p className="text-center text-[10px] text-slate-400 font-bold mt-1.5">
-                    Mostrando {shownSongs.length} de {filteredSongs.length} canções
+                    {t('library.showing')} {shownSongs.length} {t('library.of')} {filteredSongs.length} {t('library.songsLower')}
                   </p>
                 </div>
               )}
@@ -781,74 +1032,23 @@ export const SongList: React.FC<SongListProps> = ({
           ) : (
             <div className="text-center py-12 bg-white border border-slate-200/90 rounded-2xl p-6">
               <Music className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-              <h3 className="text-base font-extrabold text-slate-800">Nenhuma cifra encontrada</h3>
+              <h3 className="text-base font-extrabold text-slate-800">{t('library.noResults')}</h3>
               <p className="text-slate-500 text-xs mt-1 mb-4">
-                Cadastre ou importe novas canções para o seu repertório.
+                {t('library.noResultsHint')}
               </p>
               <button
                 onClick={onCreateNewSong}
                 className="px-5 py-2 rounded-xl bg-orange-500 text-white font-extrabold text-xs"
               >
-                Nova Cifra
+                {t('library.newSong')}
               </button>
             </div>
           )}
         </div>
 
-        {/* SIDEBAR (4/12): ranking + artistas + widgets — depois das músicas no mobile */}
+        {/* SIDEBAR (4/12): artistas + repertórios — depois das músicas no mobile */}
         <div className="lg:col-span-4 space-y-4 order-2">
-          {/* Widget 0: EM ALTA — o que está bombando nos últimos 14 dias */}
-          <div className="bg-gradient-to-br from-[#F26419]/10 via-white to-amber-100/60 border border-orange-200/70 rounded-2xl p-4 shadow-2xs space-y-2">
-            <div className="flex items-center justify-between border-b border-orange-200/60 pb-2">
-              <h3 className="font-black text-slate-900 uppercase text-xs tracking-wider flex items-center gap-1.5">
-                <TrendingUp className="w-3.5 h-3.5 text-[#F26419]" /> Em Alta
-              </h3>
-              <span className="text-[10px] font-black text-[#F26419] flex items-center gap-0.5 shrink-0">
-                <Flame className="w-3 h-3 fill-current" /> 14 dias
-              </span>
-            </div>
-
-            {trendingSongs.length > 0 ? (
-              <div className="space-y-0.5">
-                {trendingSongs.map((song, idx) => (
-                  <button
-                    key={song.id}
-                    onClick={() => onSelectSong(song)}
-                    className="w-full flex items-center gap-2.5 p-1.5 rounded-lg hover:bg-orange-50/80 transition-colors text-left group/trend cursor-pointer"
-                  >
-                    <span
-                      className={`w-6 text-center font-black text-sm shrink-0 transition-colors ${
-                        idx === 0
-                          ? 'text-[#F26419]'
-                          : idx < 3
-                          ? 'text-amber-500'
-                          : 'text-slate-300'
-                      } group-hover/trend:text-[#F26419]`}
-                    >
-                      {idx + 1}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[11px] font-bold text-slate-900 truncate group-hover/trend:text-orange-600">
-                        {song.title}
-                      </p>
-                      <p className="text-[10px] text-slate-400 truncate">{song.artist}</p>
-                    </div>
-                    <span className="flex items-center gap-0.5 text-[10px] font-black text-[#F26419] shrink-0">
-                      <Flame className="w-2.5 h-2.5 fill-current" />
-                      {trendingMap.get(song.id) ?? 0}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <p className="text-[10px] text-slate-400 font-semibold leading-relaxed">
-                As músicas com mais votos nos últimos 14 dias aparecem aqui — vote em suas
-                favoritas para colocá-las em alta! 🔥
-              </p>
-            )}
-          </div>
-
-          {/* Widget 2: Lista de Artistas — compacta, visível mas secundária */}
+          {/* Widget: Lista de Artistas — compacta, visível mas secundária */}
           <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-3 shadow-2xs space-y-2">
             <div className="flex items-center justify-between">
               <button
@@ -857,7 +1057,7 @@ export const SongList: React.FC<SongListProps> = ({
                 title={artistsCollapsed ? 'Mostrar lista de artistas' : 'Recolher lista de artistas'}
               >
                 <User className="w-3.5 h-3.5 text-orange-500" />
-                Artistas
+                {t('library.artists')}
                 <span className="text-[9px] font-bold text-slate-500 bg-white border border-slate-200 rounded-full px-1.5 py-px leading-none">
                   {artistsList.length}
                 </span>
@@ -872,14 +1072,14 @@ export const SongList: React.FC<SongListProps> = ({
                   onClick={() => setSelectedArtistFilter('all')}
                   className="text-[10px] text-orange-600 font-bold hover:underline"
                 >
-                  Limpar
+                  {t('library.clear')}
                 </button>
               )}
             </div>
 
             {artistsCollapsed ? (
               <p className="text-[10px] text-slate-400 font-semibold leading-relaxed px-0.5">
-                Toque para navegar por artista. As canções continuam logo ao lado ⬅️
+                {t('library.tapToBrowse')}
               </p>
             ) : (
               <div className="space-y-0.5 max-h-[300px] overflow-y-auto pr-1">
@@ -921,7 +1121,7 @@ export const SongList: React.FC<SongListProps> = ({
                         {artist.name}
                       </p>
                       <p className={`text-[9px] ${isSelected ? 'text-[#0E7C7B] font-bold' : 'text-slate-400'}`}>
-                        {artist.count > 0 ? `${artist.count} músicas` : 'Artista Ukulele'}
+                        {artist.count > 0 ? `${artist.count} ${t('library.songsCount')}` : 'Artista Ukulele'}
                       </p>
                     </div>
                     <ChevronRight
@@ -939,26 +1139,29 @@ export const SongList: React.FC<SongListProps> = ({
                     className="w-full py-1.5 text-[10px] font-extrabold text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg transition-colors flex items-center justify-center gap-1 cursor-pointer"
                   >
                     {showAllArtists
-                      ? `▲ Ver menos (${visibleArtists.length})`
-                      : `▼ Ver todos (${artistsList.length})`}
+                      ? `${t('library.viewLess')} (${visibleArtists.length})`
+                      : `${t('library.seeAll')} (${artistsList.length})`}
                   </button>
                 )}
               </div>
             )}
           </div>
 
-          {/* Widget 3: REPERTÓRIO DE HOJE — lista horizontal com PLAY + seta */}
+          {/* Widget: REPERTÓRIO DE HOJE — lista horizontal com PLAY + seta */}
           <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs space-y-3">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2">
               <h3 className="font-black text-slate-900 uppercase text-xs tracking-wider">
-                REPERTÓRIO DE HOJE
+                {t('library.todaysRepertoire')}
               </h3>
               <span className="text-[10px] text-orange-500 font-bold flex items-center gap-0.5 cursor-pointer">
-                Favoritos <ChevronRight className="w-3 h-3" />
+                {t('library.favorites')} <ChevronRight className="w-3 h-3" />
               </span>
             </div>
 
             <div className="relative">
+              {/* Fade à direita: indica que o carrossel tem mais cards e o
+                  último card cortado na borda não é um bug de layout. */}
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-white via-white/80 to-transparent z-[1]" />
               <div
                 ref={todayScrollRef}
                 className="flex gap-2.5 overflow-x-auto no-scrollbar pb-1 pr-7"
@@ -991,7 +1194,7 @@ export const SongList: React.FC<SongListProps> = ({
                       }}
                       className="w-full py-1 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-[9px] cursor-pointer"
                     >
-                      PLAY
+                      {t('library.play')}
                     </button>
                   </div>
                 ))}
@@ -1002,7 +1205,7 @@ export const SongList: React.FC<SongListProps> = ({
                 <button
                   onClick={() => todayScrollRef.current?.scrollBy({ left: 160, behavior: 'smooth' })}
                   className="absolute right-0 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-500 hover:text-orange-500 cursor-pointer"
-                  title="Próximo"
+                  title={t('library.next')}
                 >
                   <ChevronRight className="w-3.5 h-3.5" />
                 </button>
@@ -1010,29 +1213,65 @@ export const SongList: React.FC<SongListProps> = ({
             </div>
           </div>
 
-          {/* Widget 4: REPERTÓRIO ATUAL — acordes compactos em linha */}
+          {/* Widget: REPERTÓRIO ATUAL — as listas/playlists do usuário (em vez
+              de diagramas soltos, mostra os nomes das listas + contagem e abre
+              o gerenciador ao clicar — muito mais útil para navegar). */}
           <div className="bg-white border border-slate-200/90 rounded-2xl p-3 shadow-2xs space-y-2">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2 px-1">
-              <h3 className="font-black text-slate-900 uppercase text-xs tracking-wider">
-                REPERTÓRIO ATUAL
+              <h3 className="font-black text-slate-900 uppercase text-xs tracking-wider flex items-center gap-1.5">
+                <FolderHeart className="w-3.5 h-3.5 text-[#F26419]" />
+                {t('library.currentRepertoire')}
               </h3>
-              <span className="text-[10px] text-orange-500 font-bold flex items-center gap-0.5 cursor-pointer">
-                Inéditos <ChevronRight className="w-3 h-3" />
-              </span>
+              <button
+                onClick={onOpenPlaylists}
+                className="text-[10px] text-orange-500 font-bold flex items-center gap-0.5 cursor-pointer hover:text-orange-600"
+                title={t('library.lists')}
+              >
+                {t('library.lists')} <ChevronRight className="w-3 h-3" />
+              </button>
             </div>
 
-            {/* Diagramas em tamanho xs NATIVO (sem scale/margem negativa) —
-                antes o hack scale-[0.82] + -my-2.5 fazia o layout colapsar e
-                os diagramas vazarem por cima do widget acima ao rolar. */}
-            <div className="flex justify-center gap-1.5 items-start">
-              {[
-                { name: 'G', fingering: gChord },
-                { name: 'C', fingering: cChord },
-                { name: 'Am', fingering: amChord },
-              ].map((ch) => (
-                <ChordDiagram key={ch.name} chordName={ch.name} fingering={ch.fingering} size="xs" showPlayButton={false} />
-              ))}
-            </div>
+            {playlists.length === 0 ? (
+              <button
+                onClick={onOpenPlaylists}
+                className="w-full text-left text-[10px] text-slate-400 font-semibold leading-relaxed px-1 py-1.5 hover:text-slate-600 transition-colors cursor-pointer"
+              >
+                Crie listas com suas músicas favoritas — elas aparecem aqui. 🎶
+              </button>
+            ) : (
+              <div className="space-y-1">
+                {playlists.slice(0, 5).map((pl) => (
+                  <button
+                    key={pl.id}
+                    onClick={onOpenPlaylists}
+                    className="w-full flex items-center gap-2.5 p-1.5 rounded-lg hover:bg-slate-50 transition-colors text-left group cursor-pointer"
+                    title={`Abrir "${pl.title}"`}
+                  >
+                    <div className="w-7 h-7 shrink-0 rounded-lg bg-[#0E7C7B]/10 text-[#0E7C7B] flex items-center justify-center group-hover:bg-[#0E7C7B] group-hover:text-white transition-colors">
+                      <ListMusic className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] font-bold text-slate-900 truncate leading-tight group-hover:text-orange-600 transition-colors">
+                        {pl.title}
+                      </p>
+                      <p className="text-[9px] text-slate-400 font-semibold">
+                        {pl.songIds.length} {pl.songIds.length === 1 ? t('library.songSingular') : t('library.songsCount')}
+                        {pl.difficulty ? ` · ${pl.difficulty}` : ''}
+                      </p>
+                    </div>
+                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-orange-500 shrink-0 transition-colors" />
+                  </button>
+                ))}
+                {playlists.length > 5 && (
+                  <button
+                    onClick={onOpenPlaylists}
+                    className="w-full py-1 text-[10px] font-extrabold text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg transition-colors cursor-pointer"
+                  >
+                    Ver todas ({playlists.length})
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

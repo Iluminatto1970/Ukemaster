@@ -1,7 +1,7 @@
 /**
  * Componente raiz: orquestra toda a experiência — acervo (Supabase + cache local), busca/filtros, votação, repertórios, playlists, modais de anúncio/doação/lead, rotas SPA (/musica/:id) e SEO.
  */
-import React, { useState, useEffect, useMemo, useRef, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback, lazy, Suspense } from 'react';
 import { useAuth } from './auth';
 import { Song, Playlist, ActiveTab } from './types';
 import { DEFAULT_SONGS, DEFAULT_PLAYLISTS } from './data/defaultSongs';
@@ -27,11 +27,23 @@ const PlaylistManager = lazy(() =>
 const StrummingGuide = lazy(() =>
   import('./components/StrummingGuide').then((m) => ({ default: m.StrummingGuide }))
 );
+const Metronome = lazy(() =>
+  import('./components/Metronome').then((m) => ({ default: m.Metronome }))
+);
+const VideosHub = lazy(() =>
+  import('./components/VideosHub').then((m) => ({ default: m.VideosHub }))
+);
+const BlogTab = lazy(() =>
+  import('./components/BlogTab').then((m) => ({ default: m.BlogTab }))
+);
 const Dashboard = lazy(() =>
   import('./components/Dashboard').then((m) => ({ default: m.Dashboard }))
 );
 const AdminScraper = lazy(() =>
   import('./components/AdminScraper').then((m) => ({ default: m.AdminScraper }))
+);
+const AdminContentPanel = lazy(() =>
+  import('./components/AdminContentPanel').then((m) => ({ default: m.AdminContentPanel }))
 );
 // import { AdSenseSlot } from './components/AdSenseSlot'; // placeholder // placeholder
 import { StickyBottomAd } from './components/StickyBottomAd';
@@ -53,6 +65,7 @@ import {
 } from './lib/repertoires';
 import {
   fetchSongsFromCloud,
+  fetchSongFromCloud,
   pushSongsToCloud,
   fetchPlaylistsFromCloud,
   pushPlaylistsToCloud,
@@ -61,14 +74,24 @@ import {
   deleteSongFromCloud,
   isSupabaseConfigured,
 } from './lib/cloudSync';
+import { patchRows } from './lib/supabase';
+import { downloadCollectionHtml } from './lib/songExport';
+import {
+  fetchAffiliateLinks,
+  fetchPartnerLinks,
+} from './lib/affiliateContent';
+import { fetchBlogPosts } from './lib/blogContent.tsx';
+import type { AffiliateLink, PartnerLink, BlogPost } from './types';
 import {
   getVoterId,
   mergeLocalVotes,
   fetchMyVotes,
   persistVote,
 } from './lib/ratings';
+import { logContribution } from './lib/contributions';
 import { trackEvent, trackPageView } from './lib/analytics';
 import { markAdOverlayActive, markAdOverlayIdle } from './lib/adCoordinator';
+import { hydrateChordCache, schedulePersistGeneratedChords } from './lib/chordCache';
 
 
 const LOCAL_STORAGE_SONGS_KEY = 'ukemaster_songs_v1';
@@ -136,10 +159,34 @@ export default function App() {
   const currentUser = useMemo(() => {
     if (!isSignedIn || !user) return null;
     return {
+      id: user.id,
       name: user.name || user.email.split('@')[0] || 'Músico',
       email: user.email,
     };
   }, [isSignedIn, user]);
+
+  // Ranking de contribuidores: cada contribuição da sessão incrementa a chave
+  // e o widget "Maiores Contribuidores" re-busca as contagens do servidor.
+  const [contributionsVersion, setContributionsVersion] = useState<number>(0);
+  const bumpContributions = useCallback(() => {
+    setContributionsVersion((v) => v + 1);
+  }, []);
+  // Loga a contribuição no banco (só quando autenticado) e pede refresh do
+  // ranking. Falha silenciosa — nunca interrompe a ação principal.
+  const recordContribution = useCallback(
+    (action: 'song_new' | 'song_edit' | 'vote' | 'comment' | 'feedback' | 'playlist_new', targetType?: string, targetId?: string) => {
+      if (!isSignedIn || !user) return;
+      logContribution({
+        userId: user.id,
+        userName: currentUser?.name || 'Músico',
+        action,
+        targetType,
+        targetId,
+      });
+      bumpContributions();
+    },
+    [isSignedIn, user, currentUser?.name, bumpContributions]
+  );
 
   // Área ADMIN — visível apenas para o proprietário
   const isAdmin = currentUser?.email?.toLowerCase() === 'iluminatto@gmail.com';
@@ -161,11 +208,53 @@ export default function App() {
   // terminar — nesse caso a nuvem NÃO sobrescreve a edição local.
   const localEditedRef = useRef<boolean>(false);
 
+  // ── Carregamento do acervo + cifras sob demanda ─────────────────────
+  // catalogLoading: o catálogo da nuvem (só metadados) ainda está chegando;
+  // enquanto isso a UI mostra os defaults com um indicador, em vez de exibir
+  // um número enganoso de canções.
+  const [catalogLoading, setCatalogLoading] = useState<boolean>(true);
+  // Cifras completas baixadas ao ABRIR cada música (a lista só tem metadados
+  // — buscar tudo seriam ~15MB e o acervo pareceria vazio em conexão lenta).
+  const [songDetails, setSongDetails] = useState<
+    Record<string, { content: string; simplifiedContent?: string }>
+  >({});
+  // Músicas cuja cifra NÃO existe no banco (fetch retornou vazio) — o viewer
+  // mostra "Cifra indisponível" em vez de ficar carregando para sempre.
+  const [unavailableSongIds, setUnavailableSongIds] = useState<Set<string>>(new Set());
+  // Promessas de fetch em andamento por id — chamadas concorrentes para a
+  // MESMA música (ex.: abrir e clicar em "Editar Cifra" antes de carregar)
+  // aguardam o mesmo fetch em vez de duplicá-lo ou abrir o editor vazio.
+  const inFlightSongContentRef = useRef<Record<string, Promise<Song | null>>>({});
+
   // ── Votação (rating): 1 voto por usuário por música ───────────────────────
   const [myVotes, setMyVotes] = useState<Set<string>>(new Set());
   const voterId = useMemo(() => getVoterId(user?.id), [user?.id]);
 
   const [activeTab, setActiveTab] = useState<ActiveTab>('musicas');
+
+  // ── Conteúdo monetizável: links de AFILIADO + PARCEIROS ─────────────
+  // Carregados do Supabase (leitura pública); o admin gerencia na aba Admin.
+  const [affiliateLinks, setAffiliateLinks] = useState<AffiliateLink[]>([]);
+  const [partnerLinks, setPartnerLinks] = useState<PartnerLink[]>([]);
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const [aff, partners, posts] = await Promise.all([
+        fetchAffiliateLinks(),
+        fetchPartnerLinks(),
+        fetchBlogPosts(),
+      ]);
+      if (cancelled) return;
+      setAffiliateLinks(aff);
+      setPartnerLinks(partners);
+      setBlogPosts(posts);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
   const [editingSong, setEditingSong] = useState<Song | null>(null);
@@ -173,8 +262,26 @@ export default function App() {
   const [viewMode, setViewMode] = useState<'list' | 'viewer' | 'editor' | 'playlists'>('list');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
 
-  // Splash de abertura (mostra a marca por ~2s e some com fade)
-  const [showSplash, setShowSplash] = useState<boolean>(true);
+  // Splash de abertura: mostra a marca + homenagem apenas 1x por DIA
+  // (chave no localStorage com a data) — repetir a cada visita irrita o
+  // público. O usuário que já viu hoje vai direto para o conteúdo.
+  const [showSplash, setShowSplash] = useState<boolean>(() => {
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      if (localStorage.getItem('ukemaster_splash_seen') === today) return false;
+      // Marca como vista JÁ no momento em que a splash começa — assim, se o
+      // usuário fechar o navegador no meio da reprodução, ela não reabre na
+      // mesma visita do dia (a chave só expira à meia-noite).
+      localStorage.setItem('ukemaster_splash_seen', today);
+      return true;
+    } catch {
+      return true;
+    }
+  });
+
+  const finishSplash = () => {
+    setShowSplash(false);
+  };
 
   // Interstitial Ad State (Shows advertisement gating periodically before opening lyrics)
   const [isAdInterstitialOpen, setIsAdInterstitialOpen] = useState<boolean>(false);
@@ -262,6 +369,13 @@ export default function App() {
     }
   }, [playlists]);
 
+  // Acordes gerados pelo motor de voicings: carrega o cache conhecido
+  // (localStorage + Supabase) e agenda a persistência dos que forem criados
+  // na sessão (ex.: ao abrir uma cifra com "D7(9)" ou "Am7M").
+  useEffect(() => {
+    void hydrateChordCache().then(() => schedulePersistGeneratedChords(2000));
+  }, []);
+
   // ── Nuvem (Supabase): carregamento inicial ──────────────────────────
   // Busca songs/playlists na nuvem. Se a nuvem tiver dados (acervo público
   // compartilhado), eles substituem o local. Se vazia/indisponível, mantém
@@ -282,12 +396,103 @@ export default function App() {
       if (cloudPlaylists && cloudPlaylists.length > 0 && !localEditedRef.current) {
         setPlaylists(cloudPlaylists);
       }
+      setCatalogLoading(false);
       setCloudReady(true);
     })();
     return () => {
       cancelled = true;
     };
   }, []);
+
+  // ── Cifra sob demanda: busca o conteúdo completo ao ABRIR a música ──
+  // A lista carrega só metadados (~1,5MB); a cifra (content) vem por música
+  // quando o usuário abre — e fica cacheada em memória na sessão.
+  const ensureSongContent = useCallback(
+    async (song: Song): Promise<Song | null> => {
+      if (song.content) return song;
+      const cached = songDetails[song.id];
+      if (cached) {
+        return { ...song, content: cached.content, simplifiedContent: cached.simplifiedContent };
+      }
+      // Fetch já em andamento para esta música? Aguarda a MESMA promessa
+      // (ex.: "Editar Cifra" clicado enquanto a cifra ainda está baixando).
+      const inFlight = inFlightSongContentRef.current[song.id];
+      if (inFlight) return inFlight;
+      const promise = (async () => {
+        try {
+          const full = await fetchSongFromCloud(song.id);
+          if (full && full.content) {
+            setSongDetails((prev) => ({
+              ...prev,
+              [song.id]: {
+                content: full.content,
+                simplifiedContent: full.simplifiedContent,
+              },
+            }));
+            return full;
+          }
+          setUnavailableSongIds((prev) => new Set(prev).add(song.id));
+          return null;
+        } finally {
+          delete inFlightSongContentRef.current[song.id];
+        }
+      })();
+      inFlightSongContentRef.current[song.id] = promise;
+      return promise;
+    },
+    [songDetails]
+  );
+
+  // Toda vez que uma música é aberta (lista, ranking, URL /musica/:id),
+  // garante que a cifra completa estará disponível no viewer.
+  useEffect(() => {
+    if (!selectedSong) return;
+    ensureSongContent(selectedSong);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSong?.id]);
+
+  // Só mostra o indicador de carregamento do acervo quando ainda estamos no
+  // conjunto DEFAULT (se o cache local já tem o catálogo, não há o que esperar).
+  const showCatalogLoading = catalogLoading && songs.length <= DEFAULT_SONGS.length;
+
+  // ── Cifra em Destaque (sidebar): escolha determinística do dia ────────
+  // Sorteia entre as 60 mais votadas do acervo com seed pela data — a mesma
+  // música aparece para todos no dia, e muda à meia-noite (sem depender de
+  // aleatório por cliente).
+  const featuredSong = useMemo(() => {
+    if (songs.length === 0) return null;
+    const pool = [...songs]
+      .sort((a, b) => (b.votes ?? 0) - (a.votes ?? 0))
+      .slice(0, 60);
+    const day = new Date().toISOString().slice(0, 10);
+    let h = 0;
+    for (const c of day) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+    return pool[h % pool.length] ?? null;
+  }, [songs]);
+
+  // Música selecionada com a cifra resolvida (da seed local ou do cache de
+  // detalhes baixado sob demanda) — o viewer mostra loading enquanto busca.
+  const resolvedSelectedSong = useMemo(() => {
+    if (!selectedSong) return null;
+    if (selectedSong.content) return selectedSong;
+    const details = songDetails[selectedSong.id];
+    if (details) {
+      return {
+        ...selectedSong,
+        content: details.content,
+        simplifiedContent: details.simplifiedContent,
+      };
+    }
+    return selectedSong;
+  }, [selectedSong, songDetails]);
+
+  // "Carregando cifra…" enquanto o conteúdo ainda não chegou e a busca não
+  // falhou — sem o flash de "Cifra indisponível" no primeiro frame.
+  const selectedSongContentLoading =
+    !!selectedSong &&
+    !selectedSong.content &&
+    !songDetails[selectedSong.id] &&
+    !unavailableSongIds.has(selectedSong.id);
 
   // Carrega os votos do usuário atual (dedupe 1 voto por música)
   useEffect(() => {
@@ -300,22 +505,25 @@ export default function App() {
     };
   }, [voterId]);
 
-  // Push (debounce) songs/playlists para a nuvem a cada alteração
+  // Push (debounce) songs/playlists para a nuvem a cada alteração.
+  // REGRA: só usuários LOGADOS enviam dados ao acervo (nunca contribuir sem
+  // logar) — o RLS de songs/playlists passa a exigir login. Visitantes usam
+  // o catálogo da nuvem como leitura; alterações locais deles ficam locais.
   useEffect(() => {
-    if (!cloudReady) return;
+    if (!cloudReady || !isSignedIn) return;
     const t = setTimeout(() => {
       pushSongsToCloud(songs);
     }, 1000);
     return () => clearTimeout(t);
-  }, [songs, cloudReady]);
+  }, [songs, cloudReady, isSignedIn]);
 
   useEffect(() => {
-    if (!cloudReady) return;
+    if (!cloudReady || !isSignedIn) return;
     const t = setTimeout(() => {
       pushPlaylistsToCloud(playlists);
     }, 1000);
     return () => clearTimeout(t);
-  }, [playlists, cloudReady]);
+  }, [playlists, cloudReady, isSignedIn]);
 
   // Carrega o repertório do usuário atual (troca de lista ao trocar de conta)
   useEffect(() => {
@@ -401,7 +609,13 @@ export default function App() {
   // persiste em segundo plano. Se a nuvem falhar, reverte o estado local.
   // Usa updaters funcionais (estado anterior) para cliques rápidos não
   // derivarem do mesmo valor base e perderem voto.
+  //
+  // REGRA: votar é CONTRIBUIR → exige login (nunca contribuir sem logar).
   const handleVoteSong = (song: Song) => {
+    if (!isSignedIn) {
+      handleOpenAuth('login');
+      return;
+    }
     const isVoted = myVotes.has(song.id);
     const vote = !isVoted;
     const delta = vote ? 1 : -1;
@@ -450,6 +664,11 @@ export default function App() {
         );
       }
     });
+
+    // Registra o voto como contribuição (ranking) — só quando de fato votou
+    if (vote) {
+      recordContribution('vote', 'song', song.id);
+    }
   };
 
   // ── Rota /musica/:id — abre a cifra pela URL (links compartilháveis/SEO) ──
@@ -463,9 +682,12 @@ export default function App() {
     const song = songs.find((s) => s.id === id);
     if (!song) return;
     openedUrlSongRef.current = id;
+    // Abertura por URL (link compartilhado/SEO) também conta na "Mais Acessadas"
+    bumpViews(song);
     setActiveTab('musicas');
     setSelectedSong(song);
     setViewMode('viewer');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [songs]);
 
   // Botão voltar do navegador: volta para a lista quando sai de /musica/:id
@@ -495,9 +717,29 @@ export default function App() {
     }
   };
 
+  // Mais Acessadas: contador de visualizações. UI otimista + persistência
+  // silenciosa no banco. Um ref por música evita que abrir a MESMA cifra 2x
+  // seguidas use o valor stale (prop antiga) e perca a contagem.
+  const viewsCountRef = useRef<Record<string, number>>({});
+  const bumpViews = useCallback((song: Song) => {
+    const prev = viewsCountRef.current[song.id] ?? song.views ?? 0;
+    const next = prev + 1;
+    viewsCountRef.current[song.id] = next;
+    setSongs((songsState) =>
+      songsState.map((s) => (s.id === song.id ? { ...s, views: next } : s))
+    );
+    // A coluna views fica na tabela songs, cujo UPDATE agora exige login
+    // (migration-ukemater-cron.sql). Visitantes contam localmente na sessão;
+    // o PATCH na nuvem só é enviado por usuários autenticados.
+    if (isSupabaseConfigured() && isSignedIn) {
+      patchRows('songs', `?id=eq.${encodeURIComponent(song.id)}`, { views: next });
+    }
+  }, [isSignedIn]);
+
   const handleSelectSong = (song: Song) => {
     const nextCount = songOpenCount + 1;
     setSongOpenCount(nextCount);
+    bumpViews(song);
 
     // Convite automático de apoio (1x por sessão). Dispara só quando o
     // intersticial de anúncio NÃO abre nesta abertura (aberturas ímpares) —
@@ -580,19 +822,32 @@ export default function App() {
   };
 
   const handleCreateNewSong = () => {
+    // Criar cifra é CONTRIBUIR → exige login (nunca contribuir sem logar)
+    if (!isSignedIn) {
+      handleOpenAuth('login');
+      return;
+    }
     setEditingSong(null);
     setIsCreatingNew(true);
     setViewMode('editor');
   };
 
-  const handleEditSong = (song: Song) => {
-    setEditingSong(song);
+  const handleEditSong = async (song: Song) => {
+    // Editar cifra é CONTRIBUIR → exige login (nunca contribuir sem logar)
+    if (!isSignedIn) {
+      handleOpenAuth('login');
+      return;
+    }
+    // Garante a cifra completa antes de abrir o editor (a lista só tem metadados)
+    const full = await ensureSongContent(song);
+    setEditingSong(full ?? song);
     setIsCreatingNew(false);
     setViewMode('editor');
   };
 
   const handleSaveSong = (savedSong: Song) => {
     markLocalEdited();
+    const isNewSong = !songs.some((s) => s.id === savedSong.id);
     setSongs((prev) => {
       const exists = prev.some((s) => s.id === savedSong.id);
       if (exists) {
@@ -601,11 +856,29 @@ export default function App() {
         return [savedSong, ...prev];
       }
     });
+    // Registrar contribuição (nova cifra ou edição) para o ranking
+    recordContribution(isNewSong ? 'song_new' : 'song_edit', 'song', savedSong.id);
 
     setSelectedSong(savedSong);
     setViewMode('viewer');
     setEditingSong(null);
     setIsCreatingNew(false);
+  };
+
+  // ── Download de coleções (playlist/repertório): garante a cifra completa
+  // de cada música (a lista só tem metadados) e gera o documento com letra +
+  // diagramas de acordes. Busca em sequência para não estourar rate limit.
+  const handleDownloadCollection = async (title: string, list: Song[]) => {
+    const resolved: Song[] = [];
+    for (const s of list) {
+      try {
+        const full = await ensureSongContent(s);
+        resolved.push(full ?? s);
+      } catch {
+        resolved.push(s); // mantém metadados — seção avisa que não há cifra
+      }
+    }
+    downloadCollectionHtml(title, resolved);
   };
 
   const handleDeleteSong = (songId: string) => {
@@ -649,6 +922,9 @@ export default function App() {
       dicionario: 'Dicionário de Acordes',
       afinador: 'Afinador',
       ritmos: 'Ritmos e Batidas',
+      metronomo: 'Metrônomo',
+      videos: 'Vídeo Aulas',
+      blog: 'Blog',
       admin: 'Admin',
     };
     trackPageView(labels[activeTab] || activeTab);
@@ -674,6 +950,7 @@ export default function App() {
       createdAt: new Date().toISOString(),
     };
     setPlaylists((prev) => [newPl, ...prev]);
+    recordContribution('playlist_new', 'playlist', newPl.id);
   };
 
   const handleDeletePlaylist = (playlistId: string) => {
@@ -718,6 +995,22 @@ export default function App() {
 
   const handleImportSongs = (importedSongs: Song[]) => {
     markLocalEdited();
+    // Só conta como contribuição as músicas NOVAS (não duplicatas/edições)
+    const newOnes = importedSongs.filter(
+      (imp) =>
+        !songs.some(
+          (m) =>
+            m.id === imp.id ||
+            (m.title.trim().toLowerCase() === imp.title.trim().toLowerCase() &&
+              m.artist.trim().toLowerCase() === imp.artist.trim().toLowerCase())
+        )
+    );
+    if (newOnes.length > 0) {
+      // Registra no ranking (limite de 25 por lote para não disparar um
+      // volume alto de POSTs num único import — o resto entra no acervo
+      // normalmente, só não conta pontos extras no ranking).
+      newOnes.slice(0, 25).forEach((s) => recordContribution('song_new', 'song', s.id));
+    }
     setSongs((prev) => {
       const merged = [...prev];
       importedSongs.forEach((imp) => {
@@ -739,8 +1032,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-bg-brand text-slate-900 font-sans antialiased flex flex-col">
-      {/* Splash de abertura — some sozinho após ~2s (fade out) */}
-      {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
+      {/* Splash de abertura — aparece 1x por dia, some sozinha (fade out) */}
+      {showSplash && <SplashScreen onFinish={finishSplash} />}
 
       {/* Monetag Ads (banners in-page) — script injetado no <head> */}
       <Monetag />
@@ -789,6 +1082,7 @@ export default function App() {
             }
           }}
           songsCount={songs.length}
+          catalogLoading={showCatalogLoading}
           playlistsCount={playlists.length}
           viewMode={viewMode}
           onOpenPlaylists={() => {
@@ -798,6 +1092,14 @@ export default function App() {
           isOpenMobile={isMobileSidebarOpen}
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
           isAdmin={isAdmin}
+          featuredSong={featuredSong}
+          onSelectFeaturedSong={(song) => {
+            // Vem de qualquer aba (Dicionário, Blog...) — garante que a cifra
+            // abre na aba de músicas, senão o clique pareceria não fazer nada.
+            setActiveTab('musicas');
+            setViewMode('list');
+            handleSelectSong(song);
+          }}
         />
 
         {/* Right Main Content Panel */}
@@ -833,15 +1135,15 @@ export default function App() {
                 isRepertoirePublic={isRepertoirePublic}
                 onToggleRepertoirePublic={() => setIsRepertoirePublic((prev) => !prev)}
                 songs={songs}
-                playlists={playlists}
-                onSelectSong={handleSelectSong}
-                onRemoveFromRepertoire={handleToggleRepertoire}
-                onOpenAuth={handleOpenAuth}
-                onGoToPublicSongs={() => {
-                  setActiveTab('musicas');
-                  setViewMode('list');
-                }}
-              />
+                playlists={playlists}                    onSelectSong={handleSelectSong}
+                    onRemoveFromRepertoire={handleToggleRepertoire}
+                    onOpenAuth={handleOpenAuth}
+                    onGoToPublicSongs={() => {
+                      setActiveTab('musicas');
+                      setViewMode('list');
+                    }}
+                    onDownloadRepertoire={handleDownloadCollection}
+                  />
             )}
 
             {/* Tab 2: Public Songs & Playlists Catalog */}
@@ -851,6 +1153,14 @@ export default function App() {
                   <SongList
                     songs={songs}
                     playlists={playlists}
+                    affiliateLinks={affiliateLinks}
+                    partnerLinks={partnerLinks}
+                    blogPosts={blogPosts}
+                    onOpenBlog={() => setActiveTab('blog')}
+                    onOpenPlaylists={() => {
+                      setActiveTab('musicas');
+                      setViewMode('playlists');
+                    }}
                     onSelectSong={handleSelectSong}
                     onEditSong={handleEditSong}
                     onDeleteSong={handleDeleteSong}
@@ -868,12 +1178,19 @@ export default function App() {
                     isAdmin={isAdmin}
                     isLoggedIn={!!isSignedIn}
                     onOpenAuth={handleOpenAuth}
+                    catalogLoading={showCatalogLoading}
+                    currentUser={
+                      currentUser ? { id: currentUser.id, name: currentUser.name } : null
+                    }
+                    contributionsRefreshKey={contributionsVersion}
                   />
                 )}
 
-                {viewMode === 'viewer' && selectedSong && (
+                {viewMode === 'viewer' && resolvedSelectedSong && (
                   <SongViewer
-                    song={selectedSong}
+                    song={resolvedSelectedSong}
+                    contentLoading={selectedSongContentLoading}
+                    affiliateLinks={affiliateLinks}
                     onBack={handleCloseViewer}
                     onEdit={handleEditSong}
                     onAddToPlaylist={() => setViewMode('playlists')}
@@ -913,6 +1230,9 @@ export default function App() {
                     onDeletePlaylist={handleDeletePlaylist}
                     onRemoveSongFromPlaylist={handleRemoveSongFromPlaylist}
                     onAddSongToPlaylist={handleAddSongToPlaylist}
+                    onDownloadPlaylist={handleDownloadCollection}
+                    isLoggedIn={!!isSignedIn}
+                    onOpenAuth={handleOpenAuth}
                   />
                 )}
               </>
@@ -927,9 +1247,29 @@ export default function App() {
             {/* Tab 5: Strumming & Rhythm Guide */}
             {activeTab === 'ritmos' && <StrummingGuide />}
 
-            {/* Tab 6: Admin (scraping/cron) — apenas para o proprietário */}
+            {/* Tab 5b: Metrônomo */}
+            {activeTab === 'metronomo' && <Metronome />}
+
+            {/* Tab 5c: Vídeo Aulas (parceiros + pedir videoaula) */}
+            {activeTab === 'videos' && <VideosHub partnerLinks={partnerLinks} />}
+
+            {/* Tab 5d: Blog (artigos do proprietário) */}
+            {activeTab === 'blog' && <BlogTab posts={blogPosts} />}
+
+            {/* Tab 6: Admin (scraping/cron + conteúdo monetizável) — apenas p/ proprietário */}
             {activeTab === 'admin' && isAdmin && (
-              <AdminScraper songs={songs} onImportSongs={handleImportSongs} />
+              <>
+                <AdminScraper songs={songs} onImportSongs={handleImportSongs} />
+                <div className="h-8" />
+                <AdminContentPanel
+                  affiliateLinks={affiliateLinks}
+                  onAffiliateChange={setAffiliateLinks}
+                  partnerLinks={partnerLinks}
+                  onPartnerChange={setPartnerLinks}
+                  blogPosts={blogPosts}
+                  onBlogChange={setBlogPosts}
+                />
+              </>
             )}
             {activeTab === 'admin' && !isAdmin && (
               <div className="text-center py-16">

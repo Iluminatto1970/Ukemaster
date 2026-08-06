@@ -1,9 +1,10 @@
 /**
  * Gerenciamento de playlists: criar, renomear, excluir e adicionar músicas da biblioteca.
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Playlist, Song, SONG_CATEGORIES, PLAYLIST_DIFFICULTIES } from '../types';
-import { List, Plus, Trash2, Edit2, Play, Music, ChevronRight, X, Sparkles, Check, Tag, Gauge, Filter, FolderHeart, Globe } from 'lucide-react';
+import { List, Plus, Trash2, Edit2, Play, Music, ChevronRight, X, Sparkles, Check, Tag, Gauge, Filter, FolderHeart, Globe, Download, Loader2, Search } from 'lucide-react';
+import { Logo } from './Logo';
 import { PublicRepertoire } from '../lib/repertoires';
 import { getPublicRepertoiresWithCloud } from '../lib/cloudSync';
 
@@ -20,6 +21,11 @@ interface PlaylistManagerProps {
   onDeletePlaylist: (playlistId: string) => void;
   onRemoveSongFromPlaylist: (playlistId: string, songId: string) => void;
   onAddSongToPlaylist: (playlistId: string, songId: string) => void;
+  /** Baixa a playlist (letra + diagramas de todas as cifras). */
+  onDownloadPlaylist?: (title: string, songs: Song[]) => Promise<void> | void;
+  /** Criar/modificar listas da comunidade exige login. */
+  isLoggedIn?: boolean;
+  onOpenAuth?: (mode?: 'signup' | 'login') => void;
 }
 
 export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
@@ -30,12 +36,25 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
   onDeletePlaylist,
   onRemoveSongFromPlaylist,
   onAddSongToPlaylist,
+  onDownloadPlaylist,
+  isLoggedIn = false,
+  onOpenAuth,
 }) => {
+  // Toda ação de ESCRITA em listas (criar/adicionar/remover/excluir) é uma
+  // contribuição à comunidade → exige login. Visitantes só navegam.
+  const requireAuth = (): boolean => {
+    if (isLoggedIn) return true;
+    onOpenAuth?.('signup');
+    return false;
+  };
+  // Download da playlist ativa: busca as cifras completas e gera o documento
+  const [downloading, setDownloading] = useState<boolean>(false);
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string>(
     playlists[0]?.id || ''
   );
   const [showNewModal, setShowNewModal] = useState<boolean>(false);
   const [showAddSongModal, setShowAddSongModal] = useState<boolean>(false);
+  const [addSongSearch, setAddSongSearch] = useState<string>('');
 
   const [newTitle, setNewTitle] = useState<string>('');
   const [newDesc, setNewDesc] = useState<string>('');
@@ -68,6 +87,20 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
     return matchCat && matchDiff;
   });
 
+  // Busca no modal "Adicionar Músicas": ignora case e acentos
+  const normalizeSearch = (s: string) =>
+    s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const addSongQuery = normalizeSearch(addSongSearch.trim());
+  const addableSongs = useMemo(() => {
+    if (!addSongQuery) return songs;
+    return songs.filter(
+      (s) =>
+        normalizeSearch(s.title || '').includes(addSongQuery) ||
+        normalizeSearch(s.artist || '').includes(addSongQuery) ||
+        (s.category && normalizeSearch(s.category).includes(addSongQuery))
+    );
+  }, [songs, addSongQuery]);
+
   const activePlaylist = playlists.find((p) => p.id === selectedPlaylistId) || filteredPlaylists[0] || playlists[0];
   const activeSongs = activePlaylist
     ? activePlaylist.songIds
@@ -77,11 +110,23 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTitle.trim()) return;
+    if (!newTitle.trim() || !requireAuth()) return;
     onCreatePlaylist(newTitle.trim(), newDesc.trim() || undefined, newCategory, newDifficulty);
     setNewTitle('');
     setNewDesc('');
     setShowNewModal(false);
+  };
+
+  const handleDownloadActivePlaylist = async () => {
+    if (!activePlaylist || downloading || !onDownloadPlaylist) return;
+    // Baixar/exportar é ação de membro → exige login (nunca exportar sem logar)
+    if (!requireAuth()) return;
+    setDownloading(true);
+    try {
+      await onDownloadPlaylist(activePlaylist.title, activeSongs);
+    } finally {
+      setDownloading(false);
+    }
   };
 
   const getDifficultyBadgeClass = (diff?: string) => {
@@ -105,7 +150,8 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
         </div>
 
         <button
-          onClick={() => setShowNewModal(true)}
+          onClick={() => (isLoggedIn ? setShowNewModal(true) : requireAuth())}
+          title={isLoggedIn ? 'Criar Nova Lista' : 'Faça login para criar listas'}
           className="px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs shadow-md shadow-orange-500/20 flex items-center gap-1.5 cursor-pointer scale-105"
         >
           <Plus className="w-4 h-4" /> Criar Nova Lista
@@ -224,22 +270,44 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
 
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => setShowAddSongModal(true)}
+                    onClick={() => {
+                      if (!requireAuth()) return;
+                      setAddSongSearch('');
+                      setShowAddSongModal(true);
+                    }}
+                    title={isLoggedIn ? 'Adicionar Cifra' : 'Faça login para adicionar cifras'}
                     className="px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 hover:border-orange-400 text-orange-600 font-extrabold text-xs flex items-center gap-1.5 cursor-pointer"
                   >
                     <Plus className="w-4 h-4" /> Adicionar Cifra
                   </button>
 
+                  {onDownloadPlaylist && (
+                    <button
+                      onClick={handleDownloadActivePlaylist}
+                      disabled={downloading || activeSongs.length === 0}
+                      title={activeSongs.length === 0 ? 'Adicione músicas para baixar' : isLoggedIn ? `Baixar ${activeSongs.length} cifra(s) com letra e diagramas` : 'Faça login para baixar listas'}
+                      className="px-4 py-2 rounded-xl bg-[#0E7C7B] hover:bg-[#0A5F5E] disabled:opacity-40 disabled:cursor-not-allowed text-white font-extrabold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
+                    >
+                      {downloading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Download className="w-4 h-4" />
+                      )}
+                      {downloading ? 'Preparando…' : 'Baixar'}
+                    </button>
+                  )}
+
                   {playlists.length > 1 && (
                     <button
                       onClick={() => {
+                        if (!requireAuth()) return;
                         if (confirm(`Deseja excluir a playlist "${activePlaylist.title}"?`)) {
                           onDeletePlaylist(activePlaylist.id);
                           setSelectedPlaylistId(playlists.find((p) => p.id !== activePlaylist.id)?.id || '');
                         }
                       }}
                       className="p-2 rounded-xl bg-slate-50 border border-slate-200 hover:border-rose-300 hover:bg-rose-50 text-slate-500 hover:text-rose-600 text-xs cursor-pointer"
-                      title="Excluir Playlist"
+                      title={isLoggedIn ? 'Excluir Playlist' : 'Faça login para excluir listas'}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -286,10 +354,11 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
+                            if (!requireAuth()) return;
                             onRemoveSongFromPlaylist(activePlaylist.id, song.id);
                           }}
                           className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-slate-200 cursor-pointer"
-                          title="Remover da lista"
+                          title={isLoggedIn ? 'Remover da lista' : 'Faça login para editar listas'}
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -302,7 +371,11 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
                   <Music className="w-10 h-10 text-slate-400 mx-auto mb-2" />
                   <p className="text-slate-600 text-sm font-semibold">Esta lista está vazia.</p>
                   <button
-                    onClick={() => setShowAddSongModal(true)}
+                    onClick={() => {
+                      if (!requireAuth()) return;
+                      setAddSongSearch('');
+                      setShowAddSongModal(true);
+                    }}
                     className="mt-3 px-4 py-2 rounded-xl bg-orange-500 text-white font-extrabold text-xs shadow-2xs"
                   >
                     Adicionar Cifras
@@ -401,15 +474,26 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
             onClick={(e) => e.stopPropagation()}
             className="bg-white border border-slate-200 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4"
           >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-xl font-extrabold text-slate-900">Criar Nova Lista / Playlist</h3>
-              <button
-                type="button"
-                onClick={() => setShowNewModal(false)}
-                className="text-slate-400 hover:text-slate-900 font-bold"
-              >
-                ✕
-              </button>
+            <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-3 min-w-0">
+              <div className="min-w-0">
+                <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 leading-tight">
+                  Criar Nova Lista
+                </h3>
+                <p className="text-[11px] font-bold text-slate-500 mt-0.5">
+                  Playlist da comunidade UkeMaster Pro
+                </p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <Logo size="sm" />
+                <button
+                  type="button"
+                  onClick={() => setShowNewModal(false)}
+                  className="text-slate-400 hover:text-slate-900 font-bold"
+                  aria-label="Fechar"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
 
             <div>
@@ -504,20 +588,57 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
             onClick={(e) => e.stopPropagation()}
             className="bg-white border border-slate-200 rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-4 max-h-[80vh] flex flex-col"
           >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-lg font-extrabold text-slate-900">
-                Adicionar Músicas a "{activePlaylist.title}"
-              </h3>
-              <button
-                onClick={() => setShowAddSongModal(false)}
-                className="text-slate-400 hover:text-slate-900 font-bold"
-              >
-                ✕
-              </button>
+            <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-3 min-w-0">
+              <div className="min-w-0">
+                <h3 className="text-base sm:text-lg font-extrabold text-slate-900 leading-tight">
+                  Adicionar Músicas
+                </h3>
+                <p className="text-xs font-bold text-orange-600 truncate mt-0.5 max-w-full">
+                  para "{activePlaylist.title}"
+                </p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <Logo size="sm" />
+                <button
+                  onClick={() => setShowAddSongModal(false)}
+                  className="text-slate-400 hover:text-slate-900 font-bold"
+                  aria-label="Fechar"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                value={addSongSearch}
+                onChange={(e) => setAddSongSearch(e.target.value)}
+                placeholder={`Buscar música ou artista... (${songs.length} na biblioteca)`}
+                aria-label="Buscar música ou artista"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-8 py-2 text-sm text-slate-900 focus:outline-none focus:border-orange-500 font-medium"
+              />
+              {addSongSearch && (
+                <button
+                  onClick={() => setAddSongSearch('')}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 font-bold px-1 cursor-pointer"
+                  aria-label="Limpar busca"
+                >
+                  ✕
+                </button>
+              )}
             </div>
 
             <div className="overflow-y-auto space-y-2 flex-1 pr-1">
-              {songs.map((song) => {
+              {addableSongs.length === 0 ? (
+                <div className="text-center py-10 bg-slate-50/70 rounded-xl border border-dashed border-slate-200">
+                  <Music className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                  <p className="text-sm font-extrabold text-slate-600">Nenhuma música encontrada</p>
+                  <p className="text-xs text-slate-400 mt-1">Tente outro título ou artista.</p>
+                </div>
+              ) : (
+                addableSongs.map((song) => {
                 const isAlreadyAdded = activePlaylist.songIds.includes(song.id);
                 return (
                   <div
@@ -543,7 +664,8 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
                     )}
                   </div>
                 );
-              })}
+              })
+              )}
             </div>
           </div>
         </div>

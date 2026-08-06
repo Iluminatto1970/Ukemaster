@@ -5,7 +5,7 @@ import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { Song, SONG_CATEGORIES, SONG_DIFFICULTIES } from '../types';
 import { ALL_KEYS, ALL_QUALITIES, findChord, CHORD_DATABASE } from '../data/chords';
 import { Save, ArrowLeft, Sparkles, Youtube, Edit, Eye, Volume2, Search, Plus, Columns, Music, Check, Info, ExternalLink, Share2, Tag, Copy, RefreshCw, Trash2 } from 'lucide-react';
-import { parseChordPro, extractUniqueChords, extractYouTubeId, generateSongSeoAndHashtags, UkuleleTabStep, generateUkuleleTabBlock, formatAndCleanTabs } from '../utils/chordUtils';
+import { parseChordPro, extractUniqueChords, extractYouTubeId, generateSongSeoAndHashtags, UkuleleTabStep, generateUkuleleTabBlock, formatAndCleanTabs, generateSimplifiedContent, isHardSong } from '../utils/chordUtils';
 import { useSongSeo } from '../hooks/useSongSeo';
 import { ChordDiagram } from './ChordDiagram';
 import { YouTubePlayer } from './YouTubePlayer';
@@ -187,13 +187,18 @@ export const SongEditor: React.FC<SongEditorProps> = ({
     category,
   });
 
-  // Automatically update SEO description and hashtags when title or artist changes (if empty or previously auto-generated)
+  // Automatically update SEO description and hashtags when title/artist/key/difficulty
+  // changes. IMPORTANTE: `autoSeo.hashtags` é um array NOVO a cada render (vem de
+  // useSongSeo → generateSongSeo, que não é memoizado em relação a `content`), então
+  // incluí-lo nas dependências causava "Maximum update depth exceeded" (loop infinito
+  // de setState a cada render). Depender só dos campos editáveis resolve o loop.
   useEffect(() => {
     if (title.trim() || artist.trim()) {
       setSeoDescription(autoSeo.seoDescription);
       setHashtags(autoSeo.hashtags);
     }
-  }, [title, artist, key, difficulty, autoSeo.seoDescription, autoSeo.hashtags]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [title, artist, key, difficulty]);
 
   const handleGenerateSeo = () => {
     setSeoDescription(autoSeo.seoDescription);
@@ -250,6 +255,13 @@ export const SongEditor: React.FC<SongEditorProps> = ({
       if (finalHashtags.length === 0) finalHashtags = seoData.hashtags;
     }
 
+    // Regenera as versões facilitadas (simples + média) sempre que a cifra
+    // for difícil — o app garante que TODA música difícil tem as 3 versões.
+    const finalContent = content.trim();
+    const hard = isHardSong(finalContent);
+    const simple = hard ? generateSimplifiedContent(finalContent, 'simple') : undefined;
+    const medium = hard ? generateSimplifiedContent(finalContent, 'medium') : undefined;
+
     const updatedSong: Song = {
       id: initialSong?.id || `song-${Date.now()}`,
       title: title.trim(),
@@ -258,10 +270,12 @@ export const SongEditor: React.FC<SongEditorProps> = ({
       category,
       tempo: tempo ? Number(tempo) : undefined,
       strummingPattern: strummingPattern.trim() || undefined,
-      difficulty,
+      difficulty: hard ? 'Avançado' : difficulty,
       youtubeUrl: youtubeUrl.trim() || undefined,
       youtubeId: cleanYtId || undefined,
-      content: content.trim(),
+      content: finalContent,
+      simplifiedContent: simple,
+      mediumContent: medium,
       seoDescription: finalSeo,
       hashtags: finalHashtags,
       createdAt: initialSong?.createdAt || new Date().toISOString(),
