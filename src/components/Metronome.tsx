@@ -6,10 +6,12 @@
  */
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Play, Pause, RotateCcw, Timer, HeartPulse } from 'lucide-react';
+import { useT } from '../lib/i18n';
 
 const clampBpm = (bpm: number) => Math.max(30, Math.min(240, bpm));
 
 export const Metronome: React.FC = () => {
+  const { t } = useT();
   const [bpm, setBpm] = useState<number>(90);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [subdivision, setSubdivision] = useState<string>('1/4');
@@ -138,10 +140,10 @@ export const Metronome: React.FC = () => {
         <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-4 mb-6">
           <div>
             <h2 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-              <Timer className="w-6 h-6 text-[#F26419]" /> Metrônomo
+              <Timer className="w-6 h-6 text-[#F26419]" /> {t('metronome.title')}
             </h2>
             <p className="text-xs text-slate-500 font-medium mt-1">
-              O ritmo da sua música em suas mãos — pratique com precisão.
+              {t('metronome.subtitle')}
             </p>
           </div>
           <span
@@ -151,7 +153,7 @@ export const Metronome: React.FC = () => {
                 : 'bg-slate-100 text-slate-500 border border-slate-200'
             }`}
           >
-            <HeartPulse className="w-3.5 h-3.5" /> {isRunning ? 'TOCANDO' : 'PARADO'}
+            <HeartPulse className="w-3.5 h-3.5" /> {isRunning ? t('metronome.playing') : t('metronome.stopped')}
           </span>
         </div>
 
@@ -215,14 +217,14 @@ export const Metronome: React.FC = () => {
             }`}
           >
             {isRunning ? <Pause className="w-5 h-5 fill-white" /> : <Play className="w-5 h-5 fill-white" />}
-            {isRunning ? 'Pausar' : 'Iniciar'}
+            {isRunning ? t('metronome.pause') : t('metronome.start')}
           </button>
           <button
             onClick={handleTap}
             className="px-5 py-3 rounded-2xl bg-slate-100 border border-slate-200 text-slate-700 hover:border-orange-400 font-bold text-xs transition-colors cursor-pointer"
-            title="Toque no ritmo para descobrir o BPM"
+            title={t('metronome.tapTitle')}
           >
-            👆 Tap Tempo
+            {t('metronome.tap')}
           </button>
           <button
             onClick={() => {
@@ -233,7 +235,7 @@ export const Metronome: React.FC = () => {
               tapsRef.current = [];
             }}
             className="p-3 rounded-2xl bg-slate-100 border border-slate-200 text-slate-500 hover:text-rose-500 hover:border-rose-300 transition-colors cursor-pointer"
-            title="Resetar tudo"
+            title={t('metronome.resetTitle')}
           >
             <RotateCcw className="w-4 h-4" />
           </button>
@@ -243,7 +245,7 @@ export const Metronome: React.FC = () => {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mb-2">
-              Subdivisão
+              {t('metronome.subdivision')}
             </label>
             <div className="flex gap-1.5 flex-wrap">
               {Object.keys(subdivisionsPerBeat).map((s) => (
@@ -263,7 +265,7 @@ export const Metronome: React.FC = () => {
           </div>
           <div>
             <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mb-2">
-              Compasso
+              {t('metronome.timeSig')}
             </label>
             <div className="flex gap-1.5 flex-wrap">
               {[
@@ -290,9 +292,7 @@ export const Metronome: React.FC = () => {
       </div>
 
       <p className="text-[10px] text-slate-400 max-w-2xl leading-relaxed flex items-start gap-1.5">
-        💡 Dica: abra uma cifra com o ritmo indicado (ex.: 4/4 a 100 BPM) e treine
-        junto com a batida. Para praticar com o metrônomo enquanto lê a cifra,
-        abra-o em outra janela ou use o botão na página da música.
+        {t('metronome.tip')}
       </p>
     </div>
   );

@@ -5,12 +5,14 @@ import React, { useState } from 'react';
 import { CHORD_DATABASE, ALL_KEYS, ALL_QUALITIES } from '../data/chords';
 import { getAllGeneratedChords, getOrGenerateChord } from '../utils/chordGenerator';
 import { CHORDS_HYDRATED_EVENT } from '../lib/chordCache';
+import { useT } from '../lib/i18n';
 import { ChordDiagram } from './ChordDiagram';
 import { Search, Volume2, Sparkles, Filter, Music2, Zap } from 'lucide-react';
 import { playUkuleleChord } from '../utils/audio';
 import { AdSenseSlot } from './AdSenseSlot';
 
 export const ChordDictionary: React.FC = () => {
+  const { t } = useT();
   const [selectedKey, setSelectedKey] = useState<string>('C');
   const [selectedQuality, setSelectedQuality] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -56,6 +58,27 @@ export const ChordDictionary: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, getAllGeneratedChords().length]);
 
+  const diffLabel = (d?: string) =>
+    d === 'fácil' ? t('dictionary.difficultyEasy') : d === 'médio' ? t('dictionary.difficultyMedium') : d ? t('dictionary.difficultyHard') : '';
+
+  // Labels dos chips de tipo de acorde: o ALL_QUALITIES (data/chords.ts) tem
+  // texto hardcoded em PT — aqui mapeamos para as chaves i18n de cada idioma.
+  const qualityLabel = (id: string) =>
+    ({
+      Maior: t('dictionary.qMaior'),
+      Menor: t('dictionary.qMenor'),
+      '7': t('dictionary.q7'),
+      m7: t('dictionary.qm7'),
+      maj7: t('dictionary.qmaj7'),
+      '6': t('dictionary.q6'),
+      m6: t('dictionary.qm6'),
+      sus4: t('dictionary.qsus4'),
+      sus2: t('dictionary.qsus2'),
+      add9: t('dictionary.qadd9'),
+      dim: t('dictionary.qdim'),
+      m7b5: t('dictionary.qm7b5'),
+    }[id] ?? id);
+
   const filteredChords = allChords.filter((chord) => {
     if (searchQuery.trim()) {
       const q = searchQuery.trim().toLowerCase();
@@ -93,35 +116,35 @@ export const ChordDictionary: React.FC = () => {
         </div>
         <div className="relative z-10 max-w-2xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 text-orange-600 text-xs font-bold mb-3 border border-orange-200">
-            <Sparkles className="w-3.5 h-3.5" /> Dicionário de Acordes para Ukulele
+            <Sparkles className="w-3.5 h-3.5" /> {t('dictionary.badge')}
           </div>
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            Explore e Aprenda Acordes
+            {t('dictionary.title')}
           </h2>
           <p className="text-slate-600 text-sm sm:text-base mt-2">
-            Visualização precisa das posições dos dedos nas 4 cordas (G C E A) com áudio real e variações de dedilhado.
+            {t('dictionary.subtitle')}
           </p>
         </div>
       </div>
 
-      <AdSenseSlot format="horizontal" label="Anúncio Google • Dicionário de Acordes" />
+      <AdSenseSlot format="horizontal" label={t('viewer.adGoogle')} />
 
       {/* Sub-tabs: Dicionário | Campo Harmônico */}
       <div className="flex items-center gap-2 border-b border-slate-200 pb-px">
         {[
-          { id: 'acordes' as const, label: 'Dicionário de Acordes' },
-          { id: 'campo' as const, label: 'Campo Harmônico' },
-        ].map((t) => (
+          { id: 'acordes' as const, label: t('dictionary.tabChords') },
+          { id: 'campo' as const, label: t('dictionary.tabHarmonic') },
+        ].map((tb) => (
           <button
-            key={t.id}
-            onClick={() => setActiveSection(t.id)}
+            key={tb.id}
+            onClick={() => setActiveSection(tb.id)}
             className={`text-xs font-extrabold uppercase tracking-wider pb-2.5 px-1 transition-all cursor-pointer ${
-              activeSection === t.id
+              activeSection === tb.id
                 ? 'text-slate-900 border-b-2 border-orange-500'
                 : 'text-slate-400 font-bold hover:text-slate-700'
             }`}
           >
-            {t.label}
+            {tb.label}
           </button>
         ))}
       </div>
@@ -131,7 +154,7 @@ export const ChordDictionary: React.FC = () => {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <label className="text-xs font-extrabold text-slate-500 uppercase tracking-wider block mb-2">
-                Tom:
+                {t('dictionary.key')}
               </label>
               <div className="flex flex-wrap gap-1.5">
                 {ALL_KEYS.map((k) => (
@@ -151,12 +174,12 @@ export const ChordDictionary: React.FC = () => {
             </div>
             <div>
               <label className="text-xs font-extrabold text-slate-500 uppercase tracking-wider block mb-2">
-                Modo:
+                {t('dictionary.mode')}
               </label>
               <div className="flex gap-1.5">
                 {[
-                  { id: 'maior' as const, label: 'Maior' },
-                  { id: 'menor' as const, label: 'Menor' },
+                  { id: 'maior' as const, label: t('dictionary.major') },
+                  { id: 'menor' as const, label: t('dictionary.minor') },
                 ].map((m) => (
                   <button
                     key={m.id}
@@ -175,9 +198,9 @@ export const ChordDictionary: React.FC = () => {
           </div>
 
           <p className="text-xs text-slate-500 font-medium leading-relaxed">
-            Acordes do campo harmônico de{' '}
-            <strong className="text-[#F26419] font-black">{selectedKey} {campoMode === 'maior' ? 'maior' : 'menor'}</strong>
-            {' '}— toque-os em sequência para acompanhar músicas nesse tom.
+            {t('dictionary.harmonicField')}{' '}
+            <strong className="text-[#F26419] font-black">{selectedKey} {campoMode === 'maior' ? t('dictionary.major') : t('dictionary.minor')}</strong>
+            {' '}{t('dictionary.playSequence')}
           </p>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
@@ -209,7 +232,7 @@ export const ChordDictionary: React.FC = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Buscar por nome do acorde (ex: Am, F#m, Cmaj7, G7)..."
+            placeholder={t('dictionary.searchPlaceholder')}
             className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-orange-500 transition-colors text-sm font-medium"
           />
           {searchQuery && (
@@ -217,7 +240,7 @@ export const ChordDictionary: React.FC = () => {
               onClick={() => setSearchQuery('')}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-500 hover:text-slate-900 font-bold"
             >
-              Limpar
+              {t('dictionary.clear')}
             </button>
           )}
         </div>
@@ -227,7 +250,7 @@ export const ChordDictionary: React.FC = () => {
             {/* Key Selector Buttons */}
             <div>
               <label className="text-xs font-extrabold text-slate-500 uppercase tracking-wider block mb-2">
-                Tom / Tônica:
+                {t('dictionary.rootKey')}
               </label>
               <div className="flex flex-wrap gap-1.5">
                 {ALL_KEYS.map((k) => (
@@ -249,7 +272,7 @@ export const ChordDictionary: React.FC = () => {
             {/* Quality Filter Chips */}
             <div>
               <label className="text-xs font-extrabold text-slate-500 uppercase tracking-wider block mb-2">
-                Tipo de Acorde:
+                {t('dictionary.chordType')}
               </label>
               <div className="flex flex-wrap gap-2">
                 <button
@@ -260,7 +283,7 @@ export const ChordDictionary: React.FC = () => {
                       : 'bg-slate-50 text-slate-600 border border-slate-200 hover:text-slate-900'
                   }`}
                 >
-                  Todos
+                  {t('dictionary.all')}
                 </button>
                 {ALL_QUALITIES.map((q) => (
                   <button
@@ -272,7 +295,7 @@ export const ChordDictionary: React.FC = () => {
                         : 'bg-slate-50 text-slate-600 border border-slate-200 hover:text-slate-900'
                     }`}
                   >
-                    {q.label}
+                    {qualityLabel(q.id)}
                   </button>
                 ))}
               </div>
@@ -295,17 +318,16 @@ export const ChordDictionary: React.FC = () => {
                     {liveSearchChord.name}
                     <span
                       className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-[#F26419] text-[10px] font-extrabold uppercase tracking-wide border border-amber-300"
-                      title="Diagrama gerado automaticamente pela teoria musical"
+                      title={t('dictionary.generatedTitle')}
                     >
-                      <Zap className="w-3 h-3" /> Gerado agora
+                      <Zap className="w-3 h-3" /> {t('dictionary.generatedNow')}
                     </span>
                   </h3>
                   <span className="text-xs text-slate-500 font-medium">
-                    Tônica: {liveSearchChord.key} • {liveSearchChord.quality}
+                    {t('dictionary.tonic')} {liveSearchChord.key} • {liveSearchChord.quality}
                   </span>
                   <p className="text-[11px] text-amber-700 mt-1.5 font-medium">
-                    ⚡ Este acorde não estava no dicionário e foi gerado pela teoria musical
-                    — já está disponível em todo o portal (busca, cifras e downloads).
+                    {t('dictionary.generatedBadge')}
                   </p>
                 </div>
                 {liveSearchChord.difficulty && (
@@ -318,7 +340,7 @@ export const ChordDictionary: React.FC = () => {
                         : 'bg-rose-50 text-rose-700 border border-rose-200'
                     }`}
                   >
-                    {liveSearchChord.difficulty}
+                    {diffLabel(liveSearchChord.difficulty)}
                   </span>
                 )}
               </div>
@@ -340,7 +362,7 @@ export const ChordDictionary: React.FC = () => {
               onClick={() => playUkuleleChord(liveSearchChord.fingerings[0].frets)}
               className="w-full mt-4 py-2.5 rounded-xl bg-amber-500 hover:bg-[#F26419] text-white text-xs font-extrabold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
             >
-              <Volume2 className="w-4 h-4" /> Tocar Som do Acorde
+              <Volume2 className="w-4 h-4" /> {t('dictionary.playChordSound')}
             </button>
           </div>
         </div>
@@ -359,9 +381,9 @@ export const ChordDictionary: React.FC = () => {
                       {chord.generated && (
                         <span
                           className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-[#F26419] text-[10px] font-extrabold uppercase tracking-wide border border-amber-300"
-                          title="Diagrama gerado automaticamente pela teoria musical"
+                          title={t('dictionary.generatedTitle')}
                         >
-                          <Zap className="w-3 h-3" /> Gerado
+                          <Zap className="w-3 h-3" /> {t('dictionary.generated')}
                         </span>
                       )}
                       {chord.aliases && chord.aliases.some((a) => a !== chord.name) && (
@@ -371,11 +393,11 @@ export const ChordDictionary: React.FC = () => {
                       )}
                     </h3>
                     <span className="text-xs text-slate-500 font-medium">
-                      Tônica: {chord.key} • {chord.quality}
+                      {t('dictionary.tonic')} {chord.key} • {chord.quality}
                     </span>
                     {chord.aliases && chord.aliases.length > 1 && (
                       <div className="text-[10px] text-orange-600/80 mt-0.5 font-medium">
-                        Outras grafias: {chord.aliases.join(', ')}
+                        {t('dictionary.otherSpellings')} {chord.aliases.join(', ')}
                       </div>
                     )}
                   </div>
@@ -389,7 +411,7 @@ export const ChordDictionary: React.FC = () => {
                           : 'bg-rose-50 text-rose-700 border border-rose-200'
                       }`}
                     >
-                      {chord.difficulty}
+                      {diffLabel(chord.difficulty)}
                     </span>
                   )}
                 </div>
@@ -413,7 +435,7 @@ export const ChordDictionary: React.FC = () => {
                 onClick={() => playUkuleleChord(chord.fingerings[0].frets)}
                 className="w-full mt-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 hover:bg-orange-500 hover:text-white text-orange-600 text-xs font-extrabold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
               >
-                <Volume2 className="w-4 h-4" /> Tocar Som do Acorde
+                <Volume2 className="w-4 h-4" /> {t('dictionary.playChordSound')}
               </button>
             </div>
           ))}
@@ -421,9 +443,9 @@ export const ChordDictionary: React.FC = () => {
       ) : (
         <div className="text-center py-12 bg-white border border-slate-200/90 rounded-2xl p-8">
           <Filter className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-          <h3 className="text-lg font-bold text-slate-800">Nenhum acorde encontrado</h3>
+          <h3 className="text-lg font-bold text-slate-800">{t('dictionary.noResults')}</h3>
           <p className="text-slate-500 text-sm mt-1">
-            Tente buscar por outro termo ou selecione um tom diferente.
+            {t('dictionary.noResultsHint')}
           </p>
         </div>
       )}

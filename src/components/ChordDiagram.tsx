@@ -5,6 +5,7 @@ import React from 'react';
 import { ChordFingering } from '../types';
 import { playUkuleleChord } from '../utils/audio';
 import { Volume2 } from 'lucide-react';
+import { useT } from '../lib/i18n';
 
 interface ChordDiagramProps {
   chordName: string;
@@ -21,6 +22,7 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({
   showPlayButton = true,
   className = '',
 }) => {
+  const { t } = useT();
   const { frets, fingers = [0, 0, 0, 0], barreFret, baseFret = 1 } = fingering;
 
   // Dimensions based on size
@@ -59,7 +61,7 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({
         {showPlayButton && (
           <button
             onClick={handlePlay}
-            title="Ouvir som do acorde"
+            title={t('dictionary.playChordTooltip')}
             className="p-1 rounded-full bg-[#FEF0E8] text-[#F26419] hover:bg-[#F26419] hover:text-white transition-colors cursor-pointer"
           >
             <Volume2 className="w-3.5 h-3.5" />
@@ -67,8 +69,15 @@ export const ChordDiagram: React.FC<ChordDiagramProps> = ({
         )}
       </div>
 
-      {/* SVG Fretboard */}
-      <svg width={width} height={height} className="overflow-visible">
+      {/* SVG Fretboard — viewBox + max-width 100%: o diagrama escala para
+          caber no card (nunca estoura a coluna), mantendo a proporção. */}
+      <svg
+        width={width}
+        height={height}
+        viewBox={`0 0 ${width} ${height}`}
+        className="overflow-visible max-w-full h-auto"
+        style={{ maxWidth: '100%', height: 'auto' }}
+      >
         {/* Base fret label if starting higher than fret 1 */}
         {baseFret > 1 && (
           <text

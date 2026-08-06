@@ -5,6 +5,7 @@
 import React, { useMemo, useState } from 'react';
 import type { BlogPost } from '../types';
 import { renderPostContent } from '../lib/blogContent.tsx';
+import { useT } from '../lib/i18n';
 import { Newspaper, ArrowLeft, Calendar, Clock, Tag } from 'lucide-react';
 
 interface BlogTabProps {
@@ -12,6 +13,7 @@ interface BlogTabProps {
 }
 
 export const BlogTab: React.FC<BlogTabProps> = ({ posts }) => {
+  const { t } = useT();
   const published = useMemo(
     () =>
       posts
@@ -39,7 +41,7 @@ export const BlogTab: React.FC<BlogTabProps> = ({ posts }) => {
           onClick={() => setSelectedId(null)}
           className="flex items-center gap-1.5 text-slate-700 hover:text-orange-600 font-extrabold text-xs px-3 py-2 rounded-xl bg-slate-100 border border-slate-200 hover:border-orange-400 transition-colors cursor-pointer"
         >
-          <ArrowLeft className="w-4 h-4" /> Voltar ao Blog
+          <ArrowLeft className="w-4 h-4" /> {t('viewer.back')} {t('tab.blog')}
         </button>
 
         <article className="bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-8 shadow-2xs">
@@ -92,12 +94,11 @@ export const BlogTab: React.FC<BlogTabProps> = ({ posts }) => {
         </div>
         <div className="relative z-10 max-w-2xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 text-orange-600 text-xs font-bold mb-3 border border-orange-200">
-            <Newspaper className="w-3.5 h-3.5" /> Dicas, Técnicas & Novidades
+            <Newspaper className="w-3.5 h-3.5" /> {t('blog.comingSoon').replace('artigos', 'Dicas, Técnicas & Novidades')}
           </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Blog do UkeMaster</h2>
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">{t('blog.title')}</h2>
           <p className="text-slate-600 text-sm sm:text-base mt-2">
-            Artigos para você evoluir no ukulele: afinação, técnicas, repertório e
-            os melhores acessórios para o seu instrumento.
+            {t('blog.comingSoon')}
           </p>
         </div>
       </div>
@@ -113,7 +114,7 @@ export const BlogTab: React.FC<BlogTabProps> = ({ posts }) => {
                 : 'bg-white border border-slate-200 text-slate-600 hover:border-orange-300'
             }`}
           >
-            Todos
+            {t('dictionary.all')}
           </button>
           {categories.map((c) => (
             <button
@@ -159,7 +160,7 @@ export const BlogTab: React.FC<BlogTabProps> = ({ posts }) => {
                 </p>
               )}
               <span className="mt-3 text-[11px] font-extrabold text-[#F26419] flex items-center gap-1">
-                Ler artigo <ArrowLeft className="w-3 h-3 rotate-180" />
+                {t('viewer.back')} artigo <ArrowLeft className="w-3 h-3 rotate-180" />
               </span>
             </button>
           ))}
@@ -167,9 +168,9 @@ export const BlogTab: React.FC<BlogTabProps> = ({ posts }) => {
       ) : (
         <div className="text-center py-14 bg-white border border-slate-200/90 rounded-2xl p-8">
           <Newspaper className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-          <h3 className="text-base font-extrabold text-slate-800">Em breve: artigos!</h3>
+          <h3 className="text-base font-extrabold text-slate-800">{t('blog.comingSoon')}</h3>
           <p className="text-slate-500 text-xs mt-1">
-            Os artigos do blog aparecem aqui assim que o proprietário publicar.
+            {t('blog.comingSoon')}
           </p>
         </div>
       )}

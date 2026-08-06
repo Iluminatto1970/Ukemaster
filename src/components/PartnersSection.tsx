@@ -5,6 +5,7 @@
 import React, { useMemo, useState } from 'react';
 import { PartnerLink } from '../types';
 import { youtubeIdFromUrl } from '../lib/affiliateContent';
+import { useT } from '../lib/i18n';
 import { PlayCircle, GraduationCap, Link2, ExternalLink, Youtube, AlertCircle, MessageCircle } from 'lucide-react';
 
 /** WhatsApp do proprietário — contato para parcerias (cursos/canais). */
@@ -25,6 +26,7 @@ export const PartnersSection: React.FC<PartnersSectionProps> = ({
   maxPerType = 3,
   compact = false,
 }) => {
+  const { t } = useT();
   const active = useMemo(
     () =>
       partners
@@ -48,8 +50,7 @@ export const PartnersSection: React.FC<PartnersSectionProps> = ({
   return (
     <div className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-2xs space-y-4">
       <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-        <h3 className="font-black text-slate-900 uppercase text-xs tracking-wider flex items-center gap-2">
-          <GraduationCap className="w-4 h-4 text-[#0E7C7B]" /> Parceiros & Cursos
+        <h3 className="font-black text-slate-900 uppercase text-xs tracking-wider flex items-center gap-2">            <GraduationCap className="w-4 h-4 text-[#0E7C7B]" /> Parceiros & Cursos
         </h3>
         <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
           {compact ? '' : 'Aprenda mais'}
@@ -182,9 +183,8 @@ export const PartnersSection: React.FC<PartnersSectionProps> = ({
         <div className="flex items-start gap-2">
           <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-600" />
           <p className="text-[10px] text-amber-800 font-semibold leading-relaxed">
-            Conteúdo de <strong>parceiros</strong>. Ao acessar, você apoia o UkeMaster
-            sem pagar nada a mais (podemos receber comissão). Quer divulgar seu
-            curso/canal? Fale conosco no WhatsApp. 💚
+            {t('partners.notice')}
+            . Quer divulgar seu curso/canal? Fale conosco no WhatsApp. 💚
           </p>
         </div>
         <a

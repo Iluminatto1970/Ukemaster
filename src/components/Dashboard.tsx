@@ -3,6 +3,7 @@
  */
 import React, { useState } from 'react';
 import { Song, Playlist } from '../types';
+import { useT } from '../lib/i18n';
 import {
   FolderHeart,
   Sparkles,
@@ -54,6 +55,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onGoToPublicSongs,
   onDownloadRepertoire,
 }) => {
+  const { t } = useT();
   const [downloading, setDownloading] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'estudando' | 'dominado'>('all');
@@ -96,13 +98,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="relative z-10 max-w-2xl space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F26419] text-white text-xs font-black tracking-wider uppercase">
               <Lock className="w-3.5 h-3.5" />
-              Área Privada do Músico
+              {t('dashboard.privateArea')}
             </div>
             <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-              Seu Dashboard & Repertório Pessoal
+              {t('dashboard.dashboardTitle')}
             </h1>
             <p className="text-teal-100 text-sm leading-relaxed">
-              Enquanto o acervo de **músicas e playlists é 100% público**, seu repertório de estudos é **estritamente privado** e exclusivo da sua conta!
+              {t('dashboard.dashboardDesc')}
             </p>
             <div className="pt-2 flex flex-wrap gap-3">
               <button
@@ -110,13 +112,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 className="px-6 py-3 rounded-2xl bg-[#F26419] hover:bg-[#D9530D] text-white font-extrabold text-xs tracking-wider uppercase shadow-md flex items-center gap-2 transition-all cursor-pointer"
               >
                 <Sparkles className="w-4 h-4" />
-                Criar Minha Conta Grátis
+                {t('dashboard.createFreeAccount')}
               </button>
               <button
                 onClick={() => onOpenAuth('login')}
                 className="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-extrabold text-xs tracking-wider uppercase transition-all cursor-pointer"
               >
-                Já Tenho Conta (Entrar)
+                {t('dashboard.haveAccount')}
               </button>
             </div>
           </div>
@@ -128,9 +130,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <div className="w-10 h-10 rounded-xl bg-orange-50 text-[#F26419] flex items-center justify-center font-bold">
               <FolderHeart className="w-5 h-5" />
             </div>
-            <h3 className="font-extrabold text-slate-900 text-base">Repertório 100% Privado</h3>
+            <h3 className="font-extrabold text-slate-900 text-base">{t('dashboard.private')}</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Guarde suas cifras prediletas em uma lista própria que só você tem acesso no seu painel.
+              {t('dashboard.privateDesc')}
             </p>
           </div>
 
@@ -138,9 +140,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#0E7C7B] flex items-center justify-center font-bold">
               <Award className="w-5 h-5" />
             </div>
-            <h3 className="font-extrabold text-slate-900 text-base">Evolução & Treino</h3>
+            <h3 className="font-extrabold text-slate-900 text-base">{t('dashboard.evolution')}</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Acompanhe seu nível em cada música, anotando tons preferidos e estapas de aprendizado.
+              {t('dashboard.evolutionDesc')}
             </p>
           </div>
 
@@ -148,9 +150,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
               <Lock className="w-5 h-5" />
             </div>
-            <h3 className="font-extrabold text-slate-900 text-base">Seu Repertório é Só Seu</h3>
+            <h3 className="font-extrabold text-slate-900 text-base">{t('dashboard.yours')}</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              O acervo de cifras é 100% livre para todos — só o repertório privado é exclusivo da sua conta.
+              {t('dashboard.yoursDesc')}
             </p>
           </div>
         </div>
@@ -170,10 +172,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-black uppercase tracking-wider text-teal-200">
-                  Dashboard do Músico
+                  {t('dashboard.musicianDashboard')}
                 </span>
                 <span className="px-2 py-0.2 rounded-full bg-emerald-500 text-white text-[10px] font-extrabold">
-                  Conta Ativa
+                  {t('dashboard.activeAccount')}
                 </span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-black text-white">{currentUser.name}</h1>
@@ -187,7 +189,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               className="px-4 py-2.5 rounded-xl bg-[#F26419] hover:bg-[#D9530D] text-white font-extrabold text-xs tracking-wider uppercase shadow-sm flex items-center gap-2 transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4" />
-              Explorar Músicas Públicas
+              {t('dashboard.explorePublic')}
             </button>
           </div>
         </div>
@@ -196,30 +198,30 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-white/10">
           <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/10">
             <span className="text-[10px] text-teal-100 font-extrabold uppercase tracking-wider block">
-              Repertório Privado
+              {t('dashboard.privateRepertoire')}
             </span>
-            <span className="text-xl font-black text-white">{repertoireSongs.length} músicas</span>
+            <span className="text-xl font-black text-white">{repertoireSongs.length} {t('dashboard.songsCount')}</span>
           </div>
 
           <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/10">
             <span className="text-[10px] text-teal-100 font-extrabold uppercase tracking-wider block">
-              Acervo Público
+              {t('dashboard.publicCatalog')}
             </span>
-            <span className="text-xl font-black text-white">{songs.length} disponíveis</span>
+            <span className="text-xl font-black text-white">{songs.length} {t('dashboard.available')}</span>
           </div>
 
           <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/10">
             <span className="text-[10px] text-teal-100 font-extrabold uppercase tracking-wider block">
-              Playlists no Portal
+              {t('dashboard.playlistsPortal')}
             </span>
-            <span className="text-xl font-black text-white">{playlists.length} listas</span>
+            <span className="text-xl font-black text-white">{playlists.length} {t('dashboard.lists')}</span>
           </div>
 
           <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/10">
             <span className="text-[10px] text-teal-100 font-extrabold uppercase tracking-wider block">
-              Status do Acesso
+              {t('dashboard.accessStatus')}
             </span>
-            <span className="text-sm font-black text-emerald-300">🔓 Desbloqueado</span>
+            <span className="text-sm font-black text-emerald-300">{t('dashboard.unlocked')}</span>
           </div>
         </div>
       </div>
@@ -231,11 +233,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <div className="flex items-center gap-2">
               <FolderHeart className="w-5 h-5 text-[#F26419]" />
               <h2 className="text-xl font-black text-slate-900 tracking-tight">
-                Meu Repertório Privado
+                {t('dashboard.myPrivateRepertoire')}
               </h2>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              Esta lista é individual do seu usuário — as músicas são públicas para todos, mas seu repertório é só seu (a menos que você o torne público).
+              {t('dashboard.myPrivateDesc')}
             </p>
           </div>
 
@@ -245,7 +247,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <button
                 onClick={handleDownloadRepertoire}
                 disabled={downloading || repertoireSongs.length === 0}
-                title={filteredRepertoire.length === 0 ? 'Adicione músicas para baixar' : 'Baixar seu repertório com letras e diagramas'}
+                title={filteredRepertoire.length === 0 ? t('dashboard.addSongsToDownload') : t('dashboard.downloadRepertoireTitle')}
                 className="px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5 border transition-all cursor-pointer bg-[#0E7C7B] text-white border-[#0E7C7B] shadow-xs hover:bg-[#0A5F5E] disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {downloading ? (
@@ -253,14 +255,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 ) : (
                   <Download className="w-4 h-4" />
                 )}
-                {downloading ? 'Preparando…' : 'Baixar Repertório'}
+                {downloading ? t('dashboard.preparing') : t('dashboard.downloadRepertoire')}
               </button>
             )}
 
             {/* Public/Private Toggle */}
             <button
               onClick={onToggleRepertoirePublic}
-              title={isRepertoirePublic ? 'Seu repertório está visível para a comunidade' : 'Compartilhar meu repertório com a comunidade'}
+              title={isRepertoirePublic ? t('dashboard.visibleCommunity') : t('dashboard.shareCommunity')}
               className={`px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5 border transition-all cursor-pointer ${
                 isRepertoirePublic
                   ? 'bg-[#0E7C7B] text-white border-[#0E7C7B] shadow-xs hover:bg-[#0A5F5E]'
@@ -269,11 +271,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
             >
               {isRepertoirePublic ? (
                 <>
-                  <Globe className="w-4 h-4" /> Repertório Público
+                  <Globe className="w-4 h-4" /> {t('dashboard.publicRepertoire')}
                 </>
               ) : (
                 <>
-                  <Globe className="w-4 h-4 text-slate-400" /> Tornar Público
+                  <Globe className="w-4 h-4 text-slate-400" /> {t('dashboard.makePublic')}
                 </>
               )}
             </button>
@@ -285,7 +287,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar no meu repertório..."
+                placeholder={t('dashboard.search')}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-orange-500"
               />
             </div>
@@ -297,9 +299,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="flex items-start gap-2.5 px-3.5 py-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800">
             <Globe className="w-4 h-4 shrink-0 mt-0.5 text-[#0E7C7B]" />
             <p className="text-xs font-bold leading-relaxed">
-              Seu repertório está <span className="uppercase">PÚBLICO</span> — ele aparece em
-              "Playlists & Listas Públicas → Repertórios da Comunidade" e qualquer músico pode
-              ver e tocar suas seleções. Clique em "Repertório Público" para voltar a ser privado.
+              {t('dashboard.publicBanner')}
             </p>
           </div>
         )}
@@ -309,16 +309,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="py-12 text-center space-y-3 bg-slate-50/70 rounded-2xl border border-dashed border-slate-200">
             <Music className="w-10 h-10 text-slate-300 mx-auto" />
             <h3 className="text-sm font-extrabold text-slate-700">
-              {searchQuery ? 'Nenhuma música encontrada na busca' : 'Seu repertório privado está vazio'}
+              {searchQuery ? t('dashboard.noSearchResults') : t('dashboard.emptyRepertoire')}
             </h3>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              Navegue pelas músicas públicas e clique em **"⭐ Adicionar ao Meu Repertório"** para montar seu cancioneiro particular.
+              {t('dashboard.emptyHint')}
             </p>
             <button
               onClick={onGoToPublicSongs}
               className="px-4 py-2 rounded-xl bg-[#F26419] text-white font-extrabold text-xs transition-all cursor-pointer inline-flex items-center gap-1.5"
             >
-              <Search className="w-3.5 h-3.5" /> Ver Músicas Públicas
+              <Search className="w-3.5 h-3.5" /> {t('dashboard.viewPublicSongs')}
             </button>
           </div>
         ) : (
@@ -337,7 +337,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       {song.title}
                     </h3>
                     <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded border border-orange-200 shrink-0">
-                      Tom {song.key}
+                      {t('dashboard.key')} {song.key}
                     </span>
                   </div>
                   <p className="text-xs text-slate-600 font-medium">{song.artist}</p>
@@ -361,13 +361,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     onClick={() => onSelectSong(song)}
                     className="text-[#F26419] font-extrabold hover:underline inline-flex items-center gap-1 cursor-pointer"
                   >
-                    <Play className="w-3 h-3 fill-current" /> Tocar Cifra
+                    <Play className="w-3 h-3 fill-current" /> {t('dashboard.play')}
                   </button>
 
                   <button
                     onClick={() => onRemoveFromRepertoire(song.id)}
                     className="text-slate-400 hover:text-rose-600 p-1 rounded-md hover:bg-rose-50 transition-colors cursor-pointer"
-                    title="Remover do meu repertório privado"
+                    title={t('dashboard.removeFromRepertoire')}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>

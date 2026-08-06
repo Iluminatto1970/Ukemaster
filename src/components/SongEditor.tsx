@@ -4,6 +4,7 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { Song, SONG_CATEGORIES, SONG_DIFFICULTIES } from '../types';
 import { ALL_KEYS, ALL_QUALITIES, findChord, CHORD_DATABASE } from '../data/chords';
+import { useT } from '../lib/i18n';
 import { Save, ArrowLeft, Sparkles, Youtube, Edit, Eye, Volume2, Search, Plus, Columns, Music, Check, Info, ExternalLink, Share2, Tag, Copy, RefreshCw, Trash2 } from 'lucide-react';
 import { parseChordPro, extractUniqueChords, extractYouTubeId, generateSongSeoAndHashtags, UkuleleTabStep, generateUkuleleTabBlock, formatAndCleanTabs, generateSimplifiedContent, isHardSong } from '../utils/chordUtils';
 import { useSongSeo } from '../hooks/useSongSeo';
@@ -30,6 +31,23 @@ export const SongEditor: React.FC<SongEditorProps> = ({
   onDelete,
   isAdmin = false,
 }) => {
+  const { t } = useT();
+  // Labels dos chips de tipo de acorde (ALL_QUALITIES tem texto hardcoded em PT).
+  const qualityLabel = (id: string) =>
+    ({
+      Maior: t('dictionary.qMaior'),
+      Menor: t('dictionary.qMenor'),
+      '7': t('dictionary.q7'),
+      m7: t('dictionary.qm7'),
+      maj7: t('dictionary.qmaj7'),
+      '6': t('dictionary.q6'),
+      m6: t('dictionary.qm6'),
+      sus4: t('dictionary.qsus4'),
+      sus2: t('dictionary.qsus2'),
+      add9: t('dictionary.qadd9'),
+      dim: t('dictionary.qdim'),
+      m7b5: t('dictionary.qm7b5'),
+    }[id] ?? id);
   const [title, setTitle] = useState<string>(initialSong?.title || '');
   const [artist, setArtist] = useState<string>(initialSong?.artist || '');
   const [key, setKey] = useState<string>(initialSong?.key || 'C');
@@ -618,7 +636,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({
                 {/* Qualities Bar */}
                 <div>
                   <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block mb-1">
-                    Qualidade / Tipo:
+                    {t('songEditor.quality')}
                   </span>
                   <div className="flex flex-wrap gap-1">
                     {ALL_QUALITIES.map((q) => (
@@ -632,7 +650,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({
                             : 'bg-slate-100 text-slate-600 border border-slate-200 hover:text-slate-900'
                         }`}
                       >
-                        {q.label}
+                        {qualityLabel(q.id)}
                       </button>
                     ))}
                   </div>

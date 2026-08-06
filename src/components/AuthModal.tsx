@@ -14,6 +14,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, Mail, Lock, User, Phone, Loader2, Sparkles, AlertCircle } from 'lucide-react';
 import { signInWithPassword, signUp, signInWithOAuth, SupabaseSession } from '../lib/supabaseAuth';
 import { saveLead, normalizeWhatsApp } from '../lib/leads';
+import { useT } from '../lib/i18n';
 import { Logo } from './Logo';
 
 export type AuthModalMode = 'signin' | 'signup';
@@ -49,6 +50,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onClose,
   onAuthenticated,
 }) => {
+  const { t } = useT();
   const [formMode, setFormMode] = useState<AuthModalMode>(mode);
   const [name, setName] = useState('');
   const [whatsapp, setWhatsapp] = useState('');
@@ -124,9 +126,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       if (result.mode === 'popup' && result.popup) {
         googlePopupRef.current = result.popup;
         googleDoneRef.current = false;
-        setInfo(
-          'Abra a janela do Google e faça login. Ao concluir, você volta automaticamente.'
-        );
+        setInfo(t('auth.googlePopup'));
         // Monitora a popup: se o usuário fechar SEM autenticar, libera o botão
         // de novo (com aviso em vez de ficar preso em "carregando" para sempre).
         // No SUCESSO, o AuthProvider fecha o modal (isOpen=false) → o cleanup
@@ -137,7 +137,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             googleWatchRef.current = null;
             setSubmitting(false);
             setInfo('');
-            setError('A janela do Google foi fechada sem login. Tente novamente quando quiser.');
+            setError(t('auth.googleClosed'));
           }
         }, 800);
         return;
@@ -146,7 +146,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       // REDIRECT: avisa que vai sair para o Google (visível no mobile, onde
       // este fluxo é o padrão) e detecta se a página realmente navegou. Se não
       // navegou em ~7s, algo bloqueou — reativa o botão e orienta o usuário.
-      setInfo('Você será levado ao Google para concluir o login. Ao voltar, sua sessão estará ativa.');
+      setInfo(t('auth.googleRedirect'));
       googleDoneRef.current = false;
       let navigated = false;
       const onBeforeUnload = () => {
@@ -157,14 +157,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         window.removeEventListener('beforeunload', onBeforeUnload);
         if (!navigated) {
           setSubmitting(false);
-          setError(
-            'O Google não abriu — pode ser bloqueador de pop-ups ou a navegação estar restrita. ' +
-              'Permita pop-ups para este site e tente de novo.'
-          );
+          setError(t('auth.googleBlocked'));
         }
       }, 7000);
     } catch (err: any) {
-      setError(translateError(err?.message || 'Não foi possível conectar com o Google.'));
+      setError(translateError(err?.message || t('auth.errGoogle'), t));
       setSubmitting(false);
     }
   };
@@ -178,18 +175,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       if (formMode === 'signup') {
         // Bot caiu no honeypot → responde sucesso falso (sem criar conta).
         if (honeypot.trim()) {
-          setInfo('Conta criada! Verifique seu e-mail para confirmar e depois faça login.');
+          setInfo(t('auth.accountCreated'));
           setSubmitting(false);
           return;
         }
         // Cadastro: exige senha mínima e confirmação igual.
         if (password.length < 6) {
-          setError('A senha precisa de pelo menos 6 caracteres.');
+          setError(t('auth.errShortPassword'));
           setSubmitting(false);
           return;
         }
         if (password !== confirm) {
-          setError('As senhas não conferem.');
+          setError(t('auth.errPasswordMismatch'));
           setSubmitting(false);
           return;
         }
@@ -211,10 +208,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           return;
         }
         // Supabase com "Confirm email" ligado → orienta o usuário.
-        setInfo(
-          result.message ||
-            'Conta criada! Verifique seu e-mail para confirmar e depois faça login.'
-        );
+        setInfo(result.message || t('auth.accountCreated'));
         setSubmitting(false);
         return;
       }
@@ -223,8 +217,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       const session = await signInWithPassword(email.trim(), password);
       onAuthenticated(session);
     } catch (err: any) {
-      const msg = err?.message || 'Não foi possível concluir. Tente novamente.';
-      setError(translateError(msg));
+      const msg = err?.message || t('auth.errGeneric');
+      setError(translateError(msg, t));
       setSubmitting(false);
     }
   };
@@ -245,7 +239,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-slate-800 font-bold text-lg p-1 cursor-pointer"
-            aria-label="Fechar"
+            aria-label={t('auth.close')}
           >
             <X className="w-5 h-5" />
           </button>
@@ -254,16 +248,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         <div>
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 text-[#F26419] font-black text-[10px] tracking-wider uppercase border border-orange-200">
             <Sparkles className="w-3 h-3" />
-            {formMode === 'signin' ? 'Entrar na Conta' : 'Cadastro Grátis'}
+            {formMode === 'signin' ? t('auth.badgeSignin') : t('auth.badgeSignup')}
           </span>
           <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-2">
-            {formMode === 'signin' ? 'Bem-vindo(a) de volta!' : 'Crie sua conta para o Repertório Privado'}
+            {formMode === 'signin' ? t('auth.welcomeBack') : t('auth.createAccount')}
           </h3>
           <p className="text-xs text-slate-500 leading-relaxed mt-1">
-            {formMode === 'signin'
-              ? 'Entre com seu e-mail e senha para acessar seu repertório, votos e ferramentas.'
-              : 'Preencha para liberar o repertório privado. '}
-            <strong className="text-[#0E7C7B]">O acervo de cifras continua 100% gratuito.</strong>
+            {formMode === 'signin' ? t('auth.signinDesc') : t('auth.signupDesc')}
+            <strong className="text-[#0E7C7B]">{t('auth.freeCatalog')}</strong>
           </p>
         </div>
 
@@ -279,12 +271,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84Z" />
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15A11 11 0 0 0 2.18 7.06l3.66 2.84C6.71 7.3 9.14 5.38 12 5.38Z" />
           </svg>
-          Continuar com Google
+          {t('auth.google')}
         </button>
 
         <div className="flex items-center gap-3">
           <div className="flex-1 h-px bg-slate-200" />
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">ou</span>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t('auth.or')}</span>
           <div className="flex-1 h-px bg-slate-200" />
         </div>
 
@@ -298,7 +290,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 : 'text-slate-500 hover:text-slate-700'
             }`}
           >
-            Entrar
+            {t('auth.signin')}
           </button>
           <button
             onClick={() => switchMode('signup')}
@@ -308,14 +300,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 : 'text-slate-500 hover:text-slate-700'
             }`}
           >
-            Criar Conta
+            {t('auth.signup')}
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-2.5">
           {/* Honeypot anti-bot: invisível para humanos (fora da tela) */}
           <div className="absolute left-[-9999px] top-auto w-px h-px overflow-hidden" aria-hidden="true">
-            <label htmlFor="auth-company">Não preencha este campo</label>
+            <label htmlFor="auth-company">{t('auth.honeypot')}</label>
             <input
               id="auth-company"
               type="text"
@@ -334,7 +326,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Seu nome"
+                  placeholder={t('auth.name')}
                   required
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#F26419] focus:bg-white transition-all"
                 />
@@ -345,7 +337,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   type="tel"
                   value={whatsapp}
                   onChange={(e) => setWhatsapp(e.target.value)}
-                  placeholder="Seu WhatsApp com DDD (ex: 11 98765-4321)"
+                  placeholder={t('auth.whatsapp')}
                   required
                   minLength={10}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#F26419] focus:bg-white transition-all"
@@ -359,7 +351,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Seu e-mail"
+              placeholder={t('auth.email')}
               required
               autoComplete="email"
               className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#F26419] focus:bg-white transition-all"
@@ -371,7 +363,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Sua senha (mín. 6 caracteres)"
+              placeholder={t('auth.password')}
               required
               minLength={6}
               autoComplete={formMode === 'signin' ? 'current-password' : 'new-password'}
@@ -385,7 +377,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 type="password"
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
-                placeholder="Confirme sua senha"
+                placeholder={t('auth.confirm')}
                 required
                 minLength={6}
                 autoComplete="new-password"
@@ -413,9 +405,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             {submitting ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : formMode === 'signin' ? (
-              'Entrar'
+              t('auth.signin')
             ) : (
-              'Criar Conta Grátis'
+              t('auth.signupFree')
             )}
           </button>
         </form>
@@ -424,15 +416,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   );
 };
 
-/** Traduz erros comuns do Supabase para mensagens amigáveis. */
-function translateError(msg: string): string {
+/** Traduz erros comuns do Supabase para mensagens amigáveis (localizadas). */
+function translateError(msg: string, t: (k: string) => string): string {
   const m = msg.toLowerCase();
-  if (m.includes('invalid login credentials')) return 'E-mail ou senha incorretos.';
-  if (m.includes('email not confirmed')) return 'E-mail ainda não confirmado. Verifique sua caixa de entrada.';
+  if (m.includes('invalid login credentials')) return t('auth.errInvalid');
+  if (m.includes('email not confirmed')) return t('auth.errNotConfirmed');
   if (m.includes('already registered') || m.includes('already been registered') || m.includes('user already exists'))
-    return 'Já existe uma conta com este e-mail. Faça login ou use "Esqueci a senha".';
-  if (m.includes('password should be at least')) return 'A senha precisa de pelo menos 6 caracteres.';
+    return t('auth.errExists');
+  if (m.includes('password should be at least')) return t('auth.errShortPassword');
   if (m.includes('rate limit') || m.includes('too many requests'))
-    return 'Muitas tentativas. Aguarde alguns minutos e tente novamente.';
+    return t('auth.errRateLimit');
   return msg;
 }

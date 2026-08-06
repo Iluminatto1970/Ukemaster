@@ -5,6 +5,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Playlist, Song, SONG_CATEGORIES, PLAYLIST_DIFFICULTIES } from '../types';
 import { List, Plus, Trash2, Edit2, Play, Music, ChevronRight, X, Sparkles, Check, Tag, Gauge, Filter, FolderHeart, Globe, Download, Loader2, Search } from 'lucide-react';
 import { Logo } from './Logo';
+import { useT } from '../lib/i18n';
 import { PublicRepertoire } from '../lib/repertoires';
 import { getPublicRepertoiresWithCloud } from '../lib/cloudSync';
 
@@ -40,6 +41,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
   isLoggedIn = false,
   onOpenAuth,
 }) => {
+  const { t } = useT();
   // Toda ação de ESCRITA em listas (criar/adicionar/remover/excluir) é uma
   // contribuição à comunidade → exige login. Visitantes só navegam.
   const requireAuth = (): boolean => {
@@ -142,19 +144,19 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
       <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-            <List className="w-6 h-6 text-orange-500" /> Playlists & Listas Públicas
+            <List className="w-6 h-6 text-orange-500" /> {t('playlist.title')}
           </h2>
           <p className="text-slate-600 text-xs sm:text-sm mt-1 font-medium">
-            Explore e crie playlists abertas para toda a comunidade do UkeMaster Pro.
+            {t('playlist.subtitle')}
           </p>
         </div>
 
         <button
           onClick={() => (isLoggedIn ? setShowNewModal(true) : requireAuth())}
-          title={isLoggedIn ? 'Criar Nova Lista' : 'Faça login para criar listas'}
+          title={isLoggedIn ? t('playlist.createNew') : t('playlist.loginToCreate')}
           className="px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs shadow-md shadow-orange-500/20 flex items-center gap-1.5 cursor-pointer scale-105"
         >
-          <Plus className="w-4 h-4" /> Criar Nova Lista
+          <Plus className="w-4 h-4" /> {t('playlist.createNew')}
         </button>
       </div>
 
@@ -164,7 +166,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
         <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-extrabold text-slate-500 uppercase tracking-wider block">
-              Playlists Públicas ({filteredPlaylists.length})
+              {t('playlist.publicPlaylists')} ({filteredPlaylists.length})
             </span>
           </div>
 
@@ -175,7 +177,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
               onChange={(e) => setFilterCategory(e.target.value)}
               className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-[11px] font-bold text-slate-700 focus:outline-none focus:border-orange-500 cursor-pointer"
             >
-              <option value="all">Cat: Todas</option>
+              <option value="all">{t('playlist.catAll')}</option>
               {SONG_CATEGORIES.map((c) => (
                 <option key={c} value={c}>
                   {c}
@@ -188,7 +190,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
               onChange={(e) => setFilterDifficulty(e.target.value)}
               className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-[11px] font-bold text-slate-700 focus:outline-none focus:border-orange-500 cursor-pointer"
             >
-              <option value="all">Modo: Todos</option>
+              <option value="all">{t('playlist.modeAll')}</option>
               {PLAYLIST_DIFFICULTIES.map((d) => (
                 <option key={d} value={d}>
                   {d}
@@ -275,17 +277,17 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
                       setAddSongSearch('');
                       setShowAddSongModal(true);
                     }}
-                    title={isLoggedIn ? 'Adicionar Cifra' : 'Faça login para adicionar cifras'}
+                    title={isLoggedIn ? t('playlist.addChord') : t('playlist.loginToAdd')}
                     className="px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 hover:border-orange-400 text-orange-600 font-extrabold text-xs flex items-center gap-1.5 cursor-pointer"
                   >
-                    <Plus className="w-4 h-4" /> Adicionar Cifra
+                    <Plus className="w-4 h-4" /> {t('playlist.addChord')}
                   </button>
 
                   {onDownloadPlaylist && (
                     <button
                       onClick={handleDownloadActivePlaylist}
                       disabled={downloading || activeSongs.length === 0}
-                      title={activeSongs.length === 0 ? 'Adicione músicas para baixar' : isLoggedIn ? `Baixar ${activeSongs.length} cifra(s) com letra e diagramas` : 'Faça login para baixar listas'}
+                      title={activeSongs.length === 0 ? t('playlist.addSongsToDownload') : isLoggedIn ? t('playlist.downloadTitle').replace('{n}', String(activeSongs.length)) : t('playlist.loginToDownloadList')}
                       className="px-4 py-2 rounded-xl bg-[#0E7C7B] hover:bg-[#0A5F5E] disabled:opacity-40 disabled:cursor-not-allowed text-white font-extrabold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
                     >
                       {downloading ? (
@@ -293,7 +295,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
                       ) : (
                         <Download className="w-4 h-4" />
                       )}
-                      {downloading ? 'Preparando…' : 'Baixar'}
+                      {downloading ? t('playlist.preparing') : t('playlist.download')}
                     </button>
                   )}
 
@@ -301,13 +303,13 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
                     <button
                       onClick={() => {
                         if (!requireAuth()) return;
-                        if (confirm(`Deseja excluir a playlist "${activePlaylist.title}"?`)) {
+                        if (confirm(t('playlist.confirmDelete').replace('{title}', activePlaylist.title))) {
                           onDeletePlaylist(activePlaylist.id);
                           setSelectedPlaylistId(playlists.find((p) => p.id !== activePlaylist.id)?.id || '');
                         }
                       }}
                       className="p-2 rounded-xl bg-slate-50 border border-slate-200 hover:border-rose-300 hover:bg-rose-50 text-slate-500 hover:text-rose-600 text-xs cursor-pointer"
-                      title={isLoggedIn ? 'Excluir Playlist' : 'Faça login para excluir listas'}
+                      title={isLoggedIn ? t('playlist.deletePlaylist') : t('playlist.loginToDelete')}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -369,7 +371,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
               ) : (
                 <div className="text-center py-12 bg-slate-50 border border-slate-200 rounded-xl p-6">
                   <Music className="w-10 h-10 text-slate-400 mx-auto mb-2" />
-                  <p className="text-slate-600 text-sm font-semibold">Esta lista está vazia.</p>
+                  <p className="text-slate-600 text-sm font-semibold">{t('playlist.empty')}</p>
                   <button
                     onClick={() => {
                       if (!requireAuth()) return;
@@ -378,14 +380,14 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
                     }}
                     className="mt-3 px-4 py-2 rounded-xl bg-orange-500 text-white font-extrabold text-xs shadow-2xs"
                   >
-                    Adicionar Cifras
+                    {t('playlist.addSongs')}
                   </button>
                 </div>
               )}
             </>
           ) : (
             <div className="text-center py-12 text-slate-500 text-sm">
-              Selecione uma playlist para visualizar.
+              {t('playlist.selectOne')}
             </div>
           )}
         </div>
@@ -397,24 +399,24 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
           <div className="flex items-center gap-2">
             <FolderHeart className="w-5 h-5 text-[#F26419]" />
             <h3 className="font-black text-slate-900 uppercase text-sm tracking-wider">
-              Repertórios Públicos da Comunidade
+              {t('playlist.publicRepertoires')}
             </h3>
           </div>
           <span className="text-[10px] text-slate-500 font-bold flex items-center gap-1">
-            <Globe className="w-3 h-3 text-[#0E7C7B]" /> {publicRepertoires.length} compartilhados
+            <Globe className="w-3 h-3 text-[#0E7C7B]" /> {publicRepertoires.length} {t('playlist.shared')}
           </span>
         </div>
 
         {!publicLoaded ? (
           <div className="py-8 text-center text-xs text-slate-400 font-semibold">
-            Carregando repertórios públicos...
+            {t('playlist.loadingPublic')}
           </div>
         ) : publicRepertoires.length === 0 ? (
           <div className="py-8 text-center space-y-1.5 bg-slate-50/70 rounded-2xl border border-dashed border-slate-200">
             <Globe className="w-8 h-8 text-slate-300 mx-auto" />
-            <p className="text-xs font-extrabold text-slate-600">Nenhum repertório público ainda</p>
+            <p className="text-xs font-extrabold text-slate-600">{t('playlist.noPublic')}</p>
             <p className="text-[11px] text-slate-400 max-w-md mx-auto">
-              No seu Dashboard, ative "Tornar Público" para compartilhar suas seleções com outros músicos.
+              {t('playlist.emptyPublicHint')}
             </p>
           </div>
         ) : (
@@ -431,7 +433,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
                   <div className="min-w-0">
                     <p className="text-xs font-extrabold text-slate-900 truncate">{rep.name}</p>
                     <p className="text-[10px] text-slate-500 font-bold">
-                      Repertório Público • {rep.songIds.length} {rep.songIds.length === 1 ? 'música' : 'músicas'}
+                      {t('playlist.publicRepertoire')} • {rep.songIds.length} {rep.songIds.length === 1 ? t('library.songSingular') : t('library.songsCount')}
                     </p>
                   </div>
                 </div>
@@ -477,10 +479,10 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
             <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-3 min-w-0">
               <div className="min-w-0">
                 <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 leading-tight">
-                  Criar Nova Lista
+                  {t('playlist.createNew')}
                 </h3>
                 <p className="text-[11px] font-bold text-slate-500 mt-0.5">
-                  Playlist da comunidade UkeMaster Pro
+                  {t('playlist.subtitle')}
                 </p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
@@ -498,27 +500,27 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
 
             <div>
               <label className="text-xs font-bold text-slate-700 block mb-1">
-                Nome da Playlist *
+                {t('playlist.nameLabel')}
               </label>
               <input
                 type="text"
                 required
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
-                placeholder="Ex: Show de Sexta, Modas de Viola..."
+                placeholder={t('playlist.descPlaceholder')}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 text-sm focus:outline-none focus:border-orange-500 font-medium"
               />
             </div>
 
             <div>
               <label className="text-xs font-bold text-slate-700 block mb-1">
-                Descrição (Opcional)
+                {t('playlist.descLabel')}
               </label>
               <input
                 type="text"
                 value={newDesc}
                 onChange={(e) => setNewDesc(e.target.value)}
-                placeholder="Ex: Repertório acústico para ensaio"
+                placeholder={t('playlist.namePlaceholder')}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 text-sm focus:outline-none focus:border-orange-500 font-medium"
               />
             </div>
@@ -526,7 +528,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1">
-                  Categoria
+                  {t('playlist.category')}
                 </label>
                 <select
                   value={newCategory}
@@ -543,7 +545,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
 
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1">
-                  Modo / Dificuldade
+                  {t('playlist.difficulty')}
                 </label>
                 <select
                   value={newDifficulty}
@@ -565,13 +567,13 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
                 onClick={() => setShowNewModal(false)}
                 className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs"
               >
-                Cancelar
+                {t('playlist.cancel')}
               </button>
               <button
                 type="submit"
                 className="px-6 py-2 rounded-xl bg-orange-500 text-white font-extrabold text-xs shadow-2xs"
               >
-                Criar Lista
+                {t('playlist.createList')}
               </button>
             </div>
           </form>
@@ -591,10 +593,10 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
             <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-3 min-w-0">
               <div className="min-w-0">
                 <h3 className="text-base sm:text-lg font-extrabold text-slate-900 leading-tight">
-                  Adicionar Músicas
+                  {t('playlist.addSongs')}
                 </h3>
                 <p className="text-xs font-bold text-orange-600 truncate mt-0.5 max-w-full">
-                  para "{activePlaylist.title}"
+                  {t('playlist.for')} "{activePlaylist.title}"
                 </p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
@@ -615,15 +617,15 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
                 type="text"
                 value={addSongSearch}
                 onChange={(e) => setAddSongSearch(e.target.value)}
-                placeholder={`Buscar música ou artista... (${songs.length} na biblioteca)`}
-                aria-label="Buscar música ou artista"
+                placeholder={t('playlist.searchSongs') + ` (${songs.length})`}
+                aria-label={t('playlist.searchSongs')}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-8 py-2 text-sm text-slate-900 focus:outline-none focus:border-orange-500 font-medium"
               />
               {addSongSearch && (
                 <button
                   onClick={() => setAddSongSearch('')}
                   className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 font-bold px-1 cursor-pointer"
-                  aria-label="Limpar busca"
+                  aria-label={t('playlist.clearSearch')}
                 >
                   ✕
                 </button>
@@ -634,8 +636,8 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
               {addableSongs.length === 0 ? (
                 <div className="text-center py-10 bg-slate-50/70 rounded-xl border border-dashed border-slate-200">
                   <Music className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                  <p className="text-sm font-extrabold text-slate-600">Nenhuma música encontrada</p>
-                  <p className="text-xs text-slate-400 mt-1">Tente outro título ou artista.</p>
+                  <p className="text-sm font-extrabold text-slate-600">{t('playlist.noSongs')}</p>
+                  <p className="text-xs text-slate-400 mt-1">{t('playlist.tryAnother')}</p>
                 </div>
               ) : (
                 addableSongs.map((song) => {
@@ -652,14 +654,14 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
 
                     {isAlreadyAdded ? (
                       <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200 flex items-center gap-1">
-                        <Check className="w-3 h-3" /> Adicionada
+                        <Check className="w-3 h-3" /> {t('playlist.added')}
                       </span>
                     ) : (
                       <button
                         onClick={() => onAddSongToPlaylist(activePlaylist.id, song.id)}
                         className="px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs cursor-pointer shadow-2xs"
                       >
-                        + Adicionar
+                        {t('playlist.add')}
                       </button>
                     )}
                   </div>

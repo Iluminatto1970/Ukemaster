@@ -3,7 +3,8 @@
  */
 import React, { useState, useEffect } from 'react';
 import { AdSenseSlot } from './AdSenseSlot';
-import { Sparkles, Clock, Music, ArrowRight } from 'lucide-react';
+import { useT } from '../lib/i18n';
+import { Clock, Music, ArrowRight } from 'lucide-react';
 import { Logo } from './Logo';
 
 interface AdInterstitialModalProps {
@@ -26,6 +27,7 @@ export const AdInterstitialModal: React.FC<AdInterstitialModalProps> = ({
   title,
   artist,
 }) => {
+  const { t } = useT();
   const [countdown, setCountdown] = useState(MIN_WATCH_SECONDS);
   const [canSkip, setCanSkip] = useState(false);
 
@@ -64,7 +66,7 @@ export const AdInterstitialModal: React.FC<AdInterstitialModalProps> = ({
             {/* Logomarca oficial do portal — variante clara p/ fundo gradiente escuro */}
             <Logo size="sm" variant="light" />
             <span className="text-[10px] sm:text-xs text-teal-100 font-semibold hidden sm:inline">
-              Anúncio do Patrocinador
+              {t('ad.sponsor')}
             </span>
           </div>
 
@@ -73,13 +75,13 @@ export const AdInterstitialModal: React.FC<AdInterstitialModalProps> = ({
               onClick={onComplete}
               className="px-3 py-1 rounded-full bg-[#F26419] hover:bg-[#D9530D] text-white font-extrabold text-xs transition-all cursor-pointer flex items-center gap-1 shadow-xs"
             >
-              <span>Continuar</span>
+              <span>{t('ad.continue')}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           ) : (
             <div className="flex items-center gap-1.5 text-xs text-teal-200 font-bold bg-white/10 px-2.5 py-1 rounded-full">
               <Clock className="w-3.5 h-3.5 animate-spin" />
-              <span>Anúncio libera em {countdown}s</span>
+              <span>{t('ad.unlockIn').replace('{s}', String(countdown))}</span>
             </div>
           )}
         </div>
@@ -88,7 +90,7 @@ export const AdInterstitialModal: React.FC<AdInterstitialModalProps> = ({
         {title && (
           <div className="bg-slate-50 border-b border-slate-200 px-6 py-2.5 flex items-center justify-between text-xs">
             <span className="text-slate-600 font-medium truncate">
-              Carregando: <strong className="text-[#1D2D44]">{title}</strong> {artist ? `— ${artist}` : ''}
+              {t('ad.loading')} <strong className="text-[#1D2D44]">{title}</strong> {artist ? `— ${artist}` : ''}
             </span>
             <Music className="w-4 h-4 text-[#F26419] shrink-0 ml-2" />
           </div>
@@ -98,17 +100,17 @@ export const AdInterstitialModal: React.FC<AdInterstitialModalProps> = ({
         <div className="p-6 space-y-4">
           <div className="text-center space-y-1">
             <h3 className="text-base font-black text-[#1D2D44]">
-              Apoiador Oficial do Portal
+              {t('ad.officialSupporter')}
             </h3>
             <p className="text-xs text-slate-500">
-              Os anúncios mantêm o acervo de cifras 100% gratuito para todos os músicos.
-              {!canSkip && ` Aguarde ${countdown}s para liberar a cifra.`}
+              {t('ad.explain')}
+              {!canSkip && ` ${t('ad.waitToUnlock').replace('{s}', String(countdown))}`}
             </p>
           </div>
 
           <AdSenseSlot
             format="rectangle"
-            label="Anúncio Intersticial • Google AdSense"
+            label={t('ad.label')}
             className="my-2 min-h-[280px]"
           />
 
@@ -125,13 +127,13 @@ export const AdInterstitialModal: React.FC<AdInterstitialModalProps> = ({
             >
               {canSkip ? (
                 <>
-                  <span>Abrir Cifra Agora</span>
+                  <span>{t('ad.openNow')}</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               ) : (
                 <>
                   <Clock className="w-4 h-4 animate-spin" />
-                  <span>Anúncio em exibição — libera em {countdown}s</span>
+                  <span>{t('ad.displaying').replace('{s}', String(countdown))}</span>
                 </>
               )}
             </button>

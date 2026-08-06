@@ -7,6 +7,7 @@ import React, { useMemo, useState } from 'react';
 import type { PartnerLink } from '../types';
 import { youtubeIdFromUrl } from '../lib/affiliateContent';
 import { sendVideoRequest } from '../lib/community';
+import { useT } from '../lib/i18n';
 import {
   PlayCircle,
   GraduationCap,
@@ -31,6 +32,7 @@ interface VideosHubProps {
 }
 
 export const VideosHub: React.FC<VideosHubProps> = ({ partnerLinks }) => {
+  const { t } = useT();
   const active = useMemo(
     () =>
       partnerLinks
@@ -102,10 +104,7 @@ export const VideosHub: React.FC<VideosHubProps> = ({ partnerLinks }) => {
         <div className="flex items-start gap-2.5 text-[11px] text-amber-800 font-semibold leading-relaxed">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
           <span>
-            <strong>Aviso de parceria:</strong> os vídeos e cursos abaixo são de{' '}
-            <strong>parceiros</strong> do UkeMaster. Ao acessar, você apoia o site
-            sem pagar nada a mais (podemos receber uma comissão). Se tiver um
-            curso ou canal para divulgar aqui, fale conosco no WhatsApp!
+            {t('videos.partnerNotice')}. Se tiver um curso ou canal para divulgar aqui, fale conosco no WhatsApp!
           </span>
         </div>
         <a
@@ -254,9 +253,9 @@ export const VideosHub: React.FC<VideosHubProps> = ({ partnerLinks }) => {
       {videos.length === 0 && courses.length === 0 && links.length === 0 && (
         <div className="text-center py-14 bg-white border border-slate-200/90 rounded-2xl p-8">
           <Youtube className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-          <h3 className="text-base font-extrabold text-slate-800">Em breve: vídeo aulas!</h3>
+          <h3 className="text-base font-extrabold text-slate-800">{t('videos.comingSoon')}</h3>
           <p className="text-slate-500 text-xs mt-1">
-            Os vídeos e cursos dos parceiros aparecem aqui. Peça a sua aula abaixo! 👇
+            {t('videos.comingSoon')} Peça a sua aula abaixo! 👇
           </p>
         </div>
       )}
@@ -278,7 +277,7 @@ export const VideosHub: React.FC<VideosHubProps> = ({ partnerLinks }) => {
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Seu nome *"
+            placeholder={t('videos.name')}
             required
             className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#F26419] font-medium"
           />
@@ -286,26 +285,26 @@ export const VideosHub: React.FC<VideosHubProps> = ({ partnerLinks }) => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Seu e-mail *"
+            placeholder={t('videos.email')}
             required
             className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#F26419] font-medium"
           />
           <input
             value={whatsapp}
             onChange={(e) => setWhatsapp(e.target.value)}
-            placeholder="WhatsApp (opcional)"
+            placeholder={t('videos.whatsapp')}
             className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#F26419] font-medium"
           />
           <input
             value={song}
             onChange={(e) => setSong(e.target.value)}
-            placeholder="Música/artista desejado (ex.: Riptide — Vance Joy)"
+            placeholder={t('videos.songRequest')}
             className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#F26419] font-medium sm:col-span-2"
           />
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="Observações (opcional) — nível, o que quer aprender..."
+            placeholder={t('videos.notes')}
             rows={3}
             className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#F26419] font-medium sm:col-span-2 resize-y"
           />

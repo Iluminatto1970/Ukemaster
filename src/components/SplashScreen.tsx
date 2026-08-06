@@ -2,9 +2,11 @@
  * Splash screen de abertura do UkeMaster Pro.
  *
  * Homenagem a Israel Kamakawiwo'ole (1959-1997) — o músico que inspirou o
- * projeto. O splash fica ~30s tocando o trecho em que ele inicia a
- * voz em "Somewhere Over the Rainbow" (vídeo oficial, ~0:04→0:34), com a
- * homenagem assinada pelo fundador.
+ * projeto. O splash fica ~30s com o VÍDEO oficial em tela cheia ao fundo
+ * (trecho em que ele inicia a voz em "Somewhere Over the Rainbow",
+ * ~0:04→0:34), com overlay translúcido e os textos por cima — tudo tocando
+ * automaticamente, sem precisar clicar (fallback de 1 clique só se o
+ * navegador bloquear autoplay). Homenagem assinada pelo fundador.
  */
 import React, { useEffect, useRef, useState } from 'react';
 
@@ -55,33 +57,26 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
   const [hidden, setHidden] = useState(false);
   const [userNeedsClick, setUserNeedsClick] = useState(false);
   const playerRef = useRef<YTPlayer | null>(null);
-  const startClickedRef = useRef(false);
+  const checkTimerRef = useRef<number | null>(null);
 
-  // ── Áudio: toca o trecho da voz de Israel (4s→14s) ──────────────────────
+  // ── Vídeo de fundo: trecho da voz de Israel (4s→34s), autoplay ──────────
   useEffect(() => {
-    const startPlayback = () => {
-      startClickedRef.current = true;
-      setUserNeedsClick(false);
-      playerRef.current?.playVideo();
-    };
-
     const onReady = (e: { target: YTPlayer }) => {
       playerRef.current = e.target;
       // Autoplay pode ser bloqueado pelo navegador (sem interação prévia).
       // Tenta tocar; se em ~1.5s ainda não estiver tocando, pede 1 clique.
       e.target.playVideo();
-      const check = window.setTimeout(() => {
-        if (!startClickedRef.current) setUserNeedsClick(true);
+      checkTimerRef.current = window.setTimeout(() => {
+        setUserNeedsClick(true);
       }, 1500);
-      window.setTimeout(() => window.clearTimeout(check), duration);
     };
 
     const createPlayer = () => {
       if (!window.YT?.Player) return;
       new window.YT.Player('splash-youtube-player', {
         videoId: TRIBUTE_VIDEO_ID,
-        width: '1',
-        height: '1',
+        width: '100%',
+        height: '100%',
         playerVars: {
           autoplay: 1,
           start: TRIBUTE_START_SECONDS,
@@ -92,6 +87,9 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
           rel: 0,
           iv_load_policy: 3,
           playsinline: 1,
+          modestbranding: 1,
+          loop: 1,
+          playlist: TRIBUTE_VIDEO_ID,
         },
         events: { onReady },
       });
@@ -119,6 +117,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
     return () => {
       window.clearTimeout(fadeTimer);
       window.clearTimeout(finishTimer);
+      if (checkTimerRef.current) window.clearTimeout(checkTimerRef.current);
       playerRef.current?.pauseVideo();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -126,7 +125,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
 
   return (
     <div
-      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center text-white transition-opacity duration-600 ease-out ${
+      className={`fixed inset-0 z-[100] overflow-hidden text-white transition-opacity duration-600 ease-out flex flex-col items-center justify-center ${
         hidden ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
       style={{
@@ -135,51 +134,42 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
       }}
       aria-hidden={hidden}
     >
-      {/* Decorações de fundo (círculos âmbar/laranja translúcidos + anel) */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(circle at 12% 8%, rgba(246,174,45,0.14), transparent 32%),' +
-            'radial-gradient(circle at 88% 92%, rgba(242,100,25,0.16), transparent 36%),' +
-            'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05), transparent 60%)',
-        }}
-      />
-      <div
-        className="absolute rounded-full"
-        style={{
-          width: 'min(90vw, 560px)',
-          height: 'min(90vw, 560px)',
-          border: '3px solid rgba(246,174,45,0.16)',
-        }}
-      />
-
-      {/* Player invisível do YouTube (apenas áudio do trecho) */}
+      {/* Player do YouTube em TELA CHEIA (vídeo de fundo) */}
       <div
         id="splash-youtube-player"
         aria-hidden
         style={{
           position: 'absolute',
-          width: 1,
-          height: 1,
-          opacity: 0,
+          inset: 0,
+          width: '100%',
+          height: '100%',
           pointerEvents: 'none',
-          overflow: 'hidden',
+          zIndex: 0,
         }}
       />
 
-      {/* Conteúdo */}
+      {/* Overlay translúcido: mantém o vídeo visível mas garante leitura do texto */}
+      <div
+        className="absolute inset-0"
+        style={{
+          zIndex: 1,
+          background:
+            'linear-gradient(180deg, rgba(7,50,49,0.55) 0%, rgba(7,74,73,0.35) 45%, rgba(4,40,39,0.72) 100%)',
+        }}
+      />
+
+      {/* Conteúdo por cima do vídeo */}
       <div className="relative z-10 flex flex-col items-center px-8 text-center">
         {/* Emblema oficial com animação de entrada */}
         <img
           src="/logo.png"
           alt="UkeMaster Pro"
           draggable={false}
-          className="w-28 h-28 sm:w-36 sm:h-36 object-contain drop-shadow-[0_18px_40px_rgba(0,0,0,0.35)] animate-splash-pop"
+          className="w-28 h-28 sm:w-36 sm:h-36 object-contain drop-shadow-[0_18px_40px_rgba(0,0,0,0.45)] animate-splash-pop"
         />
 
         {/* Wordmark */}
-        <h1 className="mt-6 font-black text-4xl sm:text-5xl tracking-tight leading-none flex items-center animate-splash-rise">
+        <h1 className="mt-6 font-black text-4xl sm:text-5xl tracking-tight leading-none flex items-center drop-shadow-[0_4px_18px_rgba(0,0,0,0.55)] animate-splash-rise">
           <span className="text-white">UKE</span>
           <span className="text-white">MASTER</span>
           <span className="text-[#F6AE2D] ml-2">PRO</span>
@@ -220,7 +210,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
             }}
             className="mt-3 px-5 py-2 rounded-full bg-[#F26419] hover:bg-[#D9530D] text-white text-xs font-extrabold tracking-wider uppercase shadow-lg transition-colors cursor-pointer animate-splash-rise"
           >
-            ▶ Ouvir homenagem
+            ▶ Iniciar homenagem
           </button>
         )}
 
@@ -229,24 +219,24 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
           <p className="text-[11px] sm:text-xs font-black uppercase tracking-[0.28em] text-[#F6AE2D]/90">
             Em homenagem
           </p>
-          <p className="mt-2 text-base sm:text-lg font-black text-white leading-snug">
+          <p className="mt-2 text-base sm:text-lg font-black text-white leading-snug drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
             Israel Kamakawiwo'ole
           </p>
-          <p className="mt-1 text-[11px] sm:text-xs text-white/85 font-medium leading-relaxed">
+          <p className="mt-1 text-[11px] sm:text-xs text-white/90 font-medium leading-relaxed">
             (1959 — 1997) — "Somewhere Over the Rainbow"
           </p>
-          <p className="mt-3 text-[11px] sm:text-xs text-white/75 font-medium leading-relaxed">
+          <p className="mt-3 text-[11px] sm:text-xs text-white/85 font-medium leading-relaxed drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
             Ele foi o grande <span className="text-[#F6AE2D] font-extrabold">incentivador do meu
             ingresso no ukulele</span> — este projeto nasceu da sua música.
           </p>
-          <p className="mt-3 text-xs sm:text-sm font-black tracking-wide text-[#F6AE2D]">
+          <p className="mt-3 text-xs sm:text-sm font-black tracking-wide text-[#F6AE2D] drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
             — Iluminatto Moraes
           </p>
         </div>
       </div>
 
       {/* Rodapé */}
-      <p className="relative z-10 mt-6 text-[10px] font-extrabold tracking-[0.35em] uppercase text-white/60">
+      <p className="relative z-10 mt-6 mb-5 text-[10px] font-extrabold tracking-[0.35em] uppercase text-white/80 drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]">
         ukemaster<span className="text-[#F6AE2D]">pro</span>.com
       </p>
 
