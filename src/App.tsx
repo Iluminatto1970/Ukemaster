@@ -47,6 +47,7 @@ const AdminContentPanel = lazy(() =>
 );
 // import { AdSenseSlot } from './components/AdSenseSlot'; // placeholder // placeholder
 import { StickyBottomAd } from './components/StickyBottomAd';
+import { useT } from './lib/i18n';
 import { AdInterstitialModal } from './components/AdInterstitialModal';
 import { Monetag } from './components/Monetag';
 import { SupportPrompt } from './components/SupportPrompt';
@@ -135,6 +136,7 @@ class LazyErrorBoundary extends React.Component<
 }
 
 export default function App() {
+  const { t } = useT();
   // Load initial state from localStorage or default dataset
   const [songs, setSongs] = useState<Song[]>(() => {
     try {
@@ -1315,19 +1317,26 @@ export default function App() {
         </main>
       </div>
 
-      {/* Footer */}
+      {/* Footer — barra laranja: copyright + 100% gratuito */}
       <footer
         className={`${
           isFullscreenViewer ? 'hidden md:block' : ''
-        } bg-white border-t border-slate-200 py-5 pb-6 text-center text-xs text-slate-500 mt-auto safe-bottom`}
+        } bg-gradient-to-r from-[#F26419] to-[#E2540F] py-3 text-white text-xs mt-auto safe-bottom`}
       >
-        <div className="max-w-[1600px] mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-800">UkeMaster Pro</span> • Plataforma 100% Gratuita Mantida por Anúncios
-          </div>
-          <div className="flex items-center gap-4">
-            <span>Afinação padrão G4 C4 E4 A4</span>
-          </div>
+        <div className="max-w-[1600px] mx-auto px-4 flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-1.5 text-center">
+          <span className="font-bold tracking-wide">
+            © {new Date().getFullYear()}{' '}
+            <a
+              href="https://iluminattodev.vercel.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline decoration-white/50 underline-offset-2 hover:text-[#FFE3D0] transition-colors cursor-pointer"
+            >
+              Iluminatto Moraes
+            </a>{' '}
+            — {t('footer.free')}
+          </span>
+          <span className="opacity-90 font-medium">{t('footer.tuning')}</span>
         </div>
       </footer>
 

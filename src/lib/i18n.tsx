@@ -271,6 +271,8 @@ const pt: Dict = {
   'donate.qrAlt': 'QR Pix',
 
   // ── Diversos ────────────────────────────────────────────
+  'footer.free': 'Tudo 100% Gratuito • Mantido por Anúncios e Comunidade',
+  'footer.tuning': 'Afinação padrão G4 C4 E4 A4',
   'misc.key': 'Tom',
   'misc.category': 'Categoria',
   'misc.difficulty': 'Nível',
@@ -767,6 +769,8 @@ const en: Dict = {
   'donate.close': 'Close',
   'donate.qrAlt': 'Pix QR',
 
+  'footer.free': 'Everything 100% Free • Powered by Ads & Community',
+  'footer.tuning': 'Standard tuning G4 C4 E4 A4',
   'misc.key': 'Key',
   'misc.category': 'Category',
   'misc.difficulty': 'Level',
@@ -1255,6 +1259,8 @@ const es: Dict = {
   'donate.close': 'Cerrar',
   'donate.qrAlt': 'QR Pix',
 
+  'footer.free': 'Todo 100% Gratuito • Mantenido por Anuncios y Comunidad',
+  'footer.tuning': 'Afinafación estándar G4 C4 E4 A4',
   'misc.key': 'Tono',
   'misc.category': 'Categoría',
   'misc.difficulty': 'Nivel',
@@ -1743,6 +1749,8 @@ const fr: Dict = {
   'donate.close': 'Fermer',
   'donate.qrAlt': 'QR Pix',
 
+  'footer.free': 'Tout 100% gratuit • Propulsé par la pub et la communauté',
+  'footer.tuning': 'Accordage standard G4 C4 E4 A4',
   'misc.key': 'Tonalité',
   'misc.category': 'Catégorie',
   'misc.difficulty': 'Niveau',
@@ -2231,6 +2239,8 @@ const de: Dict = {
   'donate.close': 'Schließen',
   'donate.qrAlt': 'Pix-QR',
 
+  'footer.free': 'Alles 100% kostenlos • Betrieben durch Werbung & Community',
+  'footer.tuning': 'Standardstimmung G4 C4 E4 A4',
   'misc.key': 'Tonart',
   'misc.category': 'Kategorie',
   'misc.difficulty': 'Stufe',
@@ -2719,6 +2729,8 @@ const ja: Dict = {
   'donate.close': '閉じる',
   'donate.qrAlt': 'Pix QR',
 
+  'footer.free': 'すべて100%無料 • 広告とコミュニティで運営',
+  'footer.tuning': '標準チューニング G4 C4 E4 A4',
   'misc.key': 'キー',
   'misc.category': 'カテゴリー',
   'misc.difficulty': 'レベル',
@@ -3207,6 +3219,8 @@ const zh: Dict = {
   'donate.close': '关闭',
   'donate.qrAlt': 'Pix 二维码',
 
+  'footer.free': '全部100%免费 • 靠广告和社区维持',
+  'footer.tuning': '标准调弦 G4 C4 E4 A4',
   'misc.key': '调性',
   'misc.category': '类别',
   'misc.difficulty': '级别',
@@ -3695,6 +3709,8 @@ const ar: Dict = {
   'donate.close': 'إغلاق',
   'donate.qrAlt': 'رمز Pix QR',
 
+  'footer.free': 'كل شيء مجاني 100% • مدعوم بالإعلانات والمجتمع',
+  'footer.tuning': 'الضبط القياسي G4 C4 E4 A4',
   'misc.key': 'المفتاح',
   'misc.category': 'الفئة',
   'misc.difficulty': 'المستوى',
