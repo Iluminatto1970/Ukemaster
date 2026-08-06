@@ -33,15 +33,15 @@ export function securityHeaders(opts: SecurityHeaderOptions = {}): Record<string
     'Content-Security-Policy': [
       "default-src 'self'",
       // Scripts: próprio site + AdSense + YouTube + Monetag (auth Supabase é REST, sem script externo).
-      "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://www.google.com https://www.gstatic.com https://www.youtube.com https://s.ytimg.com https://n6wxm.com https://ep2.adtrafficquality.google https://ep1.adtrafficquality.google",
+      "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://www.google.com https://www.gstatic.com https://www.youtube.com https://s.ytimg.com https://n6wxm.com https://nap5k.com https://quge5.com https://5gvci.com https://ep2.adtrafficquality.google https://ep1.adtrafficquality.google",
       // Estilos: inline necessário para React/Tailwind; sem 'unsafe-eval'.
       "style-src 'self' 'unsafe-inline'",
       // Imagens: próprias + avatares + thumbnails + anúncios.
-      "img-src 'self' data: blob: https://ui-avatars.com https://img.youtube.com https://i.ytimg.com https://www.google.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.gstatic.com",
+      "img-src 'self' data: blob: https://ui-avatars.com https://api.dicebear.com https://img.youtube.com https://i.ytimg.com https://www.google.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.gstatic.com",
       // Conexões (fetch/XHR/WS): Supabase (REST + Auth) + Vite HMR (dev) + ads.
-      "connect-src 'self' https://asvjdjawaenxrlwdyziy.supabase.co wss://localhost:* ws://localhost:* https://pagead2.googlesyndication.com https://ep2.adtrafficquality.google https://ep1.adtrafficquality.google https://*.google.com https://*.googleapis.com",
-      // Frames: YouTube embed + iframes de anúncio.
-      "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://td.doubleclick.net https://ep2.adtrafficquality.google",
+      "connect-src 'self' https://asvjdjawaenxrlwdyziy.supabase.co wss://localhost:* ws://localhost:* https://pagead2.googlesyndication.com https://ep2.adtrafficquality.google https://ep1.adtrafficquality.google https://*.google.com https://*.googleapis.com https://n6wxm.com https://nap5k.com https://quge5.com https://5gvci.com",
+      // Frames: YouTube embed + iframes de anúncio (inclui a vignette Monetag).
+      "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://td.doubleclick.net https://ep2.adtrafficquality.google https://n6wxm.com",
       // Fontes: próprias + data URI (ícones).
       "font-src 'self' data:",
       // Workers (service worker PWA).
@@ -202,27 +202,52 @@ export function rateLimit(
 
 // ── 4. Proteção de rotas administrativas ──────────────────────────────
 /**
- * Valida o token de admin. Se ADMIN_SECRET não estiver configurado no env,
- * a rota fica ABERTA (comportamento dev-friendly); se estiver, exige o
- * header `x-admin-secret` igual ao valor. Retorna { ok, reason? }.
+ * Valida o token de admin (header x-admin-secret). Fail-closed em produção:
+ * se NODE_ENV=production/VERCEL e ADMIN_SECRET não estiver configurado, a
+ * rota é NEGADA (nunca fica aberta em produção). Em dev, sem secret, fica
+ * aberta para facilitar o fluxo local.
+ *
+ * Obs.: para o app em si, use authorizeAdminRequest (src/lib/adminAuth.ts),
+ * que valida o JWT do usuário Supabase — mais seguro que secret no bundle.
  */
 export function requireAdminSecret(secretHeader: string | undefined): { ok: boolean; reason?: string } {
   const expected = process.env.ADMIN_SECRET;
-  if (!expected) return { ok: true }; // sem secret configurado → aberto (dev)
+  const isProd = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+  if (!expected) {
+    if (isProd) return { ok: false, reason: 'ADMIN_SECRET não configurado em produção.' };
+    return { ok: true }; // dev sem secret → aberto (conveniência local)
+  }
   if (!secretHeader) return { ok: false, reason: 'Token de administração ausente.' };
   if (secretHeader !== expected) return { ok: false, reason: 'Token de administração inválido.' };
   return { ok: true };
 }
 
-/** Extrai o IP do cliente de forma segura (evita spoof por header). */
+/**
+ * Extrai o IP do cliente de forma segura (evita spoof de header).
+ *
+ * Anti-spoof: o header x-forwarded-for é controlado pelo cliente fora de
+ * proxies confiáveis, então só confiamos nele na Vercel (onde a plataforma
+ * define o valor). Em dev/Express usamos o IP do socket — um atacante não
+ * consegue burlar o rate limit enviando XFF falso.
+ */
 export function getClientIp(
   req: { socket?: { remoteAddress?: string }; headers?: Record<string, string | string[] | undefined> }
 ): string {
-  // Na Vercel, o IP real vem do header x-forwarded-for (último hop confiável).
-  const xff = req.headers?.['x-forwarded-for'];
-  if (typeof xff === 'string' && xff.includes(',')) {
-    return xff.split(',')[0].trim() || 'unknown';
+  const onVercel = !!process.env.VERCEL;
+
+  // Na Vercel, o x-vercel-forwarded-for contém o IP real do cliente (a
+  // plataforma garante); x-forwarded-for pode ser influenciado pelo cliente.
+  if (onVercel) {
+    const vff = req.headers?.['x-vercel-forwarded-for'];
+    if (typeof vff === 'string' && vff.trim()) return vff.trim().split(',')[0];
+    const xff = req.headers?.['x-forwarded-for'];
+    if (typeof xff === 'string' && xff.includes(',')) {
+      // Último valor = adicionado pela Vercel (fonte confiável).
+      const parts = xff.split(',').map((p) => p.trim()).filter(Boolean);
+      return parts[parts.length - 1] || 'unknown';
+    }
+    if (typeof xff === 'string' && xff.trim()) return xff.trim();
   }
-  if (typeof xff === 'string') return xff.trim() || 'unknown';
+
   return req.socket?.remoteAddress || 'unknown';
 }

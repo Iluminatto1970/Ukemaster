@@ -18,6 +18,18 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { findDuplicateSong } from '../utils/chordUtils';
+import { getSessionAccessToken } from '../lib/supabase';
+
+/**
+ * Headers comuns das chamadas admin: envia o JWT da sessão Supabase para o
+ * servidor autorizar pelo e-mail do admin (NUNCA um secret no bundle).
+ */
+function adminHeaders(): Record<string, string> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  const token = getSessionAccessToken();
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  return headers;
+}
 
 interface AdminScraperProps {
   songs: Song[];
@@ -55,7 +67,7 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
     try {
       const res = await fetch('/api/scrape', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: adminHeaders(),
         body: JSON.stringify({ discover: url }),
       });
       const data = await res.json();
@@ -100,7 +112,7 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
       try {
         const res = await fetch('/api/scrape', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: adminHeaders(),
           body: JSON.stringify({ songs: batch }),
         });
         const data = await res.json();
@@ -152,7 +164,7 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
     try {
       const res = await fetch('/api/scrape-platforms', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: adminHeaders(),
         body: JSON.stringify(platformId ? { platformId, artistUrl, fast: true } : { fast: true }),
       });
       const data = await res.json();

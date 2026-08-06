@@ -180,6 +180,17 @@ export async function fetchSongsFromCloud(): Promise<Song[] | null> {
 }
 
 /**
+ * Exclui UMA música do acervo em nuvem (uso exclusivo do admin — a UI só
+ * mostra o botão Excluir para iluminatto@gmail.com). O RLS no banco exige
+ * JWT do admin (auth.jwt()->>'email'), então a chamada só funciona logado;
+ * visitantes/outros usuários recebem 401/403 e a música permanece.
+ */
+export async function deleteSongFromCloud(songId: string): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false;
+  return deleteRows('songs', `?id=eq.${encodeURIComponent(songId)}`);
+}
+
+/**
  * Envia o acervo local para a nuvem (UPSERT only — nunca deleta).
  *
  * IMPORTANTE — 2 regras de segurança (aprendidas com incidente real):

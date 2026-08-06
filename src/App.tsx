@@ -58,6 +58,7 @@ import {
   pushPlaylistsToCloud,
   fetchRepertoireFromCloud,
   pushRepertoireToCloud,
+  deleteSongFromCloud,
   isSupabaseConfigured,
 } from './lib/cloudSync';
 import {
@@ -611,6 +612,16 @@ export default function App() {
     markLocalEdited();
     const targetSong = songs.find((s) => s.id === songId);
     const title = targetSong ? targetSong.title : 'Música';
+
+    // Exclusão definitiva no banco (somente admin — a UI já restringe o
+    // botão; o RLS no Supabase exige o JWT do admin para o DELETE).
+    if (isAdmin && isSupabaseConfigured()) {
+      deleteSongFromCloud(songId).catch(() => {
+        // Falha (rede/401): a música volta no próximo fetch da nuvem — o
+        // push é UPSERT-only e nunca deleta, então não há risco de apagar
+        // o acervo compartilhado por engano.
+      });
+    }
 
     setSongs((prev) => prev.filter((s) => s.id !== songId));
     // Also remove from playlists

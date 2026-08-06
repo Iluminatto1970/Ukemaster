@@ -11,6 +11,14 @@ import {
   getSiteUrl,
   isBotRequest,
 } from './src/lib/supabaseServer';
+import {
+  applySecurityHeaders,
+  isAllowedFetchUrl,
+  SSRF_ERROR,
+  rateLimit,
+  getClientIp,
+} from './src/lib/security';
+import { authorizeAdminRequest } from './src/lib/adminAuth';
 
 // Carrega .env.local (o dotenv padrão lê só .env)
 try {
@@ -30,12 +38,27 @@ try {
 async function startServer() {
   const app = express();
   const PORT = 3000;
+  const isProd = process.env.NODE_ENV === 'production';
 
-  app.use(express.json({ limit: '10mb' }));
+  // ── Política de segurança: headers HTTP em TODAS as respostas ────────
+  // (CSP, nosniff, frame-options, referrer-policy, HSTS em produção...)
+  app.use((req, res, next) => {
+    applySecurityHeaders(res, { hsts: isProd });
+    next();
+  });
+
+  // Body limit reduzido: cifras nunca passam de ~1MB (evita abuso de payload).
+  app.use(express.json({ limit: '1mb' }));
 
   // API Endpoint to fetch external URLs (e.g. CifraClub) without CORS restrictions
   app.post('/api/fetch-url', async (req, res) => {
     try {
+      // Rate limit: máx 20 fetchs/min por IP (evita abuso do proxy).
+      const rl = rateLimit(getClientIp(req), 'fetch-url', 20, 60_000);
+      if (!rl.ok) {
+        return res.status(429).json({ error: `Muitas requisições. Tente novamente em ${rl.retryAfter}s.` });
+      }
+
       const { url } = req.body;
       if (!url || typeof url !== 'string') {
         return res.status(400).json({ error: 'URL inválida ou ausente.' });
@@ -44,6 +67,12 @@ async function startServer() {
       let targetUrl = url.trim();
       if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
         targetUrl = 'https://' + targetUrl;
+      }
+
+      // Anti-SSRF: só permite fetch de plataformas de cifra conhecidas.
+      // Bloqueia IPs privados/localhost/metadata cloud (acesso à rede interna).
+      if (!isAllowedFetchUrl(targetUrl)) {
+        return res.status(403).json({ error: SSRF_ERROR });
       }
 
       const response = await fetch(targetUrl, {
@@ -207,13 +236,25 @@ async function startServer() {
   // Scrape de cifras (área admin) — mesmo comportamento da serverless function
   app.post('/api/scrape', async (req, res) => {
     try {
+      // Proteção: só admin (JWT Supabase do proprietário ou ADMIN_SECRET) pode
+      // disparar scraping. O app envia Authorization: Bearer (sessão logada).
+      const auth = await authorizeAdminRequest(req.headers as Record<string, string | string[] | undefined>, {
+        allowCron: false,
+      });
+      if (!auth.ok) return res.status(403).json({ error: auth.reason });
+
+      const rl = rateLimit(getClientIp(req), 'scrape', 10, 60_000);
+      if (!rl.ok) {
+        return res.status(429).json({ error: `Muitas requisições. Tente novamente em ${rl.retryAfter}s.` });
+      }
+
       const body = req.body || {};
 
       // Modo descoberta
       if (body.discover) {
         const url = String(body.discover).trim();
-        if (!/^https?:\/\//i.test(url)) {
-          return res.status(400).json({ error: 'Informe uma URL válida (https://...).' });
+        if (!/^https?:\/\//i.test(url) || !isAllowedFetchUrl(url)) {
+          return res.status(400).json({ error: SSRF_ERROR });
         }
         const html = await fetchHtml(url);
         const links = discoverSongLinks(html, url);
@@ -223,6 +264,11 @@ async function startServer() {
       // Modo scrape em lote
       if (Array.isArray(body.songs) && body.songs.length > 0) {
         const urls = body.songs.slice(0, 6).map((u: unknown) => String(u));
+        // Anti-SSRF também no lote: cada URL precisa ser de plataforma permitida.
+        const blocked = urls.filter((u) => !isAllowedFetchUrl(u));
+        if (blocked.length > 0) {
+          return res.status(403).json({ error: SSRF_ERROR });
+        }
         const results = [];
         for (const u of urls) {
           try {
@@ -243,6 +289,17 @@ async function startServer() {
   // Cron de plataformas (disparo manual no dev / teste local)
   app.post('/api/scrape-platforms', async (req, res) => {
     try {
+      // Proteção: JWT admin, cron da Vercel (x-vercel-cron) ou ADMIN_SECRET.
+      const auth = await authorizeAdminRequest(req.headers as Record<string, string | string[] | undefined>, {
+        allowCron: true,
+      });
+      if (!auth.ok) return res.status(403).json({ error: auth.reason });
+
+      const rl = rateLimit(getClientIp(req), 'scrape-platforms', 6, 60_000);
+      if (!rl.ok) {
+        return res.status(429).json({ error: `Muitas requisições. Tente novamente em ${rl.retryAfter}s.` });
+      }
+
       const result = await runPlatformCron({
         platformId: req.body?.platformId,
         artistUrl: req.body?.artistUrl,

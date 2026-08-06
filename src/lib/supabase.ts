@@ -38,6 +38,28 @@ export function getSupabase(): SupabaseConfig | null {
   return { url: url.replace(/\/+$/, ''), anonKey };
 }
 
+// ── Autenticação nas chamadas REST ───────────────────────────────────
+// O Supabase identifica o usuário pelo JWT no header `Authorization`:
+//  - sem sessão → usa a anon key (papel anon — leitura pública, votos, leads);
+//  - com sessão → usa o access_token do usuário logado (papel authenticated),
+//    o que habilita o RLS por usuário: DELETE de música só admin, repertórios
+//    privados por dono (auth.uid()).
+// Lê a sessão direto do localStorage para evitar ciclo de imports com
+// supabaseAuth.ts (que importa getSupabase daqui).
+const SESSION_KEY = 'ukemaster_supabase_session_v1';
+
+/** Retorna o access_token da sessão salva (ou null se não logado). */
+export function getSessionAccessToken(): string | null {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const s = JSON.parse(raw) as { access_token?: string };
+    return s?.access_token || null;
+  } catch {
+    return null;
+  }
+}
+
 export const isSupabaseConfigured = () => getSupabase() !== null;
 
 interface RequestOptions {
@@ -62,9 +84,12 @@ export async function supabaseRequest<T = unknown>(
   }
 
   const method = options.method || 'GET';
+  // JWT do usuário logado quando existir (habilita RLS por usuário);
+  // visitantes seguem com a anon key (papel anon).
+  const accessToken = getSessionAccessToken();
   const headers: Record<string, string> = {
     apikey: sb.anonKey,
-    Authorization: `Bearer ${sb.anonKey}`,
+    Authorization: `Bearer ${accessToken || sb.anonKey}`,
   };
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
   if (options.prefer) headers['Prefer'] = options.prefer;
@@ -73,7 +98,7 @@ export async function supabaseRequest<T = unknown>(
   if (options.range) headers['Range'] = options.range;
 
   try {
-    const res = await fetch(
+    let res = await fetch(
       `${sb.url}/rest/v1/${table}${options.query || ''}`,
       {
         method,
@@ -81,6 +106,22 @@ export async function supabaseRequest<T = unknown>(
         body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
       }
     );
+
+    // Fallback de sessão expirada: se o JWT do usuário foi revogado/expirou
+    // (401), tenta UMA vez com a anon key (papel anon) para o app continuar
+    // funcionando — leitura pública e escrita de votos/leads seguem OK até
+    // o próximo refresh da sessão no bootstrap.
+    if (res.status === 401 && accessToken) {
+      headers['Authorization'] = `Bearer ${sb.anonKey}`;
+      res = await fetch(
+        `${sb.url}/rest/v1/${table}${options.query || ''}`,
+        {
+          method,
+          headers,
+          body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+        }
+      );
+    }
 
     if (!res.ok) {
       if (!options.silent) {
