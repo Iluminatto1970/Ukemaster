@@ -398,6 +398,11 @@ export function buildCollectionDocument(
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>${safeTitle} — UkeMaster Pro</title>
+<!-- CSP rígida: o documento é estático (SVG inline + CSS inline apenas).
+     Nenhum script executa e nenhum recurso externo é carregado — mesmo
+     que um conteúdo malicioso passasse pelos escapes, ele não roda aqui. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; font-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'" />
+<meta name="referrer" content="no-referrer" />
 <style>${DOC_STYLES}</style>
 </head>
 <body>

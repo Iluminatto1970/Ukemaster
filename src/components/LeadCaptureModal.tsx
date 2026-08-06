@@ -32,12 +32,19 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  // Honeypot anti-bot: campo invisível que bots preenchem (humanos não veem).
+  const [honeypot, setHoneypot] = useState<string>('');
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    // Bot caiu no honeypot → descarta silenciosamente (sem salvar lead).
+    if (honeypot.trim()) {
+      onClose();
+      return;
+    }
     setSubmitting(true);
     try {
       await saveLead({
@@ -112,6 +119,19 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
           </div>
         ) : (
         <form onSubmit={handleSubmit} className="space-y-2.5">
+          {/* Honeypot anti-bot: invisível para humanos (fora da tela) */}
+          <div className="absolute left-[-9999px] top-auto w-px h-px overflow-hidden" aria-hidden="true">
+            <label htmlFor="lead-company">Não preencha este campo</label>
+            <input
+              id="lead-company"
+              type="text"
+              name="company_website"
+              tabIndex={-1}
+              autoComplete="off"
+              value={honeypot}
+              onChange={(e) => setHoneypot(e.target.value)}
+            />
+          </div>
           <div className="relative">
             <User className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
             <input

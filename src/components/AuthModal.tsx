@@ -18,6 +18,15 @@ import { Logo } from './Logo';
 
 export type AuthModalMode = 'signin' | 'signup';
 
+/**
+ * Mobile (celular/tablet): usa o fluxo REDIRECT (mesma aba) no Google em vez
+ * de popup — no iOS Safari e em webviews o window.open é bloqueado ou a popup
+ * perde o window.opener (o que quebraria o postMessage de retorno).
+ */
+const isMobileDevice =
+  typeof navigator !== 'undefined' &&
+  /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '');
+
 /** Dados capturados no LeadCaptureModal (fluxo de repertório) já preenchidos. */
 export interface SignUpPrefill {
   name?: string;
@@ -49,6 +58,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  // Honeypot anti-bot: campo invisível que bots preenchem (humanos não veem).
+  const [honeypot, setHoneypot] = useState('');
 
   // Ao abrir, sincroniza o modo e aplica o prefill (lead capturado antes).
   useEffect(() => {
@@ -108,7 +119,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
     try {
       const redirectTo = `${window.location.origin}/auth/callback`;
-      const result = await signInWithOAuth('google', redirectTo);
+      const result = await signInWithOAuth('google', redirectTo, !isMobileDevice);
 
       if (result.mode === 'popup' && result.popup) {
         googlePopupRef.current = result.popup;
@@ -132,8 +143,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         return;
       }
 
-      // REDIRECT: detecta se a página realmente navegou. Se não navegou em ~7s,
-      // algo bloqueou — reativa o botão e orienta o usuário.
+      // REDIRECT: avisa que vai sair para o Google (visível no mobile, onde
+      // este fluxo é o padrão) e detecta se a página realmente navegou. Se não
+      // navegou em ~7s, algo bloqueou — reativa o botão e orienta o usuário.
+      setInfo('Você será levado ao Google para concluir o login. Ao voltar, sua sessão estará ativa.');
       googleDoneRef.current = false;
       let navigated = false;
       const onBeforeUnload = () => {
@@ -163,6 +176,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setSubmitting(true);
     try {
       if (formMode === 'signup') {
+        // Bot caiu no honeypot → responde sucesso falso (sem criar conta).
+        if (honeypot.trim()) {
+          setInfo('Conta criada! Verifique seu e-mail para confirmar e depois faça login.');
+          setSubmitting(false);
+          return;
+        }
         // Cadastro: exige senha mínima e confirmação igual.
         if (password.length < 6) {
           setError('A senha precisa de pelo menos 6 caracteres.');
@@ -294,6 +313,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-2.5">
+          {/* Honeypot anti-bot: invisível para humanos (fora da tela) */}
+          <div className="absolute left-[-9999px] top-auto w-px h-px overflow-hidden" aria-hidden="true">
+            <label htmlFor="auth-company">Não preencha este campo</label>
+            <input
+              id="auth-company"
+              type="text"
+              name="company_website"
+              tabIndex={-1}
+              autoComplete="off"
+              value={honeypot}
+              onChange={(e) => setHoneypot(e.target.value)}
+            />
+          </div>
           {formMode === 'signup' && (
             <>
               <div className="relative">

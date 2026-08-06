@@ -236,7 +236,9 @@ export async function signInWithOAuth(
     provider,
     redirect_to: redirectTo,
     code_challenge: challenge,
-    code_challenge_method: 's256',
+    // RFC 7636: o método é case-sensitive e DEVE ser "S256" (maiúsculo).
+    // O Google rejeita "s256" minúsculo com invalid_request.
+    code_challenge_method: 'S256',
     scopes: 'email profile',
   });
   const authUrl = `${sb.url}/auth/v1/authorize?${params.toString()}`;

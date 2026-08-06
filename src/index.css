@@ -210,6 +210,16 @@ body {
 }
 
 /* Evita zoom automático do iOS ao focar inputs com fonte pequena */
+/* Viewer de cifra em TELA CHEIA no mobile: preenche a área visível do
+   dispositivo. Classe própria FORA de @layer — regras não-camadas vencem
+   as utilities do Tailwind (o `min-h-dvh` era anulado pela cascata em
+   contexto real dentro do layout). */
+@media (max-width: 767px) {
+  .ukemaster-viewer-fullscreen {
+    min-height: 100dvh;
+  }
+}
+
 @media (max-width: 640px) {
   input,
   select,

@@ -5,8 +5,15 @@
  * Vercel Serverless Function — /api/fetch-url
  * Busca o HTML de uma URL externa sem restrições de CORS.
  * Equivale ao endpoint do server.ts, mas disponível na Vercel (produção).
+ *
+ * SEGURANÇA (defesa em profundidade — o middleware Edge já bloqueia bots):
+ *  - Rate limit por IP (janela móvel em memória);
+ *  - Bloqueio de bots/ferramentas de raspagem (User-Agent);
+ *  - Anti-SSRF com GUARDA DE REDIRECIONAMENTO: cada hop do redirect é
+ *    revalidado contra a allowlist (impede 302 para rede interna/metadata);
+ *  - Limite de tamanho da resposta e validação de Content-Type.
  */
-
+import { fetchWithRedirectGuard, classifyUserAgent, getClientIp, rateLimit } from '../src/lib/security.js';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
 export const maxDuration = 30;
@@ -44,64 +51,19 @@ function securityHeaders(res: ServerResponse) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-}
-
-// ── Anti-SSRF: allowlist de domínios de plataformas de cifra ──────────
-const ALLOWED_DOMAINS = /(^|\.)(cifraclub\.com\.br|cifraclub\.com|ultimateguitar\.com|e-chords\.com|guitaretab\.com|guitartabs\.cc|songsterr\.com|jellynote\.com|studylib\.net)$/i;
-
-/**
- * Bloqueia fetch para IPs privados/localhost/metadata cloud (SSRF).
- * Só aceita http(s) e domínios da lista de plataformas de cifra.
- */
-function isAllowedFetchUrl(rawUrl: string): boolean {
-  let url: URL;
-  try {
-    url = new URL(rawUrl.trim());
-  } catch {
-    return false;
-  }
-  if (url.protocol !== 'http:' && url.protocol !== 'https:') return false;
-  const host = url.hostname.toLowerCase();
-  const isIp = /^\d{1,3}(\.\d{1,3}){3}$/.test(host) || host === 'localhost' || host.includes(':');
-  if (isIp) return false;
-  return ALLOWED_DOMAINS.test(host);
-}
-
-// ── Rate limit simples (janela em memória) ────────────────────────────
-const buckets = new Map<string, { count: number; resetAt: number }>();
-function rateLimit(ip: string, scope: string, max: number, windowMs: number): { ok: boolean; retryAfter?: number } {
-  const now = Date.now();
-  const key = `${scope}:${ip}`;
-  const b = buckets.get(key);
-  if (!b || b.resetAt <= now) {
-    buckets.set(key, { count: 1, resetAt: now + windowMs });
-    return { ok: true };
-  }
-  b.count += 1;
-  if (b.count > max) return { ok: false, retryAfter: Math.max(1, Math.ceil((b.resetAt - now) / 1000)) };
-  return { ok: true };
-}
-
-function getClientIp(req: IncomingMessage): string {
-  // Anti-spoof: na Vercel o IP real do cliente vem do x-vercel-forwarded-for;
-  // em x-forwarded-for o ÚLTIMO valor é o adicionado pela plataforma.
-  if (process.env.VERCEL) {
-    const vff = req.headers['x-vercel-forwarded-for'];
-    if (typeof vff === 'string' && vff.trim()) return vff.trim().split(',')[0];
-    const xff = req.headers['x-forwarded-for'];
-    if (typeof xff === 'string' && xff.includes(',')) {
-      const parts = xff.split(',').map((p) => p.trim()).filter(Boolean);
-      return parts[parts.length - 1] || 'unknown';
-    }
-    if (typeof xff === 'string' && xff.trim()) return xff.trim();
-  }
-  return req.socket?.remoteAddress || 'unknown';
+  res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+  res.setHeader('Cache-Control', 'no-store');
 }
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
   securityHeaders(res);
   if (req.method !== 'POST') {
     return send(res, 405, { error: 'Use POST.' });
+  }
+
+  // Ferramentas de raspagem não usam este proxy (é para o import manual).
+  if (classifyUserAgent(String(req.headers['user-agent'] || '')) === 'scraper') {
+    return send(res, 403, { error: 'Acesso negado.' });
   }
 
   const rl = rateLimit(getClientIp(req), 'fetch-url', 20, 60_000);
@@ -121,40 +83,21 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     return send(res, 400, { error: 'URL inválida ou ausente.' });
   }
 
-  let targetUrl = url.trim();
-  if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
-    targetUrl = 'https://' + targetUrl;
+  const result = await fetchWithRedirectGuard(url.trim(), {
+    maxBytes: 2_000_000,
+    headers: {
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
+      Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      'Cache-Control': 'no-cache',
+    },
+  });
+
+  if (!result.ok) {
+    const status = result.status && result.status >= 400 ? result.status : 502;
+    return send(res, status, { error: result.error || 'Erro ao buscar a URL solicitada.' });
   }
 
-  // Anti-SSRF: recusa qualquer URL fora da allowlist de plataformas de cifra.
-  if (!isAllowedFetchUrl(targetUrl)) {
-    return send(res, 403, {
-      error: 'URL fora da lista de plataformas permitidas (CifraClub, Ultimate-Guitar, E-Chords, GuitarEtab, Songsterr...).',
-    });
-  }
-
-  try {
-    const response = await fetch(targetUrl, {
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
-        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Cache-Control': 'no-cache',
-      },
-    });
-
-    if (!response.ok) {
-      return send(res, response.status, {
-        error: `O site de origem respondeu com status ${response.status}.`,
-      });
-    }
-
-    const html = await response.text();
-    return send(res, 200, { ok: true, html });
-  } catch (err: any) {
-    return send(res, 500, {
-      error: err?.message || 'Erro de conexão ao buscar a URL solicitada.',
-    });
-  }
+  return send(res, 200, { ok: true, html: result.html });
 }

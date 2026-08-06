@@ -13,6 +13,99 @@
  *                                com um token compartilhado (env ADMIN_SECRET).
  */
 
+// ── 0. Classificação de User-Agent (bots × crawlers de SEO) ──────────
+/**
+ * Crawlers de SEO/redes sociais que DEVEM continuar acessando (o site
+ * depende do prerender /musica/:id para indexar e para links do WhatsApp).
+ */
+export const SEO_CRAWLERS =
+  /(googlebot|bingbot|duckduckbot|baiduspider|yandexbot|applebot|facebookexternalhit|whatsapp|instagram|linkedinbot|twitterbot|telegrambot|discordbot|slackbot|pinterest|snapchat|tiktok|flipboard|feedbin|gptbot|ccbot|anthropic|claudebot|perplexitybot|ahrefs|semrush|moz(?:illa)?bot|screaming\s*frog|archive\.org_bot|petalbot|bytespider|pingdom|uptimerobot|exabot|mj12bot|dotbot|adidxbot|naverbot)/i;
+
+/**
+ * Ferramentas de scraping/automação clássicas (curl, python-requests...).
+ * Usadas pelo middleware Edge e pelo server.ts para negar rotas caras.
+ */
+export const SCRAPER_BOTS =
+  /(curl|wget2?|libwww|python-requests|python-urllib|scrapy|aiohttp|httpx|go-http-client|okhttp|node-fetch|axios|undici|fetch\/|postman|httpie|apache-httpclient|php\/|ruby|perl|powershell|masscan|nikto|sqlmap|zgrab|nessus|burp|selenium|playwright|puppeteer|phantomjs|headlesschrome|headless-chrome|python)/i;
+
+/**
+ * Classifica o User-Agent de uma requisição:
+ *  - 'seo'     → crawler de busca/redes (permitido SEMPRE — indexação);
+ *  - 'scraper' → ferramenta de automação/raspagem (bloquear rotas caras);
+ *  - 'browser' → navegador comum (permitido, sujeito a rate limit);
+ *  - null      → sem UA identificável (tratar como browser, rate limit).
+ */
+export function classifyUserAgent(
+  ua: string | undefined
+): 'seo' | 'scraper' | 'browser' | null {
+  const value = (ua || '').trim();
+  if (!value) return null;
+  if (SEO_CRAWLERS.test(value)) return 'seo';
+  if (SCRAPER_BOTS.test(value)) return 'scraper';
+  return 'browser';
+}
+
+// ── 0b. Fetch seguro com guarda de redirecionamento (anti-SSRF) ───────
+/**
+ * Busca uma URL externa validando CADA hop de redirecionamento contra a
+ * allowlist — um atacante não consegue usar o proxy como SSRF via
+ * redirect (ex.: um domínio permitido que 302 para 169.254.169.254).
+ * Máx. 4 hops, limite de tamanho e validação de Content-Type.
+ */
+export async function fetchWithRedirectGuard(
+  rawUrl: string,
+  opts: { maxBytes?: number; headers?: Record<string, string> } = {}
+): Promise<{ ok: boolean; status?: number; html?: string; error?: string }> {
+  const maxBytes = opts.maxBytes || 2_000_000;
+  const baseHeaders = opts.headers || {};
+  let current = rawUrl.trim();
+  if (!/^https?:\/\//i.test(current)) current = 'https://' + current;
+
+  for (let hop = 0; hop < 4; hop++) {
+    if (!isAllowedFetchUrl(current)) {
+      return { ok: false, error: SSRF_ERROR };
+    }
+    let response: Response;
+    try {
+      response = await fetch(current, {
+        headers: baseHeaders,
+        redirect: 'manual',
+      });
+    } catch (e: any) {
+      return { ok: false, error: e?.message || 'Erro de conexão ao buscar a URL solicitada.' };
+    }
+
+    const status = response.status;
+    if ([301, 302, 303, 307, 308].includes(status)) {
+      const location = response.headers.get('location');
+      if (!location) return { ok: false, status, error: 'Redirecionamento sem destino.' };
+      try {
+        current = new URL(location, current).href;
+      } catch {
+        return { ok: false, status, error: 'Redirecionamento inválido.' };
+      }
+      continue;
+    }
+
+    if (!response.ok) {
+      return { ok: false, status, error: `O site de origem respondeu com status ${status}.` };
+    }
+
+    const contentType = response.headers.get('content-type') || '';
+    if (!/text\/html|application\/xhtml|text\/plain|text\/markdown/i.test(contentType)) {
+      return { ok: false, status, error: 'O link não retornou conteúdo HTML/texto.' };
+    }
+
+    const text = await response.text();
+    if (text.length > maxBytes) {
+      return { ok: false, status, error: 'Página muito grande para importação.' };
+    }
+    return { ok: true, status, html: text };
+  }
+
+  return { ok: false, error: 'Redirecionamentos em excesso.' };
+}
+
 // ── 1. Headers de segurança HTTP ──────────────────────────────────────
 export interface SecurityHeaderOptions {
   /** true em produção → adiciona Strict-Transport-Security. */
@@ -32,6 +125,8 @@ export function securityHeaders(opts: SecurityHeaderOptions = {}): Record<string
     // Mídias/navegação padrão: só o próprio site.
     'Content-Security-Policy': [
       "default-src 'self'",
+      // Site 100% HTTPS: o navegador sobe qualquer recurso http:// para https.
+      'upgrade-insecure-requests',
       // Scripts: próprio site + AdSense + YouTube + Monetag (auth Supabase é REST, sem script externo).
       "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://www.google.com https://www.gstatic.com https://www.youtube.com https://s.ytimg.com https://n6wxm.com https://nap5k.com https://quge5.com https://5gvci.com https://ep2.adtrafficquality.google https://ep1.adtrafficquality.google",
       // Estilos: inline necessário para React/Tailwind; sem 'unsafe-eval'.
@@ -66,6 +161,14 @@ export function securityHeaders(opts: SecurityHeaderOptions = {}): Record<string
       'camera=(self), microphone=(self), geolocation=(), interest-cohort=(), browsing-topics=()',
     // Pré-busca DNS desligada para domínios externos (privacy).
     'X-DNS-Prefetch-Control': 'off',
+    // Bloqueia carregamento de recursos cross-origin deste documento
+    // (proteção extra contra exfiltração em cenários de embedding).
+    'X-Permitted-Cross-Domain-Policies': 'none',
+    // Isolamento de agente de origem (mitigação de side-channel).
+    'Origin-Agent-Cluster': '?2',
+    // O filtro XSS legado é desligado — o CSP moderno já protege e o filtro
+    // legado pode INTRODUZIR vulnerabilidades (recommendação OWASP atual).
+    'X-XSS-Protection': '0',
   };
 
   if (opts.hsts) {
@@ -114,6 +217,11 @@ const ALLOWED_CIFRA_DOMAINS: RegExp[] = [
   /^www\.jellynote\.com$/i,
   /^studylib\.net$/i,
   /^www\.studylib\.net$/i,
+  // Fontes internacionais do cron (multi-idioma): UkuTabs (EN) e U-FRET (JA)
+  /^ukutabs\.com$/i,
+  /^www\.ukutabs\.com$/i,
+  /^ufret\.jp$/i,
+  /^www\.ufret\.jp$/i,
 ];
 
 /**

@@ -17,6 +17,7 @@ import {
   SSRF_ERROR,
   rateLimit,
   getClientIp,
+  classifyUserAgent,
 } from './src/lib/security';
 import { authorizeAdminRequest } from './src/lib/adminAuth';
 
@@ -44,6 +45,43 @@ async function startServer() {
   // (CSP, nosniff, frame-options, referrer-policy, HSTS em produção...)
   app.use((req, res, next) => {
     applySecurityHeaders(res, { hsts: isProd });
+    next();
+  });
+
+  // ── Camada anti-scraping local (espelho do Edge Middleware da Vercel) ─
+  // Em dev/self-host o Express É a borda: honeypot de varredura, bloqueio
+  // de ferramentas de raspagem em rotas caras e rate limit global por IP.
+  app.use((req, res, next) => {
+    // Honeypot: rotas clássicas de varredura de vulnerabilidades recebem o
+    // mesmo 404 de "não existe" — sem gastar recursos do app.
+    if (
+      /^\/(wp-admin|wp-login(?:\.php)?|\.env|\.git|config(?:\.php)?|admin(?:\.php)?|phpmyadmin|\.aws|\.ssh|\.htaccess|\.DS_Store|server-status|server-info)(\/|$)/i.test(
+        req.path
+      )
+    ) {
+      return res.status(404).type('text/plain').send('Not Found');
+    }
+
+    // /api/* nunca é indexado nem cacheado (as funções respondem JSON/HTML).
+    if (req.path.startsWith('/api/')) {
+      res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+      res.setHeader('Cache-Control', 'no-store');
+    }
+
+    // Ferramentas de raspagem/automação não usam o app — bloqueia rotas que
+    // entregam dados ou custam Supabase (mesma política do middleware.ts).
+    const kind = classifyUserAgent(String(req.headers['user-agent'] || ''));
+    if (kind === 'scraper' && (req.path.startsWith('/api/') || req.path.startsWith('/musica/'))) {
+      return res.status(403).type('text/plain').send('Acesso negado.');
+    }
+
+    // Rate limit global leve por IP (humano navega muito abaixo disso;
+    // evita varredura em massa mesmo com navegador de verdade).
+    const rl = rateLimit(getClientIp(req), 'global', 600, 60_000);
+    if (!rl.ok) {
+      return res.status(429).json({ error: 'Muitas requisições. Tente novamente em instantes.' });
+    }
+
     next();
   });
 

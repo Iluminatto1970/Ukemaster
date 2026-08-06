@@ -92,6 +92,7 @@ import { logContribution } from './lib/contributions';
 import { trackEvent, trackPageView } from './lib/analytics';
 import { markAdOverlayActive, markAdOverlayIdle } from './lib/adCoordinator';
 import { hydrateChordCache, schedulePersistGeneratedChords } from './lib/chordCache';
+import { isLikelyAutomatedBrowser, markSessionAsBot } from './lib/antiBot';
 
 
 const LOCAL_STORAGE_SONGS_KEY = 'ukemaster_songs_v1';
@@ -380,13 +381,23 @@ export default function App() {
   // Busca songs/playlists na nuvem. Se a nuvem tiver dados (acervo público
   // compartilhado), eles substituem o local. Se vazia/indisponível, mantém
   // o local e faz seed na nuvem via push (abaixo).
+  //
+  // ANTI-SCRAPING client-side: navegadores automatizados/headless não
+  // recebem o catálogo completo da nuvem (ficam com os defaults) — reduz
+  // o custo de raspagem em massa via navegador sem afetar usuários reais.
+  const isAutomatedBrowser = useMemo(() => isLikelyAutomatedBrowser(), []);
+  useEffect(() => {
+    if (isAutomatedBrowser) markSessionAsBot();
+  }, [isAutomatedBrowser]);
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const [cloudSongs, cloudPlaylists] = await Promise.all([
-        fetchSongsFromCloud(),
-        fetchPlaylistsFromCloud(),
-      ]);
+      const [cloudSongs, cloudPlaylists] = isAutomatedBrowser
+        ? [null, null]
+        : await Promise.all([
+            fetchSongsFromCloud(),
+            fetchPlaylistsFromCloud(),
+          ]);
       if (cancelled) return;
       // Se o usuário editou algo antes da resposta chegar, não sobrescreve
       if (cloudSongs && cloudSongs.length > 0 && !localEditedRef.current) {
@@ -593,6 +604,12 @@ export default function App() {
     isSignedIn,
     user,
   ]);
+
+  // Viewer em TELA CHEIA no mobile: ao abrir uma música, a cifra ocupa toda
+  // a área do dispositivo — sem o "card" branco, sem o padding lateral e sem
+  // o chrome de navegação (header/barra de apoio/footer). No desktop a
+  // experiência continua em card dentro do layout normal.
+  const isFullscreenViewer = activeTab === 'musicas' && viewMode === 'viewer';
 
   const handleToggleRepertoire = (songId: string) => {
     setRepertoireSongIds((prev) =>
@@ -1038,40 +1055,51 @@ export default function App() {
       {/* Monetag Ads (banners in-page) — script injetado no <head> */}
       <Monetag />
 
-      {/* Support Banner — comunidade APOIA.se */}
-      <SupportPrompt />
+      {/* Support Banner — comunidade APOIA.se (some no mobile quando o
+          viewer de cifra está em tela cheia) */}
+      <div className={isFullscreenViewer ? 'hidden md:block' : ''}>
+        <SupportPrompt />
+      </div>
 
-      {/* Navigation Header */}
-      <Header
-        setActiveTab={(tab) => {
-          setActiveTab(tab);
-          if (tab === 'musicas') {
-            setViewMode('list');
-          }
-        }}
-        onToggleMobileSidebar={() => setIsMobileSidebarOpen((prev) => !prev)}
-        donationOpen={donationOpen}
-        onOpenDonation={() => setDonationOpen(true)}
-        onCloseDonation={() => setDonationOpen(false)}
-        searchQuery={searchQuery}
-        setSearchQuery={(q) => {
-          setSearchQuery(q);
-          if (q) {
-            // Digitar na busca deve SEMPRE mostrar os resultados filtrados:
-            // volta para a aba de músicas e sai do viewer/playlists (mas
-            // não interrompe a edição de uma cifra em andamento).
-            if (activeTab !== 'musicas') {
-              setActiveTab('musicas');
-            }
-            if (viewMode !== 'editor') {
+      {/* Navigation Header — some no mobile quando o viewer de cifra está em
+          tela cheia (o viewer tem o próprio botão de voltar) */}
+      <div className={isFullscreenViewer ? 'hidden md:block' : ''}>
+        <Header
+          setActiveTab={(tab) => {
+            setActiveTab(tab);
+            if (tab === 'musicas') {
               setViewMode('list');
             }
-          }
-        }}
-      />
+          }}
+          onToggleMobileSidebar={() => setIsMobileSidebarOpen((prev) => !prev)}
+          donationOpen={donationOpen}
+          onOpenDonation={() => setDonationOpen(true)}
+          onCloseDonation={() => setDonationOpen(false)}
+          searchQuery={searchQuery}
+          setSearchQuery={(q) => {
+            setSearchQuery(q);
+            if (q) {
+              // Digitar na busca deve SEMPRE mostrar os resultados filtrados:
+              // volta para a aba de músicas e sai do viewer/playlists (mas
+              // não interrompe a edição de uma cifra em andamento).
+              if (activeTab !== 'musicas') {
+                setActiveTab('musicas');
+              }
+              if (viewMode !== 'editor') {
+                setViewMode('list');
+              }
+            }
+          }}
+        />
+      </div>
 
-      {/* Main Container Layout with Sidebar + Workspace */}
-      <div className="flex-1 flex w-full max-w-[1600px] mx-auto px-3 sm:px-6 py-4 sm:py-6 gap-6">
+      {/* Main Container Layout with Sidebar + Workspace — sem padding no
+          mobile quando o viewer de cifra está em tela cheia */}
+      <div
+        className={`flex-1 flex w-full max-w-[1600px] mx-auto gap-6 ${
+          isFullscreenViewer ? 'px-0 py-0 sm:px-6 sm:py-6' : 'px-3 sm:px-6 py-4 sm:py-6'
+        }`}
+      >
         {/* Left Sidebar Navigation */}
         <Sidebar
           activeTab={activeTab}
@@ -1104,12 +1132,17 @@ export default function App() {
 
         {/* Right Main Content Panel */}
         <main className="flex-1 min-w-0">
-          {/* Tab Views — lista de músicas fica sem wrapper branco (layout do template); demais telas mantêm o card */}
+          {/* Tab Views — lista de músicas fica sem wrapper branco (layout do
+              template); demais telas mantêm o card. No mobile, o VIEWER de
+              cifra abre em TELA CHEIA (sem card, ocupando toda a área do
+              dispositivo); no desktop volta ao card do layout. */}
           <div
             className={
-              activeTab === 'musicas' && viewMode === 'list'
-                ? ''
-                : 'bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-6 shadow-2xs min-h-[600px]'
+              isFullscreenViewer
+                ? 'ukemaster-viewer-fullscreen pt-[env(safe-area-inset-top,0px)] md:pt-0 md:min-h-[600px] md:bg-white md:border md:border-slate-200/90 md:rounded-2xl md:p-6 md:shadow-2xs'
+                : activeTab === 'musicas' && viewMode === 'list'
+                  ? ''
+                  : 'bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-6 shadow-2xs min-h-[600px]'
             }
           >
             {/* Suspense: fallback leve enquanto o lazy-load de uma tela baixa.
@@ -1283,7 +1316,11 @@ export default function App() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-5 pb-6 text-center text-xs text-slate-500 mt-auto safe-bottom">
+      <footer
+        className={`${
+          isFullscreenViewer ? 'hidden md:block' : ''
+        } bg-white border-t border-slate-200 py-5 pb-6 text-center text-xs text-slate-500 mt-auto safe-bottom`}
+      >
         <div className="max-w-[1600px] mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="font-bold text-slate-800">UkeMaster Pro</span> • Plataforma 100% Gratuita Mantida por Anúncios
