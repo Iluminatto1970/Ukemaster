@@ -74,6 +74,8 @@ const pt: Dict = {
   'sidebar.tip11': 'Mantenha o pulso solto e relaxado — tensão trava a mão direita.',
   'sidebar.tip12': 'Aprenda uma música nova por semana no modo Simplificado e depois no original.',
   'sidebar.talkToUs': 'Fale com a gente',
+  'sidebar.waCommunity': 'Comunidade no WhatsApp',
+  'sidebar.waCommunityDesc': 'Junte-se a outros ukulelistas: tire dúvidas, compartilhe e aprenda juntos.',
   'sidebar.footer': 'Portal de Músicas, Cifras & Acordes • v2.0',
 
   // ── SongList / Home ─────────────────────────────────────
@@ -577,6 +579,8 @@ const en: Dict = {
   'sidebar.tip11': 'Keep your wrist loose and relaxed — tension locks the right hand.',
   'sidebar.tip12': 'Learn a new song each week in Simplified mode and then the original.',
   'sidebar.talkToUs': 'Talk to us',
+  'sidebar.waCommunity': 'WhatsApp Community',
+  'sidebar.waCommunityDesc': 'Join fellow ukulele players: ask questions, share and learn together.',
   'sidebar.footer': 'Songs, Chords & Tabs Portal • v2.0',
 
   'library.title': 'LIBRARY',
@@ -1067,6 +1071,8 @@ const es: Dict = {
   'sidebar.tip11': 'Mantén la muñeca suelta y relajada: la tensión traba la mano derecha.',
   'sidebar.tip12': 'Aprende una canción nueva por semana en modo Simplificado y luego la original.',
   'sidebar.talkToUs': 'Hable con nosotros',
+  'sidebar.waCommunity': 'Comunidad de WhatsApp',
+  'sidebar.waCommunityDesc': 'Únete a otros ukelelistas: pregunta, comparte y aprende juntos.',
   'sidebar.footer': 'Portal de Canciones, Cifras y Acordes • v2.0',
 
   'library.title': 'BIBLIOTECA',
@@ -1557,6 +1563,8 @@ const fr: Dict = {
   'sidebar.tip11': 'Gardez le poignet souple et détendu : la tension bloque la main droite.',
   'sidebar.tip12': 'Apprenez une nouvelle chanson par semaine en mode simplifié, puis la version originale.',
   'sidebar.talkToUs': 'Parlez-nous',
+  'sidebar.waCommunity': 'Communauté WhatsApp',
+  'sidebar.waCommunityDesc': 'Rejoignez les autres joueurs de ukulélé : posez des questions, partagez et apprenez ensemble.',
   'sidebar.footer': 'Portail de chansons, grilles et accords • v2.0',
 
   'library.title': 'BIBLIOTHÈQUE',
@@ -2047,6 +2055,8 @@ const de: Dict = {
   'sidebar.tip11': 'Halte das Handgelenk locker und entspannt — Anspannung blockiert die rechte Hand.',
   'sidebar.tip12': 'Lerne jede Woche ein neues Lied im vereinfachten Modus und dann das Original.',
   'sidebar.talkToUs': 'Schreiben Sie uns',
+  'sidebar.waCommunity': 'WhatsApp-Community',
+  'sidebar.waCommunityDesc': 'Schließe dich anderen Ukulele-Spielern an: Fragen stellen, teilen und gemeinsam lernen.',
   'sidebar.footer': 'Portal für Lieder, Akkorde & Tabs • v2.0',
 
   'library.title': 'BIBLIOTHEK',
@@ -2537,6 +2547,8 @@ const ja: Dict = {
   'sidebar.tip11': '手首はリラックス — 力むと右手が固まります。',
   'sidebar.tip12': '毎週1曲、簡易モードで覚えてからオリジナルに挑戦しましょう。',
   'sidebar.talkToUs': 'お問い合わせ',
+  'sidebar.waCommunity': 'WhatsApp コミュニティ',
+  'sidebar.waCommunityDesc': '他のウクレレプレイヤーに参加：質問、共有、一緒に学びましょう。',
   'sidebar.footer': '曲・コード・タブ ポータル • v2.0',
 
   'library.title': 'ライブラリ',
@@ -3027,6 +3039,8 @@ const zh: Dict = {
   'sidebar.tip11': '保持手腕放松——紧张会让右手僵硬。',
   'sidebar.tip12': '每周学一首新歌，先简易模式，再练原版。',
   'sidebar.talkToUs': '联系我们',
+  'sidebar.waCommunity': 'WhatsApp 社区',
+  'sidebar.waCommunityDesc': '加入其他尤克里里爱好者：提问、分享、一起学习。',
   'sidebar.footer': '歌曲、和弦与指法门户 • v2.0',
 
   'library.title': '曲库',
@@ -3517,6 +3531,8 @@ const ar: Dict = {
   'sidebar.tip11': 'أبقِ معصمك مرتخيًا — التوتر يجمد اليد اليمنى.',
   'sidebar.tip12': 'تعلم أغنية جديدة كل أسبوع بالوضع المبسّط ثم النسخة الأصلية.',
   'sidebar.talkToUs': 'تحدث إلينا',
+  'sidebar.waCommunity': 'مجتمع واتساب',
+  'sidebar.waCommunityDesc': 'انضم إلى عازفي اليوكاليلي الآخرين: اسأل وشارك وتعلم معًا.',
   'sidebar.footer': 'بوابة الأغاني والكوردات • v2.0',
 
   'library.title': 'المكتبة',

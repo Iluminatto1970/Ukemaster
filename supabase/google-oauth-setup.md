@@ -95,18 +95,36 @@ e celular igualmente (foi o erro reproduzido no teste ao vivo).
 
 1. Veja qual **ID do cliente** está salvo no Supabase:
    **Authentication → Providers → Google** (campo **Client ID**).
-   O Client ID ativo hoje no projeto é:
+   O Client ID ativo hoje no projeto (verificado via API em 06/08/2026) é:
    `245302437290-5f9r2ued6jgdienjm1mr97hdkmegul9a.apps.googleusercontent.com`
-2. Abra <https://console.cloud.google.com/apis/credentials> no projeto desse
-   Client ID (o mesmo projeto da tela de consentimento).
+2. Abra <https://console.cloud.google.com/apis/credentials> **no projeto desse
+   Client ID** (o mesmo projeto da tela de consentimento). Verifique que o
+   projeto selecionado no topo da página é o correto — se você estiver no
+   projeto errado, o erro continua mesmo adicionando o URI.
 3. Clique no Client ID acima → seção **URIs de redirecionamento autorizados**.
 4. Confirme que está lá EXATAMENTE (sem barra final):
    ```
    https://asvjdjawaenxrlwdyziy.supabase.co/auth/v1/callback
    ```
+   ⚠️ **IMPORTANTE**: este URI é do SUPABASE, não do site. NÃO coloque
+   `https://ukemasterpro.vercel.app/...` aqui — o Google exige o callback do
+   Supabase (é o Supabase quem recebe o code do Google).
    Se não estiver, adicione e **Salvar**. (Também pode incluir
    `http://localhost:3000/auth/v1/callback` para testes locais.)
 5. Aguarde 2–5 minutos (o Google propaga a mudança) e tente de novo.
+
+> **Estado verificado no Supabase (06/08/2026)** — tudo pronto do nosso lado:
+> - site_url: `https://ukemasterpro.vercel.app`
+> - Redirect URLs (uri_allow_list): `https://ukemasterpro.vercel.app/auth/callback`
+>   e `http://localhost:3000/auth/callback`
+> - Provider Google habilitado com o Client ID acima
+> - Rota `/auth/callback` configurada na Vercel (rewrite para o SPA) e PKCE
+>   com `S256` correto no app
+>
+> Se o erro persistir com `invalid_request`, verifique se o app está na versão
+> mais recente (o `code_challenge_method` deve ser `S256` maiúsculo — o app já
+> envia correto). Erro `access_denied` no retorno significa apenas que o usuário
+> cancelou a permissão no Google — comportamento normal.
 
 > Se o erro persistir com `invalid_request`, verifique se o app está na versão
 > mais recente (o `code_challenge_method` deve ser `S256` maiúsculo — o app já

@@ -237,6 +237,38 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
 
+      {/* Convite à comunidade no WhatsApp — logo como emblema + símbolo do WhatsApp */}
+      <div className="px-3 pb-2 shrink-0">
+        <a
+          href="https://chat.whatsapp.com/BrEFW78LBkLKhQUQKaWcuj"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group block w-full rounded-2xl bg-gradient-to-br from-[#25D366]/95 to-[#128C7E] p-3.5 shadow-lg shadow-emerald-900/25 hover:brightness-110 active:scale-[0.98] transition-all"
+        >
+          <div className="flex items-center gap-2.5">
+            <span className="relative shrink-0">
+              <img
+                src="/logo.png"
+                alt="UkeMaster Pro"
+                className="h-9 w-9 object-contain rounded-xl bg-white/95 p-0.5 shrink-0"
+                draggable={false}
+              />
+              <span className="absolute -bottom-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-white shadow-sm">
+                <MessageCircle className="h-3 w-3 text-[#25D366] fill-[#25D366]/20" />
+              </span>
+            </span>
+            <span className="min-w-0">
+              <span className="block text-[11px] font-black text-white uppercase tracking-wide leading-tight">
+                {t('sidebar.waCommunity')}
+              </span>
+              <span className="block text-[10px] font-medium text-white/85 leading-snug mt-0.5 line-clamp-2">
+                {t('sidebar.waCommunityDesc')}
+              </span>
+            </span>
+          </div>
+        </a>
+      </div>
+
       <div className="px-6 pb-3 shrink-0">
         <a
           href="https://wa.me/5581986607510?text=Ol%C3%A1!%20Vim%20pelo%20UkeMaster%20Pro%20%E2%9C%A8"
