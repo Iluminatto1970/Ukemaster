@@ -10,6 +10,11 @@ import { useT } from '../lib/i18n';
 
 export const StrummingGuide: React.FC = () => {
   const { t } = useT();
+  // Nomes/descrições dos padrões (DEFAULT_STRUMMING_PATTERNS tem texto hardcoded em PT).
+  const patternName = (id: string, fallback: string) =>
+    ({ 'strum-1': t('rhythms.name1'), 'strum-2': t('rhythms.name2'), 'strum-3': t('rhythms.name3'), 'strum-4': t('rhythms.name4'), 'strum-5': t('rhythms.name5') }[id] ?? fallback);
+  const patternDesc = (id: string, fallback: string) =>
+    ({ 'strum-1': t('rhythms.desc1'), 'strum-2': t('rhythms.desc2'), 'strum-3': t('rhythms.desc3'), 'strum-4': t('rhythms.desc4'), 'strum-5': t('rhythms.desc5') }[id] ?? fallback);
   const [selectedPattern, setSelectedPattern] = useState<StrummingPattern>(
     DEFAULT_STRUMMING_PATTERNS[0]
   );
@@ -74,9 +79,9 @@ export const StrummingGuide: React.FC = () => {
               {t('rhythms.timeSig')} {selectedPattern.timeSignature}
             </span>
             <h3 className="text-2xl font-black text-amber-400 tracking-tight mt-2">
-              {selectedPattern.name}
+              {patternName(selectedPattern.id, selectedPattern.name)}
             </h3>
-            <p className="text-stone-300 text-sm mt-1">{selectedPattern.description}</p>
+            <p className="text-stone-300 text-sm mt-1">{patternDesc(selectedPattern.id, selectedPattern.description)}</p>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
@@ -173,12 +178,12 @@ export const StrummingGuide: React.FC = () => {
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <h4 className="font-bold text-sm text-amber-400">{p.name}</h4>
+                    <h4 className="font-bold text-sm text-amber-400">{patternName(p.id, p.name)}</h4>
                     <span className="text-[10px] font-mono bg-stone-900 px-2 py-0.5 rounded text-stone-400">
                       {p.genre}
                     </span>
                   </div>
-                  <p className="text-xs text-stone-400 line-clamp-2 mt-1">{p.description}</p>
+                  <p className="text-xs text-stone-400 line-clamp-2 mt-1">{patternDesc(p.id, p.description)}</p>
                   <div className="text-amber-400 font-mono font-bold text-sm tracking-widest mt-2">
                     {p.pattern}
                   </div>

@@ -9,6 +9,7 @@
  * navegador bloquear autoplay). Homenagem assinada pelo fundador.
  */
 import React, { useEffect, useRef, useState } from 'react';
+import { useT } from '../lib/i18n';
 
 interface SplashScreenProps {
   /** Tempo (ms) que o splash fica visível antes do fade-out. */
@@ -54,6 +55,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
   duration = 30000,
   onFinish,
 }) => {
+  const { t } = useT();
   const [hidden, setHidden] = useState(false);
   const [userNeedsClick, setUserNeedsClick] = useState(false);
   const playerRef = useRef<YTPlayer | null>(null);
@@ -184,7 +186,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
 
         {/* Subtítulo */}
         <p className="mt-5 text-sm sm:text-base font-bold tracking-widest uppercase text-[#F6AE2D] animate-splash-rise">
-          ★ Seu Portal do Ukulele
+          {t('splash.tagline')}
         </p>
 
         {/* Indicador de áudio (ondas animadas) */}
@@ -210,27 +212,26 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
             }}
             className="mt-3 px-5 py-2 rounded-full bg-[#F26419] hover:bg-[#D9530D] text-white text-xs font-extrabold tracking-wider uppercase shadow-lg transition-colors cursor-pointer animate-splash-rise"
           >
-            ▶ Iniciar homenagem
+            {t('splash.playCta')}
           </button>
         )}
 
         {/* HOMENAGEM a Israel Kamakawiwo'ole */}
         <div className="mt-7 max-w-lg animate-splash-rise">
           <p className="text-[11px] sm:text-xs font-black uppercase tracking-[0.28em] text-[#F6AE2D]/90">
-            Em homenagem
+            {t('splash.tribute')}
           </p>
           <p className="mt-2 text-base sm:text-lg font-black text-white leading-snug drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
-            Israel Kamakawiwo'ole
+            {t('splash.tributeName')}
           </p>
           <p className="mt-1 text-[11px] sm:text-xs text-white/90 font-medium leading-relaxed">
-            (1959 — 1997) — "Somewhere Over the Rainbow"
+            {t('splash.tributeYears')}
           </p>
           <p className="mt-3 text-[11px] sm:text-xs text-white/85 font-medium leading-relaxed drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
-            Ele foi o grande <span className="text-[#F6AE2D] font-extrabold">incentivador do meu
-            ingresso no ukulele</span> — este projeto nasceu da sua música.
+            {t('splash.tributeBodyA')}<span className="text-[#F6AE2D] font-extrabold">{t('splash.tributeBodyHighlight')}</span>{t('splash.tributeBodyB')}
           </p>
           <p className="mt-3 text-xs sm:text-sm font-black tracking-wide text-[#F6AE2D] drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
-            — Iluminatto Moraes
+            {t('splash.signed')}
           </p>
         </div>
       </div>

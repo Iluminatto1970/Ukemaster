@@ -4,6 +4,7 @@
 import React, { useState } from 'react';
 import { X, Sparkles, Check, ArrowRight, Phone, Mail, User, PartyPopper } from 'lucide-react';
 import { saveLead, normalizeWhatsApp } from '../lib/leads';
+import { useT } from '../lib/i18n';
 import { Logo } from './Logo';
 
 interface LeadCaptureModalProps {
@@ -22,10 +23,10 @@ interface LeadCaptureModalProps {
  */
 export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
   isOpen,
-  title,
   onClose,
   onComplete,
 }) => {
+  const { t } = useT();
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [whatsapp, setWhatsapp] = useState<string>('');
@@ -60,7 +61,7 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
         whatsapp: normalizeWhatsApp(whatsapp),
       });
     } catch (err) {
-      setError('Não foi possível salvar seus dados. Tente novamente.');
+      setError(t('lead.error'));
       setSubmitting(false);
     }
   };
@@ -80,7 +81,7 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-slate-800 font-bold text-lg p-1 cursor-pointer"
-            aria-label="Fechar"
+            aria-label={t('lead.close')}
           >
             <X className="w-5 h-5" />
           </button>
@@ -89,14 +90,14 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
         <div>
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 text-[#F26419] font-black text-[10px] tracking-wider uppercase border border-orange-200">
             <Sparkles className="w-3 h-3" />
-            Cadastro Grátis
+            {t('lead.badge')}
           </span>
           <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-2">
-            Crie sua conta para ter seu Repertório Privado
+            {t('lead.title')}
           </h3>
           <p className="text-xs text-slate-500 leading-relaxed mt-1">
-            Preencha seus dados para liberar o repertório privado e ferramentas exclusivas.{' '}
-            <strong className="text-[#0E7C7B]">O acervo de cifras continua 100% gratuito.</strong>
+            {t('lead.subtitle')}{' '}
+            <strong className="text-[#0E7C7B]">{t('lead.freeNote')}</strong>
           </p>
         </div>
 
@@ -105,16 +106,15 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
             <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200">
               <PartyPopper className="w-7 h-7" />
             </div>
-            <h4 className="text-lg font-black text-slate-900">Cadastro recebido!</h4>
+            <h4 className="text-lg font-black text-slate-900">{t('lead.successTitle')}</h4>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Obrigado! Assim que o login estiver ativo no portal, você poderá montar seu
-              repertório privado e acompanhar seus estudos. Já estamos te enviando novidades.
+              {t('lead.successBody')}
             </p>
             <button
               onClick={onClose}
               className="w-full py-3 px-5 rounded-2xl bg-[#0E7C7B] hover:bg-[#0A5F5E] text-white font-black text-xs tracking-wider uppercase shadow-lg transition-all cursor-pointer"
             >
-              Fechar
+              {t('lead.close')}
             </button>
           </div>
         ) : (
@@ -138,7 +138,7 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Seu nome"
+              placeholder={t('lead.name')}
               required
               className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#F26419] focus:bg-white transition-all"
             />
@@ -149,7 +149,7 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Seu melhor e-mail"
+              placeholder={t('lead.email')}
               required
               className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#F26419] focus:bg-white transition-all"
             />
@@ -160,7 +160,7 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
               type="tel"
               value={whatsapp}
               onChange={(e) => setWhatsapp(e.target.value)}
-              placeholder="Seu WhatsApp com DDD (ex: 11 98765-4321)"
+              placeholder={t('lead.whatsapp')}
               required
               minLength={10}
               className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#F26419] focus:bg-white transition-all"
@@ -175,10 +175,10 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
             className="w-full py-3 px-5 rounded-2xl bg-[#F26419] hover:bg-[#D9530D] disabled:opacity-60 text-white font-black text-xs tracking-wider uppercase shadow-lg shadow-[#F26419]/30 flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
             {submitting ? (
-              <span>Salvando...</span>
+              <span>{t('lead.saving')}</span>
             ) : (
               <>
-                <span>Continuar Cadastro</span>
+                <span>{t('lead.submit')}</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
@@ -187,7 +187,7 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
           <div className="flex items-center gap-2 justify-center pt-1">
             <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
             <p className="text-[10px] text-slate-400 font-medium text-center">
-              Seus dados ficam seguros e são usados apenas para contato e novidades do portal.
+              {t('lead.privacy')}
             </p>
           </div>
         </form>

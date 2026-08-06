@@ -40,21 +40,20 @@ interface SidebarProps {
 }
 
 /** Dicas rotativas de ukulele — a do dia é escolhida deterministicamente.
- * As dicas ficam em português (conteúdo educativo, não traduzido) para
- * manter a fidelidade dos termos técnicos. */
+ * As dicas são traduzidas via i18n (chaves sidebar.tip1..tip12). */
 const UKULELE_TIPS = [
-  'Troque as cordas a cada 2–3 meses para manter o som brilhante.',
-  'Afinar antes de toda prática treina seu ouvido — use o afinador do app!',
-  '5 minutos por dia rendem mais que 1 hora no fim de semana.',
-  'Pratique o ritmo no metrônomo começando devagar (60 BPM) e aumente aos poucos.',
-  'Aperte os acordes perto do traste — menos força, som mais limpo.',
-  'Aprenda os acordes do campo harmônico de C primeiro: C, Dm, Em, F, G, Am.',
-  'Deixe o polegar atrás do braço do ukulele para maior alcance dos dedos.',
-  'Toque junto com a cifra no modo rolagem para manter o tempo estável.',
-  'Grave seu som de vez em quando — ouvir depois mostra a evolução.',
-  'Dedilhe próximo ao braço para um som mais suave; perto do cavalete, mais brilhante.',
-  'Mantenha o pulso solto e relaxado — tensão trava a mão direita.',
-  'Aprenda uma música nova por semana no modo Simplificado e depois no original.',
+  'sidebar.tip1',
+  'sidebar.tip2',
+  'sidebar.tip3',
+  'sidebar.tip4',
+  'sidebar.tip5',
+  'sidebar.tip6',
+  'sidebar.tip7',
+  'sidebar.tip8',
+  'sidebar.tip9',
+  'sidebar.tip10',
+  'sidebar.tip11',
+  'sidebar.tip12',
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -149,7 +148,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     const day = new Date().toISOString().slice(0, 10);
     let h = 0;
     for (const c of day) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-    return UKULELE_TIPS[h % UKULELE_TIPS.length];
+    return t(UKULELE_TIPS[h % UKULELE_TIPS.length]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const content = (

@@ -871,7 +871,7 @@ export const SongList: React.FC<SongListProps> = ({
                     )}
                     {showFeedAd && (
                       <div className="my-1">
-                        <AdSenseSlot format="horizontal" label="Anúncio do Repertório" />
+                        <AdSenseSlot format="horizontal" label={t('library.adRepertoire')} />
                       </div>
                     )}
 
@@ -966,7 +966,7 @@ export const SongList: React.FC<SongListProps> = ({
                             e.stopPropagation();
                             onAddToPlaylist(song);
                           }}
-                          title="Adicionar à Playlist"
+                          title={t('library.addToPlaylist')}
                           className="p-1.5 rounded-lg bg-slate-100 text-slate-600 hover:text-orange-600 hover:bg-orange-50 transition-colors cursor-pointer"
                         >
                           <ListPlus className="w-3.5 h-3.5" />
@@ -980,7 +980,7 @@ export const SongList: React.FC<SongListProps> = ({
                               onOpenAuth?.('login');
                             }
                           }}
-                          title={isLoggedIn ? 'Editar Cifra' : 'Faça login para editar cifras'}
+                          title={isLoggedIn ? t('library.editChord') : t('library.loginToEdit')}
                           className="p-1.5 rounded-lg bg-slate-100 text-slate-600 hover:text-orange-600 hover:bg-orange-50 transition-colors cursor-pointer"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
