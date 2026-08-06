@@ -25,6 +25,16 @@ export function isLikelyAutomatedBrowser(): boolean {
     };
     const ua = nav.userAgent || '';
 
+    // Sinal de desktop: mobile tem plugins vazios por padrão (Chrome Android,
+    // iOS) — os heurísticos abaixo só acusam automação em DESKTOP, evitando
+    // falsos positivos em celulares legítimos (plugins.length === 0 é normal).
+    const uad = (nav as Navigator & { userAgentData?: { mobile?: boolean } }).userAgentData;
+    const isMobile =
+      uad?.mobile === true ||
+      /Mobile|Android|iPhone|iPad|iPod/i.test(ua) ||
+      /Mobi/i.test(ua) ||
+      typeof window.orientation !== 'undefined';
+
     // Sinal mais forte: o navegador se declara sob automação.
     if (nav.webdriver === true) return true;
 
@@ -35,13 +45,13 @@ export function isLikelyAutomatedBrowser(): boolean {
     // (browsers reais têm plugins.length >= 1 em desktop).
     const pluginsCount = nav.plugins?.length ?? 0;
     const langsCount = nav.languages?.length ?? 0;
-    if (/Chrome/i.test(ua) && pluginsCount === 0 && langsCount <= 1 && !nav.userAgentData) {
+    if (!isMobile && /Chrome/i.test(ua) && pluginsCount === 0 && langsCount <= 1 && !nav.userAgentData) {
       return true;
     }
 
     // Chrome headless novo (--headless=new): Chrome sem runtime nem userAgentData.
     const w = window as Window & { chrome?: unknown };
-    if (/Chrome/i.test(ua) && !nav.userAgentData && !w.chrome && pluginsCount === 0) {
+    if (!isMobile && /Chrome/i.test(ua) && !nav.userAgentData && !w.chrome && pluginsCount === 0) {
       return true;
     }
   } catch {

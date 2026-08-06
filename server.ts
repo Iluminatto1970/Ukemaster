@@ -18,6 +18,7 @@ import {
   rateLimit,
   getClientIp,
   classifyUserAgent,
+  fetchWithRedirectGuard,
 } from './src/lib/security';
 import { authorizeAdminRequest } from './src/lib/adminAuth';
 
@@ -76,10 +77,20 @@ async function startServer() {
     }
 
     // Rate limit global leve por IP (humano navega muito abaixo disso;
-    // evita varredura em massa mesmo com navegador de verdade).
-    const rl = rateLimit(getClientIp(req), 'global', 600, 60_000);
-    if (!rl.ok) {
-      return res.status(429).json({ error: 'Muitas requisições. Tente novamente em instantes.' });
+    // evita varredura em massa mesmo com navegador de verdade). Rotas do
+    // Vite (HMR/módulos) ficam FORA do rate limit — hot updates frequentes
+    // podem estourar o teto e causar 429 falso durante o desenvolvimento.
+    const isViteRoute =
+      req.path.startsWith('/@vite') ||
+      req.path.startsWith('/@id') ||
+      req.path.startsWith('/@fs') ||
+      req.path.startsWith('/node_modules/') ||
+      req.path.startsWith('/src/');
+    if (!isViteRoute) {
+      const rl = rateLimit(getClientIp(req), 'global', 600, 60_000);
+      if (!rl.ok) {
+        return res.status(429).json({ error: 'Muitas requisições. Tente novamente em instantes.' });
+      }
     }
 
     next();
@@ -107,13 +118,11 @@ async function startServer() {
         targetUrl = 'https://' + targetUrl;
       }
 
-      // Anti-SSRF: só permite fetch de plataformas de cifra conhecidas.
-      // Bloqueia IPs privados/localhost/metadata cloud (acesso à rede interna).
-      if (!isAllowedFetchUrl(targetUrl)) {
-        return res.status(403).json({ error: SSRF_ERROR });
-      }
-
-      const response = await fetch(targetUrl, {
+      // Anti-SSRF com GUARDA DE REDIRECIONAMENTO: valida a URL original e
+      // CADA hop de redirect contra a allowlist (impede 302 para a rede
+      // interna/metadata cloud — mesmo comportamento da api/fetch-url.ts).
+      const result = await fetchWithRedirectGuard(targetUrl, {
+        maxBytes: 2_000_000,
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
@@ -122,14 +131,12 @@ async function startServer() {
         },
       });
 
-      if (!response.ok) {
-        return res.status(response.status).json({
-          error: `O site de origem respondeu com status ${response.status}.`,
-        });
+      if (!result.ok) {
+        const status = result.status && result.status >= 400 ? result.status : 502;
+        return res.status(status).json({ error: result.error || 'Erro ao buscar a URL solicitada.' });
       }
 
-      const html = await response.text();
-      return res.json({ ok: true, html });
+      return res.json({ ok: true, html: result.html });
     } catch (err: any) {
       return res.status(500).json({
         error: err.message || 'Erro de conexão ao buscar a URL solicitada.',

@@ -75,6 +75,17 @@ function blockedText(): Response {
   });
 }
 
+function rateLimitedText(): Response {
+  return new Response('Muitas requisições. Tente novamente em instantes.', {
+    status: 429,
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'Cache-Control': 'no-store',
+      'Retry-After': '60',
+    },
+  });
+}
+
 /** Headers extras a fixar quando a requisição segue o fluxo (next()). */
 function extraHarden(isApi: boolean): Record<string, string> {
   const h: Record<string, string> = {
@@ -122,16 +133,17 @@ export default function middleware(req: Request): Response {
   }
 
   // Rate limit por IP: /api/* apertado, /musica/* médio, páginas folgado.
+  // Em /musica/* e páginas HTML o 429 é texto (a rota entrega HTML, não JSON).
   if (isApi) {
     if (!take(ip, 'api', 120, 60_000)) {
       return json(429, { error: 'Muitas requisições. Tente novamente em instantes.' }, { 'Retry-After': '60' });
     }
   } else if (isSong) {
     if (!take(ip, 'song', 240, 60_000)) {
-      return json(429, { error: 'Muitas requisições. Tente novamente em instantes.' }, { 'Retry-After': '60' });
+      return rateLimitedText();
     }
   } else if (!take(ip, 'page', 900, 300_000)) {
-    return blockedText();
+    return rateLimitedText();
   }
 
   // Continua a requisição para a função serverless/estático normalmente.
