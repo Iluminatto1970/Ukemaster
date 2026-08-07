@@ -275,8 +275,9 @@ const JUNK_ARTIST_PATTERNS: RegExp[] = [
   /^\[/, // começa com [
   /\[[A-G][#b]?/, // contém acorde (ex.: "[Tab", "[Pré", "[Ebm7]")
   /^[)\]}\s]+/, // começa com fechamento/colchete (ex.: "(Renato Russo)")
-  /^[^a-zà-ú0-9]{1,4}$/i, // símbolos curtos (ex.: "-======-", "|-", "0")
+  /^[^\p{L}\p{N}]{1,4}$/u, // símbolos/pontuação puros (ex.: "-======-", "|-", "0") — NÃO rejeita nomes japoneses/árabes (藤井風 = \p{L})
   /^\d+$/, // só números
+  /desconhecid|unknown\s+artist/i, // fallback de artista não resolvido (ufret/guitaretab)
   /^\s*[-|_=]+\s*$/, // separadores
   /^~+[\s~]*/, // prefixo "~" do Guitaretab (nunca é nome de artista)
   /\b(intro|solo|riff|refr[aã]o|refrao|verso|vers|ponte|final|outro|backing|playback|instrumental|tablatura|guitarpro|partitura)\b/i,
