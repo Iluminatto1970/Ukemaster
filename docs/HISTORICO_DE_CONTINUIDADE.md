@@ -20,6 +20,7 @@ npm run dev          # servidor local (porta 5173)
 - **Validar antes do deploy:** `npx tsc --noEmit && npm run build`
 - **Credenciais do cron:** ver `CRON_DEPLOYMENT.md` e `scripts/cron/cron.env.example`
 - **Religar máquinas Acer/Desktop (Linux Mint):** ver `docs/CHECKLIST_RELIGAR_MAQUINAS.md`
+- **Bundle 042007d (UG + hard cap) nas máquinas:** ver `docs/CHECKLIST_BUNDLE_042007D.md`
 
 ---
 
@@ -75,4 +76,4 @@ npm run dev          # servidor local (porta 5173)
 
 - **Consulta ao banco (REST):** chaves em `.env.local` (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`); tabela `songs` tem `id,title,artist,key,category,lang,content,simplified_content,medium_content,votes,views`.
 - **Painel admin** (`/admin`): rodada imediata nas máquinas (fila `worker_commands`), status dos workers (card "Status das Máquinas"), scraping manual.
-- **Documentação de apoio:** `CRON_DEPLOYMENT.md` · `GO_LIVE_CHECKLIST.md` · `docs/CHECKLIST_RELIGAR_MAQUINAS.md` · `SUPABASE_SETUP.md` · `supabase/google-oauth-setup.md` (login Google: URIs de redirect já cadastrados para localhost e `ukemasterpro.vercel.app`).
+- **Documentação de apoio:** `CRON_DEPLOYMENT.md` · `GO_LIVE_CHECKLIST.md` · `docs/CHECKLIST_RELIGAR_MAQUINAS.md` · `docs/CHECKLIST_BUNDLE_042007D.md` · `SUPABASE_SETUP.md` · `supabase/google-oauth-setup.md` (login Google: URIs de redirect já cadastrados para localhost e `ukemasterpro.vercel.app`).
