@@ -44,13 +44,14 @@ interface SongRow {
   category?: string | null;
   difficulty?: string | null;
   seo_description?: string | null;
+  views?: number | null;
 }
 
 async function fetchSongByIdServer(id: string): Promise<SongRow | null> {
   const sb = getSupabase();
   if (!sb) return null;
   const res = await fetch(
-    `${sb.url}/rest/v1/songs?select=id,title,artist,key,content,category,difficulty,seo_description&id=eq.${encodeURIComponent(id)}&limit=1`,
+    `${sb.url}/rest/v1/songs?select=id,title,artist,key,content,category,difficulty,seo_description,views&id=eq.${encodeURIComponent(id)}&limit=1`,
     {
       headers: {
         apikey: sb.key,
@@ -70,9 +71,37 @@ const esc = (s: string) =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 
-function send(res: ServerResponse, status: number, body: string, type = 'text/html; charset=utf-8') {
+// ── Cache CDN (Vercel Edge Network) ───────────────────────────────────────
+// O Vercel cacheia a resposta da função quando o Cache-Control tem `s-maxage`
+// (disponível em todos os planos, inclusive Hobby). `stale-while-revalidate`
+// serve o conteúdo stale instantaneamente e revalida em background — sem
+// bloquear o crawler. Sem este header, cada visita do Google/WhatsApp gera
+// 1 invocação de função + 1 query no Supabase (~0,9s).
+//
+// Estratégia TIERED por popularidade: músicas mais acessadas (views alto)
+// ficam mais tempo no edge (24h), as demais 6h. Erros NÃO são cacheados
+// (no-store), para 404 de músicas removidas não ficarem presos no CDN.
+//
+// TRADEOFF de reparos: o Vercel NÃO purga o cache em deploy — expira só por
+// TTL. Após um repair/atualização de conteúdo, crawlers veem o SSR antigo
+// por até 1 TTL (6h normal / 24h popular), quando o SWR revalida. TTLs
+// curtos mantêm isso aceitável para o fluxo de reparo do acervo.
+// `max-age` (1h) deixa o cache local do Googlebot servir recrawls sem
+// bater na edge — menos invocações e queries ainda.
+const CACHE_POPULAR = 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800'; // 24h + SWR 7d
+const CACHE_NORMAL = 'public, max-age=3600, s-maxage=21600, stale-while-revalidate=86400'; // 6h + SWR 1d
+const POPULAR_VIEWS = 10; // a partir de 10 visualizações entra no tier popular
+
+function send(
+  res: ServerResponse,
+  status: number,
+  body: string,
+  type = 'text/html; charset=utf-8',
+  cache = 'no-store'
+) {
   res.statusCode = status;
   res.setHeader('Content-Type', type);
+  res.setHeader('Cache-Control', cache);
   res.end(body);
 }
 
@@ -179,5 +208,10 @@ export default async function handler(
 </body>
 </html>`;
 
-  return send(res, 200, html);
+  // Cache tiered: mais acessadas ficam 24h no edge, as demais 6h (com SWR
+  // cobrindo a revalidação). O conteúdo só muda em reparos/atualizações —
+  // com SWR o crawler nunca espera a função e o cache se renova sozinho.
+  const cache =
+    (song.views ?? 0) >= POPULAR_VIEWS ? CACHE_POPULAR : CACHE_NORMAL;
+  return send(res, 200, html, 'text/html; charset=utf-8', cache);
 }
