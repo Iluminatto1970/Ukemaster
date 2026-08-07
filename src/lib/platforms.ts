@@ -92,9 +92,6 @@ export const CHORD_PLATFORMS: ChordPlatform[] = [
     region: 'INT',
     lang: 'en',
     instrument: 'ukulele',
-    // Página do artista: https://ukutabs.com/{letra}/{artista}/ → links
-    // /{letra}/{artista}/{musica}/. A cifra vive num <pre id="ukutabs-song">
-    // com os acordes em <a class="ukutabschord">. Testado 2026-08: HTML puro.
     artistPages: [
       'https://ukutabs.com/j/jason-mraz/',
       'https://ukutabs.com/e/ed-sheeran/',
@@ -119,7 +116,58 @@ export const CHORD_PLATFORMS: ChordPlatform[] = [
     ],
     limitPerArtist: 3,
     delayMs: 900,
-    enabled: true,
+    enabled: false,
+    disabledReason:
+      '0 importações históricas (2026-08): Cloudflare bloqueia o fetch do Node por fingerprint TLS e IPs de datacenter (Vercel) por IP — só curl com IP residencial passaria. Reativar só se o cron ganhar fallback curl nas máquinas.',
+  },
+  {
+    id: 'ultimate-guitar-en',
+    name: 'Ultimate-Guitar (EN — maior acervo do mundo)',
+    region: 'INT',
+    lang: 'en',
+    instrument: 'violão/ukulele/bateria',
+    // VALIDADO 2026-08 em HTML puro (curl, sem JS): as páginas legadas
+    // /tabs/{artista}_tabs.htm e /tabs/{letra}/{artista}/{musica}_{tipo}.htm
+    // continuam servindo SSR com um <div class="js-store" data-content="{...}">:
+    //   • página de artista → store.page.data.other_tabs[] (102/página, paginação
+    //     em store.page.data.pagination) com { song_name, artist_name, tab_url }
+    //     (ex.: Adele = 569 tabs em 6 páginas);
+    //   • página de música → store.page.data.wiki_tab.content com a cifra
+    //     COMPLETA em formato [ch]Em[/ch] + seções [Verse]…[Chorus] (letra +
+    //     acordes). Converter [ch]X[/ch] → [X] e remover [tab]…[/tab].
+    // Aguarda extrator dedicado no scraper.ts (parse js-store + conversor).
+    artistPages: [
+      'https://www.ultimate-guitar.com/tabs/adele_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/ed-sheeran_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/taylor-swift_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/the-beatles_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/bob-marley_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/israel-kamakawiwoole_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/vance-joy_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/bruno-mars_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/rihanna_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/coldplay_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/billie-eilish_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/elvis-presley_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/train_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/passenger_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/twenty-one-pilots_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/oasis_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/radiohead_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/jack-johnson_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/lorde_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/jason-mraz_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/john-mayer_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/queen_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/nirvana_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/u2_tabs.htm',
+      'https://www.ultimate-guitar.com/tabs/elton-john_tabs.htm',
+    ],
+    limitPerArtist: 5,
+    delayMs: 1200,
+    enabled: false,
+    disabledReason:
+      'Validado 2026-08: HTML puro completo (js-store → wiki_tab.content com letra + acordes [ch], other_tabs na página de artista). Aguarda extrator dedicado (parse do js-store + conversão [ch]→[X]) no scraper.ts.',
   },
   {
     id: 'ufret-ja',

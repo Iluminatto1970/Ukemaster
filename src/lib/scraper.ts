@@ -493,7 +493,7 @@ export function sanitizeImportedText(raw: string): string {
 }
 
 /** Decodifica entidades HTML básicas (incluindo numéricas e &#x27;). */
-function decodeEntities(s: string): string {
+export function decodeEntities(s: string): string {
   return s
     .replace(/&#x27;|&apos;/gi, "'")
     .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
