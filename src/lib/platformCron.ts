@@ -854,6 +854,8 @@ export async function runPlatformCron(options: PlatformCronOptions = {}): Promis
   // Histórico a gravar no final (cron_log) + novas importações (cron_imports)
   const runLogRows: any[] = [];
   const importHistoryRows: any[] = [];
+  // Nome do worker desta rodada (calculado sob demanda, cacheado por rodada)
+  let logWorkerName: string | null = null;
 
   // Processa até estourar o orçamento de tempo (sempre ao menos 1 artista)
   let wrapped = false;
@@ -1085,7 +1087,10 @@ export async function runPlatformCron(options: PlatformCronOptions = {}): Promis
       logRow.repaired = entry.repaired;
     }
     if (hasDb && (await hasWorkerColumn(sb.url, sb.key))) {
-      logRow.worker = getWorkerName();
+      // Mesmo worker para toda a rodada — calculado UMA vez (os.hostname()
+      // é chamada de sistema; evita repetir por artista).
+      if (logWorkerName === null) logWorkerName = getWorkerName();
+      logRow.worker = logWorkerName;
     }
     runLogRows.push(logRow);
 

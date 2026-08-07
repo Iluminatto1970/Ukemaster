@@ -83,11 +83,12 @@ interface WorkerInfo {
   leaseWorker: string | null;
 }
 
-/** Converte `worker-acer-1234-abc1` → `acer` (remove prefixo + pid + rand). */
+/** Converte `worker-acer-1234-abc1` → `acer` (remove prefixo + pid + rand).
+ * Formato legado sem nome (`worker-1234-abc1`) → 'desconhecido'. */
 function parseWorkerFromId(workerId: string): string {
   const m = workerId.replace(/^worker-/, '').split('-');
-  if (m.length <= 2) return workerId;
-  return m.slice(0, -2).join('-') || workerId;
+  if (m.length <= 2) return 'desconhecido';
+  return m.slice(0, -2).join('-') || 'desconhecido';
 }
 
 /** Formata um ISO em "há Xh Ymin" / "há Xd" / "nunca". */
@@ -214,7 +215,7 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
       const logs =
         (await fetchRows<{ worker?: string; ran_at: string; imported?: number; errors?: number }>(
           'cron_log',
-          '&order=ran_at.desc&limit=300',
+          '&order=ran_at.desc&limit=1000',
           'worker,ran_at,imported,errors'
         )) || [];
       const state = (await fetchRows<{ value?: { workerId?: string } }>('scrape_state', '&key=eq.worker_lease')) || [];
