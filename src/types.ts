@@ -36,6 +36,8 @@ export interface Song {
   difficulty?: 'Simplificado' | 'Médio' | 'Avançado';
   category?: string; // e.g. "MPB", "Pop", "Rock", "Gospel", "Reggae", "Sertanejo", "Infantil", "Internacional", "Outros"
   tags?: string[];
+  /** Idioma da plataforma de origem (pt/en/es/fr/de/ja/zh/ar ou 'multi'). */
+  lang?: string;
   seoDescription?: string;
   hashtags?: string[];
   votes?: number; // total de votos da comunidade

@@ -28,6 +28,9 @@
 import os from 'os';
 import { scrapeArtistPage, isJunkArtistName, isJunkTitle } from './scraper.js';
 import { CHORD_PLATFORMS } from './platforms.js';
+
+// Idioma de cada plataforma (id → lang) para rotular as músicas importadas.
+const platformLangById = new Map<string, string>(CHORD_PLATFORMS.map((p) => [p.id, p.lang]));
 import { CIFRACLUB_CATALOG } from '../data/cifraclubCatalog.js';
 import type { Song } from '../types';
 
@@ -113,6 +116,7 @@ function songToRow(s: Song) {
     simplified_content: s.simplifiedContent ?? null,
     difficulty: s.difficulty ?? null,
     category: s.category ?? null,
+    lang: s.lang ?? null,
     tags: s.tags ?? [],
     seo_description: s.seoDescription ?? null,
     hashtags: s.hashtags ?? [],
@@ -899,6 +903,16 @@ export async function runPlatformCron(options: PlatformCronOptions = {}): Promis
       });
       timedOutLast = timedOut;
 
+      // Idioma da plataforma de origem: as sugestões da home são filtradas
+      // pelo idioma da interface, então cada música importada carrega o lang
+      // da plataforma que a trouxe (cifraclub→pt, ufret→ja, guitaretab→multi…).
+      const platformLang = platformLangById.get(item.platformId);
+      if (platformLang && songs.length > 0) {
+        songs.forEach((s) => {
+          if (!s.lang) s.lang = platformLang;
+        });
+      }
+
       entry.duplicates = duplicates;
       entry.errors = errors.length;
 
@@ -944,7 +958,13 @@ export async function runPlatformCron(options: PlatformCronOptions = {}): Promis
           repairedIdsThisArtist.add(existing.id);
           // Preserva metadados ORIGINAIS do banco (título/artista podem ser
           // mais ricos que os do scraper); renova o conteúdo e a classificação.
-          const updated: Song = { ...s, id: existing.id, title: existing.title, artist: existing.artist };
+          const updated: Song = {
+            ...s,
+            id: existing.id,
+            title: existing.title,
+            artist: existing.artist,
+            lang: (existing as any).lang || s.lang,
+          };
           // Guarda de categoria: se o banco já tem uma categoria REAL (≠
           // 'Outros') e o scraper não inferiu nenhuma, mantém a do banco —
           // evita que uma inferência falha regrida categorias já corrigidas.

@@ -45,6 +45,7 @@ interface SongRow {
   medium_content?: string | null;
   difficulty?: string | null;
   category?: string | null;
+  lang?: string | null;
   tags?: string[] | null;
   seo_description?: string | null;
   hashtags?: string[] | null;
@@ -72,6 +73,7 @@ function songToRow(s: Song): SongRow {
     medium_content: s.mediumContent ?? null,
     difficulty: s.difficulty ?? null,
     category: s.category ?? null,
+    lang: s.lang ?? null,
     tags: s.tags ?? [],
     seo_description: s.seoDescription ?? null,
     hashtags: s.hashtags ?? [],
@@ -97,6 +99,7 @@ function rowToSong(r: SongRow): Song {
     mediumContent: r.medium_content ?? undefined,
     difficulty: r.difficulty as Song['difficulty'] | undefined,
     category: r.category ?? undefined,
+    lang: r.lang ?? undefined,
     tags: r.tags ?? undefined,
     seoDescription: r.seo_description ?? undefined,
     hashtags: r.hashtags ?? undefined,
@@ -187,7 +190,7 @@ function songToRowLegacy(s: Song): Omit<SongRow, 'votes' | 'views'> {
 // significa ~15MB para 4.600+ músicas — em conexão lenta o acervo demora
 // minutos para aparecer e parece vazio. Só metadados: ~1,5MB, carrega rápido.
 const SONG_METADATA_COLUMNS =
-  'id,title,artist,key,tempo,strumming_pattern,youtube_url,youtube_id,difficulty,category,tags,seo_description,hashtags,votes,views,created_at,updated_at';
+  'id,title,artist,key,tempo,strumming_pattern,youtube_url,youtube_id,difficulty,category,lang,tags,seo_description,hashtags,votes,views,created_at,updated_at';
 // Pré-migração (sem a coluna views): o fetch do catálogo não pode quebrar
 // pedindo uma coluna que o banco ainda não tem — detecta e usa esta lista.
 const SONG_METADATA_COLUMNS_LEGACY =

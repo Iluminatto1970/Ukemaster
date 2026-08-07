@@ -167,7 +167,18 @@ export const SongList: React.FC<SongListProps> = ({
   currentUser = null,
   contributionsRefreshKey = 0,
 }) => {
-  const { t } = useT();
+  const { t, lang } = useT();
+
+  // Base das SUGESTÕES da home: músicas do idioma da interface (mais as 'multi'
+  // e as sem idioma — importadas pelo usuário). Se o idioma NÃO tiver nenhuma
+  // música nativa (ex.: 'ar'/'zh' ainda sem acervo), cai para o acervo todo —
+  // a home nunca fica vazia e as 'multi' sozinhas não prendem o fallback.
+  // A BUSCA (filteredSongs) continua GLOBAL.
+  const langBaseSongs = useMemo(() => {
+    const hasNative = songs.some((s) => s.lang === lang);
+    if (!hasNative) return songs;
+    return songs.filter((s) => !s.lang || s.lang === lang || s.lang === 'multi');
+  }, [songs, lang]);
   const [internalSearchQuery, setInternalSearchQuery] = useState<string>('');
 
   const searchQuery = externalSearchQuery !== undefined ? externalSearchQuery : internalSearchQuery;
@@ -291,22 +302,23 @@ export const SongList: React.FC<SongListProps> = ({
     return matchSearch && matchDifficulty && matchCategory && matchArtist;
   });
 
-  // ── Mais Votadas: top 10 por votos da comunidade (com empate por título) ──
+  // ── Mais Votadas: top 10 por votos da comunidade (com empate por título) —
+  // filtradas pelo idioma da interface (sugestões do idioma em questão).
   const topVotedSongs = useMemo(() => {
-    return [...songs]
+    return [...langBaseSongs]
       .filter((s) => (s.votes ?? 0) > 0)
       .sort((a, b) => (b.votes ?? 0) - (a.votes ?? 0) || a.title.localeCompare(b.title))
       .slice(0, 10);
-  }, [songs]);
+  }, [langBaseSongs]);
 
   // ── Ranking principal (hero estilo CifraClub): se ainda não há votos,
   // usa as músicas mais RECENTES (novidades) para o ranking nunca ficar vazio.
   const heroSongs = useMemo(() => {
     if (topVotedSongs.length > 0) return topVotedSongs;
-    return [...songs]
+    return [...langBaseSongs]
       .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
       .slice(0, 10);
-  }, [topVotedSongs, songs]);
+  }, [topVotedSongs, langBaseSongs]);
 
   // ── EM ALTA: top 8 por votos RECENTES (14 dias) — o "que está bombando" ──
   const [trendingMap, setTrendingMap] = useState<Map<string, number>>(new Map());
@@ -322,7 +334,7 @@ export const SongList: React.FC<SongListProps> = ({
   }, [myVotes?.size]);
 
   const trendingSongs = useMemo(() => {
-    return [...songs]
+    return [...langBaseSongs]
       .filter((s) => (trendingMap.get(s.id) ?? 0) > 0)
       .sort(
         (a, b) =>
@@ -331,26 +343,26 @@ export const SongList: React.FC<SongListProps> = ({
           a.title.localeCompare(b.title)
       )
       .slice(0, 5);
-  }, [songs, trendingMap]);
+  }, [langBaseSongs, trendingMap]);
 
-  // ── MAIS ACESSADAS: top 5 por visualizações ──
+  // ── MAIS ACESSADAS: top 5 por visualizações (do idioma) ──
   const mostViewedSongs = useMemo(() => {
-    return [...songs]
+    return [...langBaseSongs]
       .filter((s) => (s.views ?? 0) > 0)
       .sort((a, b) => (b.views ?? 0) - (a.views ?? 0) || a.title.localeCompare(b.title))
       .slice(0, 5);
-  }, [songs]);
+  }, [langBaseSongs]);
 
-  // ── NOVIDADES: top 5 recém-adicionadas (vitrine da home) ──
+  // ── NOVIDADES: top 5 recém-adicionadas (vitrine da home, do idioma) ──
   const recentSongs = useMemo(() => {
-    return [...songs]
+    return [...langBaseSongs]
       .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
       .slice(0, 5);
-  }, [songs]);
+  }, [langBaseSongs]);
 
   const totalVotes = useMemo(
-    () => songs.reduce((acc, s) => acc + (s.votes ?? 0), 0),
-    [songs]
+    () => langBaseSongs.reduce((acc, s) => acc + (s.votes ?? 0), 0),
+    [langBaseSongs]
   );
 
   // Trecho da LETRA para o preview do card — o foco visual é a letra,

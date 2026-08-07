@@ -31,6 +31,7 @@ create table if not exists public.songs (
   medium_content text,
   difficulty text,
   category text,
+  lang text,
   tags jsonb default '[]'::jsonb,
   seo_description text,
   hashtags jsonb default '[]'::jsonb,
@@ -46,6 +47,7 @@ create table if not exists public.songs (
 alter table public.songs add column if not exists votes integer not null default 0;
 alter table public.songs add column if not exists views integer not null default 0;
 alter table public.songs add column if not exists medium_content text;
+alter table public.songs add column if not exists lang text;
 
 -- ── 2b) SONG_VOTES (1 voto por usuário por música) ────────────────────
 -- PK composta (song_id + user_id) garante que cada usuário vota UMA vez.
