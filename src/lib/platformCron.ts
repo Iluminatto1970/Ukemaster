@@ -168,9 +168,40 @@ let cachedCronToken: string | null | undefined; // undefined = ainda não tentou
 let cronTokenFetchedAt = 0;
 const CRON_TOKEN_RETRY_MS = 5 * 60_000; // re-tenta login após 5 min de falha
 
+/**
+ * Lê o `exp` (epoch segundos) do payload do JWT — para renovar o token do
+ * UkeMaster quando ele expira. O JWT do Supabase Auth dura ~1h; processos
+ * longos (reparo, rodadas grandes) que rodavam além disso usavam o token
+ * velho e todo upsert falhava com PGRST303 "JWT expired" (o 401 que
+ * travou o reparo das músicas vazias).
+ */
+function jwtExpirySeconds(token: string): number | null {
+  try {
+    const payload = token.split('.')[1];
+    if (!payload) return null;
+    const json = Buffer.from(
+      payload.replace(/-/g, '+').replace(/_/g, '/'),
+      'base64'
+    ).toString('utf8');
+    const data = JSON.parse(json) as { exp?: number };
+    return typeof data.exp === 'number' ? data.exp : null;
+  } catch {
+    return null;
+  }
+}
+
 async function getCronToken(url: string): Promise<string | null> {
-  // Token já obtido → usa; falha recente → não martela o login (espera retry)
-  if (cachedCronToken) return cachedCronToken;
+  // Token já obtido e AINDA VÁLIDO (folga de 5 min antes do exp) → usa.
+  // Antes: token era cacheado para sempre — expirava no meio de processos
+  // longos e o cron quebrava com PGRST303 JWT expired. Agora renovamos por
+  // expiração real do JWT.
+  if (cachedCronToken) {
+    const exp = jwtExpirySeconds(cachedCronToken);
+    const valid = exp === null || exp * 1000 - Date.now() > 5 * 60_000;
+    if (valid) return cachedCronToken;
+    // Expirado → derruba o cache e refaz o login abaixo
+    cachedCronToken = null;
+  }
   if (
     cachedCronToken === null &&
     Date.now() - cronTokenFetchedAt < CRON_TOKEN_RETRY_MS
