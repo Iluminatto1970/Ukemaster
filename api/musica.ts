@@ -87,20 +87,29 @@ export default async function handler(
   // argumento { query } (Node 24.x invoca handler(req, res) sem options) —
   // antes isso quebrava com 500 'Cannot destructure property query'.
   // Fontes possíveis: (1) query string (?id=...), (2) path /musica/:id.
-  let id: string | undefined;
+  // NOTA: fica SEMPRE URL-encoded — decodifica UMA única vez lá embaixo
+  // (decodeURIComponent pode lançar URIError em entrada malformada).
+  let rawId: string | undefined;
   const q = options?.query;
-  if (q && q.id) id = Array.isArray(q.id) ? q.id[0] : q.id;
-  if (!id) {
+  if (q && q.id) rawId = Array.isArray(q.id) ? q.id[0] : q.id;
+  if (!rawId) {
     const parsed = new URL(req.url || '/', 'http://localhost');
-    if (parsed.searchParams.get('id')) id = parsed.searchParams.get('id') as string;
+    if (parsed.searchParams.get('id')) rawId = parsed.searchParams.get('id') as string;
   }
-  if (!id) {
+  if (!rawId) {
     const m = (req.url || '').match(/\/musica\/([^/?]+)/);
-    if (m) id = decodeURIComponent(m[1]);
+    if (m) rawId = m[1];
   }
-  if (!id) return send(res, 400, 'Música não informada.');
+  if (!rawId) return send(res, 400, 'Música não informada.');
 
-  const song = await fetchSongByIdServer(decodeURIComponent(id));
+  let id: string;
+  try {
+    id = decodeURIComponent(rawId);
+  } catch {
+    return send(res, 400, 'Música não informada.');
+  }
+
+  const song = await fetchSongByIdServer(id);
   if (!song) {
     return send(
       res,
@@ -118,14 +127,17 @@ export default async function handler(
     `Cifra de ukulele de ${song.title} (${song.artist})${song.key ? ` no tom ${song.key}` : ''} — acordes, ritmo e letra para tocar agora.`;
   // Pré-renderiza a CIFRA COMPLETA (letra + acordes) para crawlers — a rota
   // /musica/:id existe justamente para o Google indexar o conteúdo real.
-  const lyricLines = (song.content || '')
+  const MAX_SSR_LINES = 200; // cap generoso; músicas raras passam disso
+  const allLines = (song.content || '')
     .split(/\r?\n/)
     .map((l) => l.trim())
-    .filter((l) => l.length > 0)
-    .slice(0, 120);
-  const lyricsHtml = lyricLines
-    .map((l) => `<p>${esc(l)}</p>`)
-    .join('\n');
+    .filter((l) => l.length > 0);
+  const truncated = allLines.length > MAX_SSR_LINES;
+  const lyricLines = allLines.slice(0, MAX_SSR_LINES);
+  const lyricsHtml =
+    lyricLines.map((l) => `<p>${esc(l)}</p>`).join('\n') +
+    (truncated ? '\n<p>… (cifra completa no app)</p>' : '');
+  // Escapa os valores do JSON-LD contra `</script>` (XSS no prerender).
   const jsonLd = JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'MusicRecording',
@@ -135,7 +147,7 @@ export default async function handler(
     ...(song.category ? { genre: song.category } : {}),
     url: pageUrl,
     publisher: { '@type': 'Organization', name: 'UkeMaster Pro', url: siteUrl },
-  });
+  }).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
 
   const html = `<!doctype html>
 <html lang="pt-BR">
