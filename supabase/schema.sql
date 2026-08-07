@@ -114,8 +114,12 @@ create table if not exists public.cron_log (
   errors integer not null default 0,
   repaired integer not null default 0,
   duration_ms integer,
-  message text
+  message text,
+  worker text
 );
+
+-- Se a tabela cron_log JÁ existia (migração antiga), garante a coluna worker
+alter table public.cron_log add column if not exists worker text;
 
 -- ── 8) AFFILIATE_LINKS (anúncios de afiliado — Mercado Livre, Shopee...) ──
 -- Links de afiliado do proprietário (importados por TXT na área admin).

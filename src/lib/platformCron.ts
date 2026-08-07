@@ -25,6 +25,7 @@
  *  - Resultado: o acervo fica 100% alinhado com o site, sem duplicatas.
  */
 
+import os from 'os';
 import { scrapeArtistPage, isJunkArtistName, isJunkTitle } from './scraper.js';
 import { CHORD_PLATFORMS } from './platforms.js';
 import { CIFRACLUB_CATALOG } from '../data/cifraclubCatalog.js';
@@ -387,6 +388,26 @@ async function hasRepairedColumn(url: string, key: string): Promise<boolean> {
   return repairedColumnCache.exists;
 }
 
+/**
+ * true se a coluna `worker` existe no cron_log (cache) — mesmo padrão do
+ * `repaired`: pré-migração o log NÃO inclui a coluna (PostgREST rejeita
+ * chaves desconhecidas e o histórico da rodada deixaria de ser gravado).
+ */
+let workerColumnCache: { exists: boolean } | null = null;
+async function hasWorkerColumn(url: string, key: string): Promise<boolean> {
+  if (workerColumnCache) return workerColumnCache.exists;
+  try {
+    const res = await fetch(
+      `${url}/rest/v1/cron_log?select=${encodeURIComponent('worker')}&limit=1`,
+      { headers: await cronHeaders(key) }
+    );
+    workerColumnCache = { exists: res.ok };
+  } catch {
+    workerColumnCache = { exists: false };
+  }
+  return workerColumnCache.exists;
+}
+
 async function readCursor(url: string, key: string): Promise<{ platformIndex: number; artistIndex: number }> {
   try {
     const res = await fetch(`${url}/rest/v1/scrape_state?key=eq.platform_cursor&select=value`, {
@@ -553,8 +574,34 @@ function buildArtistQueue(): ArtistJob[] {
 const LEASE_KEY = 'worker_lease';
 const LEASE_TTL_MS = 25 * 60_000; // 25 min > maior orçamento local (15 min)
 
+/**
+ * Nome desta máquina/worker — usado no lease e no cron_log para o painel
+ * admin saber quem rodou por último. Ordem de prioridade:
+ *   1. CRON_WORKER_NAME (env das máquinas: 'acer', 'windows'...);
+ *   2. 'vercel' quando rodando na Vercel (sandbox sem hostname útil);
+ *   3. hostname do sistema (sanitizado, máx. 30 chars).
+ */
+export function getWorkerName(): string {
+  const fromEnv = process.env.CRON_WORKER_NAME;
+  if (fromEnv) {
+    return fromEnv.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 30) || 'unknown';
+  }
+  if (process.env.VERCEL) return 'vercel';
+  try {
+    return (
+      os
+        .hostname()
+        .toLowerCase()
+        .replace(/[^a-z0-9_-]/g, '')
+        .slice(0, 30) || 'unknown'
+    );
+  } catch {
+    return 'unknown';
+  }
+}
+
 function workerId(): string {
-  return `worker-${process.pid}-${Math.random().toString(36).slice(2, 8)}`;
+  return `worker-${getWorkerName()}-${process.pid}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 /**
@@ -1036,6 +1083,9 @@ export async function runPlatformCron(options: PlatformCronOptions = {}): Promis
     };
     if (hasDb && (await hasRepairedColumn(sb.url, sb.key))) {
       logRow.repaired = entry.repaired;
+    }
+    if (hasDb && (await hasWorkerColumn(sb.url, sb.key))) {
+      logRow.worker = getWorkerName();
     }
     runLogRows.push(logRow);
 

@@ -18,6 +18,8 @@ import {
   ExternalLink,
   MonitorCog,
   XCircle,
+  Activity,
+  AlertTriangle,
 } from 'lucide-react';
 import { findDuplicateSong } from '../utils/chordUtils';
 import { getSessionAccessToken, supabaseRequest, fetchRows, patchRows } from '../lib/supabase';
@@ -70,6 +72,38 @@ interface DiscoveredLink {
   url: string;
   title: string;
   artist: string;
+}
+
+/** Status de um worker (máquina ou Vercel) para o painel. */
+interface WorkerInfo {
+  worker: string;
+  lastRanAt: string | null;
+  lastImported: number;
+  lastErrors: number;
+  leaseWorker: string | null;
+}
+
+/** Converte `worker-acer-1234-abc1` → `acer` (remove prefixo + pid + rand). */
+function parseWorkerFromId(workerId: string): string {
+  const m = workerId.replace(/^worker-/, '').split('-');
+  if (m.length <= 2) return workerId;
+  return m.slice(0, -2).join('-') || workerId;
+}
+
+/** Formata um ISO em "há Xh Ymin" / "há Xd" / "nunca". */
+function formatAgo(iso: string | null): string {
+  if (!iso) return 'nunca';
+  const ms = Date.now() - Date.parse(iso);
+  if (ms < 0) return 'agora';
+  const min = Math.floor(ms / 60_000);
+  if (min < 1) return 'agora';
+  if (min < 60) return `há ${min}min`;
+  const h = Math.floor(min / 60);
+  if (h < 24) {
+    const m = min % 60;
+    return m > 0 ? `há ${h}h ${m}min` : `há ${h}h`;
+  }
+  return `há ${Math.floor(h / 24)}d`;
 }
 
 /** Linha da fila worker_commands (rodada imediata nas máquinas). */
@@ -167,6 +201,67 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
     await patchRows('worker_commands', `?id=eq.${id}&status=eq.pending`, { status: 'canceled' });
     await loadCommands();
   };
+
+  // ── Status das máquinas (última atividade por worker + lease) ───────
+  const [workers, setWorkers] = useState<WorkerInfo[]>([]);
+  const [workersLoading, setWorkersLoading] = useState<boolean>(false);
+  // Alerta de parada: máquina sem atividade há mais de N horas fica vermelha.
+  const [staleHours, setStaleHours] = useState<number>(6);
+
+  const loadWorkers = async () => {
+    setWorkersLoading(true);
+    try {
+      const logs =
+        (await fetchRows<{ worker?: string; ran_at: string; imported?: number; errors?: number }>(
+          'cron_log',
+          '&order=ran_at.desc&limit=300',
+          'worker,ran_at,imported,errors'
+        )) || [];
+      const state = (await fetchRows<{ value?: { workerId?: string } }>('scrape_state', '&key=eq.worker_lease')) || [];
+      const leaseWorker = state[0]?.value?.workerId ? parseWorkerFromId(state[0].value.workerId) : null;
+
+      // Última execução por worker (o log vem ordenado do mais recente)
+      const byWorker = new Map<string, { lastRanAt: string; imported: number; errors: number }>();
+      for (const l of logs) {
+        if (!l.worker || byWorker.has(l.worker)) continue;
+        byWorker.set(l.worker, {
+          lastRanAt: l.ran_at,
+          imported: l.imported ?? 0,
+          errors: l.errors ?? 0,
+        });
+      }
+
+      // Workers esperados sempre aparecem (mesmo que nunca tenham rodado);
+      // depois os desconhecidos que apareceram no log (ex.: hostname local).
+      const expected = ['acer', 'windows', 'vercel'];
+      const list: WorkerInfo[] = expected.map((w) => {
+        const info = byWorker.get(w);
+        return {
+          worker: w,
+          lastRanAt: info?.lastRanAt ?? null,
+          lastImported: info?.imported ?? 0,
+          lastErrors: info?.errors ?? 0,
+          leaseWorker,
+        };
+      });
+      for (const [w, info] of byWorker) {
+        if (!expected.includes(w)) {
+          list.push({ worker: w, lastRanAt: info.lastRanAt, lastImported: info.imported, lastErrors: info.errors, leaseWorker });
+        }
+      }
+      setWorkers(list);
+    } finally {
+      setWorkersLoading(false);
+    }
+  };
+
+  // Atualiza no mount e a cada 30s (monitor do painel).
+  useEffect(() => {
+    loadWorkers();
+    const t = setInterval(loadWorkers, 30_000);
+    return () => clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleDiscover = async () => {
     const url = urlInput.trim();
@@ -556,6 +651,101 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
             {cronResult}
           </pre>
         )}
+      </div>
+
+      {/* ── Status das máquinas (workers) ────────────────────────────────── */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs space-y-4">
+        <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2">
+            <Activity className="w-5 h-5 text-[#0E7C7B]" />
+            <h2 className="text-sm font-extrabold text-[#1D2D44] uppercase tracking-wider">
+              Status das Máquinas (workers)
+            </h2>
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-[10px] text-slate-500 font-bold flex items-center gap-1.5">
+              alertar após
+              <input
+                type="number"
+                min={1}
+                max={72}
+                value={staleHours}
+                onChange={(e) => setStaleHours(Number(e.target.value) || 6)}
+                className="w-14 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-[10px] text-slate-700 font-bold text-center focus:outline-none focus:border-[#0E7C7B]"
+              />
+              h parada
+            </label>
+            <button
+              onClick={loadWorkers}
+              disabled={workersLoading}
+              className="text-[10px] px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 disabled:opacity-50 text-slate-600 font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              {workersLoading ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                <RefreshCw className="w-3 h-3" />
+              )}
+              Atualizar
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {workers.map((w) => {
+            const ageMs = w.lastRanAt ? Date.now() - Date.parse(w.lastRanAt) : Infinity;
+            const status =
+              ageMs === Infinity
+                ? { label: 'NUNCA RODOU', cls: 'bg-slate-100 text-slate-500 border-slate-200' }
+                : ageMs > staleHours * 3_600_000
+                  ? { label: 'PARADA', cls: 'bg-rose-50 text-rose-600 border-rose-200' }
+                  : ageMs <= 30 * 60_000
+                    ? { label: 'ATIVA', cls: 'bg-emerald-50 text-emerald-600 border-emerald-200' }
+                    : { label: 'INATIVA', cls: 'bg-amber-50 text-amber-600 border-amber-200' };
+            return (
+              <div key={w.worker} className="border border-slate-200 rounded-xl p-3.5 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
+                    <MonitorCog className="w-3.5 h-3.5 text-[#0E7C7B]" />
+                    {w.worker === 'vercel' ? 'Vercel (cron diário)' : w.worker}
+                  </span>
+                  <span
+                    className={`text-[9px] px-2 py-0.5 rounded-full font-extrabold uppercase tracking-wider border ${status.cls}`}
+                  >
+                    {status.label}
+                  </span>
+                </div>
+                <div className="space-y-1 text-[10px] text-slate-500">
+                  <p className="flex items-center gap-1.5">
+                    <RefreshCw className="w-3 h-3 text-slate-400" />
+                    Última atividade:{' '}
+                    <strong className="text-slate-700">{formatAgo(w.lastRanAt)}</strong>
+                  </p>
+                  {w.lastRanAt && (
+                    <p>
+                      Última execução: +{w.lastImported} novas, {w.lastErrors} err
+                    </p>
+                  )}
+                  <p className="flex items-center gap-1.5">
+                    <Activity className="w-3 h-3 text-slate-400" />
+                    Lease:{' '}
+                    {w.leaseWorker ? (
+                      <strong className="text-emerald-600">{w.leaseWorker} detém agora</strong>
+                    ) : (
+                      <span>livre</span>
+                    )}
+                  </p>
+                </div>
+                {status.label === 'PARADA' && (
+                  <p className="flex items-start gap-1.5 text-[10px] text-rose-600 font-bold">
+                    <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                    Sem atividade há mais de {staleHours}h — verifique se a máquina está ligada e o
+                    cron instalado.
+                  </p>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* ── Rodada imediata nas máquinas (Acer/Windows) ────────────────── */}

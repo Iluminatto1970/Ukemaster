@@ -28,9 +28,8 @@
  */
 
 import fs from 'fs';
-import os from 'os';
 import path from 'path';
-import { runPlatformCron, getSupabaseEnv, cronHeaders } from '../src/lib/platformCron';
+import { runPlatformCron, getSupabaseEnv, cronHeaders, getWorkerName } from '../src/lib/platformCron';
 
 // ── Carrega .env (parse simples, sem dependências) ────────────────────────
 function loadEnv(file: string) {
@@ -91,17 +90,6 @@ hardTimer.unref?.();
 //  - Degradação graciosa: sem a tabela (schema antigo) ou sem as credenciais
 //    do UkeMaster, retorna 0 e o fluxo normal roda como sempre.
 // ─────────────────────────────────────────────────────────────────────────
-
-/** Nome desta máquina: CRON_WORKER_NAME > hostname sanitizado. */
-function workerName(): string {
-  const fromEnv = process.env.CRON_WORKER_NAME;
-  if (fromEnv) return fromEnv.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 40) || 'unknown';
-  try {
-    return os.hostname().toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 40) || 'unknown';
-  } catch {
-    return 'unknown';
-  }
-}
 
 interface WorkerCommand {
   id: string;
@@ -212,7 +200,7 @@ async function processPendingCommands(
   sb: { url: string; key: string },
   budgetMs: number
 ): Promise<number> {
-  const worker = workerName();
+  const worker = getWorkerName();
   const commands = await fetchPendingCommands(sb.url, sb.key, worker);
   if (commands.length === 0) {
     await cleanupOldCommands(sb.url, sb.key);
@@ -281,7 +269,7 @@ async function main() {
         JSON.stringify(
           {
             ranAt: new Date().toISOString(),
-            worker: workerName(),
+            worker: getWorkerName(),
             commandsProcessed,
             message: 'Comandos do painel processados — fluxo normal adiado para a próxima rodada.',
           },
