@@ -126,42 +126,43 @@ export const CHORD_PLATFORMS: ChordPlatform[] = [
     region: 'INT',
     lang: 'en',
     instrument: 'violão/ukulele/bateria',
-    // VALIDADO 2026-08 em HTML puro (curl, sem JS): as páginas legadas
-    // /tabs/{artista}_tabs.htm e /tabs/{letra}/{artista}/{musica}_{tipo}.htm
-    // continuam servindo SSR com um <div class="js-store" data-content="{...}">:
+    // VALIDADO 2026-08 em HTML puro (curl, sem JS): as páginas servem SSR
+    // com um <div class="js-store" data-content="{...}">:
     //   • página de artista → store.page.data.other_tabs[] (102/página, paginação
     //     em store.page.data.pagination) com { song_name, artist_name, tab_url }
     //     (ex.: Adele = 569 tabs em 6 páginas);
     //   • página de música → store.page.data.wiki_tab.content com a cifra
     //     COMPLETA em formato [ch]Em[/ch] + seções [Verse]…[Chorus] (letra +
     //     acordes). Converter [ch]X[/ch] → [X] e remover [tab]…[/tab].
-    // Aguarda extrator dedicado no scraper.ts (parse js-store + conversor).
+    // IMPORTANTE: usar o formato CANÔNICO /artist/{slug}_{id} — o formato
+    // legado /tabs/{slug}_tabs.htm redireciona só com underscore
+    // (ex.: elvis_presley), e slugs com hífen (elvis-presley) dão 404.
     artistPages: [
-      'https://www.ultimate-guitar.com/tabs/adele_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/ed-sheeran_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/taylor-swift_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/the-beatles_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/bob-marley_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/israel-kamakawiwoole_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/vance-joy_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/bruno-mars_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/rihanna_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/coldplay_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/billie-eilish_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/elvis-presley_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/train_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/passenger_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/twenty-one-pilots_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/oasis_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/radiohead_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/jack-johnson_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/lorde_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/jason-mraz_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/john-mayer_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/queen_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/nirvana_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/u2_tabs.htm',
-      'https://www.ultimate-guitar.com/tabs/elton-john_tabs.htm',
+      'https://www.ultimate-guitar.com/artist/adele_20519',
+      'https://www.ultimate-guitar.com/artist/ed_sheeran_30232',
+      'https://www.ultimate-guitar.com/artist/taylor_swift_16027',
+      'https://www.ultimate-guitar.com/artist/the_beatles_1916',
+      'https://www.ultimate-guitar.com/artist/bob_marley_9676',
+      'https://www.ultimate-guitar.com/artist/iz_kamakawiwoole_121917',
+      'https://www.ultimate-guitar.com/artist/vance_joy_37940',
+      'https://www.ultimate-guitar.com/artist/bruno_mars_28280',
+      'https://www.ultimate-guitar.com/artist/rihanna_14817',
+      'https://www.ultimate-guitar.com/artist/coldplay_1782',
+      'https://www.ultimate-guitar.com/artist/billie_eilish_66748',
+      'https://www.ultimate-guitar.com/artist/elvis_presley_11125',
+      'https://www.ultimate-guitar.com/artist/train_250',
+      'https://www.ultimate-guitar.com/artist/passenger_21762',
+      'https://www.ultimate-guitar.com/artist/twenty_one_pilots_36284',
+      'https://www.ultimate-guitar.com/artist/oasis_734',
+      'https://www.ultimate-guitar.com/artist/radiohead_578',
+      'https://www.ultimate-guitar.com/artist/jack_johnson_10609',
+      'https://www.ultimate-guitar.com/artist/lorde_40477',
+      'https://www.ultimate-guitar.com/artist/jason_mraz_10984',
+      'https://www.ultimate-guitar.com/artist/john_mayer_10857',
+      'https://www.ultimate-guitar.com/artist/queen_590',
+      'https://www.ultimate-guitar.com/artist/nirvana_780',
+      'https://www.ultimate-guitar.com/artist/u2_149',
+      'https://www.ultimate-guitar.com/artist/elton_john_10605',
     ],
     limitPerArtist: 5,
     delayMs: 1200,
