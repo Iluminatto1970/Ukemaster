@@ -690,6 +690,21 @@ export default function App() {
     }
   };
 
+  // ── Rotas de aba pela URL (SEO): /dicionario, /afinador, /ritmos ──────
+  // A Vercel reescreve essas rotas para a SPA (index.html). Aqui o app
+  // reconhece o pathname e abre a aba correspondente — senão o usuário/crawler
+  // cairia sempre na home (soft-404: URL diz "dicionario", conteúdo mostra home).
+  useEffect(() => {
+    const pathToTab: Record<string, string> = {
+      '/dicionario': 'dicionario',
+      '/afinador': 'afinador',
+      '/ritmos': 'ritmos',
+    };
+    const tab = pathToTab[window.location.pathname];
+    if (tab) setActiveTab(tab);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // ── Rota /musica/:id — abre a cifra pela URL (links compartilháveis/SEO) ──
   // Ao carregar uma URL tipo /musica/abc, o app abre essa cifra direto.
   const openedUrlSongRef = useRef<string>('');
