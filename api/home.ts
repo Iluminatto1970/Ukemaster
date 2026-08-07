@@ -201,6 +201,12 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
   // Cache CDN: a home muda pouco (sugestões rotacionam por views). s-maxage
   // 6h + SWR 1d reduz invocações; crawlers servem do edge.
+  //
+  // Vary: User-Agent é CRÍTICO: o middleware reescreve `/` → /api/home SÓ
+  // para crawlers. Sem este header, o SSR (HTML estático sem o app React)
+  // cacheado sob `/` seria servido a navegadores reais na janela do TTL —
+  // app quebrado. Com Vary, o CDN separa as entradas de cache por UA.
   const cache = 'public, max-age=3600, s-maxage=21600, stale-while-revalidate=86400';
+  res.setHeader('Vary', 'User-Agent');
   return send(res, 200, html, 'text/html; charset=utf-8', cache);
 }
