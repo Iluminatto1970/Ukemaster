@@ -31,6 +31,34 @@ function adminHeaders(): Record<string, string> {
   return headers;
 }
 
+/**
+ * Lê a resposta de uma chamada admin e devolve o JSON parseado.
+ *
+ * A Vercel, quando a serverless function crasha antes do handler (ex.:
+ * módulo não resolvido) ou estoura o tempo, devolve uma página de erro em
+ * TEXTO PURO ("A server error occurred...") em vez de JSON. Nesses casos o
+ * `res.json()` explodiria com "Unexpected token... is not valid JSON" e o
+ * usuário não saberia o que aconteceu. Aqui lemos o texto primeiro: se for
+ * JSON válido, retornamos os dados; senão, lançamos um erro com o corpo real.
+ */
+async function readAdminJson<T>(res: Response): Promise<T> {
+  const text = await res.text();
+  let data: any = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    // Corpo não-JSON (erro da plataforma). Mensagem amigável + corpo real.
+    const preview = text.replace(/\s+/g, ' ').slice(0, 160);
+    throw new Error(
+      `O servidor respondeu sem JSON (HTTP ${res.status}): ${preview || 'resposta vazia'}. Se for "A server error", a função estourou tempo ou crashou — tente de novo ou veja os logs da Vercel.`
+    );
+  }
+  if (!res.ok) {
+    throw new Error(data?.error || data?.message || `Falha na requisição (HTTP ${res.status}).`);
+  }
+  return data as T;
+}
+
 interface AdminScraperProps {
   songs: Song[];
   onImportSongs: (songs: Song[]) => void;
@@ -74,8 +102,8 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
         headers: adminHeaders(),
         body: JSON.stringify({ discover: url }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Falha na descoberta.');
+      const data = await readAdminJson<{ links?: DiscoveredLink[] }>(res);
+      if (!data) throw new Error('Falha na descoberta.');
       setLinks(data.links || []);
       setSelected(new Set((data.links || []).map((l: DiscoveredLink) => l.url)));
     } catch (e: any) {
@@ -119,8 +147,8 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
           headers: adminHeaders(),
           body: JSON.stringify({ songs: batch }),
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Falha no scrape.');
+        const data = await readAdminJson<{ results?: any[] }>(res);
+        if (!data) throw new Error('Falha no scrape.');
         for (const r of data.results || []) {
           if (r.song) {
             // Dedupe no ato de adicionar: se já existe no acervo, não duplica
@@ -175,8 +203,14 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
             : { fast: true, updateExisting: cronUpdateExisting }
         ),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Falha no cron.');
+      const data = await readAdminJson<{
+        results?: { artistUrl: string; imported: number; updated?: number; duplicates: number; errors: number }[];
+        totalImported?: number;
+        totalUpdated?: number;
+        totalDuplicates?: number;
+        totalErrors?: number;
+      }>(res);
+      if (!data) throw new Error('Falha no cron.');
       const lines = (data.results || []).map(
         (r: any) =>
           `${r.artistUrl.split('/').filter(Boolean).pop()} → +${r.imported} novas, ${r.updated ?? 0} atualizadas, ${r.duplicates} dup, ${r.errors} err`

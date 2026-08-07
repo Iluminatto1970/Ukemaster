@@ -1,8 +1,8 @@
 /**
  * Dicionário de acordes de ukulele: digitações (posições) para o diagrama SVG, organizadas por nota e tipo.
  */
-import { ChordDefinition } from '../types';
-import { getOrGenerateChord } from '../utils/chordGenerator';
+import type { ChordDefinition } from '../types.js';
+import { getOrGenerateChord } from '../utils/chordGenerator.js';
 
 export const ALL_KEYS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 

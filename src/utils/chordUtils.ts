@@ -524,7 +524,7 @@ export function extractSongMetadata(
 }
 
 import { generateSongSeo } from './seoUtils.js';
-import { findChord } from '../data/chords';
+import { findChord } from '../data/chords.js';
 import type { ChordDefinition } from '../types';
 
 export interface SongSeoOutput {

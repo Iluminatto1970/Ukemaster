@@ -16,7 +16,7 @@
  * função retorna null e o chamador cai na simplificação por teoria musical
  * (ladder em chordUtils).
  */
-import { ChordDefinition, ChordFingering } from '../types';
+import type { ChordDefinition, ChordFingering } from '../types.js';
 
 // Afinação padrão do ukulele (reentrante G C E A) em semitons a partir de C4
 const STRING_PCS = [7, 0, 4, 9]; // G4=7, C4=0, E4=4, A4=9
