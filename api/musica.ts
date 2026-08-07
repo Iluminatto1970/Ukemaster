@@ -79,11 +79,26 @@ function send(res: ServerResponse, status: number, body: string, type = 'text/ht
 export default async function handler(
   req: IncomingMessage,
   res: ServerResponse,
-  { query }: { query: Record<string, string | string[]> }
+  options?: { query?: Record<string, string | string[]> }
 ) {
-  const id = Array.isArray(query.id) ? query.id[0] : (query.id as string | undefined);
-  if (!id) return send(res, 400, 'Música não informada.');
   if (req.method !== 'GET') return send(res, 405, 'Method Not Allowed');
+
+  // Extrai o id de forma robusta: o runtime do Vercel NEM SEMPRE passa o 3º
+  // argumento { query } (Node 24.x invoca handler(req, res) sem options) —
+  // antes isso quebrava com 500 'Cannot destructure property query'.
+  // Fontes possíveis: (1) query string (?id=...), (2) path /musica/:id.
+  let id: string | undefined;
+  const q = options?.query;
+  if (q && q.id) id = Array.isArray(q.id) ? q.id[0] : q.id;
+  if (!id) {
+    const parsed = new URL(req.url || '/', 'http://localhost');
+    if (parsed.searchParams.get('id')) id = parsed.searchParams.get('id') as string;
+  }
+  if (!id) {
+    const m = (req.url || '').match(/\/musica\/([^/?]+)/);
+    if (m) id = decodeURIComponent(m[1]);
+  }
+  if (!id) return send(res, 400, 'Música não informada.');
 
   const song = await fetchSongByIdServer(decodeURIComponent(id));
   if (!song) {
@@ -101,6 +116,16 @@ export default async function handler(
   const description =
     song.seo_description ||
     `Cifra de ukulele de ${song.title} (${song.artist})${song.key ? ` no tom ${song.key}` : ''} — acordes, ritmo e letra para tocar agora.`;
+  // Pré-renderiza a CIFRA COMPLETA (letra + acordes) para crawlers — a rota
+  // /musica/:id existe justamente para o Google indexar o conteúdo real.
+  const lyricLines = (song.content || '')
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0)
+    .slice(0, 120);
+  const lyricsHtml = lyricLines
+    .map((l) => `<p>${esc(l)}</p>`)
+    .join('\n');
   const jsonLd = JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'MusicRecording',
@@ -137,7 +162,8 @@ export default async function handler(
   <h1>${esc(song.title)}</h1>
   <p>${esc(song.artist)}${song.key ? ` — Tom ${esc(song.key)}` : ''}</p>
   <p>Confira a cifra completa de ${esc(song.title)} no UkeMaster Pro.</p>
-  <p><a href="${esc(pageUrl)}">Abrir cifra</a></p>
+  ${lyricsHtml}
+  <p><a href="${esc(pageUrl)}">Abrir cifra completa no UkeMaster Pro</a></p>
 </body>
 </html>`;
 
