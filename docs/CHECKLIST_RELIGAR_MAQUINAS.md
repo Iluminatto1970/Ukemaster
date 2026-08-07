@@ -1,4 +1,4 @@
-# 🖥️ Checklist — Religar o Acer e o Windows com o bundle novo
+# 🖥️ Checklist — Religar o Acer e o Desktop (Linux Mint) com o bundle novo
 
 As máquinas estão paradas (última atividade: **06/08 ~08:34 UTC**). Este guia
 religa cada uma, atualiza o bundle do cron e valida que voltaram a trabalhar
@@ -8,6 +8,9 @@ vai pegá-lo automaticamente).
 
 > ⏱️ Tempo total: ~10 min por máquina. Sem risco: o lease atômico + dedupe em
 > 3 camadas impedem duplicação mesmo com as duas ligadas ao mesmo tempo.
+>
+> 📌 **Desktop** é a 2ª máquina do cron (Tailscale, mesmo nome) — era Windows,
+> agora roda **Linux Mint** (usuário `iluminatto` / senha `1a7g3c`).
 
 ---
 
@@ -57,7 +60,7 @@ ls -la dist-cron/ukemaster-cron.mjs
 Confira (e ajuste se faltar) as linhas abaixo — **sem espaços ao redor do `=`**:
 
 ```bash
-nano dist-cron/.env    # ou notepad dist-cron\.env no Windows
+nano dist-cron/.env    # Linux/Mint (o Desktop agora é Linux)
 ```
 
 ```text
@@ -69,11 +72,11 @@ CRON_TIME_BUDGET_MS=900000
 
 # NOME DESTA MÁQUINA — obrigatório para o painel identificá-la:
 CRON_WORKER_NAME=acer        # ← no Acer
-# CRON_WORKER_NAME=windows   # ← no Windows
+# CRON_WORKER_NAME=desktop   # ← no Desktop (Linux Mint)
 
 # Divisão por idioma (opcional — deixa vazio para rodar tudo):
 # CRON_PLATFORMS=cifraclub-br,ufret-ja     # Acer: pt + japonês
-# CRON_PLATFORMS=ukutabs-en,guitaretab-int # Windows: en + internacional
+# CRON_PLATFORMS=ukutabs-en,guitaretab-int # Desktop: en + internacional
 ```
 
 > O `install.sh` pode regerar esse arquivo a partir do `.env.local` do projeto
@@ -93,14 +96,18 @@ crontab -l | grep ukemaster
 
 Se não existir, instale: `bash scripts/cron/install.sh`
 
-**Windows** — confira a tarefa:
+**Desktop (Linux Mint)** — agora também Linux: mesmo crontab do Acer.
 
-```bat
-schtasks /Query /TN UkeMasterCron
+```bash
+crontab -l | grep ukemaster
+# deve aparecer a linha */30 * * * * ... (idem Acer)
 ```
 
-Se não existir, instale pelo Git Bash como Administrador:
-`bash scripts/cron/install.sh`
+Se não existir, instale: `bash scripts/cron/install.sh`
+
+> Se ainda houver a tarefa antiga do Windows (`schtasks /TN UkeMasterCron`),
+> ela não roda mais (migração Windows → Linux) — remova com
+> `schtasks /Delete /TN UkeMasterCron /F` ou ignore (fica inativa).
 
 ---
 
@@ -154,7 +161,7 @@ ou (se o comando já foi consumido pela outra máquina):
 ```sql
 select ran_at, worker, artist_url, imported, errors
 from cron_log order by ran_at desc limit 10;
--- Esperado: linhas com worker = 'acer' e/ou 'windows' (não mais null)
+-- Esperado: linhas com worker = 'acer' e/ou 'desktop' (não mais null)
 ```
 
 ---
@@ -174,6 +181,5 @@ alterna quem processa a cada 30 min, sem duplicar).
 | Nada acontece ao rodar o bundle | `.env` sem `CRON_UKEMATER_*` | passo 3 + passo 5 |
 | Comando da fila continua `pending` | bundle antigo (sem suporte à fila) | refazer `npm run build:cron` (passo 2) |
 | `ERR_MODULE_NOT_FOUND` | bundle desatualizado | `git pull && npm run build:cron` |
-| `schtasks` pede senha/nega | precisa de Administrador | abrir Git Bash como Admin |
 | Máquina roda mas log fica com `worker=null` | bundle antigo | `npm run build:cron` de novo |
 | Painel mostra lease preso | máquina caiu no meio | expira sozinho em 25 min (TTL) |

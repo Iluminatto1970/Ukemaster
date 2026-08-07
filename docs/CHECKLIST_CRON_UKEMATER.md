@@ -7,7 +7,7 @@ cron como um usuário logado (`auth.uid() = UkeMaster`) — e garante a regra
 
 Sem as vars `CRON_UKEMATER_EMAIL/PASSWORD`, o cron **degrada para a anon key**
 e passa a **falhar** nas escritas assim que o RLS de `songs` exigir login.
-Este checklist cobre as **3 frentes** (local/Windows/Acer + Vercel), o teste
+Este checklist cobre as **3 frentes** (local/Desktop/Acer + Vercel), o teste
 de login e a rodada de validação do cron autenticado.
 
 ---
@@ -121,21 +121,25 @@ O que garante que o cron escreveu **autenticado**:
 
 ---
 
-## 5) Windows (2ª máquina, se houver)
+## 5) Desktop (Linux Mint) — 2ª máquina (Tailscale, ex-Windows)
 
-Mesmos passos do Acer, com Agendador de Tarefas:
+Mesmos passos do Acer (crontab — não há mais Agendador de Tarefas):
 
 | # | Passo | Comando |
 |---|---|---|
-| 5.1 | Editar `dist-cron\.env` (Git Bash) | `nano dist-cron/.env` |
+| 5.1 | Editar `dist-cron/.env` | `nano dist-cron/.env` |
 | 5.2 | Preencher `CRON_UKEMATER_EMAIL/PASSWORD` | idem 4.2 |
 | 5.3 | Testar login | `node dist-cron/ukemaster-cron.mjs --fast --budget 10000` |
-| 5.4 | Conferir agendamento | `schtasks /query /tn UkeMasterCron` (nome padrão) |
+| 5.4 | Conferir agendamento | `crontab -l \| grep ukemaster` (idem Acer) |
 
 - [ ] **5.2** vars preenchidas
 - [ ] **5.3** login testado
-- [ ] **5.4** tarefa agendada ativa
+- [ ] **5.4** crontab ativo
 
+> A máquina era Windows (`ilumi`) e migrou para **Linux Mint** — usuário
+> `iluminatto` / senha `1a7g3c`, mesmo nome no Tailscale (`desktop`). A tarefa
+> antiga do `schtasks` não roda mais; o agendamento é via crontab.
+>
 > Se as duas máquinas dividem plataformas (`CRON_PLATFORMS`), cada uma só
 > precisa das vars — a divisão continua funcionando.
 
@@ -149,7 +153,7 @@ Mesmos passos do Acer, com Agendador de Tarefas:
 | 6.2 | Cron local escreve autenticado | `npm run cron:test` → log sem `anon key` + `created_by` do UkeMaster nas linhas novas |
 | 6.3 | Vercel tem as vars | `npx vercel env ls` |
 | 6.4 | Cron da Vercel roda | nova linha em `cron_log` após o horário do cron |
-| 6.5 | Acer/Windows rodam | `cron_log` com entradas das máquinas (quem processou cada artista) |
+| 6.5 | Acer/Desktop rodam | `cron_log` com entradas das máquinas (quem processou cada artista) |
 
 ---
 
@@ -181,9 +185,9 @@ npx vercel env add CRON_UKEMATER_PASSWORD production
 npx vercel env ls
 npx vercel deploy --prod --yes --project ukemaster
 
-# Acer/Windows (na máquina)
+# Acer/Desktop (na máquina)
 nano dist-cron/.env            # CRON_UKEMATER_* 
 node dist-cron/ukemaster-cron.mjs --fast --budget 10000
-crontab -l | grep ukemaster   # Linux
-schtasks /query /tn UkeMasterCron   # Windows
+crontab -l | grep ukemaster   # Linux (Acer e Desktop)
+# schtasks /query /tn UkeMasterCron   # só se ainda houver resquício do Windows
 ```

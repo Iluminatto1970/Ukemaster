@@ -122,7 +122,15 @@ async function fetchPendingCommands(
     );
     if (!res.ok) return [];
     const rows = (await res.json()) as WorkerCommand[];
-    return rows.filter((r) => r.target === 'all' || r.target === worker);
+    // Match por prefixo: o Desktop (Linux Mint) pode rodar com hostname
+    // `desktop-qkmmsjr` sem CRON_WORKER_NAME — um comando `target=desktop`
+    // deve ser pego por ele igualmente (target é o nome da máquina).
+    return rows.filter(
+      (r) =>
+        r.target === 'all' ||
+        r.target === worker ||
+        (r.target && (worker ?? '').startsWith(r.target + '-'))
+    );
   } catch {
     return []; // tabela ausente / RLS sem credenciais → segue fluxo normal
   }

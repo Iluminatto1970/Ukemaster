@@ -19,7 +19,7 @@ npm run dev          # servidor local (porta 5173)
 - **Deploy produção:** `npx vercel deploy --prod --yes --project ukemaster` (domínio `ukemasterpro.vercel.app`)
 - **Validar antes do deploy:** `npx tsc --noEmit && npm run build`
 - **Credenciais do cron:** ver `CRON_DEPLOYMENT.md` e `scripts/cron/cron.env.example`
-- **Religar máquinas Acer/Windows:** ver `docs/CHECKLIST_RELIGAR_MAQUINAS.md`
+- **Religar máquinas Acer/Desktop (Linux Mint):** ver `docs/CHECKLIST_RELIGAR_MAQUINAS.md`
 
 ---
 
@@ -31,7 +31,7 @@ npm run dev          # servidor local (porta 5173)
 | **Banco** | Supabase `asvjdjawaenxrlwdyziy` — acervo com **~13.250 músicas** |
 | **Acervo por idioma** | pt 7.091 · en 3.824 · es 2.255 · fr 67 · de 11 · ja 2 (coluna `lang`) |
 | **Cron Vercel** | Registrado (`0 9 * * *`), mas **não dispara no plano Hobby** — cobertura via máquinas + painel admin |
-| **Máquinas** | Acer + Windows rodam `dist-cron/ukemaster-cron.mjs` a cada 30 min; **precisam do bundle novo** (`git pull && npm run build:cron` + `CRON_WORKER_NAME=acer\|windows` no `dist-cron/.env`) |
+| **Máquinas** | Acer + Desktop (**Linux Mint**, Tailscale, ex-Windows) rodam `dist-cron/ukemaster-cron.mjs` a cada 30 min; **precisam do bundle novo** (`git pull && npm run build:cron` + `CRON_WORKER_NAME=acer\|desktop` no `dist-cron/.env`) |
 
 ---
 
@@ -50,7 +50,7 @@ npm run dev          # servidor local (porta 5173)
 - [ ] **P1 — Deploy da feature de idiomas** (SongList/cloudSync/platformCron/types/schema — mudanças não commitadas desta sessão, ver §5).
 - [ ] **P1 — U-FRET (JA) não persiste no banco**: importações reportam sucesso mas só 2 músicas japonesas no acervo. Investigar a persistência (talvez upsert falhando ou dedupe).
 - [ ] **P1 — Extrator do Ultimate-Guitar**: parse do `js-store` (`other_tabs` + `wiki_tab.content`, converter `[ch]X[/ch]` → `[X]`), habilitar `ultimate-guitar-en` e testar importação real da Adele.
-- [ ] **P2 — Máquinas com bundle novo**: `git pull && npm run build:cron` no Acer/Windows + `CRON_WORKER_NAME` (sem isso, o card "Status das Máquinas" mostra "NUNCA RODOU" e a fila `worker_commands` fica pendente).
+- [ ] **P2 — Máquinas com bundle novo**: `git pull && npm run build:cron` no Acer/Desktop + `CRON_WORKER_NAME` (sem isso, o card "Status das Máquinas" mostra "NUNCA RODOU" e a fila `worker_commands` fica pendente).
 - [ ] **P2 — 340 músicas com conteúdo vazio**: repair em andamento via rodadas das máquinas (modo `--repair`).
 - [ ] **P3 — Cron Vercel Hobby**: não dispara; opções: plano Pro ou manter só máquinas + disparos manuais do painel.
 - [ ] **P3 — Fallback curl no fetchHtml**: destravaria UkuTabs, mas SÓ nas máquinas (IP residencial); na Vercel não adianta (IP de datacenter bloqueado).

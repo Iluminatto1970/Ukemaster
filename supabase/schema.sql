@@ -202,15 +202,15 @@ create table if not exists public.song_feedback (
 -- ── 14) WORKER_COMMANDS (rodada imediata nas máquinas via painel admin) ──
 -- Fila de comandos que o painel admin (ou scripts) grava e que o bundle do
 -- cron (ukemaster-cron.mjs) consulta no INÍCIO de cada execução nas máquinas
--- locais (Acer/Windows). Assim o dono dispara uma rodada agora, sem esperar
--- o agendamento de 30 min.
+-- locais (Acer/Desktop — Linux Mint). Assim o dono dispara uma rodada agora,
+-- sem esperar o agendamento de 30 min.
 --
 -- Campos:
 --   command         'run' (futuro: 'pause', 'platform'...)
 --   platform_id     plataforma específica (ex.: 'cifraclub-br') ou NULL = todas
 --   artist_url      artista específico ou NULL = fila normal
 --   update_existing re-scrapeia e atualiza o que já temos (checkbox do painel)
---   target          'acer' | 'windows' | 'all' (nome do CRON_WORKER_NAME)
+--   target          'acer' | 'desktop' | 'all' (nome do CRON_WORKER_NAME)
 --   status          pending → processing → done | failed | canceled
 --   worker          quem pegou o comando (CRON_WORKER_NAME ou hostname)
 --   picked_at/finished_at  tempos de pega/conclusão

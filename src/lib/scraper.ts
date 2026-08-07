@@ -85,6 +85,102 @@ function normalizeUrl(raw: string): string {
  * "/song.php?data=<id>" com o título japonês no texto do <a>. O artista
  * sai do <h1 class="p-artist__name"> (ou do parâmetro data= da própria URL).
  */
+/**
+ * Extrai o JSON embutido do Ultimate-Guitar (<div class="js-store" data-content="…">).
+ * O conteúdo chega com entidades HTML escapadas (&quot;, &#039;, &amp;) — decodifica
+ * antes do JSON.parse. Retorna null se a página não tiver o js-store.
+ */
+function parseUltimateGuitarStore(html: string): any | null {
+  const m = html.match(/<div class="js-store" data-content="([\s\S]*?)"><\/div>/);
+  if (!m) return null;
+  try {
+    return JSON.parse(
+      m[1]
+        .replace(/&quot;/g, '"')
+        .replace(/&#0?39;|&apos;/g, "'")
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+    );
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Conteúdo da cifra do Ultimate-Guitar (página de música): lê o js-store e
+ * devolve `store.page.data.tab_view.wiki_tab.content` (letra + acordes em
+ * [ch]X[/ch]). Retorna '' se não for página de música do UG.
+ */
+function extractUltimateGuitarContent(html: string): string {
+  const store = parseUltimateGuitarStore(html);
+  const content =
+    store?.store?.page?.data?.tab_view?.wiki_tab?.content ||
+    store?.store?.page?.data?.wiki_tab?.content ||
+    '';
+  return typeof content === 'string' ? content : '';
+}
+
+/**
+ * Links de músicas do Ultimate-Guitar (página de artista): extrai de
+ * `store.page.data.other_tabs[]` ({ song_name, artist_name, tab_url }).
+ * Filtra só cifras com LETRA (Chords / Ukulele Chords) e URLs públicas
+ * (tabs.ultimate-guitar.com/tab/...) — descarta versões Pro/Official
+ * (assinatura, sem acesso via curl), Tabs/Bass/Drums (sem letra).
+ */
+function discoverUltimateGuitarLinks(html: string, _baseUrl: string): ScrapedLink[] {
+  const store = parseUltimateGuitarStore(html);
+  const tabs = store?.store?.page?.data?.other_tabs;
+  if (!Array.isArray(tabs)) return [];
+  const links: ScrapedLink[] = [];
+  const seen = new Set<string>();
+  const collected: { url: string; title: string; artist: string; rating: number }[] = [];
+  for (const t of tabs) {
+    const url = t?.tab_url;
+    if (!url || !url.includes('tabs.ultimate-guitar.com/tab/')) continue;
+    // Só cifras com letra (Chords / Ukulele Chords) — Tabs/Bass/Drums não têm letra
+    const type = String(t?.type || '').toLowerCase();
+    if (!/chords?/.test(type)) continue;
+    const title = String(t?.song_name || '').trim();
+    const artist = String(t?.artist_name || '').trim();
+    if (!title || !artist) continue;
+    collected.push({ url, title, artist, rating: Number(t?.rating) || 0 });
+  }
+  // O UG lista VÁRIAS versões da mesma música (ex.: 8× "All I Ask"). O dedupe
+  // por título|artista joga as demais fora — então ordenamos por AVALIAÇÃO
+  // (melhor versão primeiro) para a versão que sobrevive ser a melhor.
+  collected.sort((a, b) => b.rating - a.rating);
+  for (const c of collected) {
+    if (seen.has(c.url)) continue;
+    seen.add(c.url);
+    links.push({ url: c.url, title: c.title, artist: c.artist });
+  }
+  return links;
+}
+
+/** URLs das páginas seguintes do artista no Ultimate-Guitar (paginação).
+ * Pula a página 1 (já foi buscada — a URL base do artista é equivalente a
+ * ela; re-buscá-la seria 1 request desperdiçado por artista). */
+function discoverUltimateGuitarNextPages(html: string, baseUrl: string): string[] {
+  const store = parseUltimateGuitarStore(html);
+  const pages = store?.store?.page?.data?.pagination?.pages;
+  if (!Array.isArray(pages)) return [];
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const p of pages) {
+    if (p?.page === 1) continue; // página atual — já buscada
+    const u = p?.url;
+    if (!u || seen.has(u)) continue;
+    seen.add(u);
+    try {
+      out.push(new URL(u, new URL(baseUrl).origin).href);
+    } catch {
+      // URL inválida — ignora
+    }
+  }
+  return out;
+}
+
 function discoverUfretLinks(html: string, baseUrl: string): ScrapedLink[] {
   const links: ScrapedLink[] = [];
   const seen = new Set<string>();
@@ -131,6 +227,11 @@ export function discoverSongLinks(html: string, baseUrl: string): ScrapedLink[] 
   // de "/artista/musica" não captura query strings.
   if (base.hostname.includes('ufret')) {
     return discoverUfretLinks(html, baseUrl);
+  }
+  // Ultimate-Guitar (EN): a lista de músicas vive no js-store (other_tabs[])
+  // — o regex genérico de hrefs não alcança os links embutidos no JSON.
+  if (base.hostname.includes('ultimate-guitar')) {
+    return discoverUltimateGuitarLinks(html, baseUrl);
   }
   const baseDepth = base.pathname.split('/').filter(Boolean).length;
 
@@ -367,6 +468,38 @@ export function extractYoutubeFromHtml(html: string): string | null {
 export function extractChordsFromHtml(html: string): string {
   let text = html;
 
+  // Ultimate-Guitar (EN): a cifra COMPLETA (letra + acordes) vive no js-store
+  // → store.page.data.tab_view.wiki_tab.content, em formato [ch]X[/ch] com
+  // seções [Verse]…[Chorus] e blocos [tab]…[/tab]. Converte direto:
+  //   [ch]Em[/ch] → [Em]   ·   [tab]…[/tab] → remove as tags (conteúdo fica)
+  const ugContent = extractUltimateGuitarContent(text);
+  if (ugContent) {
+    text = ugContent
+      .replace(/\[ch\]([^\[]*?)\[\/ch\]/gi, '[$1]') // [ch]Em[/ch] → [Em]
+      .replace(/\[tab\]\s*/gi, '')
+      .replace(/\s*\[\/tab\]/gi, '')
+      .replace(/\r\n/g, '\n')
+      .replace(/\r/g, '');
+    // Cabeçalhos do autor que poluem a letra ("Chasing Pavements - Adele",
+    // "by claudio@tognozzi.it", "[Bb6] = 653333"): linhas iniciais que sejam
+    // "Título - Artista", "by …" ou legendas de shape são descartadas.
+    const lines = text.split('\n');
+    let i = 0;
+    while (i < lines.length && i < 4) {
+      const l = lines[i].trim();
+      const isAuthorLine = /^by\s+.+@/i.test(l) || /^by\s+[a-z0-9_.-]+$/i.test(l);
+      const isShapeLegend = /^\[[A-G][#b]?[^\]]*\]\s*=\s*\d{5,6}$/.test(l);
+      const isStrumPattern = /^(standard strum|fingerpick(ing)?|strumming pattern|picking pattern|no capo)$/i.test(l);
+      const isTitleDashArtist = /^[^\[].*\s[-–—]\s/.test(l) && !/^\[/.test(l);
+      if (isAuthorLine || isShapeLegend || isStrumPattern || isTitleDashArtist) {
+        lines.splice(i, 1);
+        continue;
+      }
+      i++;
+    }
+    text = lines.join('\n');
+  }
+
   // CifraClub: <b data-chord-name="C">C</b> → [C]
   text = text.replace(/<b[^>]*data-chord-name="([^"]+)"[^>]*>[\s\S]*?<\/b>/gi, '[$1]');
   text = text.replace(/<b[^>]*class="[^"]*c-chord[^"]*"[^>]*>[\s\S]*?<\/b>/gi, (m) => {
@@ -509,6 +642,17 @@ export function decodeEntities(s: string): string {
 /** Extrai título/artista do HTML (h1/h2, <title>, meta og:). */
 export function extractMetaFromHtml(html: string): { title?: string; artist?: string } {
   const clean = (s: string) => decodeEntities(s.replace(/<[^>]+>/g, '')).trim();
+
+  // Ultimate-Guitar: a página de música NÃO tem h1/h2 — o título/artista
+  // exatos vivem no js-store (tab.song_name / tab.artist_name).
+  const ugStore = parseUltimateGuitarStore(html);
+  const ugTab = ugStore?.store?.page?.data?.tab;
+  if (ugTab?.song_name) {
+    return {
+      title: String(ugTab.song_name).trim(),
+      artist: String(ugTab.artist_name || '').trim(),
+    };
+  }
 
   // U-FRET (Japão): o <title> é "Música / Artista ギターコード/... - U-FRET" —
   // parse direto (o h1/h2 genérico não expõe o artista de forma estável).
@@ -850,6 +994,11 @@ export function scrapeSongFromHtml(url: string, html: string): Song {
       : normTitle(slugToTitle(urlTitle)) || 'Música sem título';
   // Prioridade do artista: meta extraída (se limpa) > "with lyrics by X" do
   // título (Guitaretab) > meta HTML > slug da URL. Rejeita lixo com acordes.
+  // No Ultimate-Guitar o js-store (song_name/artist_name) é a fonte
+  // AUTORITATIVA — o conteúdo das cifras tem cabeçalhos soltos ("Chasing
+  // Pavements - Adele", "Standard Strum", "by claudio@tognozzi.it") que
+  // poluiriam o artista (ex.: artista = "Standard Strum"). O meta do UG
+  // vem primeiro, SEM cair na heurística do conteúdo.
   const metaArtist = meta.artist || '';
   const lyricsTagArtist = artistFromLyricsTag(meta.title || '');
   const looksCleanArtist = (t?: string) =>
@@ -861,10 +1010,14 @@ export function scrapeSongFromHtml(url: string, html: string): Song {
     !/menu principal|acessibilidade|página inicial/i.test(t);
   const plausibleName = (t?: string) =>
     !!t && t.split(' ').length <= 4 && t.trim().length > 1;
-  const artistRaw =
-    extractedMeta.artist !== 'Artista Desconhecido' &&
-      looksCleanArtist(extractedMeta.artist) &&
-      looksLikeRealArtist(extractedMeta.artist)
+  const isUltimateGuitar = /ultimate-guitar/i.test(url);
+  const artistRaw = isUltimateGuitar
+    ? looksCleanArtist(metaArtist) && looksLikeRealArtist(metaArtist)
+      ? metaArtist
+      : urlArtist || 'Artista Desconhecido'
+    : extractedMeta.artist !== 'Artista Desconhecido' &&
+        looksCleanArtist(extractedMeta.artist) &&
+        looksLikeRealArtist(extractedMeta.artist)
       ? extractedMeta.artist
       : looksCleanArtist(lyricsTagArtist) && plausibleName(lyricsTagArtist)
       ? lyricsTagArtist
@@ -1017,22 +1170,33 @@ export async function scrapeArtistPage(
 
   const html = await fetchHtml(url);
   const links = discoverSongLinks(html, url);
+  const isUltimateGuitar = new URL(url).hostname.includes('ultimate-guitar');
 
   // Completa com o CATÁLOGO COMPLETO do artista (CifraClub: /musicas.html
-  // lista todas as músicas; a raiz mostra só as principais).
-  const catalogUrls = discoverCatalogUrls(html, url);
+  // lista todas as músicas; a raiz mostra só as principais). No Ultimate-
+  // Guitar, a paginação do js-store (pagination.pages) cobre as ~6 páginas.
+  const catalogUrls = isUltimateGuitar
+    ? discoverUltimateGuitarNextPages(html, url)
+    : discoverCatalogUrls(html, url);
   const artistPrefix = new URL(url).pathname.replace(/\/$/, '');
   const seenUrls = new Set(links.map((l) => l.url));
   for (const catalogUrl of catalogUrls) {
     if (timeoutMs > 0 && Date.now() - startedAt > timeoutMs) break;
+    // Já temos links suficientes? Não busca mais páginas (evita requests
+    // desperdiçados em testes/limites pequenos).
+    if (links.length >= limit) break;
     try {
       const catHtml = await fetchHtml(catalogUrl);
       // BUGFIX: o catálogo (/artista/musicas.html) TEM profundidade 2, e as
       // músicas também têm 2 — usar a URL do catálogo como base faz o filtro
       // `parts.length <= baseDepth` descartar TODAS as músicas. Usamos a raiz
       // do ARTISTA (profundidade 1) como base e filtramos só links do próprio
-      // artista (evita trazer músicas de artistas vizinhos da navegação).
+      // artista (evita trazer músicas de artistas vizinhos da navegação). No
+      // UG o filtro por prefixo não se aplica (as URLs são tabs.ultimate-
+      // guitar.com/tab/{artista}/...) — o próprio extrator já só retorna
+      // cifras do artista da página consultada.
       const catLinks = discoverSongLinks(catHtml, url).filter((l) => {
+        if (isUltimateGuitar) return true;
         const p = new URL(l.url).pathname.replace(/\/$/, '');
         // Só links DENTRO do catálogo do próprio artista (evita prefixo
         // comum falso-positivo: /chitaozinho-e-xororo2/musica/ não passa).

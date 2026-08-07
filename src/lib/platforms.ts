@@ -165,9 +165,7 @@ export const CHORD_PLATFORMS: ChordPlatform[] = [
     ],
     limitPerArtist: 5,
     delayMs: 1200,
-    enabled: false,
-    disabledReason:
-      'Validado 2026-08: HTML puro completo (js-store → wiki_tab.content com letra + acordes [ch], other_tabs na página de artista). Aguarda extrator dedicado (parse do js-store + conversão [ch]→[X]) no scraper.ts.',
+    enabled: true,
   },
   {
     id: 'ufret-ja',

@@ -59,7 +59,7 @@ Cada fonte desabilitada tem `disabledReason` no registro (`src/lib/platforms.ts`
 com o motivo — se um dia passar a servir HTML puro, basta habilitar e ajustar
 um seletor no scraper.
 
-### 🖥️ Dividir entre o Acer e o Windows (sem duplicar)
+### 🖥️ Dividir entre o Acer e o Desktop (sem duplicar)
 
 As máquinas compartilham a mesma fila e o **lease atômico** já impede que
 duas executem o mesmo artista ao mesmo tempo. Para dar prioridade por idioma
@@ -70,7 +70,7 @@ grupo de plataformas via `CRON_PLATFORMS`:
 # Acer (Linux) — pt + japonês
 CRON_PLATFORMS=cifraclub-br,ufret-ja
 
-# Windows — inglês + internacional (es/fr/de)
+# Desktop (Linux Mint, Tailscale — ex-Windows) — inglês + internacional
 CRON_PLATFORMS=ukutabs-en,guitaretab-int
 ```
 
@@ -170,7 +170,7 @@ Se preferir não clonar o repositório (ou a máquina não tiver git/npm):
 | `CRON_TASK_NAME` | `UkeMasterCron` | Nome da tarefa no Windows |
 | `CRON_UKEMATER_EMAIL` | — | E-mail da conta UkeMaster (autenticação do cron) |
 | `CRON_UKEMATER_PASSWORD` | — | Senha da conta UkeMaster (fica no .env da máquina) |
-| `CRON_WORKER_NAME` | hostname | Nome DESTA máquina (`acer`, `windows`...) — alvo da fila de comandos do painel admin |
+| `CRON_WORKER_NAME` | hostname | Nome DESTA máquina (`acer`, `desktop`...) — alvo da fila de comandos do painel admin |
 
 Argumentos do bundle (modo manual):
 
@@ -187,8 +187,8 @@ node dist-cron/ukemaster-cron.mjs --reset             # recomeça a varredura
 ## 🎛 Rodada imediata via painel admin (fila de comandos)
 
 O painel admin (área do proprietário) tem a seção **"Rodada Imediata nas
-Máquinas (Acer / Windows)"**: o dono escolhe o alvo (Todas / Acer /
-Windows), opcionalmente liga "Atualizar o que já temos" e clica em disparar.
+Máquinas (Acer / Desktop)"**: o dono escolhe o alvo (Todas / Acer /
+Desktop), opcionalmente liga "Atualizar o que já temos" e clica em disparar.
 
 Isso **grava um comando na tabela `worker_commands`** do Supabase (status
 `pending`). No início de **cada execução**, o bundle da máquina consulta os
@@ -213,8 +213,8 @@ pending → processing → done | failed
 
   ```bash
   npm run build:cron            # gera dist-cron/ukemaster-cron.mjs
-  # copie dist-cron/ para o Acer e o Windows (ou git pull + npm run build:cron lá)
-  # e defina CRON_WORKER_NAME=acer / CRON_WORKER_NAME=windows no dist-cron/.env
+  # copie dist-cron/ para o Acer e o Desktop (ou git pull + npm run build:cron lá)
+  # e defina CRON_WORKER_NAME=acer / CRON_WORKER_NAME=desktop no dist-cron/.env
   ```
 
 ---

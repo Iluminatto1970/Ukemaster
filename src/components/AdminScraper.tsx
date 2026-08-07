@@ -83,6 +83,9 @@ interface WorkerInfo {
   leaseWorker: string | null;
 }
 
+/** Nomes esperados de worker no painel (máquinas locais + Vercel). */
+const EXPECTED_WORKERS = ['acer', 'desktop', 'vercel'];
+
 /** Converte `worker-acer-1234-abc1` → `acer` (remove prefixo + pid + rand).
  * Formato legado sem nome (`worker-1234-abc1`) → 'desconhecido'. */
 function parseWorkerFromId(workerId: string): string {
@@ -140,7 +143,7 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
   // simplificadas novas. Sem ele, o cron só adiciona músicas novas.
   const [cronUpdateExisting, setCronUpdateExisting] = useState<boolean>(false);
 
-  // Máquinas locais (Acer/Windows): fila de comandos para rodada imediata
+  // Máquinas locais (Acer/Desktop): fila de comandos para rodada imediata
   const [commands, setCommands] = useState<WorkerCommand[]>([]);
   const [dispatching, setDispatching] = useState<boolean>(false);
 
@@ -163,7 +166,7 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeCommands]);
 
-  const handleDispatch = async (target: 'all' | 'acer' | 'windows') => {
+  const handleDispatch = async (target: 'all' | 'acer' | 'desktop') => {
     setDispatching(true);
     setCronResult('');
     try {
@@ -219,13 +222,24 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
           'worker,ran_at,imported,errors'
         )) || [];
       const state = (await fetchRows<{ value?: { workerId?: string } }>('scrape_state', '&key=eq.worker_lease')) || [];
-      const leaseWorker = state[0]?.value?.workerId ? parseWorkerFromId(state[0].value.workerId) : null;
+      let leaseWorker = state[0]?.value?.workerId ? parseWorkerFromId(state[0].value.workerId) : null;
+      // Mesma normalização por prefixo do byWorker (desktop-qkmmsjr → desktop).
+      if (leaseWorker) {
+        const base = EXPECTED_WORKERS.find((e) => leaseWorker!.startsWith(e + '-'));
+        if (base) leaseWorker = base;
+      }
 
       // Última execução por worker (o log vem ordenado do mais recente)
+      // Normaliza por PREFIXO: o Desktop (Linux Mint) roda com hostname
+      // `desktop-qkmmsjr` se não houver CRON_WORKER_NAME — agrupa sob 'desktop'.
       const byWorker = new Map<string, { lastRanAt: string; imported: number; errors: number }>();
       for (const l of logs) {
-        if (!l.worker || byWorker.has(l.worker)) continue;
-        byWorker.set(l.worker, {
+        if (!l.worker) continue;
+        let key = l.worker;
+        const base = EXPECTED_WORKERS.find((e) => l.worker.startsWith(e + '-'));
+        if (base) key = base;
+        if (byWorker.has(key)) continue;
+        byWorker.set(key, {
           lastRanAt: l.ran_at,
           imported: l.imported ?? 0,
           errors: l.errors ?? 0,
@@ -234,7 +248,7 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
 
       // Workers esperados sempre aparecem (mesmo que nunca tenham rodado);
       // depois os desconhecidos que apareceram no log (ex.: hostname local).
-      const expected = ['acer', 'windows', 'vercel'];
+      const expected = EXPECTED_WORKERS;
       const list: WorkerInfo[] = expected.map((w) => {
         const info = byWorker.get(w);
         return {
@@ -749,25 +763,25 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
         </div>
       </div>
 
-      {/* ── Rodada imediata nas máquinas (Acer/Windows) ────────────────── */}
+      {/* ── Rodada imediata nas máquinas (Acer/Desktop) ────────────────── */}
       <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs space-y-4">
         <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
           <MonitorCog className="w-5 h-5 text-[#0E7C7B]" />
           <h2 className="text-sm font-extrabold text-[#1D2D44] uppercase tracking-wider">
-            Rodada Imediata nas Máquinas (Acer / Windows)
+            Rodada Imediata nas Máquinas (Acer / Desktop)
           </h2>
         </div>
 
         <p className="text-xs text-slate-500 leading-relaxed">
-          Enfileira um comando no Supabase que o <strong>Acer</strong> e o <strong>Windows</strong>{' '}
-          consultam no início de cada execução (a cada 30 min). Você dispara uma rodada{' '}
+          Enfileira um comando no Supabase que o <strong>Acer</strong> e o <strong>Desktop</strong>{' '}
+          (Linux Mint — Tailscale) consultam no início de cada execução (a cada 30 min). Você dispara uma rodada{' '}
           <strong>agora</strong>, sem esperar o agendamento. Requisito: as máquinas precisam rodar o
           bundle atualizado (regere com <code className="text-[#0E7C7B] font-mono">npm run build:cron</code>{' '}
           e copie o <code className="text-[#0E7C7B] font-mono">dist-cron/</code> para elas).
         </p>
 
         <div className="flex flex-wrap items-center gap-2">
-          {(['all', 'acer', 'windows'] as const).map((target) => (
+          {(['all', 'acer', 'desktop'] as const).map((target) => (
             <button
               key={target}
               onClick={() => handleDispatch(target)}
@@ -783,7 +797,7 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
                 ? 'Rodar em Todas as Máquinas'
                 : target === 'acer'
                   ? 'Rodar no Acer'
-                  : 'Rodar no Windows'}
+                  : 'Rodar no Desktop'}
             </button>
           ))}
           <span className="text-[10px] text-slate-400 font-medium">

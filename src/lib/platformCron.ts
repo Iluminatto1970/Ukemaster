@@ -31,6 +31,15 @@ import { CHORD_PLATFORMS } from './platforms.js';
 
 // Idioma de cada plataforma (id → lang) para rotular as músicas importadas.
 const platformLangById = new Map<string, string>(CHORD_PLATFORMS.map((p) => [p.id, p.lang]));
+
+/**
+ * Teto de músicas por artista no modo FAST (painel admin / testes). O modo
+ * fast roda SEM timeout por artista (timeoutMs: 0) — sem cap, um artista
+ * gigante (ex.: B'z com 477 músicas no U-FRET) pendura a rodada inteira.
+ * As músicas além do cap entram na próxima rotação da fila (dedupe impede
+ * duplicatas). O modo normal (máquinas) mantém o catálogo completo.
+ */
+const FAST_ARTIST_SONG_CAP = 120;
 import { CIFRACLUB_CATALOG } from '../data/cifraclubCatalog.js';
 import type { Song } from '../types';
 
@@ -897,7 +906,12 @@ export async function runPlatformCron(options: PlatformCronOptions = {}): Promis
       const { songs, errors, duplicates, timedOut } = await scrapeArtistPage(item.url, {
         // Catálogo completo: artistas grandes passam de 300 (Roberto Carlos
         // tem ~617). O timeout educado encerra no meio sem perder progresso.
-        limit: 2000,
+        // No modo FAST o teto é o FAST_ARTIST_SONG_CAP (ver constante) —
+        // impede que artistas gigantes pendurem a rodada sem timeout. Um
+        // limit EXPLÍCITO menor (ex.: teste de 5 músicas) é respeitado.
+        limit: options.fast
+          ? Math.min(options.limit ?? Infinity, FAST_ARTIST_SONG_CAP)
+          : options.limit ?? 2000,
         delayMs: options.fast ? 0 : item.delayMs,
         timeoutMs: options.fast ? 0 : remainingMs,
       });
