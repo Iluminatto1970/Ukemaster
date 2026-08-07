@@ -121,7 +121,7 @@ function songToRow(s: Song) {
 }
 
 // ── Acesso Supabase (server-side, sem depender de import.meta.env) ────────
-function getSupabaseEnv() {
+export function getSupabaseEnv() {
   const url =
     process.env.VITE_SUPABASE_URL ||
     process.env.NEXT_PUBLIC_SUPABASE_URL ||
@@ -198,7 +198,7 @@ async function getCronToken(url: string): Promise<string | null> {
 
 /** Headers padrão das chamadas REST: apikey do projeto + Bearer (JWT do
  * UkeMaster quando disponível, senão a anon key como fallback de transição). */
-async function cronHeaders(key: string): Promise<Record<string, string>> {
+export async function cronHeaders(key: string): Promise<Record<string, string>> {
   const token = await getCronToken(getSupabaseEnv().url);
   return { apikey: key, Authorization: `Bearer ${token || key}` };
 }

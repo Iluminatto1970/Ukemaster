@@ -170,6 +170,7 @@ Se preferir não clonar o repositório (ou a máquina não tiver git/npm):
 | `CRON_TASK_NAME` | `UkeMasterCron` | Nome da tarefa no Windows |
 | `CRON_UKEMATER_EMAIL` | — | E-mail da conta UkeMaster (autenticação do cron) |
 | `CRON_UKEMATER_PASSWORD` | — | Senha da conta UkeMaster (fica no .env da máquina) |
+| `CRON_WORKER_NAME` | hostname | Nome DESTA máquina (`acer`, `windows`...) — alvo da fila de comandos do painel admin |
 
 Argumentos do bundle (modo manual):
 
@@ -180,6 +181,41 @@ node dist-cron/ukemaster-cron.mjs --platform cifraclub-br
 node dist-cron/ukemaster-cron.mjs --fast              # sem delays (teste)
 node dist-cron/ukemaster-cron.mjs --reset             # recomeça a varredura
 ```
+
+---
+
+## 🎛 Rodada imediata via painel admin (fila de comandos)
+
+O painel admin (área do proprietário) tem a seção **"Rodada Imediata nas
+Máquinas (Acer / Windows)"**: o dono escolhe o alvo (Todas / Acer /
+Windows), opcionalmente liga "Atualizar o que já temos" e clica em disparar.
+
+Isso **grava um comando na tabela `worker_commands`** do Supabase (status
+`pending`). No início de **cada execução**, o bundle da máquina consulta os
+comandos pendentes para o seu nome (`target=all` ou `target=<CRON_WORKER_NAME>`)
+e processa o mais antigo:
+
+```text
+pending → processing → done | failed
+```
+
+- O PATCH de pega é **atômico** (filtro `status=eq.pending`): se duas
+  máquinas tentarem o mesmo comando, só uma vence.
+- A rodada do comando **respeita os delays normais** das plataformas
+  (qualidade > pressa) e usa o orçamento `CRON_TIME_BUDGET_MS`.
+- Se processou ≥ 1 comando, a execução **encerra ali** — o fluxo normal roda
+  na próxima rodada (o comando É a rodada daquela vez).
+- O painel mostra o status em tempo real (polling a cada 6s enquanto houver
+  comando ativo) com o resumo do resultado (novas/atualizadas/duplicadas/erros).
+- Comandos finalizados com mais de 24 h são apagados automaticamente.
+- **Requisito**: as máquinas precisam rodar o bundle atualizado. Regere e
+  redistribua:
+
+  ```bash
+  npm run build:cron            # gera dist-cron/ukemaster-cron.mjs
+  # copie dist-cron/ para o Acer e o Windows (ou git pull + npm run build:cron lá)
+  # e defina CRON_WORKER_NAME=acer / CRON_WORKER_NAME=windows no dist-cron/.env
+  ```
 
 ---
 

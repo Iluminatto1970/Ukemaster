@@ -1,7 +1,7 @@
 /**
  * Área ADMIN (só iluminatto@gmail.com): importação em massa, scraping por URL/artista e disparo do cron de plataformas.
  */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Song } from '../types';
 import { CHORD_PLATFORMS } from '../lib/platforms';
 import {
@@ -16,9 +16,11 @@ import {
   RefreshCw,
   Music,
   ExternalLink,
+  MonitorCog,
+  XCircle,
 } from 'lucide-react';
 import { findDuplicateSong } from '../utils/chordUtils';
-import { getSessionAccessToken } from '../lib/supabase';
+import { getSessionAccessToken, supabaseRequest, fetchRows, patchRows } from '../lib/supabase';
 
 /**
  * Headers comuns das chamadas admin: envia o JWT da sessão Supabase para o
@@ -70,6 +72,21 @@ interface DiscoveredLink {
   artist: string;
 }
 
+/** Linha da fila worker_commands (rodada imediata nas máquinas). */
+interface WorkerCommand {
+  id: string;
+  command: string;
+  platform_id: string | null;
+  artist_url: string | null;
+  update_existing: boolean | null;
+  target: string;
+  status: string;
+  worker: string | null;
+  created_at: string;
+  finished_at: string | null;
+  result: string | null;
+}
+
 export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs }) => {
   const [urlInput, setUrlInput] = useState<string>('');
   const [discovering, setDiscovering] = useState<boolean>(false);
@@ -87,6 +104,69 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
   // (conteúdo, dificuldade, tom, categoria, SEO) + importa as variações
   // simplificadas novas. Sem ele, o cron só adiciona músicas novas.
   const [cronUpdateExisting, setCronUpdateExisting] = useState<boolean>(false);
+
+  // Máquinas locais (Acer/Windows): fila de comandos para rodada imediata
+  const [commands, setCommands] = useState<WorkerCommand[]>([]);
+  const [dispatching, setDispatching] = useState<boolean>(false);
+
+  const loadCommands = async () => {
+    const rows = await fetchRows<WorkerCommand>(
+      'worker_commands',
+      '&order=created_at.desc&limit=10'
+    );
+    if (rows) setCommands(rows);
+  };
+
+  // Polling suave: enquanto houver comando pendente/processando, atualiza a
+  // lista a cada 6s para o dono ver a máquina pegar e concluir a rodada.
+  const activeCommands = commands.some((c) => c.status === 'pending' || c.status === 'processing');
+  useEffect(() => {
+    loadCommands();
+    if (!activeCommands) return;
+    const t = setInterval(loadCommands, 6000);
+    return () => clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeCommands]);
+
+  const handleDispatch = async (target: 'all' | 'acer' | 'windows') => {
+    setDispatching(true);
+    setCronResult('');
+    try {
+      const { ok, status } = await supabaseRequest('worker_commands', {
+        method: 'POST',
+        body: [
+          {
+            command: 'run',
+            target,
+            update_existing: cronUpdateExisting,
+            platform_id: null,
+            artist_url: null,
+          },
+        ],
+      });
+      if (!ok) {
+        setCronResult(
+          `Erro ao enfileirar a rodada (HTTP ${status}). Faça login como admin para usar esta fila.`
+        );
+      } else {
+        setCronResult(
+          `✅ Rodada imediata enfileirada para ${
+            target === 'all' ? 'TODAS as máquinas' : `a máquina ${target}`
+          }. Ela pega na próxima execução (até 30 min) — acompanhe o status abaixo.`
+        );
+        await loadCommands();
+      }
+    } catch (e: any) {
+      setCronResult(`Erro: ${e?.message}`);
+    } finally {
+      setDispatching(false);
+    }
+  };
+
+  const handleCancelCommand = async (id: string) => {
+    await patchRows('worker_commands', `?id=eq.${id}&status=eq.pending`, { status: 'canceled' });
+    await loadCommands();
+  };
 
   const handleDiscover = async () => {
     const url = urlInput.trim();
@@ -476,6 +556,98 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
             {cronResult}
           </pre>
         )}
+      </div>
+
+      {/* ── Rodada imediata nas máquinas (Acer/Windows) ────────────────── */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs space-y-4">
+        <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+          <MonitorCog className="w-5 h-5 text-[#0E7C7B]" />
+          <h2 className="text-sm font-extrabold text-[#1D2D44] uppercase tracking-wider">
+            Rodada Imediata nas Máquinas (Acer / Windows)
+          </h2>
+        </div>
+
+        <p className="text-xs text-slate-500 leading-relaxed">
+          Enfileira um comando no Supabase que o <strong>Acer</strong> e o <strong>Windows</strong>{' '}
+          consultam no início de cada execução (a cada 30 min). Você dispara uma rodada{' '}
+          <strong>agora</strong>, sem esperar o agendamento. Requisito: as máquinas precisam rodar o
+          bundle atualizado (regere com <code className="text-[#0E7C7B] font-mono">npm run build:cron</code>{' '}
+          e copie o <code className="text-[#0E7C7B] font-mono">dist-cron/</code> para elas).
+        </p>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {(['all', 'acer', 'windows'] as const).map((target) => (
+            <button
+              key={target}
+              onClick={() => handleDispatch(target)}
+              disabled={dispatching}
+              className="px-4 py-2 rounded-xl bg-[#0E7C7B] hover:bg-[#0A5F5E] disabled:opacity-50 text-white font-extrabold text-xs flex items-center gap-2 transition-colors cursor-pointer"
+            >
+              {dispatching ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <MonitorCog className="w-4 h-4" />
+              )}
+              {target === 'all'
+                ? 'Rodar em Todas as Máquinas'
+                : target === 'acer'
+                  ? 'Rodar no Acer'
+                  : 'Rodar no Windows'}
+            </button>
+          ))}
+          <span className="text-[10px] text-slate-400 font-medium">
+            Usa a mesma opção <strong>“Atualizar o que já temos”</strong> acima.
+          </span>
+        </div>
+
+        <div className="border border-slate-200 rounded-xl divide-y divide-slate-100">
+          {commands.length === 0 ? (
+            <p className="text-[11px] text-slate-400 px-3 py-3">Nenhum comando registrado nas últimas 24 h.</p>
+          ) : (
+            commands.map((c) => (
+              <div key={c.id} className="flex items-start gap-3 px-3 py-2.5">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-[9px] px-2 py-0.5 rounded-full font-extrabold uppercase tracking-wider border ${
+                        c.status === 'pending'
+                          ? 'bg-amber-50 text-amber-600 border-amber-200'
+                          : c.status === 'processing'
+                            ? 'bg-sky-50 text-sky-600 border-sky-200'
+                            : c.status === 'done'
+                              ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
+                              : c.status === 'failed'
+                                ? 'bg-rose-50 text-rose-600 border-rose-200'
+                                : 'bg-slate-100 text-slate-500 border-slate-200'
+                      }`}
+                    >
+                      {c.status}
+                    </span>
+                    <span className="text-[11px] font-extrabold text-slate-700">
+                      {c.target === 'all' ? 'Todas as máquinas' : c.target}
+                      {c.platform_id ? ` • ${c.platform_id}` : ''}
+                      {c.update_existing ? ' • atualizar existentes' : ''}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    {new Date(c.created_at).toLocaleString('pt-BR')}
+                    {c.worker ? ` • máquina: ${c.worker}` : ''}
+                  </p>
+                  {c.result && <p className="text-[10px] text-slate-600 mt-1 font-mono">{c.result}</p>}
+                </div>
+                {c.status === 'pending' && (
+                  <button
+                    onClick={() => handleCancelCommand(c.id)}
+                    title="Cancelar comando"
+                    className="text-slate-300 hover:text-rose-500 transition-colors cursor-pointer shrink-0"
+                  >
+                    <XCircle className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            ))
+          )}
+        </div>
       </div>
 
       {/* Aviso legal */}

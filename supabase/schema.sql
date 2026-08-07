@@ -193,6 +193,38 @@ create table if not exists public.song_feedback (
   created_at timestamptz not null default now()
 );
 
+-- ── 14) WORKER_COMMANDS (rodada imediata nas máquinas via painel admin) ──
+-- Fila de comandos que o painel admin (ou scripts) grava e que o bundle do
+-- cron (ukemaster-cron.mjs) consulta no INÍCIO de cada execução nas máquinas
+-- locais (Acer/Windows). Assim o dono dispara uma rodada agora, sem esperar
+-- o agendamento de 30 min.
+--
+-- Campos:
+--   command         'run' (futuro: 'pause', 'platform'...)
+--   platform_id     plataforma específica (ex.: 'cifraclub-br') ou NULL = todas
+--   artist_url      artista específico ou NULL = fila normal
+--   update_existing re-scrapeia e atualiza o que já temos (checkbox do painel)
+--   target          'acer' | 'windows' | 'all' (nome do CRON_WORKER_NAME)
+--   status          pending → processing → done | failed | canceled
+--   worker          quem pegou o comando (CRON_WORKER_NAME ou hostname)
+--   picked_at/finished_at  tempos de pega/conclusão
+--   result          resumo textual do resultado (ex.: "+12 novas, 0 err")
+create table if not exists public.worker_commands (
+  id uuid primary key default gen_random_uuid(),
+  command text not null default 'run',
+  platform_id text,
+  artist_url text,
+  update_existing boolean not null default false,
+  target text not null default 'all',
+  status text not null default 'pending',
+  worker text,
+  created_at timestamptz not null default now(),
+  picked_at timestamptz,
+  finished_at timestamptz,
+  result text
+);
+create index if not exists worker_commands_status_idx on public.worker_commands (status, created_at);
+
 -- ── Índices úteis ────────────────────────────────────────────────────
 create index if not exists songs_artist_idx on public.songs (artist);
 create index if not exists songs_title_idx on public.songs (title);
@@ -216,6 +248,7 @@ alter table public.partner_links enable row level security;
 alter table public.blog_posts enable row level security;
 alter table public.song_comments enable row level security;
 alter table public.video_requests enable row level security;
+alter table public.worker_commands enable row level security;
 alter table public.song_feedback enable row level security;
 
 -- leads: qualquer um pode INSERIR (captura de lead), ninguém lê via anon

@@ -116,6 +116,30 @@ drop policy if exists "cron_log_all" on public.cron_log;
 create policy "cron_log_all" on public.cron_log
   for all using (true) with check (true);
 
+-- ── 6b) WORKER_COMMANDS: leitura autenticada, INSERT só do admin ──────
+-- A fila de "rodada imediata" dispara trabalho nas máquinas do
+-- proprietário — o anon e QUALQUER visitante logado NÃO podem inserir
+-- (evita abuso de custo/banda disparando rodadas). O INSERT exige o
+-- e-mail do admin no JWT (mesmo padrão do songs_delete_admin).
+-- O cron (JWT UkeMaster) e o painel admin (JWT do dono) são
+-- authenticated → leem, atualizam (status) e limpam (limpeza automática).
+revoke all on public.worker_commands from anon;
+grant select, insert, update, delete on public.worker_commands to authenticated;
+
+alter table public.worker_commands enable row level security;
+drop policy if exists "worker_commands_select" on public.worker_commands;
+create policy "worker_commands_select" on public.worker_commands
+  for select using (auth.role() = 'authenticated');
+drop policy if exists "worker_commands_insert" on public.worker_commands;
+create policy "worker_commands_insert" on public.worker_commands
+  for insert with check (lower(auth.jwt() ->> 'email') = 'iluminatto@gmail.com');
+drop policy if exists "worker_commands_update" on public.worker_commands;
+create policy "worker_commands_update" on public.worker_commands
+  for update using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+drop policy if exists "worker_commands_delete" on public.worker_commands;
+create policy "worker_commands_delete" on public.worker_commands
+  for delete using (auth.role() = 'authenticated');
+
 -- ═══════════════════════════════════════════════════════════════════
 -- VERIFICAÇÃO (rodar depois):
 --   SELECT tablename, policyname, cmd FROM pg_policies
