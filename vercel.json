@@ -37,6 +37,17 @@
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
     { "source": "/robots.txt", "destination": "/api/robots" },
     {
+      "source": "/",
+      "destination": "/api/home",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(bot|crawler|spider|googlebot|bingbot|yandex|duckduckbot|baiduspider|whatsapp|instagram|facebookexternalhit|twitterbot|linkedinbot|telegrambot|discordbot|slackbot|pinterest|applebot|gptbot|ccbot|anthropic|claudebot|perplexitybot|ahrefs|semrush).*"
+        }
+      ]
+    },
+    {
       "source": "/musica/:id",
       "destination": "/api/musica",
       "has": [
