@@ -423,16 +423,9 @@ export function extractChordsFromHtml(html: string): string {
   text = text.replace(/<\/(?:div|p|li|tr|h\d)>/gi, '\n');
   text = text.replace(/<br\s*\/?>/gi, '\n');
 
-  // Remove tags restantes e decodifica entidades básicas
-  text = text
-    .replace(/<[^>]+>/g, '')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&[a-z]+;/gi, ' ');
+  // Remove tags restantes e decodifica TODAS as entidades (inclui &#x27; e
+  // &#NNN; — antes, apóstrofos viravam literal "d&#x27;ocê" nas letras).
+  text = decodeEntities(text.replace(/<[^>]+>/g, ''));
 
   // Limpa: linhas vazias múltiplas, espaços em excesso no fim de linha
   return text
@@ -521,7 +514,11 @@ export function extractMetaFromHtml(html: string): { title?: string; artist?: st
   const rawTitle = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || '';
   if (rawTitle && /U-FRET/i.test(rawTitle)) {
     const t = clean(rawTitle);
-    const m = t.match(/^(.+?)\s*\/\s*(.+?)\s+[^\u4e00-\u9fff\w]*コード/);
+    // Formato real: "Música / Artista ギターコード/ウクレレコード/... - U-FRET".
+    // O [\u30a0-\u30ff]* cobre o prefixo de instrumento em KATAKANA antes de
+    // コード (ギター/ウクレレ/ピアノ) — o regex antigo consumia o katakana
+    // no grupo errado e o artista saía "Desconhecido".
+    const m = t.match(/^(.+?)\s*\/\s*(.+?)\s+[\u30a0-\u30ff]*コード/);
     if (m && m[1] && m[2]) {
       return { title: m[1].trim(), artist: m[2].trim() };
     }
