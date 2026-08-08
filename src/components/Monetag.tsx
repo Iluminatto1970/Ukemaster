@@ -30,7 +30,7 @@
  *    do app (adCoordinator).
  *
  * DESLIGADO (opt-in):
- *  - POPUNDER (zona 267181, quge5.com) — o intervalo de reexibição dele é
+ *  - POPUNDER (zona 268081, quge5.com) — o intervalo de reexibição dele é
  *    controlado pelo script/painel (frequency capping), não pelo nosso
  *    código; depois de injetado pode abrir a qualquer momento e sequestrar
  *    cliques. Para religar: ENABLE_POPUNDER = true E configure o frequency
@@ -50,7 +50,7 @@ import { isAdOverlayBusy, onAdOverlayChange } from '../lib/adCoordinator';
 const ENABLE_WEB_PUSH = true; // zona 11530027 — permissão do navegador
 const ENABLE_IN_PAGE_PUSH = true; // zona 11510029 — toast dentro da página
 const ENABLE_VIGNETTE = true; // zona 11510035 — overlay por impressão
-const ENABLE_POPUNDER = false; // zona 267181 — NÃO recomendado (sequestra cliques)
+const ENABLE_POPUNDER = false; // zona 268081 — NÃO recomendado (sequestra cliques)
 
 /** Delays (ms) — tune aqui, sem mexer na lógica. */
 const PUSH_FALLBACK_MS = 20_000; // se o usuário não interagir até lá, injeta mesmo assim
@@ -150,7 +150,7 @@ export const Monetag: React.FC = () => {
       );
     }
 
-    // ── 4. Popunder (zona 267181) — opt-in, exige frequency capping no
+    // ── 4. Popunder (zona 268081) — opt-in, exige frequency capping no
     //      painel Monetag. Desligado por padrão (histórico de cliques). ──
     if (ENABLE_POPUNDER) {
       timers.push(

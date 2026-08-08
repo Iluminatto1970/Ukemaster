@@ -17,7 +17,7 @@ export const APOIA_SE_URL = 'https://apoia.se/ukemasterpro';
  * - MONETAG_SCRIPT_URL: push notifications (zona 11530027)
  * - MONETAG_VIGNETTE: interstitial/vignette (zona 11510035)
  * - MONETAG_TAG_NAP5K: in-page push / tag (zona 11510029)
- * - MONETAG_TAG_QUGE5: tag adicional (zona 267181)
+ * - MONETAG_TAG_QUGE5: tag adicional (zona 268081)
  *
  * Cole a URL exata exibida no painel (botão "Get Tag") aqui.
  */
@@ -35,5 +35,5 @@ export const MONETAG_TAG_NAP5K = {
 
 export const MONETAG_TAG_QUGE5 = {
   src: 'https://quge5.com/88/tag.min.js',
-  zone: '267181',
+  zone: '268081', // zona recriada para o domínio ukemasterpro.com (era 267181 no vercel.app)
 };

@@ -9,7 +9,7 @@
  * navegador bloquear autoplay). Homenagem assinada pelo fundador.
  */
 import React, { useEffect, useRef, useState } from 'react';
-import { useT } from '../lib/i18n';
+import { useT, LANGS } from '../lib/i18n';
 
 interface SplashScreenProps {
   /** Tempo (ms) que o splash fica visível antes do fade-out. */
@@ -55,7 +55,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
   duration = 30000,
   onFinish,
 }) => {
-  const { t } = useT();
+  const { t, lang, setLang } = useT();
   const [hidden, setHidden] = useState(false);
   const [userNeedsClick, setUserNeedsClick] = useState(false);
   const playerRef = useRef<YTPlayer | null>(null);
@@ -136,6 +136,31 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
       }}
       aria-hidden={hidden}
     >
+      {/* Seletor de idioma: o visitante troca a língua da homenagem antes
+          de entrar (usa o mesmo LANGS/setLang do header — persiste). */}
+      <div
+        className="absolute top-4 right-4 z-20 flex items-center gap-1 rounded-full bg-black/25 backdrop-blur-sm px-2 py-1.5 shadow-lg animate-splash-rise"
+        role="group"
+        aria-label={t('header.language')}
+      >
+        {LANGS.map((l) => (
+          <button
+            key={l.id}
+            onClick={() => setLang(l.id)}
+            title={l.label}
+            aria-label={l.label}
+            aria-pressed={lang === l.id}
+            className={`text-base sm:text-lg leading-none rounded-full transition-all duration-150 cursor-pointer select-none ${
+              lang === l.id
+                ? 'scale-125 drop-shadow-[0_2px_6px_rgba(246,174,45,0.8)] ring-2 ring-[#F6AE2D]/80 bg-white/15'
+                : 'opacity-55 hover:opacity-100 hover:scale-110 grayscale-[35%] hover:grayscale-0'
+            }`}
+          >
+            {l.flag}
+          </button>
+        ))}
+      </div>
+
       {/* Player do YouTube em TELA CHEIA (vídeo de fundo) */}
       <div
         id="splash-youtube-player"

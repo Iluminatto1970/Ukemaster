@@ -51,10 +51,14 @@ abaixo — ~5 minutos, uma única vez.
 1. No mesmo painel: **Authentication → URL Configuration**.
 2. Em **Redirect URLs**, adicione:
    ```
-   https://ukemasterpro.vercel.app/auth/callback
+   https://ukemasterpro.com/auth/callback
+   https://www.ukemasterpro.com/auth/callback
    http://localhost:3000/auth/callback
    ```
 3. Salve. Sem isso o Supabase rejeita o retorno com `Invalid redirect`.
+
+> O alias antigo `https://ukemasterpro.vercel.app/auth/callback` pode ficar
+> na lista (sem custo) — útil enquanto o `.vercel.app` ainda redireciona.
 
 ---
 
@@ -73,7 +77,7 @@ e-mail/senha não exigir clicar em link de confirmação.
 2. O app gera um `code_verifier` (PKCE), guarda no localStorage e redireciona
    para `https://asvjdjawaenxrlwdyziy.supabase.co/auth/v1/authorize?provider=google&...`.
 3. O Google pede a permissão; o Supabase recebe o code e devolve o navegador
-   para `https://ukemasterpro.vercel.app/auth/callback?code=...`.
+   para `https://ukemasterpro.com/auth/callback?code=...`.
 4. O `AuthProvider` detecta o `?code=`, troca pela sessão
    (`POST /auth/v1/token?grant_type=pkce`), salva no localStorage, limpa a URL
    e autentica — o usuário entra sem cadastrar senha.
@@ -107,16 +111,19 @@ e celular igualmente (foi o erro reproduzido no teste ao vivo).
    https://asvjdjawaenxrlwdyziy.supabase.co/auth/v1/callback
    ```
    ⚠️ **IMPORTANTE**: este URI é do SUPABASE, não do site. NÃO coloque
-   `https://ukemasterpro.vercel.app/...` aqui — o Google exige o callback do
+   `https://ukemasterpro.com/...` aqui — o Google exige o callback do
    Supabase (é o Supabase quem recebe o code do Google).
    Se não estiver, adicione e **Salvar**. (Também pode incluir
    `http://localhost:3000/auth/v1/callback` para testes locais.)
 5. Aguarde 2–5 minutos (o Google propaga a mudança) e tente de novo.
 
-> **Estado verificado no Supabase (06/08/2026)** — tudo pronto do nosso lado:
-> - site_url: `https://ukemasterpro.vercel.app`
-> - Redirect URLs (uri_allow_list): `https://ukemasterpro.vercel.app/auth/callback`
->   e `http://localhost:3000/auth/callback`
+> **Estado verificado no Supabase (08/08/2026)** — atualizado após a migração
+> para o domínio próprio (via Management API, token do shell):
+> - site_url: `https://ukemasterpro.com`
+> - Redirect URLs (uri_allow_list): `https://ukemasterpro.com/auth/callback`,
+>   `https://www.ukemasterpro.com/auth/callback`,
+>   `https://ukemasterpro.vercel.app/auth/callback` (alias) e
+>   `http://localhost:3000/auth/callback`
 > - Provider Google habilitado com o Client ID acima
 > - Rota `/auth/callback` configurada na Vercel (rewrite para o SPA) e PKCE
 >   com `S256` correto no app
