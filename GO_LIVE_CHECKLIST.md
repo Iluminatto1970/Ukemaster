@@ -32,11 +32,12 @@
 
 ### Monetag
 - [ ] Painel: https://publisher.monetag.com → verificar **domínio aprovado** (ukemasterpro.vercel.app já adicionado 04.08.2026)
-- [ ] **Zonas ativas** (4 scripts já injetados no `Monetag.tsx`):
-  - Push: zona `11500772`
-  - Vignette: zona `11510035`
-  - In-page: zona `11510029`
-  - Tag: zona `267181`
+- [ ] **Zonas ativas** no `Monetag.tsx` (3 ligadas + 1 opcional, configuráveis via flags no topo do arquivo):
+  - Push (permissão): zona `11500772` — injetado após a 1ª interação ✅
+  - Vignette: zona `11510035` — injetada após 75s de sessão ✅
+  - In-page push: zona `11510029` — toast na página após 45s ✅
+  - Popunder/tag: zona `267181` — **desligado** (sequestrava cliques; religar só com frequency capping no painel)
+- [ ] No painel Monetag, conferir que as zonas `11500772` e `11510029` estão como **Web Push / In-Page Push** (não Popunder) e ajustar frequency capping da vignette para ~1x/sessão
 - [ ] `sw.js` na raiz (a Monetag exige para push) — já verificado
 - [ ] Teste de tráfego real: **após o lançamento**, verificar no painel se as zonas estão "recebendo" (impressões)
 
