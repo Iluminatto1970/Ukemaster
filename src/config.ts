@@ -14,14 +14,14 @@ export const APOIA_SE_URL = 'https://apoia.se/ukemasterpro';
 /**
  * Scripts de anúncios da Monetag (zonas criadas no painel).
  *
- * - MONETAG_SCRIPT_URL: push notifications (zona 11500772)
+ * - MONETAG_SCRIPT_URL: push notifications (zona 11530027)
  * - MONETAG_VIGNETTE: interstitial/vignette (zona 11510035)
  * - MONETAG_TAG_NAP5K: in-page push / tag (zona 11510029)
  * - MONETAG_TAG_QUGE5: tag adicional (zona 267181)
  *
  * Cole a URL exata exibida no painel (botão "Get Tag") aqui.
  */
-export const MONETAG_SCRIPT_URL = 'https://5gvci.com/ntfc.php?p=11500772&tco=1';
+export const MONETAG_SCRIPT_URL = 'https://3nbf4.com/ntfc.php?p=11530027&tco=1';
 
 export const MONETAG_VIGNETTE = {
   zone: '11510035',

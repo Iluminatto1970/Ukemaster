@@ -128,13 +128,13 @@ export function securityHeaders(opts: SecurityHeaderOptions = {}): Record<string
       // Site 100% HTTPS: o navegador sobe qualquer recurso http:// para https.
       'upgrade-insecure-requests',
       // Scripts: próprio site + AdSense + YouTube + Monetag (auth Supabase é REST, sem script externo).
-      "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://www.google.com https://www.gstatic.com https://www.youtube.com https://s.ytimg.com https://n6wxm.com https://nap5k.com https://quge5.com https://5gvci.com https://ep2.adtrafficquality.google https://ep1.adtrafficquality.google",
+      "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://www.google.com https://www.gstatic.com https://www.youtube.com https://s.ytimg.com https://n6wxm.com https://nap5k.com https://quge5.com https://5gvci.com https://3nbf4.com https://ep2.adtrafficquality.google https://ep1.adtrafficquality.google",
       // Estilos: inline necessário para React/Tailwind; sem 'unsafe-eval'.
       "style-src 'self' 'unsafe-inline'",
       // Imagens: próprias + avatares + thumbnails + anúncios.
       "img-src 'self' data: blob: https://ui-avatars.com https://api.dicebear.com https://img.youtube.com https://i.ytimg.com https://www.google.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.gstatic.com",
       // Conexões (fetch/XHR/WS): Supabase (REST + Auth) + Vite HMR (dev) + ads.
-      "connect-src 'self' https://asvjdjawaenxrlwdyziy.supabase.co wss://localhost:* ws://localhost:* https://pagead2.googlesyndication.com https://ep2.adtrafficquality.google https://ep1.adtrafficquality.google https://*.google.com https://*.googleapis.com https://n6wxm.com https://nap5k.com https://quge5.com https://5gvci.com",
+      "connect-src 'self' https://asvjdjawaenxrlwdyziy.supabase.co wss://localhost:* ws://localhost:* https://pagead2.googlesyndication.com https://ep2.adtrafficquality.google https://ep1.adtrafficquality.google https://*.google.com https://*.googleapis.com https://n6wxm.com https://nap5k.com https://quge5.com https://5gvci.com https://3nbf4.com",
       // Frames: YouTube embed + iframes de anúncio (inclui a vignette Monetag).
       "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://td.doubleclick.net https://ep2.adtrafficquality.google https://n6wxm.com",
       // Fontes: próprias + data URI (ícones).

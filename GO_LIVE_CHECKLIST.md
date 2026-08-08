@@ -33,12 +33,12 @@
 ### Monetag
 - [ ] Painel: https://publisher.monetag.com → verificar **domínio aprovado** (`ukemasterpro.com` — substituir `ukemasterpro.vercel.app` adicionado em 04.08.2026)
 - [ ] **Zonas ativas** no `Monetag.tsx` (3 ligadas + 1 opcional, configuráveis via flags no topo do arquivo):
-  - Push (permissão): zona `11500772` — injetado após a 1ª interação ✅
+  - Push (permissão): zona `11530027` — injetado após a 1ª interação ✅ (migrada de `11500772` em 08.08.2026; `sw.js` na raiz atualizado para o domínio `3nbf4.com`)
   - Vignette: zona `11510035` — injetada no **intersticial de ações** (10s de contagem) e também aos 75s de sessão ✅
   - In-page push: zona `11510029` — toast na página após 45s ✅
   - Popunder/tag: zona `267181` — **desligado** (sequestrava cliques; religar só com frequency capping no painel)
 - [ ] **Intersticial estendido** (App.tsx, `AD_GATE_EVERY`): abrir cifra (a cada 3ª, aumentado de 6ª a pedido), **downloads** (a cada 2º), **abrir playlists** (a cada 3ª) e **entrar no afinador/metrônomo** (a cada 2ª) — todos com o mesmo limite diário (6/dia) e intervalo mínimo (3 min). Cadência por ação ajustável no topo do App.tsx.
-- [ ] No painel Monetag, conferir que as zonas `11500772` e `11510029` estão como **Web Push / In-Page Push** (não Popunder) e ajustar frequency capping da vignette (ela agora também dispara no intersticial do app — com 1x/sessão, só a 1ª ação do dia monetiza com vignette; para mais impressões, suba a frequência no painel)
+- [ ] No painel Monetag, conferir que as zonas `11530027` e `11510029` estão como **Web Push / In-Page Push** (não Popunder) e ajustar frequency capping da vignette (ela agora também dispara no intersticial do app — com 1x/sessão, só a 1ª ação do dia monetiza com vignette; para mais impressões, suba a frequência no painel)
 - [ ] `sw.js` na raiz (a Monetag exige para push) — já verificado
 - [ ] Teste de tráfego real: **após o lançamento**, verificar no painel se as zonas estão "recebendo" (impressões)
 

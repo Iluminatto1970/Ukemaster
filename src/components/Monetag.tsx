@@ -15,7 +15,7 @@
  *     lógica.
  *
  * ATIVO:
- *  - WEB PUSH (zona 11500772, ntfc.php) — o MAIOR gerador da Monetag.
+ *  - WEB PUSH (zona 11530027, ntfc.php) — o MAIOR gerador da Monetag.
  *    Baseado em permissão do navegador: o script pergunta (UI própria) e
  *    só entrega push ads para quem aceita — não abre aba. Injetado após a
  *    primeira interação (scroll/clique/touch) ou 20s no máximo, que é o
@@ -47,7 +47,7 @@ import {
 import { isAdOverlayBusy, onAdOverlayChange } from '../lib/adCoordinator';
 
 /** Liga/desliga cada zona sem mexer no resto. */
-const ENABLE_WEB_PUSH = true; // zona 11500772 — permissão do navegador
+const ENABLE_WEB_PUSH = true; // zona 11530027 — permissão do navegador
 const ENABLE_IN_PAGE_PUSH = true; // zona 11510029 — toast dentro da página
 const ENABLE_VIGNETTE = true; // zona 11510035 — overlay por impressão
 const ENABLE_POPUNDER = false; // zona 267181 — NÃO recomendado (sequestra cliques)
@@ -83,7 +83,7 @@ export const Monetag: React.FC = () => {
     const timers: number[] = [];
     const cleanups: Array<() => void> = [];
 
-    // ── 1. Web push (zona 11500772) — após a 1ª interação ───────────────
+    // ── 1. Web push (zona 11530027) — após a 1ª interação ───────────────
     if (ENABLE_WEB_PUSH) {
       let pushInjected = false;
       let fallbackTimer: number | undefined;
