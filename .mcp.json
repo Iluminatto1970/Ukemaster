@@ -21,6 +21,26 @@
       "headers": {
         "Authorization": "Bearer ${CTX7_API_KEY}"
       }
+    },
+    "hostinger-dns": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "hostinger-dns-mcp"
+      ],
+      "env": {
+        "HOSTINGER_API_TOKEN": "${HOSTINGER_API_TOKEN}"
+      }
+    },
+    "hostinger-domains": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "hostinger-domains-mcp"
+      ],
+      "env": {
+        "HOSTINGER_API_TOKEN": "${HOSTINGER_API_TOKEN}"
+      }
     }
   }
 }

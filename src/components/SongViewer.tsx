@@ -175,7 +175,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   // Google/WhatsApp/redes entenderem que esta página É uma música (crawlers
   // também recebem o prerender completo via /api/musica no servidor).
   useEffect(() => {
-    // Usa o origin real (produção = ukemasterpro.vercel.app; dev = localhost)
+    // Usa o origin real (produção = ukemasterpro.com; dev = localhost)
     const siteUrl = window.location.origin;
     const pageUrl = `${siteUrl}/musica/${encodeURIComponent(song.id)}`;
 

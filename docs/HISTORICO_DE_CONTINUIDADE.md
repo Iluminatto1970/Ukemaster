@@ -16,7 +16,7 @@ npm install
 npm run dev          # servidor local (porta 5173)
 ```
 
-- **Deploy produção:** `npx vercel deploy --prod --yes --project ukemaster` (domínio `ukemasterpro.vercel.app`)
+- **Deploy produção:** `npx vercel deploy --prod --yes --project ukemaster` (domínio `https://ukemasterpro.com` — DNS Hostinger → Vercel `A 76.76.21.21` / www `CNAME cname.vercel-dns.com`, configurado 08.08.2026)
 - **Validar antes do deploy:** `npx tsc --noEmit && npm run build`
 - **Credenciais do cron:** ver `CRON_DEPLOYMENT.md` e `scripts/cron/cron.env.example`
 - **Religar máquinas Acer/Desktop (Linux Mint):** ver `docs/CHECKLIST_RELIGAR_MAQUINAS.md`
@@ -28,7 +28,7 @@ npm run dev          # servidor local (porta 5173)
 
 | Item | Estado |
 |---|---|
-| **Produção** | `ukemasterpro.vercel.app` (projeto Vercel: `ukemaster`) |
+| **Produção** | `ukemasterpro.com` (projeto Vercel: `ukemaster`; `ukemasterpro.vercel.app` continua ativo como alias) |
 | **Banco** | Supabase `asvjdjawaenxrlwdyziy` — acervo com **~13.250 músicas** |
 | **Acervo por idioma** | pt 7.091 · en 3.824 · es 2.255 · fr 67 · de 11 · ja 2 (coluna `lang`) |
 | **Cron Vercel** | Registrado (`0 9 * * *`), mas **não dispara no plano Hobby** — cobertura via máquinas + painel admin |

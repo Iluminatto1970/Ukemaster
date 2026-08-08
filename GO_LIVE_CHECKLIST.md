@@ -1,6 +1,6 @@
 # 🚀 UkeMaster Pro — Checklist de Lançamento (Go-Live)
 
-> **Domínio:** https://ukemasterpro.vercel.app
+> **Domínio:** https://ukemasterpro.com (antigo `ukemasterpro.vercel.app`, migrado 08.08.2026 — aponta para o mesmo projeto Vercel `ukemaster`)
 > **Meta:** deixar o site 100% monetizado, indexado e com tráfego antes da divulgação ampla.
 > Use este checklist na ordem: **Fundação → Anúncios → SEO → Analytics → Redes → Lançamento**.
 
@@ -8,7 +8,7 @@
 
 ## 1. 🏗️ Fundação (já feita — só confira)
 
-- [ ] Site no ar: `https://ukemasterpro.vercel.app` responde 200
+- [ ] Site no ar: `https://ukemasterpro.com` responde 200 (apex + www com SSL automático da Vercel)
 - [ ] `/robots.txt`, `/sitemap.xml`, `/sw.js` e `/manifest.json` respondem 200 (PWA)
 - [ ] Acervo com +4.000 cifras e busca funcionando
 - [ ] Login (Clerk) + repertórios + votos funcionando
@@ -25,13 +25,13 @@
 
 ### Google AdSense
 - [ ] **Cadastro aprovado** — https://adsense.google.com → status "Aprovado" (sem a aprovação, os blocos não exibem anúncios reais)
-- [ ] **Domínio verificado** no AdSense: adicione `https://ukemasterpro.vercel.app` → "Meus sites" → "Verificar site"
+- [ ] **Domínio verificado** no AdSense: adicione `https://ukemasterpro.com` → "Meus sites" → "Verificar site"
 - [ ] **sw.js na raiz** servido com 200 (já confirmado — necessário para o AdSense verificar o domínio)
 - [ ] **Políticas**: sem cliques próprios, no máx. 3 blocos visíveis por tela
 - [ ] (Opcional) Criar **unidades de anúncio** específicas (Display, In-article, Multplex) e anotar os `data-ad-slot` para ajustar os componentes
 
 ### Monetag
-- [ ] Painel: https://publisher.monetag.com → verificar **domínio aprovado** (ukemasterpro.vercel.app já adicionado 04.08.2026)
+- [ ] Painel: https://publisher.monetag.com → verificar **domínio aprovado** (`ukemasterpro.com` — substituir `ukemasterpro.vercel.app` adicionado em 04.08.2026)
 - [ ] **Zonas ativas** no `Monetag.tsx` (3 ligadas + 1 opcional, configuráveis via flags no topo do arquivo):
   - Push (permissão): zona `11500772` — injetado após a 1ª interação ✅
   - Vignette: zona `11510035` — injetada no **intersticial de ações** (10s de contagem) e também aos 75s de sessão ✅
@@ -51,9 +51,9 @@
 ## 3. 🔍 Google Search Console (indexação)
 
 - [ ] Acessar https://search.google.com/search-console → "Adicionar propriedade"
-- [ ] Escolher **"Prefixo de URL"** e digitar `https://ukemasterpro.vercel.app`
+- [ ] Escolher **"Prefixo de URL"** e digitar `https://ukemasterpro.com`
 - [ ] **Verificação por tag HTML**: copiar o meta `google-site-verification=...` e pedir para inserir no `index.html` (o projeto é nosso, inserimos em 2 min)
-- [ ] Após verificado: **enviar o sitemap** → Sitemaps → `https://ukemasterpro.vercel.app/sitemap.xml`
+- [ ] Após verificado: **enviar o sitemap** → Sitemaps → `https://ukemasterpro.com/sitemap.xml`
 - [ ] Pedir **indexação das principais URLs** (URL Inspection → "Solicitar indexação"): `/` e 3–5 cifras populares
 - [ ] Acompanhar por 2–3 dias: "Cobertura" e "Páginas" no relatório (indexadas vs. com erro)
 
@@ -71,8 +71,8 @@
 - [ ] Testar: abrir o site, ver em tempo real https://analytics.google.com → Tempo real → deve aparecer 1 usuário
 
 ### Plausible (opcional — alternativa privada)
-- [ ] Criar conta em https://plausible.io → adicionar site `ukemasterpro.vercel.app`
-- [ ] Copiar o domínio do script e adicionar `VITE_PLAUSIBLE_DOMAIN=ukemasterpro.vercel.app` + redeploy
+- [ ] Criar conta em https://plausible.io → adicionar site `ukemasterpro.com`
+- [ ] Copiar o domínio do script e adicionar `VITE_PLAUSIBLE_DOMAIN=ukemasterpro.com` + redeploy
 - [ ] Como ver os dados: painel do Plausible (simples) ou GA4 → Relatórios → Tempo real / Aquisição
 
 ---
@@ -92,7 +92,7 @@
 ```
 🎸 UkeMaster Pro — cifras de ukulele grátis
 🎵 4.000+ músicas | Afinador | Dicionário
-🔗 link na bio → https://ukemasterpro.vercel.app
+🔗 link na bio → https://ukemasterpro.com
 ```
 
 ### Ações de divulgação (pós-go-live)

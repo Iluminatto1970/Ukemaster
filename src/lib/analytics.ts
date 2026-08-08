@@ -6,7 +6,7 @@
  *
  * Configuração (em .env.local e nas Environment Variables da Vercel):
  *   VITE_GA_MEASUREMENT_ID="G-XXXXXXXXXX"   → ativa o Google Analytics 4
- *   VITE_PLAUSIBLE_DOMAIN="ukemasterpro.vercel.app" → ativa o Plausible
+ *   VITE_PLAUSIBLE_DOMAIN="ukemasterpro.com" → ativa o Plausible
  *
  * Com qualquer uma das chaves, o script é injetado no <head> e os eventos
  * passam a ser enviados. Sem chaves, TODAS as funções são no-op (o app

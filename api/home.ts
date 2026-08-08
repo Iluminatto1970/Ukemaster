@@ -32,7 +32,7 @@ function getSiteUrl(): string {
   return (
     process.env.SITE_URL ||
     process.env.APP_URL ||
-    'https://ukemasterpro.vercel.app'
+    'https://ukemasterpro.com'
   );
 }
 

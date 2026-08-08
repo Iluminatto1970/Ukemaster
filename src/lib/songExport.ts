@@ -416,7 +416,7 @@ export function buildCollectionDocument(
   })} • Afinação padrão G C E A</p>
   ${toc}
   ${sections}
-  <div class="foot">Documento gerado por UkeMaster Pro — ukemasterpro.vercel.app 💚</div>
+  <div class="foot">Documento gerado por UkeMaster Pro — ukemasterpro.com 💚</div>
 </body>
 </html>`;
 }
@@ -436,7 +436,7 @@ export function downloadSongTxt(song: Song) {
   const header = `${song.title} — ${song.artist}${song.key ? ` (Tom: ${song.key})` : ''}\n\n`;
   // A marca fica NO FINAL (não no topo): a 1ª linha é o título da música,
   // então reimportar o .txt no app não confunde o parser de metadados.
-  const brand = '\n\n— Baixado de UkeMaster Pro (ukemasterpro.vercel.app) 💚 —\n';
+  const brand = '\n\n— Baixado de UkeMaster Pro (ukemasterpro.com) 💚 —\n';
   downloadTextFile(
     `${slugify(song.artist)}-${slugify(song.title)}.txt`,
     header + (song.content || 'Cifra indisponível.') + brand

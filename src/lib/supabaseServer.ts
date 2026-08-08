@@ -103,7 +103,7 @@ export function getSiteUrl(): string {
     process.env.APP_URL ||
     process.env.VERCEL_PROJECT_PRODUCTION_URL ||
     process.env.NEXT_PUBLIC_SITE_URL ||
-    'https://ukemasterpro.vercel.app'
+    'https://ukemasterpro.com'
   ).replace(/\/+$/, '');
 }
 
