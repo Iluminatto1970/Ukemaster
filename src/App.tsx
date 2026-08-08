@@ -55,8 +55,29 @@ import { LeadCaptureModal } from './components/LeadCaptureModal';
 import { SplashScreen } from './components/SplashScreen';
 
 /** Máximo de anúncios intersticiais por dia (por dispositivo) — equilíbrio
- * entre receita e experiência: depois do limite, cifras abrem direto. */
+ * entre receita e experiência: depois do limite, as ações abrem direto. */
 const ADS_DAILY_LIMIT = 6;
+
+/**
+ * Cadência do intersticial por AÇÃO (contador por sessão): a ação abre o
+ * modal quando contador % every === 0. Todas compartilham o limite diário
+ * (ADS_DAILY_LIMIT) e o intervalo mínimo (MIN_AD_INTERVAL_MS) — é o
+ * "sempre com limite diário".
+ *   song       → abrir cifra: a cada 3ª (era 6ª; aumentado a pedido do
+ *                proprietário, mantendo limite diário + intervalo)
+ *   download   → baixar cifra/coleção: a cada 2º
+ *   playlists  → abrir playlists: a cada 3ª
+ *   tuner      → entrar no afinador: a cada 2ª
+ *   metronome  → entrar no metrônomo: a cada 2ª
+ */
+type AdGateKey = 'song' | 'download' | 'playlists' | 'tuner' | 'metronome';
+const AD_GATE_EVERY: Record<AdGateKey, number> = {
+  song: 3,
+  download: 2,
+  playlists: 3,
+  tuner: 2,
+  metronome: 2,
+};
 import {
   loadRepertoire,
   saveRepertoire,
@@ -286,9 +307,16 @@ export default function App() {
     setShowSplash(false);
   };
 
-  // Interstitial Ad State (Shows advertisement gating periodically before opening lyrics)
+  // Interstitial Ad State — gate genérico: guarda a AÇÃO que será liberada
+  // após o anúncio (abrir cifra, baixar, abrir playlists, afinador,
+  // metrônomo). Ao completar, handleCompleteAdInterstitial executa `run()`.
   const [isAdInterstitialOpen, setIsAdInterstitialOpen] = useState<boolean>(false);
-  const [pendingSongToView, setPendingSongToView] = useState<Song | null>(null);
+  const [pendingAdAction, setPendingAdAction] = useState<{
+    run: () => void;
+    title?: string;
+    artist?: string;
+    openLabel?: string;
+  } | null>(null);
 
   // Captura de lead antes do cadastro (nome/e-mail/WhatsApp → seu banco)
   const [isLeadCaptureOpen, setIsLeadCaptureOpen] = useState<boolean>(false);
@@ -309,6 +337,14 @@ export default function App() {
   const adsShownRef = useRef<{ date: string; count: number }>({ date: '', count: 0 });
   const lastAdAtRef = useRef<number>(0);
   const MIN_AD_INTERVAL_MS = 3 * 60 * 1000; // 3 minutos entre intersticiais
+  // Contadores por ação (sessão) — ver AD_GATE_EVERY
+  const adGateCountersRef = useRef<Record<AdGateKey, number>>({
+    song: 0,
+    download: 0,
+    playlists: 0,
+    tuner: 0,
+    metronome: 0,
+  });
   const getAdsToday = (): number => {
     const today = new Date().toISOString().slice(0, 10);
     const saved = adsShownRef.current;
@@ -332,6 +368,69 @@ export default function App() {
     } catch {
       // cota cheia/privado — segue sem persistir
     }
+  };
+
+  // ── Gate genérico do intersticial ────────────────────────────────────
+  // Toda ação "premium" (abrir cifra, baixar, abrir playlists, entrar no
+  // afinador/metrônomo) passa por aqui: conforme a cadência da ação
+  // (AD_GATE_EVERY) + limite diário + intervalo mínimo, ou executa DIRETO,
+  // ou guarda a ação e abre o modal de anúncio — que ao completar executa
+  // `run()` (handleCompleteAdInterstitial). Um contador por ação evita que
+  // ações diferentes "estourem" umas as outras na mesma sessão.
+  const gateAdAction = (
+    key: AdGateKey,
+    run: () => void,
+    meta?: { title?: string; artist?: string; openLabel?: string }
+  ) => {
+    adGateCountersRef.current[key] += 1;
+    const count = adGateCountersRef.current[key];
+    const now = Date.now();
+    const enoughTime = now - lastAdAtRef.current >= MIN_AD_INTERVAL_MS;
+    if (count % AD_GATE_EVERY[key] === 0 && getAdsToday() < ADS_DAILY_LIMIT && enoughTime) {
+      lastAdAtRef.current = now;
+      bumpAdsToday();
+      setPendingAdAction({ run, ...meta });
+      setIsAdInterstitialOpen(true);
+    } else {
+      run();
+    }
+  };
+
+  // Troca de aba com gate: afinador e metrônomo são ações que podem
+  // mostrar o intersticial antes (cadência própria); as demais abas abrem
+  // direto (comportamento original).
+  const handleSetActiveTab = (tab: ActiveTab) => {
+    if (tab === 'afinador') {
+      gateAdAction('tuner', () => setActiveTab('afinador'), {
+        title: t('tab.tuner'),
+        openLabel: t('ad.continue'),
+      });
+      return;
+    }
+    if (tab === 'metronomo') {
+      gateAdAction('metronome', () => setActiveTab('metronomo'), {
+        title: t('tab.metronome'),
+        openLabel: t('ad.continue'),
+      });
+      return;
+    }
+    setActiveTab(tab);
+    if (tab === 'musicas') {
+      setViewMode('list');
+    }
+  };
+
+  // Abrir a tela de Playlists também passa pelo intersticial (cadência
+  // própria), com o mesmo limite diário.
+  const handleOpenPlaylists = () => {
+    gateAdAction(
+      'playlists',
+      () => {
+        setActiveTab('musicas');
+        setViewMode('playlists');
+      },
+      { title: t('playlist.title'), openLabel: t('ad.continue') }
+    );
   };
 
   // Sync state to localStorage — versão ENXUTA: com o acervo de 3.000+ cifras
@@ -800,28 +899,24 @@ export default function App() {
       genre: song.category || '',
     });
 
-    // Show interstitial ad gate on every 6th song view attempt — meio termo
-    // (nem a cada 2 páginas, que irrita, nem tão raro que some a receita).
-    // LIMITE DIÁRIO + intervalo mínimo: depois de N anúncios no dia (ou se
-    // o último foi há menos de 3 min) o restante abre direto.
-    const now = Date.now();
-    const enoughTime = now - lastAdAtRef.current >= MIN_AD_INTERVAL_MS;
-    if (nextCount % 6 === 0 && getAdsToday() < ADS_DAILY_LIMIT && enoughTime) {
-      lastAdAtRef.current = now;
-      bumpAdsToday();
-      setPendingSongToView(song);
-      setIsAdInterstitialOpen(true);
-    } else {
-      setSelectedSong(song);
-      setViewMode('viewer');
-    }
+    // Show interstitial ad gate on every 3rd song view attempt — meio termo
+    // (aumentado de 6ª para 3ª a pedido do proprietário, mantendo limite
+    // diário + intervalo). LIMITE DIÁRIO + intervalo mínimo: depois de N
+    // anúncios no dia (ou se o último foi há menos de 3 min) abre direto.
+    gateAdAction(
+      'song',
+      () => {
+        setSelectedSong(song);
+        setViewMode('viewer');
+      },
+      { title: song.title, artist: song.artist }
+    );
   };
 
   const handleCompleteAdInterstitial = () => {
-    if (pendingSongToView) {
-      setSelectedSong(pendingSongToView);
-      setViewMode('viewer');
-      setPendingSongToView(null);
+    if (pendingAdAction) {
+      pendingAdAction.run();
+      setPendingAdAction(null);
     }
     setIsAdInterstitialOpen(false);
     markAdOverlayIdle();
@@ -902,17 +997,25 @@ export default function App() {
   // ── Download de coleções (playlist/repertório): garante a cifra completa
   // de cada música (a lista só tem metadados) e gera o documento com letra +
   // diagramas de acordes. Busca em sequência para não estourar rate limit.
-  const handleDownloadCollection = async (title: string, list: Song[]) => {
-    const resolved: Song[] = [];
-    for (const s of list) {
-      try {
-        const full = await ensureSongContent(s);
-        resolved.push(full ?? s);
-      } catch {
-        resolved.push(s); // mantém metadados — seção avisa que não há cifra
-      }
-    }
-    downloadCollectionHtml(title, resolved);
+  // Download de coleções (playlist/repertório): também passa pelo gate do
+  // intersticial (a cada 2º, com limite diário) antes de gerar o arquivo.
+  const handleDownloadCollection = (title: string, list: Song[]) => {
+    gateAdAction(
+      'download',
+      async () => {
+        const resolved: Song[] = [];
+        for (const s of list) {
+          try {
+            const full = await ensureSongContent(s);
+            resolved.push(full ?? s);
+          } catch {
+            resolved.push(s); // mantém metadados — seção avisa que não há cifra
+          }
+        }
+        downloadCollectionHtml(title, resolved);
+      },
+      { title, openLabel: t('viewer.download') }
+    );
   };
 
   const handleDeleteSong = (songId: string) => {
@@ -1082,12 +1185,7 @@ export default function App() {
           tela cheia (o viewer tem o próprio botão de voltar) */}
       <div className={isFullscreenViewer ? 'hidden md:block' : ''}>
         <Header
-          setActiveTab={(tab) => {
-            setActiveTab(tab);
-            if (tab === 'musicas') {
-              setViewMode('list');
-            }
-          }}
+          setActiveTab={handleSetActiveTab}
           onToggleMobileSidebar={() => setIsMobileSidebarOpen((prev) => !prev)}
           donationOpen={donationOpen}
           onOpenDonation={() => setDonationOpen(true)}
@@ -1120,20 +1218,12 @@ export default function App() {
         {/* Left Sidebar Navigation */}
         <Sidebar
           activeTab={activeTab}
-          setActiveTab={(tab) => {
-            setActiveTab(tab);
-            if (tab === 'musicas') {
-              setViewMode('list');
-            }
-          }}
+          setActiveTab={handleSetActiveTab}
           songsCount={songs.length}
           catalogLoading={showCatalogLoading}
           playlistsCount={playlists.length}
           viewMode={viewMode}
-          onOpenPlaylists={() => {
-            setActiveTab('musicas');
-            setViewMode('playlists');
-          }}
+          onOpenPlaylists={handleOpenPlaylists}
           isOpenMobile={isMobileSidebarOpen}
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
           isAdmin={isAdmin}
@@ -1207,10 +1297,7 @@ export default function App() {
                     partnerLinks={partnerLinks}
                     blogPosts={blogPosts}
                     onOpenBlog={() => setActiveTab('blog')}
-                    onOpenPlaylists={() => {
-                      setActiveTab('musicas');
-                      setViewMode('playlists');
-                    }}
+                    onOpenPlaylists={handleOpenPlaylists}
                     onSelectSong={handleSelectSong}
                     onEditSong={handleEditSong}
                     onDeleteSong={handleDeleteSong}
@@ -1252,6 +1339,13 @@ export default function App() {
                     onOpenAuth={handleOpenAuth}
                     isVoted={myVotes.has(selectedSong.id)}
                     onVoteSong={handleVoteSong}
+                    onGateDownload={(run) =>
+                      gateAdAction('download', run, {
+                        title: resolvedSelectedSong.title,
+                        artist: resolvedSelectedSong.artist,
+                        openLabel: t('viewer.download'),
+                      })
+                    }
                   />
                 )}
 
@@ -1358,12 +1452,14 @@ export default function App() {
       {/* Sticky Bottom Ad Banner (mobile: apenas se houver conteúdo — hoje é placeholder) */}
       <StickyBottomAd />
 
-      {/* Interstitial Ad Modal (Gates song opening periodically with countdown) */}
+      {/* Interstitial Ad Modal — gate genérico: libera a ação pendente
+          (cifra, download, playlists, afinador, metrônomo) após o anúncio */}
       <AdInterstitialModal
         isOpen={isAdInterstitialOpen}
         onComplete={handleCompleteAdInterstitial}
-        title={pendingSongToView?.title}
-        artist={pendingSongToView?.artist}
+        title={pendingAdAction?.title}
+        artist={pendingAdAction?.artist}
+        openLabel={pendingAdAction?.openLabel}
       />
 
       {/* Lead Capture Modal (antes do cadastro — nome/e-mail/WhatsApp) */}

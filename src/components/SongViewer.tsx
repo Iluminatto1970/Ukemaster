@@ -61,6 +61,8 @@ interface SongViewerProps {
   contentLoading?: boolean;
   /** Links de afiliado (card "Patrocinado" na cifra). */
   affiliateLinks?: AffiliateLink[];
+  /** Gate do intersticial para downloads (o App decide cadência/limite). */
+  onGateDownload?: (run: () => void) => void;
   onBack: () => void;
   onEdit: (song: Song) => void;
   onAddToPlaylist?: (song: Song) => void;
@@ -79,6 +81,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   song,
   contentLoading = false,
   affiliateLinks = [],
+  onGateDownload,
   onBack,
   onEdit,
   onAddToPlaylist,
@@ -106,6 +109,15 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   const [showTablatures, setShowTablatures] = useState<boolean>(true);
   // Menu "Baixar" — fecha ao clicar em qualquer opção ou no botão de novo
   const [showDownloadMenu, setShowDownloadMenu] = useState<boolean>(false);
+  // Baixar é ação "premium": se o App fornecer o gate, o download espera o
+  // intersticial (cadência + limite diário); senão, executa direto.
+  const runDownload = (fn: () => void) => {
+    if (onGateDownload) {
+      onGateDownload(fn);
+    } else {
+      fn();
+    }
+  };
   // Versão da cifra: 'original' | 'medium' | 'simple'. Toda música difícil
   // ganha versões SIMPLES e MÉDIA geradas pela teoria musical (o app deixa
   // explícito com badges quando a cifra exibida não é a original).
@@ -433,7 +445,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
                   <button
                     onClick={() => {
                       setShowDownloadMenu(false);
-                      downloadSongHtml(song);
+                      runDownload(() => downloadSongHtml(song));
                     }}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-teal-50 text-left transition-colors cursor-pointer"
                   >
@@ -446,7 +458,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
                   <button
                     onClick={() => {
                       setShowDownloadMenu(false);
-                      downloadSongTxt(song);
+                      runDownload(() => downloadSongTxt(song));
                     }}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-teal-50 text-left transition-colors cursor-pointer"
                   >
@@ -459,7 +471,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
                   <button
                     onClick={() => {
                       setShowDownloadMenu(false);
-                      printSong(song);
+                      runDownload(() => printSong(song));
                     }}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-orange-50 text-left transition-colors cursor-pointer"
                   >

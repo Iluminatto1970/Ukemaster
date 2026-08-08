@@ -1,17 +1,29 @@
 /**
- * Anúncio intersticial antes de abrir cifras (a cada 2ª): espera mínima para monetizar a impressão e botão Continuar liberado após o tempo.
+ * Anúncio intersticial antes de ações premium (a cada 3ª abertura de cifra,
+ * e também downloads/playlists/afinador/metrônomo): espera mínima para
+ * monetizar a impressão e botão Continuar liberado após o tempo.
+ *
+ * O anúncio exibido é a VIGNETTE da Monetag (zona 11510035): o script abre
+ * um overlay de tela cheia POR CIMA do modal (z-index próprio da Monetag),
+ * exatamente o formato "só passa depois de ver o anúncio". Usamos o MESMO
+ * id do Monetag.tsx ('monetag-vignette-script') para o disparo automático
+ * (75s de sessão) não duplicar o script — a Monetag controla a frequência
+ * pelo painel. A contagem de 10s e o limite diário (App.tsx) não mudam.
  */
 import React, { useState, useEffect } from 'react';
-import { AdSenseSlot } from './AdSenseSlot';
 import { useT } from '../lib/i18n';
-import { Clock, Music, ArrowRight } from 'lucide-react';
+import { Clock, Music, ArrowRight, Megaphone } from 'lucide-react';
 import { Logo } from './Logo';
+import { MONETAG_VIGNETTE } from '../config';
 
 interface AdInterstitialModalProps {
   isOpen: boolean;
   onComplete: () => void;
+  /** O que está sendo liberado (cifra, download, playlists, afinador...). */
   title?: string;
   artist?: string;
+  /** Texto do botão principal (padrão: "Abrir Cifra Agora"). */
+  openLabel?: string;
 }
 
 /**
@@ -26,6 +38,7 @@ export const AdInterstitialModal: React.FC<AdInterstitialModalProps> = ({
   onComplete,
   title,
   artist,
+  openLabel,
 }) => {
   const { t } = useT();
   const [countdown, setCountdown] = useState(MIN_WATCH_SECONDS);
@@ -53,6 +66,29 @@ export const AdInterstitialModal: React.FC<AdInterstitialModalProps> = ({
     }, 1000);
 
     return () => clearInterval(timer);
+  }, [isOpen]);
+
+  // Vignette Monetag (zona 11510035): injeta o script quando o modal abre.
+  // A Monetag abre o anúncio em TELA CHEIA por cima do modal — o formato
+  // "só passa depois de ver". O id é o mesmo usado pelo Monetag.tsx, então
+  // não há duplicação com o disparo automático dos 75s.
+  //
+  // IMPORTANTE: a Monetag NÃO tem API pública de re-disparo sob demanda —
+  // o script, uma vez no <head>, mostra a vignette conforme o frequency
+  // capping configurado NO PAINEL (recomendado 1x/sessão). Ou seja: o
+  // limite diário de 6 intersticiais (App.tsx) é um TETO de exibição do
+  // modal, não uma garantia de 6 anúncios — a 1ª abertura da sessão
+  // monetiza com a vignette e as demais mostram apenas a contagem
+  // (placeholder). Para mais impressões, ajuste a frequência no painel.
+  useEffect(() => {
+    if (!isOpen) return;
+    if (document.getElementById('monetag-vignette-script')) return;
+    const s = document.createElement('script');
+    s.id = 'monetag-vignette-script';
+    s.src = MONETAG_VIGNETTE.src;
+    s.async = true;
+    s.setAttribute('data-zone', MONETAG_VIGNETTE.zone);
+    document.head.appendChild(s);
   }, [isOpen]);
 
   if (!isOpen) return null;
@@ -108,11 +144,20 @@ export const AdInterstitialModal: React.FC<AdInterstitialModalProps> = ({
             </p>
           </div>
 
-          <AdSenseSlot
-            format="rectangle"
-            label={t('ad.label')}
-            className="my-2 min-h-[280px]"
-          />
+          {/* A vignette Monetag abre em TELA CHEIA por cima deste modal — o
+              bloco abaixo é o fallback visual (enquanto o anúncio carrega e
+              após fechá-lo), nunca um segundo anúncio. */}
+          <div className="my-2 min-h-[280px] rounded-2xl border-2 border-dashed border-[#0E7C7B]/25 bg-gradient-to-br from-[#0E7C7B]/[0.05] via-white to-amber-50/70 flex flex-col items-center justify-center gap-2.5 text-center px-6">
+            <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center animate-pulse">
+              <Megaphone className="w-6 h-6 text-[#F26419]" />
+            </div>
+            <p className="text-xs font-black text-[#1D2D44]">
+              {t('ad.officialSupporter')}
+            </p>
+            <p className="text-[10px] text-slate-500 max-w-xs leading-relaxed">
+              {t('ad.explain')}
+            </p>
+          </div>
 
           {/* Action Button */}
           <div className="pt-2">
@@ -127,7 +172,7 @@ export const AdInterstitialModal: React.FC<AdInterstitialModalProps> = ({
             >
               {canSkip ? (
                 <>
-                  <span>{t('ad.openNow')}</span>
+                  <span>{openLabel || t('ad.openNow')}</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               ) : (

@@ -522,7 +522,7 @@ const pt: Dict = {
   'ad.waitToUnlock': 'Aguarde {s}s para liberar a cifra.',
   'ad.openNow': 'Abrir Cifra Agora',
   'ad.displaying': 'Anúncio em exibição — libera em {s}s',
-  'ad.label': 'Anúncio Intersticial • Google AdSense',
+  'ad.label': 'Anúncio Intersticial • Monetag',
 
   // ── Vídeos / Parceiros / Blog ────────────────────────────
   'videos.partnerNotice': 'Aviso de parceria: os vídeos e cursos abaixo são de parceiros do UkeMaster. Ao acessar, você apoia o site',
@@ -1015,7 +1015,7 @@ const en: Dict = {
   'ad.waitToUnlock': 'Wait {s}s to unlock the chord.',
   'ad.openNow': 'Open Chord Now',
   'ad.displaying': 'Ad playing — unlocks in {s}s',
-  'ad.label': 'Interstitial Ad • Google AdSense',
+  'ad.label': 'Interstitial Ad • Monetag',
 
   'videos.partnerNotice': 'Partnership notice: the videos and courses below are from UkeMaster partners. By accessing, you support the site',
   'videos.comingSoon': 'Coming soon: video lessons!',
@@ -1507,7 +1507,7 @@ const es: Dict = {
   'ad.waitToUnlock': 'Espera {s}s para liberar la cifra.',
   'ad.openNow': 'Abrir Cifra Ahora',
   'ad.displaying': 'Anuncio en exhibición — libera en {s}s',
-  'ad.label': 'Anuncio Intersticial • Google AdSense',
+  'ad.label': 'Anuncio Intersticial • Monetag',
 
   'videos.partnerNotice': 'Aviso de alianza: los vídeos y cursos de abajo son de socios de UkeMaster. Al acceder, apoyas el sitio',
   'videos.comingSoon': '¡Pronto: videoclases!',
@@ -1999,7 +1999,7 @@ const fr: Dict = {
   'ad.waitToUnlock': 'Attendez {s}s pour libérer la grille.',
   'ad.openNow': 'Ouvrir la grille maintenant',
   'ad.displaying': 'Publicité en cours — libère dans {s}s',
-  'ad.label': 'Publicité interstitielle • Google AdSense',
+  'ad.label': 'Publicité interstitielle • Monetag',
 
   'videos.partnerNotice': 'Avis de partenariat : les vidéos et cours ci-dessous proviennent de partenaires UkeMaster. En y accédant, vous soutenez le site',
   'videos.comingSoon': 'Bientôt : cours vidéo !',
@@ -2491,7 +2491,7 @@ const de: Dict = {
   'ad.waitToUnlock': 'Warte {s}s, um den Akkordbogen freizuschalten.',
   'ad.openNow': 'Akkordbogen jetzt öffnen',
   'ad.displaying': 'Werbung läuft — freigeschaltet in {s}s',
-  'ad.label': 'Interstitial-Werbung • Google AdSense',
+  'ad.label': 'Interstitial-Werbung • Monetag',
 
   'videos.partnerNotice': 'Partnerschaftshinweis: Die Videos und Kurse unten stammen von UkeMaster-Partnern. Wenn du darauf zugreifst, unterstützt du die Seite',
   'videos.comingSoon': 'Bald: Videolektionen!',
@@ -2983,7 +2983,7 @@ const ja: Dict = {
   'ad.waitToUnlock': '楽譜が解放されるまで{s}秒お待ちください。',
   'ad.openNow': '今すぐ楽譜を開く',
   'ad.displaying': '広告表示中 — {s}秒後に解放',
-  'ad.label': 'インタースティシャル広告 • Google AdSense',
+  'ad.label': 'インタースティシャル広告 • Monetag',
 
   'videos.partnerNotice': 'パートナーシップのお知らせ：下の動画とコースはUkeMasterパートナーによるものです。アクセスするとサイトを支援できます',
   'videos.comingSoon': '近日公開：動画レッスン！',
@@ -3475,7 +3475,7 @@ const zh: Dict = {
   'ad.waitToUnlock': '等待{s}秒以解锁乐谱。',
   'ad.openNow': '立即打开乐谱',
   'ad.displaying': '广告播放中 — {s}秒后解锁',
-  'ad.label': '插页广告 • Google AdSense',
+  'ad.label': '插页广告 • Monetag',
 
   'videos.partnerNotice': '合作声明：以下视频和课程来自UkeMaster合作伙伴。访问即表示支持本站',
   'videos.comingSoon': '即将推出：视频课程！',
@@ -3967,7 +3967,7 @@ const ar: Dict = {
   'ad.waitToUnlock': 'انتظر {s} ث لفتح الكورد.',
   'ad.openNow': 'فتح الكورد الآن',
   'ad.displaying': 'إعلان قيد العرض — يفتح خلال {s} ث',
-  'ad.label': 'إعلان منبثق • Google AdSense',
+  'ad.label': 'إعلان منبثق • Monetag',
 
   'videos.partnerNotice': 'إشعار شراكة: الفيديوهات والدورات أدناه من شركاء UkeMaster. بوصولك إليها تدعم الموقع',
   'videos.comingSoon': 'قريبًا: دروس فيديو!',
