@@ -36,6 +36,9 @@ const VideosHub = lazy(() =>
 const BlogTab = lazy(() =>
   import('./components/BlogTab').then((m) => ({ default: m.BlogTab }))
 );
+const LearningTrails = lazy(() =>
+  import('./components/LearningTrails').then((m) => ({ default: m.LearningTrails }))
+);
 const Dashboard = lazy(() =>
   import('./components/Dashboard').then((m) => ({ default: m.Dashboard }))
 );
@@ -712,6 +715,21 @@ export default function App() {
   // experiência continua em card dentro do layout normal.
   const isFullscreenViewer = activeTab === 'musicas' && viewMode === 'viewer';
 
+  // Altura do topo fixo (banner laranja + header) — a sidebar desktop cola
+  // logo abaixo dele. Mede dinamicamente (ResizeObserver) para acompanhar
+  // quebras de linha do banner em telas estreitas.
+  const topFixedRef = useRef<HTMLDivElement>(null);
+  const [topFixedHeight, setTopFixedHeight] = useState<number>(101);
+  useEffect(() => {
+    const el = topFixedRef.current;
+    if (!el) return;
+    const update = () => setTopFixedHeight(el.offsetHeight);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   const handleToggleRepertoire = (songId: string) => {
     setRepertoireSongIds((prev) =>
       prev.includes(songId) ? prev.filter((id) => id !== songId) : [...prev, songId]
@@ -796,6 +814,7 @@ export default function App() {
   useEffect(() => {
     const pathToTab: Record<string, string> = {
       '/dicionario': 'dicionario',
+      '/trilhas': 'trilhas',
       '/afinador': 'afinador',
       '/ritmos': 'ritmos',
     };
@@ -1057,6 +1076,7 @@ export default function App() {
       dashboard: 'Dashboard / Repertório',
       musicas: 'Músicas da Comunidade',
       dicionario: 'Dicionário de Acordes',
+      trilhas: 'Trilhas de Aprendizado',
       afinador: 'Afinador',
       ritmos: 'Ritmos e Batidas',
       metronomo: 'Metrônomo',
@@ -1175,15 +1195,16 @@ export default function App() {
       {/* Monetag Ads (banners in-page) — script injetado no <head> */}
       <Monetag />
 
-      {/* Support Banner — comunidade APOIA.se (some no mobile quando o
-          viewer de cifra está em tela cheia) */}
-      <div className={isFullscreenViewer ? 'hidden md:block' : ''}>
+      {/* Topo FIXO: banner laranja (APOIA.se) + header de navegação ficam
+          SEMPRE visíveis, independente da rolagem (sticky top-0). Somem no
+          mobile quando o viewer de cifra está em tela cheia. */}
+      <div
+        ref={topFixedRef}
+        className={`safe-top sticky top-0 z-20 ${
+          isFullscreenViewer ? 'hidden md:block' : ''
+        }`}
+      >
         <SupportPrompt />
-      </div>
-
-      {/* Navigation Header — some no mobile quando o viewer de cifra está em
-          tela cheia (o viewer tem o próprio botão de voltar) */}
-      <div className={isFullscreenViewer ? 'hidden md:block' : ''}>
         <Header
           setActiveTab={handleSetActiveTab}
           onToggleMobileSidebar={() => setIsMobileSidebarOpen((prev) => !prev)}
@@ -1213,12 +1234,13 @@ export default function App() {
       <div
         className={`flex-1 flex w-full max-w-[1600px] mx-auto gap-6 ${
           isFullscreenViewer ? 'px-0 py-0 sm:px-6 sm:py-6' : 'px-3 sm:px-6 py-4 sm:py-6'
-        }`}
+        } lg:pl-[304px]`}
       >
         {/* Left Sidebar Navigation */}
         <Sidebar
           activeTab={activeTab}
           setActiveTab={handleSetActiveTab}
+          topOffset={topFixedHeight}
           songsCount={songs.length}
           catalogLoading={showCatalogLoading}
           playlistsCount={playlists.length}
@@ -1380,6 +1402,15 @@ export default function App() {
                   />
                 )}
               </>
+            )}
+
+            {/* Tab 2b: Trilhas de Aprendizado */}
+            {activeTab === 'trilhas' && (
+              <LearningTrails
+                songs={songs}
+                onSelectSong={handleSelectSong}
+                userName={currentUser?.name}
+              />
             )}
 
             {/* Tab 3: Chord Dictionary */}

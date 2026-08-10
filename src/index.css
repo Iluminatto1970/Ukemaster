@@ -301,3 +301,24 @@ body {
   animation-delay: 0.35s;
 }
 
+/* Certificado: ao imprimir, só a área do certificado sai no papel */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .certificate-print-area,
+  .certificate-print-area * {
+    visibility: visible;
+  }
+  .certificate-print-area {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .certificate-print-area canvas {
+    max-height: 100vh;
+  }
+}
+

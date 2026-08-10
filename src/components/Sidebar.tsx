@@ -9,6 +9,7 @@ import {
   Home,
   FolderHeart,
   BookOpen,
+  GraduationCap,
   ListMusic,
   Music4,
   Radio,
@@ -37,6 +38,9 @@ interface SidebarProps {
   /** Cifra em destaque do dia (preenchida pelo App — abre ao clicar). */
   featuredSong?: Song | null;
   onSelectFeaturedSong?: (song: Song) => void;
+  /** Altura do topo fixo (banner laranja + header) em px — a sidebar cola
+   * logo abaixo dele, para não sobrepor o header ao rolar. */
+  topOffset?: number;
 }
 
 /** Dicas rotativas de ukulele — a do dia é escolhida deterministicamente.
@@ -69,6 +73,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isAdmin = false,
   featuredSong = null,
   onSelectFeaturedSong,
+  topOffset = 64,
 }) => {
   const { t } = useT();
   const navItems = [
@@ -92,6 +97,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: t('sidebar.dictionary'),
       icon: BookOpen,
       onClick: () => setActiveTab('dicionario'),
+    },
+    {
+      id: 'trilhas',
+      label: t('sidebar.trails'),
+      icon: GraduationCap,
+      onClick: () => setActiveTab('trilhas'),
     },
     {
       id: 'playlists',
@@ -292,8 +303,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <>
-      {/* Desktop Sidebar (Fixed Left, abaixo do header) */}
-      <aside className="hidden lg:block w-64 shrink-0 sticky top-16 h-[calc(100vh-4rem)] self-start shadow-xl z-30">
+      {/* Desktop Sidebar (Fixed Left, abaixo do topo fixo — banner + header).
+          É FIXED (não sticky) para nunca "descolar" no fim da página e cobrir
+          o header: o main recebe lg:pl-[304px] no App para compensar. */}
+      <aside
+        className="hidden lg:block fixed w-64 shrink-0 shadow-xl z-30"
+        style={{
+          top: topOffset,
+          height: `calc(100vh - ${topOffset}px)`,
+          left: 'max(24px, calc((100vw - 1600px) / 2 + 24px))',
+        }}
+      >
         {content}
       </aside>
 

@@ -96,6 +96,7 @@ export type ActiveTab =
   | 'dashboard'
   | 'musicas'
   | 'dicionario'
+  | 'trilhas'
   | 'afinador'
   | 'ritmos'
   | 'metronomo'
