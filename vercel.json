@@ -51,6 +51,7 @@
     { "source": "/dicionario", "destination": "/index.html" },
     { "source": "/afinador", "destination": "/index.html" },
     { "source": "/ritmos", "destination": "/index.html" },
+    { "source": "/trilhas", "destination": "/index.html" },
     { "source": "/artista", "destination": "/index.html" },
     { "source": "/artista/:slug", "destination": "/index.html" },
     { "source": "/playlists", "destination": "/index.html" },

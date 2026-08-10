@@ -188,6 +188,7 @@ async function startServer() {
       url(`${siteUrl}/dicionario`),
       url(`${siteUrl}/afinador`),
       url(`${siteUrl}/ritmos`),
+      url(`${siteUrl}/trilhas`),
     ];
     for (const s of songs) {
       if (!s.id || !s.title) continue;
