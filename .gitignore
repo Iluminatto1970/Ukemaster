@@ -55,3 +55,6 @@ GEMINI.md
 
 # Supabase CLI local (não versionar)
 supabase/.temp/
+
+# Backups de MCPs (contêm tokens secretos — nunca versionar)
+mcp-backup/
