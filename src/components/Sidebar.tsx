@@ -1,16 +1,18 @@
 /**
- * Menu lateral de navegação (desktop e mobile): HOME, Repertórios, Dicionário, Playlists, Estudo de Ritmos, Afinador e ADMIN (só proprietário).
+ * Menu lateral de navegação (desktop e mobile): HOME, Repertórios, Dicionário,
+ * Playlists, Estudo de Ritmos, Afinador e ADMIN (só proprietário).
+ *
+ * Os widgets (Cifra do Dia, Dica do Dia, Comunidade WhatsApp) foram movidos
+ * para o painel do lado direito (SideWidgets) — aqui fica só o menu.
  */
-import React, { useEffect, useMemo, useState } from 'react';
-import { ActiveTab, Song } from '../types';
+import React from 'react';
+import { ActiveTab } from '../types';
 import { Logo } from './Logo';
 import { useT } from '../lib/i18n';
 import {
   Home,
   FolderHeart,
   BookOpen,
-  ChevronDown,
-  ChevronUp,
   GraduationCap,
   ListMusic,
   Music4,
@@ -19,10 +21,7 @@ import {
   Timer,
   Clapperboard,
   Newspaper,
-  Star,
-  Lightbulb,
   MessageCircle,
-  Play,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -37,30 +36,10 @@ interface SidebarProps {
   isOpenMobile?: boolean;
   onCloseMobile?: () => void;
   isAdmin?: boolean;
-  /** Cifra em destaque do dia (preenchida pelo App — abre ao clicar). */
-  featuredSong?: Song | null;
-  onSelectFeaturedSong?: (song: Song) => void;
   /** Altura do topo fixo (banner laranja + header) em px — a sidebar cola
    * logo abaixo dele, para não sobrepor o header ao rolar. */
   topOffset?: number;
 }
-
-/** Dicas rotativas de ukulele — a do dia é escolhida deterministicamente.
- * As dicas são traduzidas via i18n (chaves sidebar.tip1..tip12). */
-const UKULELE_TIPS = [
-  'sidebar.tip1',
-  'sidebar.tip2',
-  'sidebar.tip3',
-  'sidebar.tip4',
-  'sidebar.tip5',
-  'sidebar.tip6',
-  'sidebar.tip7',
-  'sidebar.tip8',
-  'sidebar.tip9',
-  'sidebar.tip10',
-  'sidebar.tip11',
-  'sidebar.tip12',
-];
 
 export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
@@ -73,8 +52,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpenMobile = false,
   onCloseMobile,
   isAdmin = false,
-  featuredSong = null,
-  onSelectFeaturedSong,
   topOffset = 64,
 }) => {
   const { t } = useT();
@@ -156,34 +133,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
       : []),
   ];
 
-  // Dica do dia: estável por data (mesma dica para todos, muda à meia-noite)
-  const tipOfTheDay = useMemo(() => {
-    const day = new Date().toISOString().slice(0, 10);
-    let h = 0;
-    for (const c of day) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-    return t(UKULELE_TIPS[h % UKULELE_TIPS.length]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   // pb-12: a sidebar vai até o fundo da tela e o rodapé (barra laranja) é
   // FIXO — sem este espaço, o branding do fim da sidebar (logo/tagline)
   // ficava escondido atrás do rodapé.
-  //
-  // Widgets do "EM DESTAQUE" (Cifra do Dia, Dica, WhatsApp) — seção
-  // COLABSÁVEL (botão ▲/▼) para a sidebar caber em telas baixas; a
-  // preferência fica salva no navegador e, sem preferência salva, recolhe
-  // automaticamente em telas com menos de 750px de altura.
-  const [widgetsOpen, setWidgetsOpen] = useState(() => {
-    try {
-      const saved = localStorage.getItem('ukemaster_sidebar_widgets');
-      if (saved !== null) return saved === '1';
-    } catch (e) { /* sem localStorage */ }
-    try { return window.innerHeight >= 750; } catch (e) { return true; }
-  });
-  useEffect(() => {
-    try { localStorage.setItem('ukemaster_sidebar_widgets', widgetsOpen ? '1' : '0'); } catch (e) { /* ignora */ }
-  }, [widgetsOpen]);
-
   const content = (
     <div className="flex flex-col h-full bg-[#0E7C7B] text-white pb-12">
       {/* Navigation List */}
@@ -224,105 +176,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         })}
       </nav>
 
-      {/* Botão retrátil dos widgets (Cifra do Dia, Dica, WhatsApp): recolhe
-          a seção para a sidebar caber em telas baixas — preferência salva */}
-      <button
-        onClick={() => setWidgetsOpen(!widgetsOpen)}
-        aria-expanded={widgetsOpen}
-        className="mx-3 mb-1 shrink-0 flex items-center justify-between px-3.5 py-2 rounded-xl bg-white/10 border border-white/10 text-[10px] font-black text-teal-100 uppercase tracking-widest hover:bg-white/15 transition-colors cursor-pointer"
-      >
-        <span className="flex items-center gap-1.5">
-          <Star className="w-3 h-3 text-[#F6AE2D]" />
-          {t('sidebar.widgets')}
-        </span>
-        {widgetsOpen ? (
-          <ChevronDown className="w-3.5 h-3.5 text-teal-200" />
-        ) : (
-          <ChevronUp className="w-3.5 h-3.5 text-teal-200" />
-        )}
-      </button>
-
-      {widgetsOpen && (
-        <>
-          {/* Widgets: EM DESTAQUE + DICA DO DIA + WhatsApp — preenchem o vão
-              entre o menu e o rodapé (antes ficava um espaço morto) */}
-          {featuredSong && (
-        <div className="px-3 pb-2 shrink-0">
-          <div className="flex items-center gap-1.5 text-[10px] font-black text-teal-100/70 uppercase tracking-widest px-3 py-1">
-            <Star className="w-3 h-3 text-[#F6AE2D]" /> {t('sidebar.featured')}
-          </div>
-          <button
-            onClick={() => {
-              onSelectFeaturedSong?.(featuredSong);
-              if (onCloseMobile) onCloseMobile();
-            }}
-            title={`Abrir cifra: ${featuredSong.title} — ${featuredSong.artist}`}
-            className="w-full text-left rounded-2xl bg-gradient-to-br from-[#F26419] via-[#F26419] to-[#F6AE2D] p-3.5 shadow-lg shadow-orange-900/30 hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer group"
-          >
-            <p className="text-[9px] font-black text-white/85 uppercase tracking-widest">
-              {t('sidebar.songOfDay')}
-            </p>
-            <p className="text-sm font-black text-white leading-tight mt-1 line-clamp-2">
-              {featuredSong.title}
-            </p>
-            <p className="text-[11px] font-semibold text-white/85 mt-0.5 truncate">
-              {featuredSong.artist}
-            </p>
-            <div className="flex items-center justify-between mt-2">
-              <span className="text-[9px] px-2 py-0.5 rounded-full bg-white/25 text-white font-bold">
-                {t('sidebar.key')} {featuredSong.key || 'C'}
-              </span>
-              <span className="flex items-center gap-1 text-[10px] font-black text-white group-hover:gap-1.5 transition-all">
-                <Play className="w-3 h-3 fill-current" /> {t('sidebar.play')}
-              </span>
-            </div>
-          </button>
-        </div>
-      )}
-
-      <div className="px-3 pb-2 shrink-0">
-        <div className="flex items-center gap-1.5 text-[10px] font-black text-teal-100/70 uppercase tracking-widest px-3 py-1">
-          <Lightbulb className="w-3 h-3 text-[#F6AE2D]" /> {t('sidebar.tipOfDay')}
-        </div>
-        <div className="rounded-2xl bg-white/10 border border-white/10 p-3">
-          <p className="text-[11px] leading-snug text-teal-50">{tipOfTheDay}</p>
-        </div>
-      </div>
-
-      {/* Convite à comunidade no WhatsApp — logo como emblema + símbolo do WhatsApp */}
-      <div className="px-3 pb-2 shrink-0">
-        <a
-          href="https://chat.whatsapp.com/BrEFW78LBkLKhQUQKaWcuj"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group block w-full rounded-2xl bg-gradient-to-br from-[#25D366]/95 to-[#128C7E] p-3.5 shadow-lg shadow-emerald-900/25 hover:brightness-110 active:scale-[0.98] transition-all"
-        >
-          <div className="flex items-center gap-2.5">
-            <span className="relative shrink-0">
-              <img
-                src="/logo.png"
-                alt="UkeMaster Pro"
-                className="h-9 w-9 object-contain rounded-xl bg-white/95 p-0.5 shrink-0"
-                draggable={false}
-              />
-              <span className="absolute -bottom-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-white shadow-sm">
-                <MessageCircle className="h-3 w-3 text-[#25D366] fill-[#25D366]/20" />
-              </span>
-            </span>
-            <span className="min-w-0">
-              <span className="block text-[11px] font-black text-white uppercase tracking-wide leading-tight">
-                {t('sidebar.waCommunity')}
-              </span>
-              <span className="block text-[10px] font-medium text-white/85 leading-snug mt-0.5 line-clamp-2">
-                {t('sidebar.waCommunityDesc')}
-              </span>
-            </span>
-          </div>
-          </a>
-        </div>
-        </>
-      )}
-
+      {/* Convite ao WhatsApp — botão de contato direto, sempre visível */}
       <div className="px-6 pb-3 shrink-0">
         <a
           href="https://wa.me/5581986607510?text=Ol%C3%A1!%20Vim%20pelo%20UkeMaster%20Pro%20%E2%9C%A8"

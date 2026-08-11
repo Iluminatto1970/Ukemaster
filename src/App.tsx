@@ -7,6 +7,7 @@ import { Song, Playlist, ActiveTab } from './types';
 import { DEFAULT_SONGS, DEFAULT_PLAYLISTS } from './data/defaultSongs';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
+import { SideWidgets } from './components/SideWidgets';
 import { SongList } from './components/SongList';
 
 // Lazy-loading: telas pesadas (afinador, editor, player...) só são baixadas
@@ -1246,7 +1247,7 @@ export default function App() {
       {/* Main Container Layout with Sidebar + Workspace — sem padding no
           mobile quando o viewer de cifra está em tela cheia */}
       <div
-        className={`flex-1 flex w-full max-w-[1600px] mx-auto gap-6 ${
+        className={`flex-1 flex flex-wrap w-full max-w-[1600px] mx-auto gap-6 ${
           isFullscreenViewer ? 'px-0 py-0 sm:px-6 sm:py-6' : 'px-3 sm:px-6 py-4 sm:py-6'
         } lg:pl-[304px] md:pb-14`}
       >
@@ -1263,14 +1264,6 @@ export default function App() {
           isOpenMobile={isMobileSidebarOpen}
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
           isAdmin={isAdmin}
-          featuredSong={featuredSong}
-          onSelectFeaturedSong={(song) => {
-            // Vem de qualquer aba (Dicionário, Blog...) — garante que a cifra
-            // abre na aba de músicas, senão o clique pareceria não fazer nada.
-            setActiveTab('musicas');
-            setViewMode('list');
-            handleSelectSong(song);
-          }}
         />
 
         {/* Right Main Content Panel */}
@@ -1470,6 +1463,20 @@ export default function App() {
             </LazyErrorBoundary>
           </div>
         </main>
+
+        {/* Widgets do lado DIREITO (Cifra do Dia, Dica, WhatsApp) — um
+            SORTEADO aleatoriamente por vez, com botão para sortear outro.
+            Em telas < xl quebra para baixo do conteúdo (flex-wrap). */}
+        <SideWidgets
+          featuredSong={featuredSong}
+          onSelectFeaturedSong={(song) => {
+            // Vem de qualquer aba (Dicionário, Blog...) — garante que a cifra
+            // abre na aba de músicas, senão o clique pareceria não fazer nada.
+            setActiveTab('musicas');
+            setViewMode('list');
+            handleSelectSong(song);
+          }}
+        />
       </div>
 
       {/* Footer — barra laranja: copyright + 100% gratuito */}
