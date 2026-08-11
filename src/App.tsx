@@ -1491,7 +1491,17 @@ export default function App() {
             </a>{' '}
             — {t('footer.free')}
           </span>
-          <span className="opacity-90 font-medium">{t('footer.tuning')}</span>
+          <span className="opacity-90 font-medium flex items-center gap-3">
+            {t('footer.tuning')}
+            <a
+              href="/privacidade.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline decoration-white/50 underline-offset-2 hover:text-[#FFE3D0] transition-colors cursor-pointer"
+            >
+              Privacidade
+            </a>
+          </span>
         </div>
       </footer>
 
