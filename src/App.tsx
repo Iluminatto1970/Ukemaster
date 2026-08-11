@@ -8,6 +8,7 @@ import { DEFAULT_SONGS, DEFAULT_PLAYLISTS } from './data/defaultSongs';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { SideWidgets } from './components/SideWidgets';
+import { AdminSignupWatch } from './components/AdminSignupWatch';
 import { SongList } from './components/SongList';
 
 // Lazy-loading: telas pesadas (afinador, editor, player...) só são baixadas
@@ -292,6 +293,9 @@ export default function App() {
   const [isCreatingNew, setIsCreatingNew] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<'list' | 'viewer' | 'editor' | 'playlists'>('list');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
+  // Total de usuários cadastrados (polling do AdminSignupWatch — badge no menu
+  // ADMIN e resumo no painel; só o proprietário vê).
+  const [adminUserCount, setAdminUserCount] = useState<number>(0);
 
   // Splash de abertura: mostra a marca + homenagem apenas 1x por DIA
   // (chave no localStorage com a data) — repetir a cada visita irrita o
@@ -1210,6 +1214,10 @@ export default function App() {
       {/* Monetag Ads (banners in-page) — script injetado no <head> */}
       <Monetag />
 
+      {/* Alerta de novo cadastro + contagem de usuários — retorna null para
+          quem não é o proprietário; o endpoint valida admin server-side. */}
+      <AdminSignupWatch isAdmin={isAdmin} onUserCount={setAdminUserCount} />
+
       {/* Topo FIXO: banner laranja (APOIA.se) + header de navegação ficam
           SEMPRE visíveis, independente da rolagem (sticky top-0). Somem no
           mobile quando o viewer de cifra está em tela cheia. */}
@@ -1264,6 +1272,7 @@ export default function App() {
           isOpenMobile={isMobileSidebarOpen}
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
           isAdmin={isAdmin}
+          adminUserCount={adminUserCount}
         />
 
         {/* Right Main Content Panel */}
@@ -1451,6 +1460,7 @@ export default function App() {
                   onPartnerChange={setPartnerLinks}
                   blogPosts={blogPosts}
                   onBlogChange={setBlogPosts}
+                  userCount={adminUserCount}
                 />
               </>
             )}

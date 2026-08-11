@@ -44,6 +44,8 @@ interface AdminContentPanelProps {
   onPartnerChange: (links: PartnerLink[]) => void;
   blogPosts?: BlogPost[];
   onBlogChange?: (posts: BlogPost[]) => void;
+  /** Total de usuários cadastrados (do AdminSignupWatch) — resumo no topo. */
+  userCount?: number;
 }
 
 const uid = () => `lnk-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
@@ -55,6 +57,7 @@ export const AdminContentPanel: React.FC<AdminContentPanelProps> = ({
   onPartnerChange,
   blogPosts = [],
   onBlogChange = (_next: BlogPost[]) => {},
+  userCount = 0,
 }) => {
   const [affTxt, setAffTxt] = useState<string>('');
   const [parTxt, setParTxt] = useState<string>('');
@@ -318,6 +321,16 @@ export const AdminContentPanel: React.FC<AdminContentPanelProps> = ({
         <span className="text-[10px] px-2.5 py-1 rounded-full bg-rose-50 text-rose-600 font-extrabold border border-rose-200 uppercase tracking-wider self-start">
           🔒 Restrito ao proprietário
         </span>
+      </div>
+
+      {/* Contagem de usuários cadastrados (só o dono vê este painel) */}
+      <div className="flex items-center gap-2 rounded-2xl bg-[#0E7C7B]/5 border border-[#0E7C7B]/20 px-4 py-3 text-sm text-slate-700">
+        <span className="text-lg">👥</span>
+        <span className="font-bold text-[#0E7C7B]">{userCount}</span>
+        <span className="font-medium">usuário(s) cadastrado(s)</span>
+        {userCount > 0 && (
+          <span className="text-[11px] text-slate-400 ml-auto">atualiza a cada 30s</span>
+        )}
       </div>
 
       {status && (

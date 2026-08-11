@@ -36,6 +36,9 @@ interface SidebarProps {
   isOpenMobile?: boolean;
   onCloseMobile?: () => void;
   isAdmin?: boolean;
+  /** Total de usuários cadastrados (polling do AdminSignupWatch) — badge no
+   * item ADMIN. Só o proprietário vê (o item já é condicional a isAdmin). */
+  adminUserCount?: number;
   /** Altura do topo fixo (banner laranja + header) em px — a sidebar cola
    * logo abaixo dele, para não sobrepor o header ao rolar. */
   topOffset?: number;
@@ -52,6 +55,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpenMobile = false,
   onCloseMobile,
   isAdmin = false,
+  adminUserCount = 0,
   topOffset = 64,
 }) => {
   const { t } = useT();
@@ -127,6 +131,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             id: 'admin' as const,
             label: t('sidebar.admin'),
             icon: ShieldCheck,
+            // badge com o total de usuários cadastrados (só o dono vê)
+            badge: adminUserCount > 0 ? adminUserCount : undefined,
             onClick: () => setActiveTab('admin'),
           },
         ]
