@@ -41,6 +41,14 @@
       "env": {
         "HOSTINGER_API_TOKEN": "${HOSTINGER_API_TOKEN}"
       }
+    },
+    "adsense": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@appsyogi/adsense-mcp-server",
+        "run"
+      ]
     }
   }
 }
