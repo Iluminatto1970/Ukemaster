@@ -1,11 +1,11 @@
 /**
  * Painel de widgets do lado DIREITO da tela (Cifra do Dia, Dica do Dia,
  * Comunidade WhatsApp): TODOS eles são divididos para cá, fora do menu, e
- * exibidos em ORDEM SORTEADA a cada carregamento — o botão ⤨ embaralha a
- * ordem. A sidebar fica só com o menu.
+ * exibidos em ORDEM SORTEADA a cada carregamento — sem nenhum botão, os
+ * itens aparecem sem interação do usuário. A sidebar fica só com o menu.
  */
 import React, { useEffect, useMemo, useState } from 'react';
-import { Lightbulb, MessageCircle, Play, Shuffle, Star } from 'lucide-react';
+import { Lightbulb, MessageCircle, Play, Star } from 'lucide-react';
 import { Song } from '../types';
 import { useT } from '../lib/i18n';
 import { getTipOfTheDay } from '../lib/sidebarTips';
@@ -55,31 +55,13 @@ export const SideWidgets: React.FC<SideWidgetsProps> = ({
     });
   }, [available]);
 
-  const reshuffle = () => {
-    if (available.length <= 1) return;
-    let next = shuffleArray(available);
-    // Evita repetir a mesma ordem (se possível)
-    if (next.join() === order.join()) next = shuffleArray(available);
-    setOrder(next);
-  };
-
   return (
     <aside
       className="w-full lg:w-64 xl:w-72 shrink-0 flex flex-col gap-3"
       aria-label={t('sidebar.widgets')}
     >
-      <div className="flex items-center justify-between">
-        <span className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-          <Star className="w-3 h-3 text-[#F6AE2D]" /> {t('sidebar.widgets')}
-        </span>
-        <button
-          onClick={reshuffle}
-          title={t('sidebar.shuffle')}
-          aria-label={t('sidebar.shuffle')}
-          className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-[#F26419] hover:bg-orange-50 px-2 py-1 rounded-lg transition-colors cursor-pointer"
-        >
-          <Shuffle className="w-3.5 h-3.5" /> {t('sidebar.shuffle')}
-        </button>
+      <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+        <Star className="w-3 h-3 text-[#F6AE2D]" /> {t('sidebar.widgets')}
       </div>
 
       {order.map((kind) => {
