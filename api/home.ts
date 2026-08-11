@@ -171,6 +171,10 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- AdSense: o crawler recebe este SSR (o middleware reescreve / → /api/home
+       para bots), então o loader PRECISA estar aqui para a verificação do
+       AdSense (AdsBot-Google) e para o reconhecimento do site. -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7409769323856107" crossorigin="anonymous"></script>
   <title>${esc(title)}</title>
   <meta name="description" content="${esc(description)}" />
   <meta name="robots" content="index, follow, max-image-preview:large" />
