@@ -58,3 +58,6 @@ supabase/.temp/
 
 # Backups de MCPs (contêm tokens secretos — nunca versionar)
 mcp-backup/
+
+# Arquivo criado por acidente (dev/null relativo em Windows) — nunca versionar
+dev/null
