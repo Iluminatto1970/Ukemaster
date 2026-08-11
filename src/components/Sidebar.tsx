@@ -1,7 +1,7 @@
 /**
  * Menu lateral de navegação (desktop e mobile): HOME, Repertórios, Dicionário, Playlists, Estudo de Ritmos, Afinador e ADMIN (só proprietário).
  */
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ActiveTab, Song } from '../types';
 import { Logo } from './Logo';
 import { useT } from '../lib/i18n';
@@ -9,6 +9,8 @@ import {
   Home,
   FolderHeart,
   BookOpen,
+  ChevronDown,
+  ChevronUp,
   GraduationCap,
   ListMusic,
   Music4,
@@ -166,6 +168,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
   // pb-12: a sidebar vai até o fundo da tela e o rodapé (barra laranja) é
   // FIXO — sem este espaço, o branding do fim da sidebar (logo/tagline)
   // ficava escondido atrás do rodapé.
+  //
+  // Widgets do "EM DESTAQUE" (Cifra do Dia, Dica, WhatsApp) — seção
+  // COLABSÁVEL (botão ▲/▼) para a sidebar caber em telas baixas; a
+  // preferência fica salva no navegador e, sem preferência salva, recolhe
+  // automaticamente em telas com menos de 750px de altura.
+  const [widgetsOpen, setWidgetsOpen] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ukemaster_sidebar_widgets');
+      if (saved !== null) return saved === '1';
+    } catch (e) { /* sem localStorage */ }
+    try { return window.innerHeight >= 750; } catch (e) { return true; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem('ukemaster_sidebar_widgets', widgetsOpen ? '1' : '0'); } catch (e) { /* ignora */ }
+  }, [widgetsOpen]);
+
   const content = (
     <div className="flex flex-col h-full bg-[#0E7C7B] text-white pb-12">
       {/* Navigation List */}
@@ -206,9 +224,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
         })}
       </nav>
 
-      {/* Widgets: EM DESTAQUE + DICA DO DIA + WhatsApp — preenchem o vão
-          entre o menu e o rodapé (antes ficava um espaço morto) */}
-      {featuredSong && (
+      {/* Botão retrátil dos widgets (Cifra do Dia, Dica, WhatsApp): recolhe
+          a seção para a sidebar caber em telas baixas — preferência salva */}
+      <button
+        onClick={() => setWidgetsOpen(!widgetsOpen)}
+        aria-expanded={widgetsOpen}
+        className="mx-3 mb-1 shrink-0 flex items-center justify-between px-3.5 py-2 rounded-xl bg-white/10 border border-white/10 text-[10px] font-black text-teal-100 uppercase tracking-widest hover:bg-white/15 transition-colors cursor-pointer"
+      >
+        <span className="flex items-center gap-1.5">
+          <Star className="w-3 h-3 text-[#F6AE2D]" />
+          {t('sidebar.widgets')}
+        </span>
+        {widgetsOpen ? (
+          <ChevronDown className="w-3.5 h-3.5 text-teal-200" />
+        ) : (
+          <ChevronUp className="w-3.5 h-3.5 text-teal-200" />
+        )}
+      </button>
+
+      {widgetsOpen && (
+        <>
+          {/* Widgets: EM DESTAQUE + DICA DO DIA + WhatsApp — preenchem o vão
+              entre o menu e o rodapé (antes ficava um espaço morto) */}
+          {featuredSong && (
         <div className="px-3 pb-2 shrink-0">
           <div className="flex items-center gap-1.5 text-[10px] font-black text-teal-100/70 uppercase tracking-widest px-3 py-1">
             <Star className="w-3 h-3 text-[#F6AE2D]" /> {t('sidebar.featured')}
@@ -280,8 +318,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </span>
             </span>
           </div>
-        </a>
-      </div>
+          </a>
+        </div>
+        </>
+      )}
 
       <div className="px-6 pb-3 shrink-0">
         <a
