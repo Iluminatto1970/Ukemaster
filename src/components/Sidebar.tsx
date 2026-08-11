@@ -163,8 +163,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // pb-12: a sidebar vai até o fundo da tela e o rodapé (barra laranja) é
+  // FIXO — sem este espaço, o branding do fim da sidebar (logo/tagline)
+  // ficava escondido atrás do rodapé.
   const content = (
-    <div className="flex flex-col h-full bg-[#0E7C7B] text-white">
+    <div className="flex flex-col h-full bg-[#0E7C7B] text-white pb-12">
       {/* Navigation List */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         <div className="text-[10px] font-black text-teal-100/70 uppercase tracking-widest px-3 py-1">
