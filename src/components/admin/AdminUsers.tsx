@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Ban,
 } from 'lucide-react';
+import { getSessionAccessToken } from '../../lib/supabase';
 
 interface AdminUserRow {
   id: string;
@@ -83,7 +84,9 @@ export const AdminUsers: React.FC = () => {
     setError(null);
     const params = new URLSearchParams({ page: String(page), per_page: String(PER_PAGE) });
     if (debouncedSearch) params.set('search', debouncedSearch);
-    fetch(`/api/admin/users-list?${params}`)
+    fetch(`/api/admin/users-list?${params}`, {
+      headers: { Authorization: `Bearer ${getSessionAccessToken() || ''}` },
+    })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error('http'))))
       .then((d) => {
         if (cancelled) return;
@@ -108,6 +111,7 @@ export const AdminUsers: React.FC = () => {
       const params = new URLSearchParams({ id });
       const res = await fetch(`/api/admin/users-list?${params}`, {
         method: action === 'ban' ? 'POST' : 'DELETE',
+        headers: { Authorization: `Bearer ${getSessionAccessToken() || ''}` },
       });
       if (!res.ok) {
         const d = (await res.json().catch(() => null)) as { error?: string } | null;

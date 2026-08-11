@@ -16,6 +16,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { Song, AffiliateLink, PartnerLink, BlogPost } from '../../types';
+import { getSessionAccessToken } from '../../lib/supabase';
 
 export type AdminSection = 'visao-geral' | 'musicas' | 'usuarios' | 'conteudo' | 'manutencao';
 
@@ -42,7 +43,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   // Últimos cadastros (endpoint protegido — falha silenciosa fora de produção)
   useEffect(() => {
     let cancelled = false;
-    fetch('/api/admin/users-list?page=1&per_page=5')
+    fetch('/api/admin/users-list?page=1&per_page=5', {
+      headers: { Authorization: `Bearer ${getSessionAccessToken() || ''}` },
+    })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error('http'))))
       .then((d) => {
         if (!cancelled && Array.isArray(d.users)) {
