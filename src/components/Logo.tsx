@@ -2,6 +2,7 @@
  * Logo do UkeMaster Pro (SVG/texto) nas variações usadas no header e footer.
  */
 import React from 'react';
+import { useT } from '../lib/i18n';
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg';
@@ -28,6 +29,7 @@ const textSizes = {
  * garantir a leitura do nome em qualquer tamanho.
  */
 export const Logo: React.FC<LogoProps> = ({ size = 'md', variant = 'dark' }) => {
+  const { t } = useT();
   // Variante clara (fundos escuros): wordmark branco/âmbar; na escura (fundos
   // claros) usa o teal da marca. O emblema (logo.png) funciona nos dois.
   const wordColor = variant === 'light' ? 'text-white' : 'text-[#0E7C7B]';
@@ -51,9 +53,10 @@ export const Logo: React.FC<LogoProps> = ({ size = 'md', variant = 'dark' }) => 
           <span className={wordColor}>MASTER</span>
           <span className="text-[#F6AE2D] ml-1">PRO</span>
         </div>
-        <div className="text-[10px] font-extrabold tracking-widest uppercase mt-0.5 flex items-center gap-1">
-          <span className="text-[#F6AE2D]">★</span>
-          <span className={tagColor}>Seu Portal do Ukulele</span>
+        {/* Tagline traduzida (i18n) — antes estava fixa em português e
+            aparecia errada quando o site estava em outro idioma. */}
+        <div className="text-[10px] font-extrabold tracking-widest uppercase mt-0.5">
+          <span className={tagColor}>{t('splash.tagline')}</span>
         </div>
       </div>
     </div>
