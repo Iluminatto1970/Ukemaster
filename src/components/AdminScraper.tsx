@@ -436,6 +436,14 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
         </span>
       </div>
 
+      {/* Boas práticas / legal — importação de conteúdo de terceiros */}
+      <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-[11px] leading-relaxed text-amber-800">
+        <p className="font-black uppercase tracking-wider text-[10px] mb-1">⚖️ Uso responsável</p>
+        Use com moderação e respeite os sites de origem (o delay entre requisições já está configurado).{' '}
+        <strong>Verifique os direitos autorais das cifras/letras antes de publicar conteúdo protegido.</strong>{' '}
+        O acervo é público e 100% gratuito.
+      </div>
+
       {/* ── Importação de um site de cifras ─────────────────────────── */}
       <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs space-y-4">
         <div className="flex items-center gap-2 border-b border-slate-100 pb-3">

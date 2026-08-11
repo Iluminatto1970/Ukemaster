@@ -323,6 +323,14 @@ export const AdminContentPanel: React.FC<AdminContentPanelProps> = ({
         </span>
       </div>
 
+      {/* Boas práticas / legal — conteúdo publicado no site */}
+      <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-[11px] leading-relaxed text-amber-800">
+        <p className="font-black uppercase tracking-wider text-[10px] mb-1">⚖️ Uso responsável</p>
+        Use com moderação e respeite os sites de origem (o delay entre requisições já está configurado).{' '}
+        <strong>Verifique os direitos autorais das cifras/letras antes de publicar conteúdo protegido.</strong>{' '}
+        O acervo é público e 100% gratuito.
+      </div>
+
       {/* Contagem de usuários cadastrados (só o dono vê este painel) */}
       <div className="flex items-center gap-2 rounded-2xl bg-[#0E7C7B]/5 border border-[#0E7C7B]/20 px-4 py-3 text-sm text-slate-700">
         <span className="text-lg">👥</span>
