@@ -55,8 +55,20 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     return;
   }
 
-  const url = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').replace(/\/+$/, '');
-  const anon = process.env.VITE_SUPABASE_ANON_KEY || '';
+  // Mesma lógica do getSupabaseEnv (platformCron) — aceita os nomes usados
+  // na Vercel (NEXT_PUBLIC_*) e no dev local (VITE_*).
+  const url = (
+    process.env.VITE_SUPABASE_URL ||
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    process.env.SUPABASE_URL ||
+    ''
+  ).replace(/\/+$/, '');
+  const anon =
+    process.env.VITE_SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.SUPABASE_ANON_KEY ||
+    '';
   const serviceRole = await getServiceRoleKey();
   if (!url || !serviceRole) {
     res.statusCode = 500;
