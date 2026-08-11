@@ -8,9 +8,12 @@
  * Supabase (GET /auth/v1/user) conferindo o e-mail contra o admin.
  *
  * Alternativas aceitas em /api/scrape-platforms (cron):
- *  - header `x-vercel-cron: 1` → invocação legítima do cron da Vercel;
+ *  - `Authorization: Bearer <CRON_SECRET>` → invocação legítima do cron da
+ *    Vercel (a env CRON_SECRET é adicionada automaticamente pela infra);
  *  - header `x-admin-secret` → token compartilhado (ADMIN_SECRET), para
  *    disparos fora do navegador (CLI/scripts) — nunca no bundle.
+ *  - header `x-vercel-cron: 1` → SOMENTE fallback quando CRON_SECRET não
+ *    está configurado (o header é forjável — não é aceito com CRON_SECRET).
  */
 import { getSupabaseServer } from './supabaseServer.js';
 
@@ -74,16 +77,30 @@ export interface AdminAuthResult {
  *
  * Em produção (VERCEL/NODE_ENV=production) a rota NUNCA fica aberta:
  * sem nenhuma credencial válida → 403.
+ *
+ * Cron da Vercel: com a env CRON_SECRET definida, o Vercel Cron Jobs envia
+ * automaticamente `Authorization: Bearer <CRON_SECRET>` nas invocações — é a
+ * forma SEGURA de autenticar o cron (o header x-vercel-cron é forjável e só
+ * é aceito como fallback quando CRON_SECRET NÃO está configurado).
  */
 export async function authorizeAdminRequest(
   headers: Record<string, string | string[] | undefined>,
   opts: { allowCron?: boolean } = {}
 ): Promise<AdminAuthResult> {
-  // 1. JWT do usuário logado (fonte principal — o admin loga no app)
   const authHeader = headers['authorization'];
-  if (typeof authHeader === 'string' && /^Bearer\s+/i.test(authHeader)) {
-    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
-    const email = await verifySupabaseToken(token);
+  const bearer =
+    typeof authHeader === 'string' && /^Bearer\s+/i.test(authHeader)
+      ? authHeader.replace(/^Bearer\s+/i, '').trim()
+      : '';
+
+  // 0. Cron da Vercel legítimo: Bearer igual a CRON_SECRET (env da infra).
+  if (opts.allowCron && bearer && process.env.CRON_SECRET) {
+    if (bearer === process.env.CRON_SECRET) return { ok: true };
+  }
+
+  // 1. JWT do usuário logado (fonte principal — o admin loga no app)
+  if (bearer) {
+    const email = await verifySupabaseToken(bearer);
     if (email === ADMIN_EMAIL) return { ok: true };
   }
 
@@ -94,8 +111,12 @@ export async function authorizeAdminRequest(
     if (typeof secret === 'string' && secret === expected) return { ok: true };
   }
 
-  // 3. Cron da Vercel (só se permitido na rota)
-  if (opts.allowCron && headers['x-vercel-cron'] === '1') return { ok: true };
+  // 3. Cron legacy: o header x-vercel-cron é forjável — aceito APENAS quando
+  //    CRON_SECRET não está configurado (transição). Com CRON_SECRET definido,
+  //    somente o Bearer correto abre o cron.
+  if (opts.allowCron && !process.env.CRON_SECRET && headers['x-vercel-cron'] === '1') {
+    return { ok: true };
+  }
 
   // Fail-closed em produção: sem credencial válida → nega.
   const isProd = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
