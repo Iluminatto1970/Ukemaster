@@ -58,10 +58,13 @@ export const SideWidgets: React.FC<SideWidgetsProps> = ({
     });
   }, [available]);
 
-  // REORDENAÇÃO AUTOMÁTICA: a cada 15s a ordem muda sozinha (sem carrossel)
+  // REORDENAÇÃO AUTOMÁTICA: a cada 15s a ordem muda sozinha (sem carrossel).
+  // Só roda com a aba VISÍVEL — em segundo plano pausa (economia + o leitor
+  // não vê os cards pularem ao voltar).
   useEffect(() => {
     if (available.length <= 1) return;
     const timer = setInterval(() => {
+      if (document.visibilityState !== 'visible') return;
       setOrder((prev) => {
         let next = shuffleArray(prev);
         // Evita repetir a mesma ordem consecutivamente (se houver mais de 1)
@@ -157,10 +160,16 @@ export const SideWidgets: React.FC<SideWidgetsProps> = ({
         <Star className="w-3 h-3 text-[#F6AE2D]" /> {t('sidebar.widgets')}
       </div>
 
-      {/* TODOS os widgets empilhados, na ordem sorteada/rotativa */}
-      {order.map((kind) => (
-        <div key={kind}>{renderCard(kind)}</div>
-      ))}
+      {/* TODOS os widgets, na ordem sorteada/rotativa. Responsivo: quando o
+          painel ocupa a largura toda (< lg), os cards ficam em 2 colunas em
+          telas médias; ao lado do conteúdo (lg+) voltam a 1 coluna. */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
+        {order.map((kind) => (
+          <div key={kind} className="min-w-0">
+            {renderCard(kind)}
+          </div>
+        ))}
+      </div>
     </aside>
   );
 };
