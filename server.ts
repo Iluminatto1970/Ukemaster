@@ -39,7 +39,9 @@ try {
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  // Porta configurável via env (PORT) — padrão 3000. Usada quando a 3000
+  // está ocupada por outro processo (ex.: outro projeto em dev local).
+  const PORT = Number(process.env.PORT) || 3000;
   const isProd = process.env.NODE_ENV === 'production';
 
   // ── Política de segurança: headers HTTP em TODAS as respostas ────────

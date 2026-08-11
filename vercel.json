@@ -56,7 +56,8 @@
     { "source": "/artista/:slug", "destination": "/index.html" },
     { "source": "/playlists", "destination": "/index.html" },
     { "source": "/playlists/:id", "destination": "/index.html" },
-    { "source": "/auth/callback", "destination": "/index.html" }
+    { "source": "/auth/callback", "destination": "/index.html" },
+    { "source": "/verificar/:code", "destination": "/index.html" }
   ],
   "crons": [
     {

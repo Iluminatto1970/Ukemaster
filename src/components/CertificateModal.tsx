@@ -6,6 +6,7 @@
  */
 import React, { useEffect, useRef, useState } from 'react';
 import { LearningTrail } from '../data/learningTrails';
+import { getVoterId } from '../lib/ratings';
 import { useT } from '../lib/i18n';
 import {
   Download,
@@ -14,6 +15,7 @@ import {
   Award,
   Linkedin,
   Facebook,
+  Instagram,
   Twitter,
   MessageCircle,
   Share2,
@@ -34,12 +36,89 @@ interface CertificateModalProps {
   existing?: CertificateData | null;
   /** Nome pré-preenchido (usuário logado). */
   defaultName?: string;
+  /** Id do usuário logado — semente do número (visitantes usam id de dispositivo). */
+  seedId?: string;
   onEmit: (data: CertificateData) => void;
   onClose: () => void;
 }
 
 const CERT_W = 1200;
 const CERT_H = 850;
+
+// ── Story do Instagram (9:16) ───────────────────────────────────────────
+const STORY_W = 1080;
+const STORY_H = 1920;
+
+interface StoryBg {
+  id: string;
+  from: string;
+  to: string;
+  /** Cor do texto sobre o fundo. */
+  fg: string;
+  labelKey: string;
+}
+
+const STORY_BGS: StoryBg[] = [
+  { id: 'brand', from: '#F26419', to: '#F6AE2D', fg: '#FFFFFF', labelKey: 'cert.storyBgBrand' },
+  { id: 'teal', from: '#0E7C7B', to: '#0A5F5E', fg: '#FFFFFF', labelKey: 'cert.storyBgTeal' },
+  { id: 'night', from: '#1D2D44', to: '#0F172A', fg: '#FFFFFF', labelKey: 'cert.storyBgNight' },
+  { id: 'cream', from: '#FFFDF6', to: '#F3E9D2', fg: '#1D2D44', labelKey: 'cert.storyBgCream' },
+];
+
+/** Monta o story 9:16 (1080×1920): gradiente com decoração sutil, chamada
+ *  no topo, o certificado centralizado e o rodapé do portal. `certCanvas` é
+ *  o canvas 1200×850 já desenhado pelo drawCertificate. */
+function drawStory(
+  canvas: HTMLCanvasElement,
+  certCanvas: HTMLCanvasElement,
+  bg: StoryBg,
+  portalLabel: string
+) {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  ctx.clearRect(0, 0, STORY_W, STORY_H);
+
+  // Fundo em gradiente
+  const g = ctx.createLinearGradient(0, 0, 0, STORY_H);
+  g.addColorStop(0, bg.from);
+  g.addColorStop(1, bg.to);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, STORY_W, STORY_H);
+
+  // Decoração sutil: círculos translúcidos
+  ctx.globalAlpha = 0.12;
+  ctx.fillStyle = '#FFFFFF';
+  ctx.beginPath();
+  ctx.arc(140, 300, 220, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(STORY_W - 160, 1660, 280, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(90, 1580, 90, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // Chamada no topo
+  ctx.fillStyle = bg.fg;
+  ctx.font = 'bold 56px Georgia, serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillText('UkeMaster Pro', STORY_W / 2, 150);
+
+  // Certificado centralizado (largura útil 920 → escala ~0.77)
+  const scale = (STORY_W - 160) / CERT_W;
+  const w = CERT_W * scale;
+  const h = CERT_H * scale;
+  ctx.drawImage(certCanvas, (STORY_W - w) / 2, (STORY_H - h) / 2 - 80, w, h);
+
+  // Rodapé
+  ctx.globalAlpha = 0.85;
+  ctx.fillStyle = bg.fg;
+  ctx.font = 'bold 30px Arial, sans-serif';
+  ctx.fillText(portalLabel, STORY_W / 2, STORY_H - 90);
+  ctx.globalAlpha = 1;
+}
 
 /** Hash djb2 → 6 hexa (código determinístico: mesma trilha+data+nome = mesmo código). */
 const hash6 = (str: string): string => {
@@ -48,8 +127,14 @@ const hash6 = (str: string): string => {
   return h.toString(16).toUpperCase().padStart(8, '0').slice(0, 6);
 };
 
-export const makeCertificateNumber = (trailId: string, date: string, name: string): string =>
-  `UKM-${date.slice(0, 4)}-${hash6(`${trailId}|${date}|${name.trim().toLowerCase()}`)}`;
+export const makeCertificateNumber = (
+  trailId: string,
+  date: string,
+  name: string,
+  /** Semente de unicidade: id do usuário (logado) ou do dispositivo (visitante). */
+  seed = ''
+): string =>
+  `UKM-${date.slice(0, 4)}-${hash6(`${trailId}|${date}|${name.trim().toLowerCase()}|${seed}`)}`;
 
 interface DrawTexts {
   titleLabel: string;
@@ -218,6 +303,7 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
   trail,
   existing = null,
   defaultName = '',
+  seedId,
   onEmit,
   onClose,
 }) => {
@@ -225,8 +311,11 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
   const [name, setName] = useState<string>(defaultName);
   const [cert, setCert] = useState<CertificateData | null>(existing);
   const [error, setError] = useState<string>('');
+  const [storyBgId, setStoryBgId] = useState<string>(STORY_BGS[0].id);
+  const [logoLoaded, setLogoLoaded] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const logoImgRef = useRef<HTMLImageElement | null>(null);
+  const storyCanvasRef = useRef<HTMLCanvasElement>(null);
 
   // Ao abrir: se já existe certificado salvo, mostra direto; senão usa o nome padrão
   useEffect(() => {
@@ -245,10 +334,13 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
       return;
     }
     const date = new Date().toISOString().slice(0, 10);
+    // Número único: semear com o id do usuário (ou do dispositivo) para que
+    // cada certificado tenha um número próprio — mesmo nome+trilha+dia em
+    // dispositivos/usuários diferentes geram números diferentes.
     const data: CertificateData = {
       name: trimmed,
       date,
-      number: makeCertificateNumber(trail.id, date, trimmed),
+      number: makeCertificateNumber(trail.id, date, trimmed, seedId ?? getVoterId()),
     };
     setCert(data);
     onEmit(data);
@@ -280,22 +372,30 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
       },
       logoImgRef.current
     );
-  }, [isOpen, cert, lang, trail, t]);
+  }, [isOpen, cert, lang, trail, t, logoLoaded]);
 
   // Desenha sempre que o certificado/idioma muda
   useEffect(() => {
     redraw();
   }, [redraw]);
 
+  // Story 9:16 — redesenhado quando o certificado, a logo ou o fundo mudam
+  useEffect(() => {
+    if (!isOpen || !cert || !canvasRef.current || !storyCanvasRef.current) return;
+    const bg = STORY_BGS.find((b) => b.id === storyBgId) ?? STORY_BGS[0];
+    drawStory(storyCanvasRef.current, canvasRef.current, bg, t('cert.portal'));
+  }, [isOpen, cert, storyBgId, redraw, t]);
+
   // Carrega a logo /logo.png uma vez — ao terminar, redesenha com a logo
   useEffect(() => {
     const img = new Image();
     img.onload = () => {
       logoImgRef.current = img;
-      redraw();
+      setLogoLoaded(true);
     };
+    img.onerror = () => setLogoLoaded(true); // sem logo → segue com o selo "UK"
     img.src = '/logo.png';
-  }, [redraw]);
+  }, []);
 
   if (!isOpen || !trail) return null;
 
@@ -337,10 +437,42 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
     downloadPng();
   };
 
+  // Baixa o story 9:16 como PNG
+  const downloadStory = () => {
+    const canvas = storyCanvasRef.current;
+    if (!canvas) return;
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = `story-certificado-${trail.id}.png`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
+
+  // Envia o story pelo share sheet nativo (no celular o Instagram aparece
+  // como opção); sem suporte, baixa o PNG para anexar manualmente.
+  const shareStory = async () => {
+    const canvas = storyCanvasRef.current;
+    if (!canvas) return downloadStory();
+    const blob = await new Promise<Blob | null>((res) => canvas.toBlob(res, 'image/png'));
+    if (!blob) return downloadStory();
+    const file = new File([blob], `story-certificado-${trail.id}.png`, { type: 'image/png' });
+    const nav = navigator as Navigator & { canShare?: (data: { files?: File[] }) => boolean };
+    if (nav.canShare && nav.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: t('cert.title'), text: shareText });
+        return;
+      } catch {
+        // usuário cancelou — cai no download para anexar manualmente
+      }
+    }
+    downloadStory();
+  };
+
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6">
       <div className="absolute inset-0 bg-stone-950/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
+      <div className="relative w-full max-w-3xl bg-white rounded-2xl shadow-2xl max-h-[92vh] overflow-y-auto animate-fade-in">
         {/* Header do modal */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
           <div className="flex items-center gap-2.5">
@@ -413,6 +545,21 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
                 </button>
               </div>
 
+              {/* Link público de verificação — prova de autenticidade */}
+              {cert && (
+                <p className="mt-4 text-center text-[11px] text-slate-500">
+                  {t('verif.checkOnline')}:{' '}
+                  <a
+                    href={`/verificar/${cert.number}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-bold text-[#0E7C7B] hover:text-[#0A5F5E] underline underline-offset-2 transition-colors"
+                  >
+                    {window.location.host}/verificar/{cert.number}
+                  </a>
+                </p>
+              )}
+
               {/* Compartilhar nas redes sociais — links abrem com texto/conquista;
                   o botão "Enviar imagem" usa a Web Share API (PNG real) no celular */}
               <div className="mt-5 pt-4 border-t border-slate-100">
@@ -462,6 +609,64 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
                     className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0E7C7B] hover:bg-[#0A5F5E] text-white text-[11px] font-black tracking-wide transition-all cursor-pointer"
                   >
                     <Share2 className="w-4 h-4" /> {t('cert.shareImage')}
+                  </button>
+                </div>
+              </div>
+
+              {/* Instagram Stories — 9:16 com fundo personalizado */}
+              <div className="mt-5 pt-4 border-t border-slate-100">
+                <p className="text-center text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">
+                  <Instagram className="w-3.5 h-3.5 inline -mt-0.5 mr-1" /> {t('cert.storyTitle')}
+                </p>
+                <p className="text-center text-[11px] text-slate-500 mb-3">{t('cert.storyHint')}</p>
+
+                <div className="flex items-start justify-center gap-4">
+                  {/* Seletor de fundo personalizado */}
+                  <div className="flex flex-col items-center gap-1.5 pt-0.5">
+                    <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                      {t('cert.storyBg')}
+                    </p>
+                    <div className="flex flex-col gap-2">
+                      {STORY_BGS.map((b) => (
+                        <button
+                          key={b.id}
+                          onClick={() => setStoryBgId(b.id)}
+                          title={t(b.labelKey)}
+                          aria-label={t(b.labelKey)}
+                          className={`w-9 h-9 rounded-full border-2 transition-all cursor-pointer ${
+                            storyBgId === b.id
+                              ? 'border-[#F26419] scale-110 shadow-md'
+                              : 'border-white shadow hover:scale-105'
+                          }`}
+                          style={{ background: `linear-gradient(135deg, ${b.from}, ${b.to})` }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Preview do story (1080×1920 redimensionado) */}
+                  <div className="flex-1 max-w-[190px]">
+                    <canvas
+                      ref={storyCanvasRef}
+                      width={STORY_W}
+                      height={STORY_H}
+                      className="w-full h-auto rounded-xl shadow-md block"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+                  <button
+                    onClick={downloadStory}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-[#1D2D44] text-xs font-black tracking-wider uppercase hover:bg-slate-50 transition-all cursor-pointer"
+                  >
+                    <Download className="w-4 h-4" /> {t('cert.downloadStory')}
+                  </button>
+                  <button
+                    onClick={shareStory}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#F77737] hover:brightness-110 text-white text-xs font-black tracking-wider uppercase shadow-sm transition-all cursor-pointer"
+                  >
+                    <Instagram className="w-4 h-4" /> {t('cert.sendStory')}
                   </button>
                 </div>
               </div>

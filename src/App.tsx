@@ -39,6 +39,9 @@ const BlogTab = lazy(() =>
 const LearningTrails = lazy(() =>
   import('./components/LearningTrails').then((m) => ({ default: m.LearningTrails }))
 );
+const CertificateVerify = lazy(() =>
+  import('./components/CertificateVerify').then((m) => ({ default: m.CertificateVerify }))
+);
 const Dashboard = lazy(() =>
   import('./components/Dashboard').then((m) => ({ default: m.Dashboard }))
 );
@@ -823,6 +826,17 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ── Rota /verificar/:code — página pública de verificação de certificado ──
+  // A Vercel reescreve /verificar/* para a SPA; aqui o app detecta o código
+  // e abre a tela de verificação em tela cheia (overlay), como o viewer.
+  const [verifyCode, setVerifyCode] = useState<string | null>(null);
+  useEffect(() => {
+    const m = window.location.pathname.match(/^\/verificar\/(.+)$/);
+    setVerifyCode(m ? decodeURIComponent(m[1]) : null);
+    if (m) document.title = `Verificação de Certificado | UkeMaster Pro`;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // ── Rota /musica/:id — abre a cifra pela URL (links compartilháveis/SEO) ──
   // Ao carregar uma URL tipo /musica/abc, o app abre essa cifra direto.
   const openedUrlSongRef = useRef<string>('');
@@ -1410,6 +1424,7 @@ export default function App() {
                 songs={songs}
                 onSelectSong={handleSelectSong}
                 userName={currentUser?.name}
+                userId={currentUser?.id}
               />
             )}
 
@@ -1499,6 +1514,28 @@ export default function App() {
         onClose={() => setIsLeadCaptureOpen(false)}
         onComplete={handleLeadComplete}
       />
+
+      {/* Verificação pública de certificado (/verificar/UKM-...) — overlay
+          em tela cheia quando a rota é detectada */}
+      {verifyCode && (
+        <Suspense
+          fallback={
+            <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#0E7C7B]/95">
+              <p className="text-white font-bold text-sm">{t('misc.loading')}</p>
+            </div>
+          }
+        >
+          <LazyErrorBoundary>
+            <CertificateVerify
+              code={verifyCode}
+              onBack={() => {
+                setVerifyCode(null);
+                window.history.replaceState({}, '', '/');
+              }}
+            />
+          </LazyErrorBoundary>
+        </Suspense>
+      )}
     </div>
   );
 }

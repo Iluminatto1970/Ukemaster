@@ -18,6 +18,7 @@ import {
   trailTotalMinutes,
 } from '../data/learningTrails';
 import { CertificateModal, CertificateData } from './CertificateModal';
+import { registerCertificate } from '../lib/certificatesRegistry';
 import { useT } from '../lib/i18n';
 import {
   GraduationCap,
@@ -31,6 +32,7 @@ import {
   RotateCcw,
   Trophy,
   Award,
+  Search,
   X,
 } from 'lucide-react';
 
@@ -42,6 +44,8 @@ interface LearningTrailsProps {
   onSelectSong: (song: Song) => void;
   /** Nome do usuário logado (pré-preenche o certificado). */
   userName?: string;
+  /** Id do usuário logado — semente do número único do certificado. */
+  userId?: string;
 }
 
 /** Hash djb2 simples (escolha determinística estável entre renders). */
@@ -108,6 +112,7 @@ export const LearningTrails: React.FC<LearningTrailsProps> = ({
   songs,
   onSelectSong,
   userName = '',
+  userId,
 }) => {
   const { t } = useT();
 
@@ -149,6 +154,13 @@ export const LearningTrails: React.FC<LearningTrailsProps> = ({
   const [certModalTrailId, setCertModalTrailId] = useState<string | null>(null);
   const [showMyCertificates, setShowMyCertificates] = useState<boolean>(false);
 
+  // Busca e filtros da lista (nível + progresso)
+  const [search, setSearch] = useState('');
+  const [levelFilter, setLevelFilter] = useState<'todos' | TrailLevel>('todos');
+  const [statusFilter, setStatusFilter] = useState<
+    'todos' | 'notStarted' | 'inProgress' | 'done' | 'certified'
+  >('todos');
+
   const selectedTrail = useMemo(
     () => LEARNING_TRAILS.find((tr) => tr.id === selectedTrailId) ?? null,
     [selectedTrailId]
@@ -178,7 +190,49 @@ export const LearningTrails: React.FC<LearningTrailsProps> = ({
 
   const emitCertificate = (trailId: string, data: CertificateData) => {
     setCertificates((prev) => ({ ...prev, [trailId]: data }));
+    // Registra no Supabase (fire-and-forget) para a página /verificar/:code
+    // conseguir validar a autenticidade. O registro garante unicidade: se o
+    // número já existir com dados diferentes, devolve um número final salgado
+    // — nesse caso (raro) atualiza o certificado salvo para o número final.
+    const trail = LEARNING_TRAILS.find((tr) => tr.id === trailId);
+    if (trail) {
+      void registerCertificate({
+        number: data.number,
+        trail_id: trail.id,
+        trail_title: t(trail.titleKey),
+        level: trail.level,
+        holder_name: data.name,
+        issued_on: data.date,
+      }).then((finalNumber) => {
+        if (finalNumber && finalNumber !== data.number) {
+          setCertificates((prev) => ({
+            ...prev,
+            [trailId]: { ...data, number: finalNumber },
+          }));
+        }
+      });
+    }
   };
+
+  // Backfill: certificados emitidos ANTES desta versão (só no localStorage)
+  // também entram no registro — assim os já emitidos ficam verificáveis.
+  useEffect(() => {
+    const entries = Object.entries(certificates) as [string, CertificateData][];
+    if (!entries.length) return;
+    for (const [trailId, cert] of entries) {
+      const trail = LEARNING_TRAILS.find((tr) => tr.id === trailId);
+      if (!trail) continue;
+      void registerCertificate({
+        number: cert.number,
+        trail_id: trail.id,
+        trail_title: t(trail.titleKey),
+        level: trail.level,
+        holder_name: cert.name,
+        issued_on: cert.date,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ── Trilha aberta: sequência de passos ─────────────────────────────────
   if (selectedTrail) {
@@ -376,6 +430,7 @@ export const LearningTrails: React.FC<LearningTrailsProps> = ({
           trail={certModalTrail}
           existing={certModalTrail ? certificates[certModalTrail.id] ?? null : null}
           defaultName={userName}
+          seedId={userId}
           onEmit={(data) => certModalTrail && emitCertificate(certModalTrail.id, data)}
           onClose={() => setCertModalTrailId(null)}
         />
@@ -385,6 +440,58 @@ export const LearningTrails: React.FC<LearningTrailsProps> = ({
 
   // ── Lista de trilhas ────────────────────────────────────────────────────
   const issuedCount = Object.keys(certificates).length;
+
+  // Ordenação SEQUENCIAL: iniciante → intermediário → avançado (estável,
+  // preserva a ordem original dentro de cada nível).
+  const LEVEL_ORDER: Record<TrailLevel, number> = {
+    iniciante: 0,
+    intermediario: 1,
+    avancado: 2,
+  };
+  const q = search.trim().toLowerCase();
+  const filteredTrails = LEARNING_TRAILS.map((trail, idx) => ({ trail, idx }))
+    .filter(({ trail }) => {
+      if (levelFilter !== 'todos' && trail.level !== levelFilter) return false;
+      if (q) {
+        const hay = `${trail.emoji} ${t(trail.titleKey)} ${t(trail.descriptionKey)} ${trail.steps
+          .map((s) => t(s.titleKey))
+          .join(' ')}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      if (statusFilter !== 'todos') {
+        const doneCount = (progress[trail.id] ?? []).length;
+        const done = doneCount === trail.steps.length;
+        const certified = !!certificates[trail.id];
+        if (statusFilter === 'notStarted' && doneCount > 0) return false;
+        if (statusFilter === 'inProgress' && (doneCount === 0 || done)) return false;
+        if (statusFilter === 'done' && !done) return false;
+        if (statusFilter === 'certified' && !certified) return false;
+      }
+      return true;
+    })
+    .sort((a, b) => LEVEL_ORDER[a.trail.level] - LEVEL_ORDER[b.trail.level] || a.idx - b.idx)
+    .map(({ trail }) => trail);
+
+  const hasFilters = q !== '' || levelFilter !== 'todos' || statusFilter !== 'todos';
+  const clearFilters = () => {
+    setSearch('');
+    setLevelFilter('todos');
+    setStatusFilter('todos');
+  };
+
+  const LEVEL_FILTERS: { id: 'todos' | TrailLevel; label: string }[] = [
+    { id: 'todos', label: t('trails.level.all') },
+    { id: 'iniciante', label: t('trails.level.iniciante') },
+    { id: 'intermediario', label: t('trails.level.intermediario') },
+    { id: 'avancado', label: t('trails.level.avancado') },
+  ];
+  const STATUS_FILTERS: { id: 'todos' | 'notStarted' | 'inProgress' | 'done' | 'certified'; label: string }[] = [
+    { id: 'todos', label: t('trails.status.all') },
+    { id: 'notStarted', label: t('trails.status.notStarted') },
+    { id: 'inProgress', label: t('trails.status.inProgress') },
+    { id: 'done', label: t('trails.status.completed') },
+    { id: 'certified', label: t('trails.status.certified') },
+  ];
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -413,8 +520,101 @@ export const LearningTrails: React.FC<LearningTrailsProps> = ({
         )}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        {LEARNING_TRAILS.map((trail) => {
+      {/* Busca e filtros */}
+      <div className="space-y-2.5">
+        <div className="relative">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={t('trails.searchPlaceholder')}
+            className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-9 py-2.5 text-sm font-semibold text-[#1D2D44] placeholder:text-slate-400 placeholder:font-medium outline-none focus:border-[#0E7C7B] focus:ring-2 focus:ring-[#0E7C7B]/15 transition-all"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch('')}
+              title={t('cert.close')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full text-slate-400 hover:text-[#F26419] hover:bg-slate-100 transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Filtro por nível */}
+        <div className="flex flex-wrap items-center gap-1.5">
+          {LEVEL_FILTERS.map((f) => {
+            const active = levelFilter === f.id;
+            const activeCls =
+              f.id === 'todos' ? 'from-[#1D2D44] to-[#3A4A6B]' : LEVEL_STYLES[f.id].gradient;
+            return (
+              <button
+                key={f.id}
+                onClick={() => setLevelFilter(f.id)}
+                aria-pressed={active}
+                className={`px-3 py-1.5 rounded-full text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+                  active
+                    ? `bg-gradient-to-r ${activeCls} text-white shadow-sm`
+                    : 'bg-white border border-slate-200 text-slate-500 hover:border-[#0E7C7B]/40 hover:text-[#0E7C7B]'
+                }`}
+              >
+                {f.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Filtro por progresso */}
+        <div className="flex flex-wrap items-center gap-1.5">
+          {STATUS_FILTERS.map((f) => {
+            const active = statusFilter === f.id;
+            return (
+              <button
+                key={f.id}
+                onClick={() => setStatusFilter(f.id)}
+                aria-pressed={active}
+                className={`px-3 py-1.5 rounded-full text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+                  active
+                    ? 'bg-[#0E7C7B] text-white shadow-sm'
+                    : 'bg-white border border-slate-200 text-slate-500 hover:border-[#0E7C7B]/40 hover:text-[#0E7C7B]'
+                }`}
+              >
+                {f.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Contador + limpar filtros */}
+      {hasFilters && (
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-[11px] font-bold text-slate-400">
+            {filteredTrails.length}{' '}
+            {filteredTrails.length === 1 ? t('trails.trail') : t('trails.trails')}
+          </p>
+          <button
+            onClick={clearFilters}
+            className="inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-[#F26419] hover:text-[#D9530D] transition-colors cursor-pointer"
+          >
+            <RotateCcw className="w-3 h-3" /> {t('trails.clearFilters')}
+          </button>
+        </div>
+      )}
+
+      {filteredTrails.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-10 text-center">
+          <p className="text-sm font-bold text-slate-500">{t('trails.noResults')}</p>
+          <button
+            onClick={clearFilters}
+            className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#F26419] text-white text-xs font-black uppercase tracking-wider hover:bg-[#D9530D] transition-colors cursor-pointer"
+          >
+            <RotateCcw className="w-4 h-4" /> {t('trails.clearFilters')}
+          </button>
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {filteredTrails.map((trail) => {
           const style = LEVEL_STYLES[trail.level];
           const doneCount = progressFor(trail);
           const pct = Math.round((doneCount / trail.steps.length) * 100);
@@ -481,8 +681,9 @@ export const LearningTrails: React.FC<LearningTrailsProps> = ({
               </div>
             </button>
           );
-        })}
-      </div>
+          })}
+        </div>
+      )}
 
       {/* Modal "Meus certificados" */}
       {showMyCertificates && (
@@ -559,6 +760,7 @@ export const LearningTrails: React.FC<LearningTrailsProps> = ({
         trail={certModalTrail}
         existing={certModalTrail ? certificates[certModalTrail.id] ?? null : null}
         defaultName={userName}
+        seedId={userId}
         onEmit={(data) => certModalTrail && emitCertificate(certModalTrail.id, data)}
         onClose={() => setCertModalTrailId(null)}
       />
