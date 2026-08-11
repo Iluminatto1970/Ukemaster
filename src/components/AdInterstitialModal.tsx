@@ -14,7 +14,7 @@ import React, { useState, useEffect } from 'react';
 import { useT } from '../lib/i18n';
 import { Clock, Music, ArrowRight, Megaphone } from 'lucide-react';
 import { Logo } from './Logo';
-import { MONETAG_VIGNETTE } from '../config';
+import { ADSENSE_APPROVED, MONETAG_VIGNETTE } from '../config';
 
 interface AdInterstitialModalProps {
   isOpen: boolean;
@@ -82,6 +82,10 @@ export const AdInterstitialModal: React.FC<AdInterstitialModalProps> = ({
   // (placeholder). Para mais impressões, ajuste a frequência no painel.
   useEffect(() => {
     if (!isOpen) return;
+    // REGRA DE TRANSIÇÃO (igual ao SistemaPainho): a vignette da Monetag
+    // (rede antiga) só roda enquanto o AdSense não for aprovado — quando
+    // ADSENSE_APPROVED virar true, o intersticial mostra só o fallback.
+    if (ADSENSE_APPROVED) return;
     if (document.getElementById('monetag-vignette-script')) return;
     const s = document.createElement('script');
     s.id = 'monetag-vignette-script';

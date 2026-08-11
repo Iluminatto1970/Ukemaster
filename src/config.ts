@@ -37,3 +37,12 @@ export const MONETAG_TAG_QUGE5 = {
   src: 'https://quge5.com/88/tag.min.js',
   zone: '268081', // zona recriada para o domínio ukemasterpro.com (era 267181 no vercel.app)
 };
+
+/**
+ * REGRA DE TRANSIÇÃO (igual ao SistemaPainho): a rede antiga (Monetag)
+ * continua no ar ATÉ o Google AdSense ser aprovado (site READY no painel).
+ * Quando aprovar, mude para `true` — toda a Monetag para de carregar
+ * (Monetag.tsx e a vignette do intersticial) e o AdSense, que já está
+ * integrado (loader no index.html + AdSenseSlot), assume sozinho.
+ */
+export const ADSENSE_APPROVED = false;

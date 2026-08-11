@@ -39,6 +39,7 @@
  */
 import React, { useEffect } from 'react';
 import {
+  ADSENSE_APPROVED,
   MONETAG_SCRIPT_URL,
   MONETAG_VIGNETTE,
   MONETAG_TAG_NAP5K,
@@ -63,6 +64,12 @@ const INTERACTION_EVENTS = ['scroll', 'click', 'touchstart', 'keydown'] as const
 
 export const Monetag: React.FC = () => {
   useEffect(() => {
+    // REGRA DE TRANSIÇÃO (igual ao SistemaPainho): a Monetag (rede antiga)
+    // continua no ar ATÉ o Google AdSense ser aprovado. Quando aprovar,
+    // troque ADSENSE_APPROVED para true no src/config.ts — toda a Monetag
+    // para de carregar e o AdSense assume sozinho.
+    if (ADSENSE_APPROVED) return;
+
     const injectScript = (
       id: string,
       src: string,

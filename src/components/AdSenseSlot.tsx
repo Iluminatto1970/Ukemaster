@@ -17,8 +17,13 @@ interface AdSenseSlotProps {
   adSlot?: string;
 }
 
-/** Publisher ID do Google AdSense (definido no painel da Vercel). */
-const AD_CLIENT = import.meta.env.VITE_ADSENSE_CLIENT_ID || '';
+/**
+ * Publisher ID do Google AdSense — mesmo do index.html. O fallback garante
+ * que as unidades funcionem mesmo se a variável VITE_ADSENSE_CLIENT_ID não
+ * existir no deploy (ex.: Vercel sem a env configurada).
+ */
+const AD_CLIENT =
+  import.meta.env.VITE_ADSENSE_CLIENT_ID || 'ca-pub-7409769323856107';
 
 /**
  * Bloco de anúncio do Google AdSense.
