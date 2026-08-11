@@ -113,18 +113,17 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     }
 
     // ── GET: listar/buscar ─────────────────────────────────────────────
-    const search = (qs.get('search') || '').trim();
+    const search = (qs.get('search') || '').trim().toLowerCase();
     const page = Math.max(1, Number(qs.get('page') || '1') || 1);
     const perPage = Math.min(200, Math.max(1, Number(qs.get('per_page') || '50') || 50));
 
-    const params = new URLSearchParams({ per_page: String(perPage), page: String(page) });
-    if (search) params.set('search', search);
-
-    const r = await fetch(`${url}/auth/v1/admin/users?${params}`, { headers });
+    // O parâmetro `search` do GoTrue é ignorado na versão hospedada (bug
+    // conhecido) — buscamos tudo e filtramos em memória (catálogo pequeno).
+    const r = await fetch(`${url}/auth/v1/admin/users?per_page=1000`, { headers });
     if (!r.ok) return sendJson(res, 502, { error: 'Falha ao consultar usuários.' });
 
     const data = (await r.json()) as { users?: AdminUserRow[] };
-    const users = (data.users || []).map((u) => ({
+    const mapped = (data.users || []).map((u) => ({
       id: u.id,
       email: u.email || '',
       createdAt: u.created_at || '',
@@ -132,7 +131,12 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       bannedUntil: u.banned_until || null,
       provider: u.identities?.[0]?.provider || 'email',
     }));
-    const total = Number(r.headers.get('x-total-count')) || users.length;
+
+    const filtered = search
+      ? mapped.filter((u) => u.email.toLowerCase().includes(search))
+      : mapped;
+    const total = filtered.length;
+    const users = filtered.slice((page - 1) * perPage, page * perPage);
 
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
