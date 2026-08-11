@@ -1248,7 +1248,7 @@ export default function App() {
       <div
         className={`flex-1 flex w-full max-w-[1600px] mx-auto gap-6 ${
           isFullscreenViewer ? 'px-0 py-0 sm:px-6 sm:py-6' : 'px-3 sm:px-6 py-4 sm:py-6'
-        } lg:pl-[304px]`}
+        } lg:pl-[304px] md:pb-14`}
       >
         {/* Left Sidebar Navigation */}
         <Sidebar
@@ -1473,10 +1473,13 @@ export default function App() {
       </div>
 
       {/* Footer — barra laranja: copyright + 100% gratuito */}
+      {/* Footer — barra laranja: copyright + 100% gratuito. FIXO no fundo da
+          tela no desktop (md+); no mobile fica no fluxo para não colidir com
+          o anúncio fixo de rodapé (StickyBottomAd). */}
       <footer
         className={`${
           isFullscreenViewer ? 'hidden md:block' : ''
-        } bg-gradient-to-r from-[#F26419] to-[#E2540F] py-3 text-white text-xs mt-auto safe-bottom`}
+        } bg-gradient-to-r from-[#F26419] to-[#E2540F] py-3 text-white text-xs mt-auto safe-bottom md:fixed md:bottom-0 md:inset-x-0 md:z-30`}
       >
         <div className="max-w-[1600px] mx-auto px-4 flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-1.5 text-center">
           <span className="font-bold tracking-wide">
