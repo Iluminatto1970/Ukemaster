@@ -9,6 +9,7 @@ import { Lightbulb, MessageCircle, Play, Star } from 'lucide-react';
 import { Song } from '../types';
 import { useT } from '../lib/i18n';
 import { getTipOfTheDay } from '../lib/sidebarTips';
+import { AdSenseSlot } from './AdSenseSlot';
 
 /** Intervalo da reordenação automática (ms). */
 const ROTATION_MS = 15000;
@@ -169,6 +170,15 @@ export const SideWidgets: React.FC<SideWidgetsProps> = ({
             {renderCard(kind)}
           </div>
         ))}
+      </div>
+
+      {/* Anúncio do AdSense — retângulo de sidebar, logo abaixo dos widgets.
+          Mesmo padrão do StickyBottomAd: o slot é renderizado sempre e o
+          Google só serve o anúncio quando a conta for aprovada (aí basta
+          ligar ADSENSE_APPROVED no config.ts para a Monetag desligar). O
+          min-h evita o layout "pular" quando o anúncio carregar. */}
+      <div className="min-h-[100px]">
+        <AdSenseSlot format="rectangle" label="" className="min-h-[100px]" />
       </div>
     </aside>
   );
