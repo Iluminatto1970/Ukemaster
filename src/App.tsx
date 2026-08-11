@@ -48,11 +48,8 @@ const CertificateVerify = lazy(() =>
 const Dashboard = lazy(() =>
   import('./components/Dashboard').then((m) => ({ default: m.Dashboard }))
 );
-const AdminScraper = lazy(() =>
-  import('./components/AdminScraper').then((m) => ({ default: m.AdminScraper }))
-);
-const AdminContentPanel = lazy(() =>
-  import('./components/AdminContentPanel').then((m) => ({ default: m.AdminContentPanel }))
+const AdminPanel = lazy(() =>
+  import('./components/admin/AdminPanel').then((m) => ({ default: m.AdminPanel }))
 );
 // import { AdSenseSlot } from './components/AdSenseSlot'; // placeholder // placeholder
 import { StickyBottomAd } from './components/StickyBottomAd';
@@ -1451,19 +1448,18 @@ export default function App() {
 
             {/* Tab 6: Admin (scraping/cron + conteúdo monetizável) — apenas p/ proprietário */}
             {activeTab === 'admin' && isAdmin && (
-              <>
-                <AdminScraper songs={songs} onImportSongs={handleImportSongs} />
-                <div className="h-8" />
-                <AdminContentPanel
-                  affiliateLinks={affiliateLinks}
-                  onAffiliateChange={setAffiliateLinks}
-                  partnerLinks={partnerLinks}
-                  onPartnerChange={setPartnerLinks}
-                  blogPosts={blogPosts}
-                  onBlogChange={setBlogPosts}
-                  userCount={adminUserCount}
-                />
-              </>
+              <AdminPanel
+                songs={songs}
+                onSongsChange={setSongs}
+                onImportSongs={handleImportSongs}
+                affiliateLinks={affiliateLinks}
+                onAffiliateChange={setAffiliateLinks}
+                partnerLinks={partnerLinks}
+                onPartnerChange={setPartnerLinks}
+                blogPosts={blogPosts}
+                onBlogChange={setBlogPosts}
+                userCount={adminUserCount}
+              />
             )}
             {activeTab === 'admin' && !isAdmin && (
               <div className="text-center py-16">
