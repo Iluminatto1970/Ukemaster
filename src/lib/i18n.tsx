@@ -276,6 +276,7 @@ const pt: Dict = {
   // ── Diversos ────────────────────────────────────────────
   'footer.free': 'Tudo 100% Gratuito • Mantido por Anúncios e Comunidade',
   'footer.tuning': 'Afinação padrão G4 C4 E4 A4',
+  'footer.members': 'membros cadastrados',
 
   // ── Trilhas de Aprendizado ───────────────────────────
   'sidebar.trails': 'TRILHAS',
@@ -947,6 +948,7 @@ const en: Dict = {
 
   'footer.free': 'Everything 100% Free • Powered by Ads & Community',
   'footer.tuning': 'Standard tuning G4 C4 E4 A4',
+  'footer.members': 'registered members',
 
   // ── Learning Trails ───────────────────────────
   'sidebar.trails': 'TRAILS',
@@ -1610,6 +1612,7 @@ const es: Dict = {
 
   'footer.free': 'Todo 100% Gratuito • Mantenido por Anuncios y Comunidad',
   'footer.tuning': 'Afinafación estándar G4 C4 E4 A4',
+  'footer.members': 'miembros registrados',
 
   // ── Rutas de Aprendizaje ───────────────────────────
   'sidebar.trails': 'TRILAS',
@@ -2156,6 +2159,7 @@ const fr: Dict = {
 
   'footer.free': 'Tout 100% gratuit • Propulsé par la pub et la communauté',
   'footer.tuning': 'Accordage standard G4 C4 E4 A4',
+  'footer.members': 'membres inscrits',
 
   // ── Parcours d'Apprentissage ───────────────────────────
   'sidebar.trails': 'PARCOURS',
@@ -2702,6 +2706,7 @@ const de: Dict = {
 
   'footer.free': 'Alles 100% kostenlos • Betrieben durch Werbung & Community',
   'footer.tuning': 'Standardstimmung G4 C4 E4 A4',
+  'footer.members': 'registrierte Mitglieder',
 
   // ── Lernpfade ───────────────────────────
   'sidebar.trails': 'PFADE',
@@ -3248,6 +3253,7 @@ const ja: Dict = {
 
   'footer.free': 'すべて100%無料 • 広告とコミュニティで運営',
   'footer.tuning': '標準チューニング G4 C4 E4 A4',
+  'footer.members': '登録メンバー',
 
   // ── 学習コース ───────────────────────────
   'sidebar.trails': 'レッスン',
@@ -3794,6 +3800,7 @@ const zh: Dict = {
 
   'footer.free': '全部100%免费 • 靠广告和社区维持',
   'footer.tuning': '标准调弦 G4 C4 E4 A4',
+  'footer.members': '注册成员',
 
   // ── 学习路径 ───────────────────────────
   'sidebar.trails': '课程',
@@ -4340,6 +4347,7 @@ const ar: Dict = {
 
   'footer.free': 'كل شيء مجاني 100% • مدعوم بالإعلانات والمجتمع',
   'footer.tuning': 'الضبط القياسي G4 C4 E4 A4',
+  'footer.members': 'الأعضاء المسجلون',
 
   // ── مسارات التعلّم ───────────────────────────
   'sidebar.trails': 'المسارات',

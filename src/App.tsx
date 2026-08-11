@@ -9,6 +9,7 @@ import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { SideWidgets } from './components/SideWidgets';
 import { AdminSignupWatch } from './components/AdminSignupWatch';
+import { MembersCount } from './components/MembersCount';
 import { SongList } from './components/SongList';
 
 // Lazy-loading: telas pesadas (afinador, editor, player...) só são baixadas
@@ -1512,6 +1513,8 @@ export default function App() {
             — {t('footer.free')}
           </span>
           <span className="opacity-90 font-medium flex items-center gap-3">
+            <MembersCount label={t('footer.members')} />
+            <span aria-hidden className="opacity-40">•</span>
             {t('footer.tuning')}
             <a
               href="/privacidade.html"

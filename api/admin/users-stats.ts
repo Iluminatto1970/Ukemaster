@@ -9,34 +9,9 @@
  */
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { authorizeAdminRequest } from '../../src/lib/adminAuth.js';
+import { getServiceRoleKey } from '../../src/lib/serviceRoleKey.js';
 
 export const maxDuration = 30;
-
-/** Cache em memória (10 min) da service role key obtida via Management API. */
-let serviceRoleCache: { key: string; at: number } | null = null;
-const CACHE_TTL_MS = 10 * 60 * 1000;
-
-async function getServiceRoleKey(): Promise<string | null> {
-  const ref = process.env.SUPABASE_PROJECT_REF || '';
-  const token = process.env.SUPABASE_ACCESS_TOKEN || '';
-  if (!ref || !token) return null;
-  if (serviceRoleCache && Date.now() - serviceRoleCache.at < CACHE_TTL_MS) {
-    return serviceRoleCache.key;
-  }
-  try {
-    const r = await fetch(`https://api.supabase.com/v1/projects/${ref}/api-keys`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!r.ok) return null;
-    const keys = (await r.json()) as { name: string; api_key: string }[];
-    const sr = keys.find((k) => k.name === 'service_role');
-    if (!sr?.api_key) return null;
-    serviceRoleCache = { key: sr.api_key, at: Date.now() };
-    return sr.api_key;
-  } catch {
-    return null;
-  }
-}
 
 interface AdminUser {
   id: string;
