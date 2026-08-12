@@ -21,6 +21,13 @@ import {
   fetchWithRedirectGuard,
 } from './src/lib/security';
 import { authorizeAdminRequest } from './src/lib/adminAuth';
+import {
+  fetchLatestChannelVideos,
+  FALLBACK_VIDEOS,
+  YOUTUBE_CHANNEL_ID,
+  YOUTUBE_CHANNEL_HANDLE,
+  YOUTUBE_CHANNEL_URL,
+} from './src/lib/youtubeChannel';
 
 // Carrega .env.local (o dotenv padrão lê só .env)
 try {
@@ -149,6 +156,29 @@ async function startServer() {
   // Health check endpoint
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok' });
+  });
+
+  // Endpoint público: vídeos mais recentes do canal no YouTube (feed RSS
+  // oficial, sem API key). Espelho local do api/youtube-channel-videos.ts —
+  // o painel direito usa para rotacionar os vídeos do canal; se o feed
+  // falhar, devolve o vídeo de segurança (o painel nunca fica vazio).
+  app.get('/api/youtube-channel-videos', async (req, res) => {
+    const channel = {
+      id: YOUTUBE_CHANNEL_ID,
+      handle: YOUTUBE_CHANNEL_HANDLE,
+      url: YOUTUBE_CHANNEL_URL,
+    };
+    try {
+      const videos = await fetchLatestChannelVideos();
+      res.json({ channel, videos, source: 'live', fetchedAt: new Date().toISOString() });
+    } catch {
+      res.json({
+        channel,
+        videos: FALLBACK_VIDEOS,
+        source: 'fallback',
+        fetchedAt: new Date().toISOString(),
+      });
+    }
   });
 
   // ── SEO: robots.txt ───────────────────────────────────────────────────
