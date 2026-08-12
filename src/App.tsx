@@ -294,6 +294,8 @@ export default function App() {
   // Total de usuários cadastrados (polling do AdminSignupWatch — badge no menu
   // ADMIN e resumo no painel; só o proprietário vê).
   const [adminUserCount, setAdminUserCount] = useState<number>(0);
+  // Usuários online agora (login nos últimos 15 min) — topo do painel admin.
+  const [adminOnlineCount, setAdminOnlineCount] = useState<number>(0);
 
   // Splash de abertura: mostra a marca + homenagem apenas 1x por DIA
   // (chave no localStorage com a data) — repetir a cada visita irrita o
@@ -1214,7 +1216,11 @@ export default function App() {
 
       {/* Alerta de novo cadastro + contagem de usuários — retorna null para
           quem não é o proprietário; o endpoint valida admin server-side. */}
-      <AdminSignupWatch isAdmin={isAdmin} onUserCount={setAdminUserCount} />
+      <AdminSignupWatch
+        isAdmin={isAdmin}
+        onUserCount={setAdminUserCount}
+        onOnlineCount={setAdminOnlineCount}
+      />
 
       {/* Topo FIXO: banner laranja (APOIA.se) + header de navegação ficam
           SEMPRE visíveis, independente da rolagem (sticky top-0). Somem no
@@ -1459,6 +1465,7 @@ export default function App() {
                 blogPosts={blogPosts}
                 onBlogChange={setBlogPosts}
                 userCount={adminUserCount}
+                onlineCount={adminOnlineCount}
               />
             )}
             {activeTab === 'admin' && !isAdmin && (

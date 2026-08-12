@@ -16,16 +16,20 @@ interface AdminSignupWatchProps {
   isAdmin: boolean;
   /** Recebe o total de usuários cadastrados a cada ciclo (para badges). */
   onUserCount?: (total: number) => void;
+  /** Recebe quantos usuários estão online a cada ciclo (topo do painel). */
+  onOnlineCount?: (online: number) => void;
 }
 
 interface StatsResponse {
   total: number;
+  online?: number;
   recent: { id: string; email: string; createdAt: string }[];
 }
 
 export const AdminSignupWatch: React.FC<AdminSignupWatchProps> = ({
   isAdmin,
   onUserCount,
+  onOnlineCount,
 }) => {
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -61,6 +65,7 @@ export const AdminSignupWatch: React.FC<AdminSignupWatchProps> = ({
         const data = (await res.json()) as StatsResponse;
         if (cancelled) return;
         onUserCount?.(data.total);
+        onOnlineCount?.(data.online ?? 0);
         const rec = data.recent || [];
         if (rec.length) {
           const msg =

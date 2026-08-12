@@ -27,6 +27,8 @@ interface AdminPanelProps {
   blogPosts: BlogPost[];
   onBlogChange: (posts: BlogPost[]) => void;
   userCount: number;
+  /** Usuários online agora (login nos últimos 15 min) — polling do AdminSignupWatch. */
+  onlineCount: number;
 }
 
 const TABS: { id: AdminSection; label: string; icon: React.ReactNode }[] = [
@@ -48,6 +50,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   blogPosts,
   onBlogChange,
   userCount,
+  onlineCount,
 }) => {
   const [section, setSection] = useState<AdminSection>('visao-geral');
 
@@ -61,6 +64,22 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
         </div>
         <span className="text-[10px] px-2.5 py-1 rounded-full bg-rose-50 text-rose-600 font-extrabold border border-rose-200 uppercase tracking-wider self-start">
           🔒 Restrito ao proprietário
+        </span>
+      </div>
+
+      {/* Contadores no TOPO: usuários cadastrados + online agora (atualizados
+          pelo polling de 30s do AdminSignupWatch). */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 border border-indigo-200 px-3 py-1.5 text-[11px] font-extrabold text-indigo-700">
+          <Users className="w-3.5 h-3.5" />
+          {userCount.toLocaleString('pt-BR')} usuários cadastrados
+        </span>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1.5 text-[11px] font-extrabold text-emerald-700">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+          </span>
+          {onlineCount.toLocaleString('pt-BR')} online agora
         </span>
       </div>
 

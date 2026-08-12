@@ -1,6 +1,7 @@
 /**
  * Endpoint administrativo — /api/admin/users-stats
- * Contagem de usuários cadastrados + NOVOS cadastros desde um timestamp.
+ * Contagem de usuários cadastrados, usuários ONLINE (login nos últimos 15
+ * min) e NOVOS cadastros desde um timestamp.
  *
  * SEGURANÇA: só o proprietário (ADMIN_EMAIL) consegue — o token da sessão
  * Supabase do usuário é validado server-side (authorizeAdminRequest). O
@@ -13,10 +14,18 @@ import { getServiceRoleKey } from '../../src/lib/serviceRoleKey.js';
 
 export const maxDuration = 30;
 
+/**
+ * Janela considerada "online": quem fez login (ou renovou a sessão) nos
+ * últimos 15 minutos. É uma aproximação — o GoTrue não tem presença em
+ * tempo real, só o último sign-in/refresh de sessão.
+ */
+const ONLINE_WINDOW_MS = 15 * 60 * 1000;
+
 interface AdminUser {
   id: string;
   email?: string;
   created_at?: string;
+  last_sign_in_at?: string | null;
 }
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
@@ -72,6 +81,13 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     const totalHeader = r.headers.get('x-total-count');
     const total = totalHeader ? Number(totalHeader) : users.length;
 
+    // Online = login (last_sign_in_at) dentro da janela.
+    const now = Date.now();
+    const online = users.filter((u) => {
+      const t = u.last_sign_in_at ? new Date(u.last_sign_in_at).getTime() : 0;
+      return Number.isFinite(t) && t > 0 && now - t <= ONLINE_WINDOW_MS;
+    }).length;
+
     const after = new URL(req.url || '/', 'http://localhost').searchParams.get('after') || '';
     let recent: { id: string; email: string; createdAt: string }[] = [];
     // created_at vem em ISO (ex.: 2026-08-11T18:22:39.123Z) — comparação lexicográfica OK
@@ -86,7 +102,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Cache-Control', 'no-store');
-    res.end(JSON.stringify({ total, recent }));
+    res.end(JSON.stringify({ total, online, recent }));
   } catch {
     res.statusCode = 502;
     res.setHeader('Content-Type', 'application/json');
