@@ -5,13 +5,15 @@
  * REORDENANDO sozinha a cada 15s. Sem carrossel e sem botão: nenhuma
  * interação do usuário.
  *
- * O widget do YouTube mostra os vídeos mais recentes do canal oficial
- * (via /api/youtube-channel-videos → feed RSS, sem API key): o vídeo em
- * destaque troca junto com a rotação de 15s e um vídeo novo publicado no
- * canal aparece sozinho em até ~5 min, sem deploy.
+ * O widget do YouTube mostra as publicações mais recentes do canal oficial
+ * (via /api/youtube-channel-videos → feed RSS + innertube, sem API key):
+ * vídeos E shorts — o destaque troca junto com a rotação de 15s, abaixo
+ * vêm as 4 últimas publicações (vídeos e shorts) e o rank dos mais vistos;
+ * uma publicação nova aparece sozinha em até ~5 min, sem deploy. Shorts
+ * têm badge próprio e link /shorts/ (vídeos seguem /watch).
  */
 import React, { useEffect, useMemo, useState } from 'react';
-import { Lightbulb, MessageCircle, Play, Star, Youtube, ExternalLink } from 'lucide-react';
+import { Clock, Lightbulb, MessageCircle, Play, Star, TrendingUp, Youtube, ExternalLink } from 'lucide-react';
 import { Song } from '../types';
 import { useT } from '../lib/i18n';
 import { getTipOfTheDay } from '../lib/sidebarTips';
@@ -45,6 +47,18 @@ function shuffleArray<T>(list: T[]): T[] {
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
+}
+
+/** Número compacto ("1,2 mil") no idioma atual — Intl nativo. */
+function formatViews(n: number, lang: string): string {
+  try {
+    return new Intl.NumberFormat(lang, {
+      notation: 'compact',
+      maximumFractionDigits: 1,
+    }).format(n);
+  } catch {
+    return String(n);
+  }
 }
 
 /** Tempo relativo curto ("há 2 dias") no idioma atual — Intl nativo. */
@@ -220,9 +234,27 @@ export const SideWidgets: React.FC<SideWidgetsProps> = ({
       const isNewest = channelVideos[0]?.id === video.id;
       const isNew =
         isNewest && Date.now() - new Date(video.publishedAt).getTime() < NEW_VIDEO_WINDOW_MS;
+
+      // 4 publicações mais recentes (vídeos + shorts — o feed já vem
+      // ordenado por data de publicação).
+      const latest = channelVideos.slice(0, 4);
+      // Rank dos mais vistos: top 4 por visualizações (só entra quem tem
+      // views — quando o innertube não respondeu, a seção some).
+      const rank = [...channelVideos]
+        .filter((v) => v.views != null)
+        .sort((a, b) => (b.views as number) - (a.views as number))
+        .slice(0, 4);
+
+      const thumbBadge = (v: ChannelVideo) =>
+        v.kind === 'short' ? (
+          <span className="absolute bottom-0 right-0 rounded-sm bg-red-600 px-1 py-px text-[7px] font-black uppercase tracking-wide text-white">
+            {t('sidebar.ytShort')}
+          </span>
+        ) : null;
+
       return (
         <div className="rounded-2xl bg-[#1D2D44] border border-slate-200/90 shadow-sm overflow-hidden">
-          {/* Thumbnail → abre o vídeo no YouTube (nova aba) */}
+          {/* Destaque → abre no YouTube (nova aba; /shorts/ ou /watch) */}
           <a
             href={video.url}
             target="_blank"
@@ -247,6 +279,11 @@ export const SideWidgets: React.FC<SideWidgetsProps> = ({
                 {t('sidebar.ytNew')}
               </span>
             )}
+            {video.kind === 'short' && (
+              <span className="absolute right-2 top-2 rounded-full bg-red-600 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-white shadow">
+                {t('sidebar.ytShort')}
+              </span>
+            )}
           </a>
 
           <div className="p-3">
@@ -258,6 +295,9 @@ export const SideWidgets: React.FC<SideWidgetsProps> = ({
               <span className="truncate">
                 {YOUTUBE_CHANNEL_HANDLE}
                 {video.publishedAt ? ` · ${formatRelativeTime(video.publishedAt, lang)}` : ''}
+                {video.views != null
+                  ? ` · ${formatViews(video.views, lang)} ${t('sidebar.ytViews')}`
+                  : ''}
               </span>
             </p>
             <div className="mt-2.5 flex items-center gap-2">
@@ -279,6 +319,96 @@ export const SideWidgets: React.FC<SideWidgetsProps> = ({
               </a>
             </div>
           </div>
+
+          {/* 4 últimas publicações (vídeos + shorts) */}
+          {latest.length > 0 && (
+            <div className="border-t border-white/10 px-3 py-2.5">
+              <p className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-slate-400">
+                <Clock className="w-3 h-3" /> {t('sidebar.ytLatest')}
+              </p>
+              <div className="mt-1 flex flex-col">
+                {latest.map((v) => (
+                  <a
+                    key={v.id}
+                    href={v.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={v.title}
+                    className="group/row flex items-center gap-2 rounded-lg -mx-1 px-1 py-1.5 hover:bg-white/5"
+                  >
+                    <span className="relative shrink-0">
+                      <img
+                        src={v.thumbnail}
+                        alt=""
+                        loading="lazy"
+                        className="h-11 w-16 rounded-md bg-white/10 object-cover"
+                      />
+                      {thumbBadge(v)}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[10px] font-bold leading-tight text-white line-clamp-1">
+                        {v.title}
+                      </span>
+                      <span className="mt-0.5 block text-[9px] font-medium text-slate-400 truncate">
+                        {v.kind === 'short' ? t('sidebar.ytShort') : t('sidebar.ytVideo')}
+                        {v.publishedAt ? ` · ${formatRelativeTime(v.publishedAt, lang)}` : ''}
+                        {v.views != null
+                          ? ` · ${formatViews(v.views, lang)} ${t('sidebar.ytViews')}`
+                          : ''}
+                      </span>
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Rank: mais vistos no YouTube */}
+          {rank.length > 0 && (
+            <div className="border-t border-white/10 px-3 py-2.5">
+              <p className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-slate-400">
+                <TrendingUp className="w-3 h-3 text-[#F6AE2D]" /> {t('sidebar.ytTop')}
+              </p>
+              <div className="mt-1 flex flex-col">
+                {rank.map((v, i) => (
+                  <a
+                    key={v.id}
+                    href={v.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={v.title}
+                    className="group/row flex items-center gap-2 rounded-lg -mx-1 px-1 py-1.5 hover:bg-white/5"
+                  >
+                    <span className="w-4 shrink-0 text-center text-[11px] font-black text-[#F6AE2D]">
+                      {i + 1}
+                    </span>
+                    <span className="relative shrink-0">
+                      <img
+                        src={v.thumbnail}
+                        alt=""
+                        loading="lazy"
+                        className="h-10 w-14 rounded-md bg-white/10 object-cover"
+                      />
+                      {thumbBadge(v)}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[10px] font-bold leading-tight text-white line-clamp-1">
+                        {v.title}
+                      </span>
+                      <span className="mt-0.5 block text-[9px] font-medium text-slate-400 truncate">
+                        {v.views != null
+                          ? `${formatViews(v.views, lang)} ${t('sidebar.ytViews')}`
+                          : ''}
+                        {v.publishedAt
+                          ? ` · ${formatRelativeTime(v.publishedAt, lang)}`
+                          : ''}
+                      </span>
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       );
     }

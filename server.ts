@@ -158,10 +158,12 @@ async function startServer() {
     res.json({ status: 'ok' });
   });
 
-  // Endpoint público: vídeos mais recentes do canal no YouTube (feed RSS
-  // oficial, sem API key). Espelho local do api/youtube-channel-videos.ts —
-  // o painel direito usa para rotacionar os vídeos do canal; se o feed
-  // falhar, devolve o vídeo de segurança (o painel nunca fica vazio).
+  // Endpoint público: publicações mais recentes do canal no YouTube
+  // (vídeos + shorts, feed RSS oficial + innertube para views, sem API
+  // key). Espelho local do api/youtube-channel-videos.ts — o painel direito
+  // usa para rotacionar o destaque, listar as 4 últimas e montar o rank dos
+  // mais vistos; se o feed falhar, devolve as publicações de segurança
+  // (o painel nunca fica vazio).
   app.get('/api/youtube-channel-videos', async (req, res) => {
     const channel = {
       id: YOUTUBE_CHANNEL_ID,

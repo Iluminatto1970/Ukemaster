@@ -1,11 +1,14 @@
 /**
  * Endpoint PÚBLICO — GET /api/youtube-channel-videos
- * Vídeos mais recentes do canal do UkeMaster Pro no YouTube, lidos do feed
- * RSS oficial (sem API key). Cache em memória (5 min) para não bater no
- * YouTube a cada visita; um vídeo novo aparece no painel em até ~5 min
- * depois de publicado, sem deploy.
+ * Publicações mais recentes do canal do UkeMaster Pro no YouTube — vídeos
+ * E shorts — lidas do feed RSS oficial + innertube para visualizações
+ * (tudo sem API key). Cache em memória (5 min) para não bater no YouTube a
+ * cada visita; uma publicação nova aparece no painel em até ~5 min depois
+ * de publicada, sem deploy.
  *
- * Se o feed estiver indisponível, devolve o vídeo de segurança (fallback)
+ * Cada item traz `kind: 'video' | 'short'` (a URL já aponta para /shorts/
+ * ou /watch) e `views` (null se o innertube não respondeu). Se o feed
+ * estiver indisponível, devolve as publicações de segurança (fallback)
  * para o painel nunca ficar vazio.
  */
 import type { IncomingMessage, ServerResponse } from 'node:http';
