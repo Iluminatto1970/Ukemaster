@@ -1,109 +1,104 @@
+/**
+ * Bloco de anúncio Google AdSense real: injeta adsbygoogle.js e registra o slot (formatos auto/rectangle/horizontal).
+ */
 import React, { useEffect, useRef } from 'react';
-import { Sparkles, Info } from 'lucide-react';
-import { getAdSenseConfig, initAdSenseScript } from '../utils/adsense';
 
-interface AdSenseSlotProps {
-  slotId?: string;
-  format?: 'horizontal' | 'rectangle' | 'inline' | 'in-article';
-  className?: string;
-  label?: string;
+declare global {
+  interface Window {
+    adsbygoogle?: unknown[];
+  }
 }
 
-export const AdSenseSlot: React.FC<AdSenseSlotProps> = ({
-  slotId,
-  format = 'horizontal',
-  className = '',
-  label = 'Anúncio Publicitário',
-}) => {
-  const config = getAdSenseConfig();
-  const adRef = useRef<HTMLDivElement>(null);
-  const pushedRef = useRef<boolean>(false);
+interface AdSenseSlotProps {
+  format?: 'auto' | 'rectangle' | 'horizontal' | 'vertical';
+  label?: string;
+  className?: string;
+  /** Slot específico criado no painel do AdSense (data-ad-slot). */
+  adSlot?: string;
+}
 
-  const publisherId = config.publisherId || import.meta.env.VITE_ADSENSE_CLIENT_ID || '';
-  const isLive = Boolean(config.enabled && publisherId && publisherId.startsWith('ca-pub-'));
+/**
+ * Publisher ID do Google AdSense — mesmo do index.html. O fallback garante
+ * que as unidades funcionem mesmo se a variável VITE_ADSENSE_CLIENT_ID não
+ * existir no deploy (ex.: Vercel sem a env configurada).
+ */
+const AD_CLIENT =
+  import.meta.env.VITE_ADSENSE_CLIENT_ID || 'ca-pub-7409769323856107';
+
+/**
+ * Bloco de anúncio do Google AdSense.
+ *
+ * Injeta o script `adsbygoogle.js` uma única vez e registra o slot com
+ * `adsbygoogle.push({})` (o formato padrão para SPA/React).
+ *
+ * Regras do AdSense:
+ * - Nunca renderizar mais de 3 slots por página.
+ * - O `push` deve acontecer APÓS o script carregar; usamos um pequeno
+ *   timeout e re-tentativa no evento de carregamento do script.
+ */
+export const AdSenseSlot: React.FC<AdSenseSlotProps> = ({
+  format = 'auto',
+  label,
+  className,
+  adSlot,
+}) => {
+  const insRef = useRef<HTMLModElement>(null);
+  const pushedRef = useRef(false);
 
   useEffect(() => {
-    if (isLive && publisherId) {
-      initAdSenseScript(publisherId);
-      try {
-        if (!pushedRef.current) {
-          // @ts-ignore
-          (window.adsbygoogle = window.adsbygoogle || []).push({});
-          pushedRef.current = true;
-        }
-      } catch (err) {
-        console.warn('AdSense push error:', err);
-      }
+    if (!AD_CLIENT || !insRef.current) return;
+
+    // Injeta o loader do AdSense UMA vez (o Google exige exatamente o
+    // <script async src="...adsbygoogle.js?..."> — sem atributos extras,
+    // que gerariam warning "AdSense head tag doesn't support...").
+    if (!document.getElementById('adsense-loader')) {
+      const s = document.createElement('script');
+      s.id = 'adsense-loader';
+      s.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${AD_CLIENT}`;
+      s.async = true;
+      s.crossOrigin = 'anonymous';
+      document.head.appendChild(s);
     }
-  }, [isLive, publisherId]);
 
-  if (!config.enabled) {
-    return null;
-  }
+    const push = () => {
+      if (pushedRef.current || !insRef.current) return;
+      try {
+        window.adsbygoogle = window.adsbygoogle || [];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window.adsbygoogle as any).push({});
+        pushedRef.current = true;
+      } catch {
+        // AdSense bloqueado (adblock) — segue sem erro
+      }
+    };
 
-  // Format styles
-  const formatClasses = {
-    horizontal: 'w-full min-h-[90px] sm:min-h-[100px]',
-    rectangle: 'w-full max-w-[336px] min-h-[280px] mx-auto',
-    inline: 'w-full min-h-[60px] sm:min-h-[75px]',
-    'in-article': 'w-full min-h-[120px] sm:min-h-[160px]',
-  };
+    // Tenta após o script carregar; re-tenta uma vez para SPA
+    const t1 = window.setTimeout(push, 250);
+    const t2 = window.setTimeout(push, 1500);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, []);
+
+  if (!AD_CLIENT) return null;
 
   return (
-    <div
-      ref={adRef}
-      className={`relative my-4 rounded-2xl overflow-hidden border transition-all ${
-        isLive
-          ? 'border-stone-800/80 bg-stone-900/60'
-          : 'border-slate-200/80 bg-slate-50/80 shadow-2xs'
-      } ${formatClasses[format]} ${className}`}
-    >
-      {/* Top Label Bar */}
-      <div className="flex items-center justify-between px-3 py-1 bg-slate-100/90 border-b border-slate-200/80 text-[10px] text-slate-500 font-medium tracking-wide">
-        <div className="flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-orange-500/80 animate-pulse" />
-          <span className="uppercase tracking-widest text-slate-600 font-bold">{label}</span>
-        </div>
-
-        <div className="flex items-center gap-1">
-          <span className="text-slate-400 flex items-center gap-1">
-            <Info className="w-3 h-3 text-slate-400" />
-            <span>Publicidade</span>
-          </span>
-        </div>
-      </div>
-
-      {/* Main Ad Area */}
-      {isLive ? (
-        <div className="p-2 flex items-center justify-center min-h-[80px]">
-          <ins
-            className="adsbygoogle"
-            style={{ display: 'block', width: '100%', textAlign: 'center' }}
-            data-ad-client={publisherId}
-            data-ad-slot={slotId || '1234567890'}
-            data-ad-format={format === 'rectangle' ? 'rectangle' : 'auto'}
-            data-full-width-responsive="true"
-          />
-        </div>
-      ) : (
-        /* Quiet Public Placeholder View */
-        <div className="p-4 flex items-center justify-between gap-3 min-h-[80px]">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0 text-orange-600">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="text-xs font-bold text-slate-800">
-                Anúncio Patrocinado
-              </div>
-              <p className="text-[11px] text-slate-500 mt-0.5">
-                Apoie o UkeMaster — Plataforma de cifras 100% gratuita para tocadores de ukulele.
-              </p>
-            </div>
-          </div>
-        </div>
+    <div className={className}>
+      {label && (
+        <p className="text-[10px] uppercase tracking-wider text-slate-400 text-center mb-1">
+          {label}
+        </p>
       )}
+      <ins
+        ref={insRef}
+        className="adsbygoogle"
+        style={{ display: 'block', minHeight: format === 'auto' ? 90 : undefined }}
+        data-ad-client={AD_CLIENT}
+        data-ad-slot={adSlot || undefined}
+        data-ad-format={format}
+        data-full-width-responsive="true"
+      />
     </div>
   );
 };
-

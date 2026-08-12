@@ -1,0 +1,32 @@
+{
+  "name": "UkeMaster Pro — Cifras de Ukulele",
+  "short_name": "UkeMaster",
+  "description": "O Portal Oficial do Ukulele: cifras, dicionário de acordes, afinador de precisão e repertório privado.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F8F9FA",
+  "theme_color": "#0E7C7B",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/favicon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "320x276",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

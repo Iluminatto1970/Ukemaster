@@ -2,10 +2,79 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>Ukemaster — Cifras, Dicionário de Acordes & Afinador de Ukulele</title>
-    <meta name="description" content="O Portal Oficial do Ukulele: Cifras de músicas públicas, dicionário de acordes, afinador de precisão, ritmos e seu repertório privado." />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5"
+    />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon-180.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#0E7C7B" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="UkeMaster Pro" />
+
+    <!-- Google AdSense (loader no head — exigido pelo Google para o site ser
+         reconhecido desde o primeiro load; o id "adsense-loader" é o mesmo que
+         o AdSenseSlot.tsx procura, evitando injeção duplicada do script). -->
+    <script
+      id="adsense-loader"
+      async
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7409769323856107"
+      crossorigin="anonymous"
+    ></script>
+    <!-- Método alternativo de verificação do AdSense (além do snippet e do
+         ads.txt) — o Google aceita a meta tag google-adsense-account no head. -->
+    <meta name="google-adsense-account" content="ca-pub-7409769323856107" />
+
+    <!-- SEO / Open Graph -->
+    <title>UkeMaster Pro — 4.600+ Cifras de Ukulele, Acordes & Afinador</title>
+    <meta name="description" content="O Portal do Ukulele com 4.600+ cifras gratuitas: acordes, letra, ritmo, dicionário de acordes, afinador de precisão e repertório privado. 100% grátis." />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href="https://ukemasterpro.com/" />
+    <meta property="og:site_name" content="UkeMaster Pro" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="UkeMaster Pro — 4.600+ Cifras de Ukulele Grátis" />
+    <meta property="og:description" content="Cifras, acordes, letra, ritmo, afinador e repertório privado. Tudo grátis para quem ama ukulele." />
+    <meta property="og:url" content="https://ukemasterpro.com/" />
+    <meta property="og:image" content="https://ukemasterpro.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="UkeMaster Pro — Seu Portal do Ukulele" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="UkeMaster Pro — 4.600+ Cifras de Ukulele Grátis" />
+    <meta name="twitter:description" content="Cifras, acordes, letra, ritmo, afinador e repertório privado. Tudo grátis." />
+    <meta name="twitter:image" content="https://ukemasterpro.com/og-image.png" />
+    <meta name="twitter:site" content="@ukemasterpro" />
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "UkeMaster Pro",
+      "url": "https://ukemasterpro.com/",
+      "inLanguage": "pt-BR",
+      "description": "Portal de cifras de ukulele gratuito com 4.600+ músicas, dicionário de acordes, afinador e repertório privado.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://ukemasterpro.com/?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "UkeMaster Pro",
+        "url": "https://ukemasterpro.com/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://ukemasterpro.com/logo.png"
+        }
+      }
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>

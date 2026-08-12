@@ -1,8 +1,12 @@
+/**
+ * Editor de cifra: criar/editar músicas com busca de vídeo, adaptação de tom, tags/SEO e estrutura passo a passo.
+ */
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { Song, SONG_CATEGORIES, SONG_DIFFICULTIES } from '../types';
 import { ALL_KEYS, ALL_QUALITIES, findChord, CHORD_DATABASE } from '../data/chords';
+import { useT } from '../lib/i18n';
 import { Save, ArrowLeft, Sparkles, Youtube, Edit, Eye, Volume2, Search, Plus, Columns, Music, Check, Info, ExternalLink, Share2, Tag, Copy, RefreshCw, Trash2 } from 'lucide-react';
-import { parseChordPro, extractUniqueChords, extractYouTubeId, generateSongSeoAndHashtags, UkuleleTabStep, generateUkuleleTabBlock, formatAndCleanTabs } from '../utils/chordUtils';
+import { parseChordPro, extractUniqueChords, extractYouTubeId, generateSongSeoAndHashtags, UkuleleTabStep, generateUkuleleTabBlock, formatAndCleanTabs, generateSimplifiedContent, isHardSong } from '../utils/chordUtils';
 import { useSongSeo } from '../hooks/useSongSeo';
 import { ChordDiagram } from './ChordDiagram';
 import { YouTubePlayer } from './YouTubePlayer';
@@ -14,6 +18,8 @@ interface SongEditorProps {
   onSave: (song: Song) => void;
   onCancel: () => void;
   onDelete?: (songId: string) => void;
+  /** Só o admin (iluminatto@gmail.com) pode excluir músicas do acervo. */
+  isAdmin?: boolean;
 }
 
 const COMMON_QUICK_CHORDS = ['C', 'G', 'Am', 'F', 'Dm', 'Em', 'E7', 'D', 'A7', 'C7', 'A', 'Bm', 'G7', 'Cmaj7'];
@@ -23,7 +29,25 @@ export const SongEditor: React.FC<SongEditorProps> = ({
   onSave,
   onCancel,
   onDelete,
+  isAdmin = false,
 }) => {
+  const { t } = useT();
+  // Labels dos chips de tipo de acorde (ALL_QUALITIES tem texto hardcoded em PT).
+  const qualityLabel = (id: string) =>
+    ({
+      Maior: t('dictionary.qMaior'),
+      Menor: t('dictionary.qMenor'),
+      '7': t('dictionary.q7'),
+      m7: t('dictionary.qm7'),
+      maj7: t('dictionary.qmaj7'),
+      '6': t('dictionary.q6'),
+      m6: t('dictionary.qm6'),
+      sus4: t('dictionary.qsus4'),
+      sus2: t('dictionary.qsus2'),
+      add9: t('dictionary.qadd9'),
+      dim: t('dictionary.qdim'),
+      m7b5: t('dictionary.qm7b5'),
+    }[id] ?? id);
   const [title, setTitle] = useState<string>(initialSong?.title || '');
   const [artist, setArtist] = useState<string>(initialSong?.artist || '');
   const [key, setKey] = useState<string>(initialSong?.key || 'C');
@@ -45,7 +69,6 @@ export const SongEditor: React.FC<SongEditorProps> = ({
   const [content, setContent] = useState<string>(initialSong?.content || '');
   const [seoDescription, setSeoDescription] = useState<string>(initialSong?.seoDescription || '');
   const [hashtags, setHashtags] = useState<string[]>(initialSong?.hashtags || []);
-  const [copiedHashtags, setCopiedHashtags] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'editor' | 'split' | 'preview'>('split');
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
 
@@ -182,13 +205,18 @@ export const SongEditor: React.FC<SongEditorProps> = ({
     category,
   });
 
-  // Automatically update SEO description and hashtags when title or artist changes (if empty or previously auto-generated)
+  // Automatically update SEO description and hashtags when title/artist/key/difficulty
+  // changes. IMPORTANTE: `autoSeo.hashtags` é um array NOVO a cada render (vem de
+  // useSongSeo → generateSongSeo, que não é memoizado em relação a `content`), então
+  // incluí-lo nas dependências causava "Maximum update depth exceeded" (loop infinito
+  // de setState a cada render). Depender só dos campos editáveis resolve o loop.
   useEffect(() => {
     if (title.trim() || artist.trim()) {
       setSeoDescription(autoSeo.seoDescription);
       setHashtags(autoSeo.hashtags);
     }
-  }, [title, artist, key, difficulty, autoSeo.seoDescription, autoSeo.hashtags]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [title, artist, key, difficulty]);
 
   const handleGenerateSeo = () => {
     setSeoDescription(autoSeo.seoDescription);
@@ -245,6 +273,13 @@ export const SongEditor: React.FC<SongEditorProps> = ({
       if (finalHashtags.length === 0) finalHashtags = seoData.hashtags;
     }
 
+    // Regenera as versões facilitadas (simples + média) sempre que a cifra
+    // for difícil — o app garante que TODA música difícil tem as 3 versões.
+    const finalContent = content.trim();
+    const hard = isHardSong(finalContent);
+    const simple = hard ? generateSimplifiedContent(finalContent, 'simple') : undefined;
+    const medium = hard ? generateSimplifiedContent(finalContent, 'medium') : undefined;
+
     const updatedSong: Song = {
       id: initialSong?.id || `song-${Date.now()}`,
       title: title.trim(),
@@ -253,10 +288,12 @@ export const SongEditor: React.FC<SongEditorProps> = ({
       category,
       tempo: tempo ? Number(tempo) : undefined,
       strummingPattern: strummingPattern.trim() || undefined,
-      difficulty,
+      difficulty: hard ? 'Avançado' : difficulty,
       youtubeUrl: youtubeUrl.trim() || undefined,
       youtubeId: cleanYtId || undefined,
-      content: content.trim(),
+      content: finalContent,
+      simplifiedContent: simple,
+      mediumContent: medium,
       seoDescription: finalSeo,
       hashtags: finalHashtags,
       createdAt: initialSong?.createdAt || new Date().toISOString(),
@@ -283,7 +320,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {initialSong && onDelete && (
+          {initialSong && onDelete && isAdmin && (
             <button
               type="button"
               onClick={() => setShowDeleteModal(true)}
@@ -492,10 +529,10 @@ export const SongEditor: React.FC<SongEditorProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-800/60 pb-3">
             <div>
               <span className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-                <Share2 className="w-4 h-4 text-amber-500" /> SEO & Hashtags Automáticos (Gerados em Tempo Real)
+                <Share2 className="w-4 h-4 text-amber-500" /> SEO Automático (Gerado em Tempo Real)
               </span>
               <p className="text-[11px] text-stone-400 mt-0.5">
-                Sempre que você altera o título e artista, os metatags, título SEO e hashtags são gerados e sincronizados automaticamente.
+                Sempre que você altera o título e artista, a descrição SEO e os metatags são gerados e sincronizados automaticamente.
               </p>
             </div>
             <button
@@ -530,40 +567,6 @@ export const SongEditor: React.FC<SongEditorProps> = ({
             />
           </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-semibold text-slate-700 flex items-center gap-1">
-                <Tag className="w-3.5 h-3.5 text-[#0E7C7B]" /> Hashtags Geradas:
-              </label>
-              {hashtags.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    navigator.clipboard.writeText(hashtags.join(' '));
-                    setCopiedHashtags(true);
-                    setTimeout(() => setCopiedHashtags(false), 2000);
-                  }}
-                  className="text-xs text-[#0E7C7B] hover:underline flex items-center gap-1 font-bold cursor-pointer"
-                >
-                  {copiedHashtags ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                  {copiedHashtags ? 'Hashtags Copiadas!' : 'Copiar Todas as Hashtags'}
-                </button>
-              )}
-            </div>
-            {hashtags.length > 0 ? (
-              <div className="flex flex-wrap gap-1.5 p-3 bg-slate-50 border border-slate-200 rounded-xl">
-                {hashtags.map((tag, idx) => (
-                  <span key={idx} className="px-2.5 py-1 bg-[#0E7C7B]/10 border border-[#0E7C7B]/20 text-[#0E7C7B] rounded-lg text-xs font-mono font-bold">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <p className="text-[11px] text-slate-400 italic">
-                As hashtags serão geradas automaticamente com base no nome da música e artista.
-              </p>
-            )}
-          </div>
         </div>
       </div>
 
@@ -633,7 +636,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({
                 {/* Qualities Bar */}
                 <div>
                   <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block mb-1">
-                    Qualidade / Tipo:
+                    {t('songEditor.quality')}
                   </span>
                   <div className="flex flex-wrap gap-1">
                     {ALL_QUALITIES.map((q) => (
@@ -647,7 +650,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({
                             : 'bg-slate-100 text-slate-600 border border-slate-200 hover:text-slate-900'
                         }`}
                       >
-                        {q.label}
+                        {qualityLabel(q.id)}
                       </button>
                     ))}
                   </div>
@@ -1044,7 +1047,7 @@ Eu [C]vejo o sol na [G]minha janela...`}
                 <span>Resultado Formatado em Tempo Real</span>
                 <span className="text-[10px] text-stone-500 font-normal">Formatação automática ChordPro</span>
               </span>
-              <div className="w-full h-[450px] overflow-y-auto bg-stone-950 border border-stone-800 rounded-xl p-4 font-mono text-xs space-y-2 select-text">
+              <div className="w-full h-[450px] overflow-y-auto overflow-x-hidden bg-stone-950 border border-stone-800 rounded-xl p-4 font-mono text-xs space-y-2 select-text">
                 {groupedPreviewItems.length > 0 ? (
                   groupedPreviewItems.map((item, idx) => {
                     if (item.type === 'section') {
@@ -1059,15 +1062,15 @@ Eu [C]vejo o sol na [G]minha janela...`}
                     }
                     const line = item.line;
                     return (
-                      <div key={idx} className="flex flex-wrap items-baseline gap-x-1 py-0.5">
+                      <div key={idx} className="flex flex-wrap items-baseline gap-x-1 py-0.5 min-w-0">
                         {line.tokens.map((t, tidx) => (
-                          <span key={tidx} className="inline-flex flex-col items-start">
+                          <span key={tidx} className="inline-flex flex-col items-start max-w-full min-w-0">
                             {t.chord ? (
                               <span className="text-amber-400 font-bold bg-amber-500/20 border border-amber-500/30 px-1 py-0.2 rounded text-[11px] -mb-1">
                                 {t.chord}
                               </span>
                             ) : null}
-                            <span className="text-stone-200 whitespace-pre">{t.text}</span>
+                            <span className="text-stone-200 whitespace-pre-wrap break-words">{t.text}</span>
                           </span>
                         ))}
                       </div>
@@ -1083,7 +1086,7 @@ Eu [C]vejo o sol na [G]minha janela...`}
 
         {/* Tab 3: Preview Only */}
         {activeTab === 'preview' && (
-          <div className="bg-stone-950 border border-stone-800 rounded-xl p-6 font-mono space-y-3 min-h-[350px]">
+          <div className="bg-stone-950 border border-stone-800 rounded-xl p-6 font-mono space-y-3 min-h-[350px] overflow-x-hidden">
             {groupedPreviewItems.length > 0 ? (
               groupedPreviewItems.map((item, idx) => {
                 if (item.type === 'section') {
@@ -1098,15 +1101,15 @@ Eu [C]vejo o sol na [G]minha janela...`}
                 }
                 const line = item.line;
                 return (
-                  <div key={idx} className="flex flex-wrap items-baseline gap-x-1 py-1">
+                  <div key={idx} className="flex flex-wrap items-baseline gap-x-1 py-1 min-w-0">
                     {line.tokens.map((t, tidx) => (
-                      <span key={tidx} className="inline-flex flex-col items-start">
+                      <span key={tidx} className="inline-flex flex-col items-start max-w-full min-w-0">
                         {t.chord ? (
                           <span className="text-amber-400 font-bold bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 rounded text-xs -mb-1">
                             {t.chord}
                           </span>
                         ) : null}
-                        <span className="text-stone-200 whitespace-pre">{t.text}</span>
+                        <span className="text-stone-200 whitespace-pre-wrap break-words">{t.text}</span>
                       </span>
                     ))}
                   </div>

@@ -1,0 +1,54 @@
+{
+  "mcpServers": {
+    "supabase": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase",
+        "--access-token",
+        "${SUPABASE_ACCESS_TOKEN}",
+        "--project-ref",
+        "${SUPABASE_PROJECT_REF}"
+      ],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}",
+        "SUPABASE_PROJECT_REF": "${SUPABASE_PROJECT_REF}"
+      }
+    },
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${CTX7_API_KEY}"
+      }
+    },
+    "hostinger-dns": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "hostinger-dns-mcp"
+      ],
+      "env": {
+        "HOSTINGER_API_TOKEN": "${HOSTINGER_API_TOKEN}"
+      }
+    },
+    "hostinger-domains": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "hostinger-domains-mcp"
+      ],
+      "env": {
+        "HOSTINGER_API_TOKEN": "${HOSTINGER_API_TOKEN}"
+      }
+    },
+    "adsense": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@appsyogi/adsense-mcp-server",
+        "run"
+      ]
+    }
+  }
+}

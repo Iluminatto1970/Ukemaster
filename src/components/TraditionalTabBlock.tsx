@@ -1,3 +1,6 @@
+/**
+ * Renderização de tablatura tradicional (linhas de corda com números) dentro da cifra.
+ */
 import React, { useState } from 'react';
 import { Play, Copy, Check, Music, Sliders, Volume2 } from 'lucide-react';
 import { playPluckedNote } from '../utils/audio';

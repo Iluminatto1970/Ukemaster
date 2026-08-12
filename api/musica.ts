@@ -1,0 +1,217 @@
+/**
+ * Endpoint /api/musica: prerender da página de cifra para crawlers (HTML com conteúdo), usado pela rota /musica/:id.
+ */
+/**
+ * Vercel Serverless Function — /musica/:id (via rewrite, apenas para crawlers)
+ * Prerender completo para o Google/WhatsApp: title, description, canonical,
+ * og tags e JSON-LD MusicRecording — sem depender do JavaScript do cliente.
+ *
+ * NOTA: AUTOCONTIDA (não importa de src/) — a Vercel compila cada api/*.ts
+ * isolado e imports ESM relativos para src/ sem extensão falham em runtime.
+ */
+import type { IncomingMessage, ServerResponse } from 'node:http';
+
+export const maxDuration = 30;
+
+function getSupabase() {
+  const url =
+    process.env.VITE_SUPABASE_URL ||
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    '';
+  const key =
+    process.env.VITE_SUPABASE_ANON_KEY ||
+    process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    '';
+  if (!url || !key) return null;
+  return { url: url.replace(/\/+$/, ''), key };
+}
+
+function getSiteUrl(): string {
+  return (
+    process.env.SITE_URL ||
+    process.env.APP_URL ||
+    'https://ukemasterpro.com'
+  );
+}
+
+interface SongRow {
+  id: string;
+  title: string;
+  artist: string;
+  key?: string | null;
+  content?: string | null;
+  category?: string | null;
+  difficulty?: string | null;
+  seo_description?: string | null;
+  views?: number | null;
+}
+
+async function fetchSongByIdServer(id: string): Promise<SongRow | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  const res = await fetch(
+    `${sb.url}/rest/v1/songs?select=id,title,artist,key,content,category,difficulty,seo_description,views&id=eq.${encodeURIComponent(id)}&limit=1`,
+    {
+      headers: {
+        apikey: sb.key,
+        Authorization: `Bearer ${sb.key}`,
+      },
+    }
+  );
+  if (!res.ok) return null;
+  const rows = (await res.json()) as SongRow[];
+  return rows[0] || null;
+}
+
+const esc = (s: string) =>
+  String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+// ── Cache CDN (Vercel Edge Network) ───────────────────────────────────────
+// O Vercel cacheia a resposta da função quando o Cache-Control tem `s-maxage`
+// (disponível em todos os planos, inclusive Hobby). `stale-while-revalidate`
+// serve o conteúdo stale instantaneamente e revalida em background — sem
+// bloquear o crawler. Sem este header, cada visita do Google/WhatsApp gera
+// 1 invocação de função + 1 query no Supabase (~0,9s).
+//
+// Estratégia TIERED por popularidade: músicas mais acessadas (views alto)
+// ficam mais tempo no edge (24h), as demais 6h. Erros NÃO são cacheados
+// (no-store), para 404 de músicas removidas não ficarem presos no CDN.
+//
+// TRADEOFF de reparos: o Vercel NÃO purga o cache em deploy — expira só por
+// TTL. Após um repair/atualização de conteúdo, crawlers veem o SSR antigo
+// por até 1 TTL (6h normal / 24h popular), quando o SWR revalida. TTLs
+// curtos mantêm isso aceitável para o fluxo de reparo do acervo.
+// `max-age` (1h) deixa o cache local do Googlebot servir recrawls sem
+// bater na edge — menos invocações e queries ainda.
+const CACHE_POPULAR = 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800'; // 24h + SWR 7d
+const CACHE_NORMAL = 'public, max-age=3600, s-maxage=21600, stale-while-revalidate=86400'; // 6h + SWR 1d
+const POPULAR_VIEWS = 10; // a partir de 10 visualizações entra no tier popular
+
+function send(
+  res: ServerResponse,
+  status: number,
+  body: string,
+  type = 'text/html; charset=utf-8',
+  cache = 'no-store'
+) {
+  res.statusCode = status;
+  res.setHeader('Content-Type', type);
+  res.setHeader('Cache-Control', cache);
+  res.end(body);
+}
+
+export default async function handler(
+  req: IncomingMessage,
+  res: ServerResponse,
+  options?: { query?: Record<string, string | string[]> }
+) {
+  if (req.method !== 'GET') return send(res, 405, 'Method Not Allowed');
+
+  // Extrai o id de forma robusta: o runtime do Vercel NEM SEMPRE passa o 3º
+  // argumento { query } (Node 24.x invoca handler(req, res) sem options) —
+  // antes isso quebrava com 500 'Cannot destructure property query'.
+  // Fontes possíveis: (1) query string (?id=...), (2) path /musica/:id.
+  // NOTA: fica SEMPRE URL-encoded — decodifica UMA única vez lá embaixo
+  // (decodeURIComponent pode lançar URIError em entrada malformada).
+  let rawId: string | undefined;
+  const q = options?.query;
+  if (q && q.id) rawId = Array.isArray(q.id) ? q.id[0] : q.id;
+  if (!rawId) {
+    const parsed = new URL(req.url || '/', 'http://localhost');
+    if (parsed.searchParams.get('id')) rawId = parsed.searchParams.get('id') as string;
+  }
+  if (!rawId) {
+    const m = (req.url || '').match(/\/musica\/([^/?]+)/);
+    if (m) rawId = m[1];
+  }
+  if (!rawId) return send(res, 400, 'Música não informada.');
+
+  let id: string;
+  try {
+    id = decodeURIComponent(rawId);
+  } catch {
+    return send(res, 400, 'Música não informada.');
+  }
+
+  const song = await fetchSongByIdServer(id);
+  if (!song) {
+    return send(
+      res,
+      404,
+      '<!doctype html><html><head><title>Música não encontrada — UkeMaster Pro</title></head><body><h1>404</h1><p>Esta cifra não existe mais no acervo.</p></body></html>'
+    );
+  }
+
+  const siteUrl = getSiteUrl();
+  const pageUrl = `${siteUrl}/musica/${encodeURIComponent(song.id)}`;
+  const ogImage = `${siteUrl}/og-image.png`;
+  const title = `${song.title} - ${song.artist} | Cifra de Ukulele no UkeMaster Pro`;
+  const description =
+    song.seo_description ||
+    `Cifra de ukulele de ${song.title} (${song.artist})${song.key ? ` no tom ${song.key}` : ''} — acordes, ritmo e letra para tocar agora.`;
+  // Pré-renderiza a CIFRA COMPLETA (letra + acordes) para crawlers — a rota
+  // /musica/:id existe justamente para o Google indexar o conteúdo real.
+  const MAX_SSR_LINES = 200; // cap generoso; músicas raras passam disso
+  const allLines = (song.content || '')
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+  const truncated = allLines.length > MAX_SSR_LINES;
+  const lyricLines = allLines.slice(0, MAX_SSR_LINES);
+  const lyricsHtml =
+    lyricLines.map((l) => `<p>${esc(l)}</p>`).join('\n') +
+    (truncated ? '\n<p>… (cifra completa no app)</p>' : '');
+  // Escapa os valores do JSON-LD contra `</script>` (XSS no prerender).
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'MusicRecording',
+    name: song.title,
+    byArtist: { '@type': 'MusicGroup', name: song.artist },
+    ...(song.key ? { inKey: song.key } : {}),
+    ...(song.category ? { genre: song.category } : {}),
+    url: pageUrl,
+    publisher: { '@type': 'Organization', name: 'UkeMaster Pro', url: siteUrl },
+  }).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
+
+  const html = `<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${esc(title)}</title>
+  <meta name="description" content="${esc(description)}" />
+  <link rel="canonical" href="${esc(pageUrl)}" />
+  <meta property="og:type" content="music.song" />
+  <meta property="og:title" content="${esc(song.title)} — ${esc(song.artist)}" />
+  <meta property="og:description" content="${esc(description)}" />
+  <meta property="og:url" content="${esc(pageUrl)}" />
+  <meta property="og:site_name" content="UkeMaster Pro" />
+  <meta property="og:image" content="${esc(ogImage)}" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="${esc(song.title)} — ${esc(song.artist)}" />
+  <meta name="twitter:image" content="${esc(ogImage)}" />
+  <script type="application/ld+json">${jsonLd}</script>
+</head>
+<body>
+  <h1>${esc(song.title)}</h1>
+  <p>${esc(song.artist)}${song.key ? ` — Tom ${esc(song.key)}` : ''}</p>
+  <p>Confira a cifra completa de ${esc(song.title)} no UkeMaster Pro.</p>
+  ${lyricsHtml}
+  <p><a href="${esc(pageUrl)}">Abrir cifra completa no UkeMaster Pro</a></p>
+</body>
+</html>`;
+
+  // Cache tiered: mais acessadas ficam 24h no edge, as demais 6h (com SWR
+  // cobrindo a revalidação). O conteúdo só muda em reparos/atualizações —
+  // com SWR o crawler nunca espera a função e o cache se renova sozinho.
+  const cache =
+    (song.views ?? 0) >= POPULAR_VIEWS ? CACHE_POPULAR : CACHE_NORMAL;
+  return send(res, 200, html, 'text/html; charset=utf-8', cache);
+}

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px; height: 630px;
+    overflow: hidden;
+    background: linear-gradient(160deg, #0E7C7B 0%, #0A5F5E 55%, #074A49 100%);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #fff;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  /* Decorações */
+  .ring {
+    position: absolute; border-radius: 50%;
+    border: 3px solid rgba(246,174,45,0.18);
+  }
+  .ring.r1 { width: 700px; height: 700px; top: -280px; left: -180px; }
+  .ring.r2 { width: 520px; height: 520px; bottom: -240px; right: -140px; }
+  .glow {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(246,174,45,0.16), transparent 34%),
+      radial-gradient(circle at 88% 92%, rgba(242,100,25,0.18), transparent 36%);
+  }
+  .content {
+    position: relative; z-index: 2;
+    display: flex; align-items: center; gap: 46px;
+    padding: 0 90px;
+    max-width: 100%;
+  }
+  .logo {
+    width: 180px; height: 180px;
+    background: linear-gradient(135deg, #F6AE2D, #F26419);
+    border-radius: 40px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 100px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    flex-shrink: 0;
+  }
+  .text h1 {
+    font-size: 78px; font-weight: 900; letter-spacing: 2px;
+    text-transform: uppercase; line-height: 1.02;
+  }
+  .text h1 .pro { color: #F6AE2D; }
+  .text .tag {
+    margin-top: 18px;
+    font-size: 30px; font-weight: 700; letter-spacing: 6px;
+    text-transform: uppercase; color: rgba(255,255,255,0.92);
+  }
+  .text .count {
+    margin-top: 22px;
+    display: inline-flex; align-items: center; gap: 12px;
+    background: rgba(255,255,255,0.14);
+    border: 2px solid rgba(255,255,255,0.35);
+    border-radius: 40px;
+    padding: 10px 26px;
+    font-size: 26px; font-weight: 700;
+  }
+  .text .count .amber { color: #F6AE2D; }
+</style>
+</head>
+<body>
+  <div class="ring r1"></div>
+  <div class="ring r2"></div>
+  <div class="glow"></div>
+  <div class="content">
+    <div class="logo">🎸</div>
+    <div class="text">
+      <h1>UkeMaster <span class="pro">PRO</span></h1>
+      <div class="tag">Seu Portal do Ukulele</div>
+      <div class="count"><span class="amber">★</span> 4.000+ cifras grátis <span class="amber">★</span></div>
+    </div>
+  </div>
+</body>
+</html>

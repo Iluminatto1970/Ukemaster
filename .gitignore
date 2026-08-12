@@ -6,3 +6,58 @@ coverage/
 *.log
 .env*
 !.env.example
+
+.vercel
+
+# Environment & Secrets (AIOX)
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+
+# Dependencies (AIOX)
+node_modules
+
+# Build & Logs (AIOX)
+logs/
+
+# IDE & OS (AIOX)
+Thumbs.db
+.idea/
+*.swp
+
+# Ferramentas de produtividade locais (não versionar)
+.aiox-core/
+.aiox/
+.claude/
+.codex/
+.cursor/
+.gemini/
+.kimi/
+.antigravity/
+.github/agents/
+AGENTS.md
+CLAUDE.md
+HANDOFF.md
+metadata.json
+scripts/handoff.ts
+
+# Dados locais da interface
+.freebuff/
+
+# Cron bundle standalone (build artifact)
+dist-cron/
+
+# Ferramentas de IA locais (skills MCP / instruções de agente)
+.agents/
+GEMINI.md
+
+# Supabase CLI local (não versionar)
+supabase/.temp/
+
+# Backups de MCPs (contêm tokens secretos — nunca versionar)
+mcp-backup/
+
+# Arquivo criado por acidente (dev/null relativo em Windows) — nunca versionar
+dev/null

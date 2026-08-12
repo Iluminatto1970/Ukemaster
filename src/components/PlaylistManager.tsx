@@ -1,6 +1,14 @@
-import React, { useState } from 'react';
+/**
+ * Gerenciamento de playlists: criar, renomear, excluir e adicionar músicas da biblioteca.
+ */
+import React, { useState, useEffect, useMemo } from 'react';
 import { Playlist, Song, SONG_CATEGORIES, PLAYLIST_DIFFICULTIES } from '../types';
-import { List, Plus, Trash2, Edit2, Play, Music, ChevronRight, X, Sparkles, Check, Tag, Gauge, Filter } from 'lucide-react';
+import { List, Plus, Trash2, Edit2, Play, Music, ChevronRight, X, Sparkles, Check, Tag, Gauge, Filter, FolderHeart, Globe, Download, Loader2, Search } from 'lucide-react';
+import { Logo } from './Logo';
+import { useT } from '../lib/i18n';
+import { difficultyLabel } from '../utils/difficultyLabel';
+import { PublicRepertoire } from '../lib/repertoires';
+import { getPublicRepertoiresWithCloud } from '../lib/cloudSync';
 
 interface PlaylistManagerProps {
   playlists: Playlist[];
@@ -15,6 +23,11 @@ interface PlaylistManagerProps {
   onDeletePlaylist: (playlistId: string) => void;
   onRemoveSongFromPlaylist: (playlistId: string, songId: string) => void;
   onAddSongToPlaylist: (playlistId: string, songId: string) => void;
+  /** Baixa a playlist (letra + diagramas de todas as cifras). */
+  onDownloadPlaylist?: (title: string, songs: Song[]) => Promise<void> | void;
+  /** Criar/modificar listas da comunidade exige login. */
+  isLoggedIn?: boolean;
+  onOpenAuth?: (mode?: 'signup' | 'login') => void;
 }
 
 export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
@@ -25,12 +38,26 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
   onDeletePlaylist,
   onRemoveSongFromPlaylist,
   onAddSongToPlaylist,
+  onDownloadPlaylist,
+  isLoggedIn = false,
+  onOpenAuth,
 }) => {
+  const { t } = useT();
+  // Toda ação de ESCRITA em listas (criar/adicionar/remover/excluir) é uma
+  // contribuição à comunidade → exige login. Visitantes só navegam.
+  const requireAuth = (): boolean => {
+    if (isLoggedIn) return true;
+    onOpenAuth?.('signup');
+    return false;
+  };
+  // Download da playlist ativa: busca as cifras completas e gera o documento
+  const [downloading, setDownloading] = useState<boolean>(false);
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string>(
     playlists[0]?.id || ''
   );
   const [showNewModal, setShowNewModal] = useState<boolean>(false);
   const [showAddSongModal, setShowAddSongModal] = useState<boolean>(false);
+  const [addSongSearch, setAddSongSearch] = useState<string>('');
 
   const [newTitle, setNewTitle] = useState<string>('');
   const [newDesc, setNewDesc] = useState<string>('');
@@ -40,11 +67,42 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [filterDifficulty, setFilterDifficulty] = useState<string>('all');
 
+  // Repertórios públicos da comunidade (nuvem primeiro, local como fallback)
+  const [publicRepertoires, setPublicRepertoires] = useState<PublicRepertoire[]>([]);
+  const [publicLoaded, setPublicLoaded] = useState<boolean>(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const list = await getPublicRepertoiresWithCloud();
+      if (cancelled) return;
+      setPublicRepertoires(list);
+      setPublicLoaded(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const filteredPlaylists = playlists.filter((pl) => {
     const matchCat = filterCategory === 'all' || pl.category === filterCategory;
     const matchDiff = filterDifficulty === 'all' || pl.difficulty === filterDifficulty;
     return matchCat && matchDiff;
   });
+
+  // Busca no modal "Adicionar Músicas": ignora case e acentos
+  const normalizeSearch = (s: string) =>
+    s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const addSongQuery = normalizeSearch(addSongSearch.trim());
+  const addableSongs = useMemo(() => {
+    if (!addSongQuery) return songs;
+    return songs.filter(
+      (s) =>
+        normalizeSearch(s.title || '').includes(addSongQuery) ||
+        normalizeSearch(s.artist || '').includes(addSongQuery) ||
+        (s.category && normalizeSearch(s.category).includes(addSongQuery))
+    );
+  }, [songs, addSongQuery]);
 
   const activePlaylist = playlists.find((p) => p.id === selectedPlaylistId) || filteredPlaylists[0] || playlists[0];
   const activeSongs = activePlaylist
@@ -55,11 +113,23 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTitle.trim()) return;
+    if (!newTitle.trim() || !requireAuth()) return;
     onCreatePlaylist(newTitle.trim(), newDesc.trim() || undefined, newCategory, newDifficulty);
     setNewTitle('');
     setNewDesc('');
     setShowNewModal(false);
+  };
+
+  const handleDownloadActivePlaylist = async () => {
+    if (!activePlaylist || downloading || !onDownloadPlaylist) return;
+    // Baixar/exportar é ação de membro → exige login (nunca exportar sem logar)
+    if (!requireAuth()) return;
+    setDownloading(true);
+    try {
+      await onDownloadPlaylist(activePlaylist.title, activeSongs);
+    } finally {
+      setDownloading(false);
+    }
   };
 
   const getDifficultyBadgeClass = (diff?: string) => {
@@ -75,18 +145,19 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
       <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-            <List className="w-6 h-6 text-orange-500" /> Playlists & Listas Públicas
+            <List className="w-6 h-6 text-orange-500" /> {t('playlist.title')}
           </h2>
           <p className="text-slate-600 text-xs sm:text-sm mt-1 font-medium">
-            Explore e crie playlists abertas para toda a comunidade do Ukemaster.
+            {t('playlist.subtitle')}
           </p>
         </div>
 
         <button
-          onClick={() => setShowNewModal(true)}
+          onClick={() => (isLoggedIn ? setShowNewModal(true) : requireAuth())}
+          title={isLoggedIn ? t('playlist.createNew') : t('playlist.loginToCreate')}
           className="px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs shadow-md shadow-orange-500/20 flex items-center gap-1.5 cursor-pointer scale-105"
         >
-          <Plus className="w-4 h-4" /> Criar Nova Lista
+          <Plus className="w-4 h-4" /> {t('playlist.createNew')}
         </button>
       </div>
 
@@ -96,7 +167,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
         <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-extrabold text-slate-500 uppercase tracking-wider block">
-              Playlists Públicas ({filteredPlaylists.length})
+              {t('playlist.publicPlaylists')} ({filteredPlaylists.length})
             </span>
           </div>
 
@@ -107,7 +178,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
               onChange={(e) => setFilterCategory(e.target.value)}
               className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-[11px] font-bold text-slate-700 focus:outline-none focus:border-orange-500 cursor-pointer"
             >
-              <option value="all">Cat: Todas</option>
+              <option value="all">{t('playlist.catAll')}</option>
               {SONG_CATEGORIES.map((c) => (
                 <option key={c} value={c}>
                   {c}
@@ -120,7 +191,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
               onChange={(e) => setFilterDifficulty(e.target.value)}
               className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-[11px] font-bold text-slate-700 focus:outline-none focus:border-orange-500 cursor-pointer"
             >
-              <option value="all">Modo: Todos</option>
+              <option value="all">{t('playlist.modeAll')}</option>
               {PLAYLIST_DIFFICULTIES.map((d) => (
                 <option key={d} value={d}>
                   {d}
@@ -155,7 +226,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
                       )}
                       {pl.difficulty && (
                         <span className={`px-1.5 py-0.2 rounded text-[9px] font-extrabold border ${getDifficultyBadgeClass(pl.difficulty)}`}>
-                          {pl.difficulty}
+                          {difficultyLabel(t, pl.difficulty)}
                         </span>
                       )}
                     </div>
@@ -191,7 +262,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
                     {activePlaylist.difficulty && (
                       <span className={`px-2 py-0.5 rounded-md text-xs font-extrabold border inline-flex items-center gap-1 ${getDifficultyBadgeClass(activePlaylist.difficulty)}`}>
                         <Gauge className="w-3 h-3" />
-                        Modo {activePlaylist.difficulty}
+                        {t('playlist.mode')} {difficultyLabel(t, activePlaylist.difficulty)}
                       </span>
                     )}
                   </div>
@@ -202,22 +273,44 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
 
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => setShowAddSongModal(true)}
+                    onClick={() => {
+                      if (!requireAuth()) return;
+                      setAddSongSearch('');
+                      setShowAddSongModal(true);
+                    }}
+                    title={isLoggedIn ? t('playlist.addChord') : t('playlist.loginToAdd')}
                     className="px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 hover:border-orange-400 text-orange-600 font-extrabold text-xs flex items-center gap-1.5 cursor-pointer"
                   >
-                    <Plus className="w-4 h-4" /> Adicionar Cifra
+                    <Plus className="w-4 h-4" /> {t('playlist.addChord')}
                   </button>
+
+                  {onDownloadPlaylist && (
+                    <button
+                      onClick={handleDownloadActivePlaylist}
+                      disabled={downloading || activeSongs.length === 0}
+                      title={activeSongs.length === 0 ? t('playlist.addSongsToDownload') : isLoggedIn ? t('playlist.downloadTitle').replace('{n}', String(activeSongs.length)) : t('playlist.loginToDownloadList')}
+                      className="px-4 py-2 rounded-xl bg-[#0E7C7B] hover:bg-[#0A5F5E] disabled:opacity-40 disabled:cursor-not-allowed text-white font-extrabold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
+                    >
+                      {downloading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Download className="w-4 h-4" />
+                      )}
+                      {downloading ? t('playlist.preparing') : t('playlist.download')}
+                    </button>
+                  )}
 
                   {playlists.length > 1 && (
                     <button
                       onClick={() => {
-                        if (confirm(`Deseja excluir a playlist "${activePlaylist.title}"?`)) {
+                        if (!requireAuth()) return;
+                        if (confirm(t('playlist.confirmDelete').replace('{title}', activePlaylist.title))) {
                           onDeletePlaylist(activePlaylist.id);
                           setSelectedPlaylistId(playlists.find((p) => p.id !== activePlaylist.id)?.id || '');
                         }
                       }}
                       className="p-2 rounded-xl bg-slate-50 border border-slate-200 hover:border-rose-300 hover:bg-rose-50 text-slate-500 hover:text-rose-600 text-xs cursor-pointer"
-                      title="Excluir Playlist"
+                      title={isLoggedIn ? t('playlist.deletePlaylist') : t('playlist.loginToDelete')}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -247,7 +340,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-xs px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-700 font-mono font-bold">
+                        <span className="hidden min-[480px]:inline-block text-xs px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-700 font-mono font-bold">
                           Tom: {song.key}
                         </span>
 
@@ -264,10 +357,11 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
+                            if (!requireAuth()) return;
                             onRemoveSongFromPlaylist(activePlaylist.id, song.id);
                           }}
                           className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-slate-200 cursor-pointer"
-                          title="Remover da lista"
+                          title={isLoggedIn ? 'Remover da lista' : 'Faça login para editar listas'}
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -278,22 +372,98 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
               ) : (
                 <div className="text-center py-12 bg-slate-50 border border-slate-200 rounded-xl p-6">
                   <Music className="w-10 h-10 text-slate-400 mx-auto mb-2" />
-                  <p className="text-slate-600 text-sm font-semibold">Esta lista está vazia.</p>
+                  <p className="text-slate-600 text-sm font-semibold">{t('playlist.empty')}</p>
                   <button
-                    onClick={() => setShowAddSongModal(true)}
+                    onClick={() => {
+                      if (!requireAuth()) return;
+                      setAddSongSearch('');
+                      setShowAddSongModal(true);
+                    }}
                     className="mt-3 px-4 py-2 rounded-xl bg-orange-500 text-white font-extrabold text-xs shadow-2xs"
                   >
-                    Adicionar Cifras
+                    {t('playlist.addSongs')}
                   </button>
                 </div>
               )}
             </>
           ) : (
             <div className="text-center py-12 text-slate-500 text-sm">
-              Selecione uma playlist para visualizar.
+              {t('playlist.selectOne')}
             </div>
           )}
         </div>
+      </div>
+
+      {/* Repertórios Públicos da Comunidade */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2">
+            <FolderHeart className="w-5 h-5 text-[#F26419]" />
+            <h3 className="font-black text-slate-900 uppercase text-sm tracking-wider">
+              {t('playlist.publicRepertoires')}
+            </h3>
+          </div>
+          <span className="text-[10px] text-slate-500 font-bold flex items-center gap-1">
+            <Globe className="w-3 h-3 text-[#0E7C7B]" /> {publicRepertoires.length} {t('playlist.shared')}
+          </span>
+        </div>
+
+        {!publicLoaded ? (
+          <div className="py-8 text-center text-xs text-slate-400 font-semibold">
+            {t('playlist.loadingPublic')}
+          </div>
+        ) : publicRepertoires.length === 0 ? (
+          <div className="py-8 text-center space-y-1.5 bg-slate-50/70 rounded-2xl border border-dashed border-slate-200">
+            <Globe className="w-8 h-8 text-slate-300 mx-auto" />
+            <p className="text-xs font-extrabold text-slate-600">{t('playlist.noPublic')}</p>
+            <p className="text-[11px] text-slate-400 max-w-md mx-auto">
+              {t('playlist.emptyPublicHint')}
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {publicRepertoires.map((rep) => (
+              <div
+                key={rep.userId}
+                className="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 space-y-2.5"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-full bg-[#0E7C7B] text-white flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
+                    {(rep.name || 'M').charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-extrabold text-slate-900 truncate">{rep.name}</p>
+                    <p className="text-[10px] text-slate-500 font-bold">
+                      {t('playlist.publicRepertoire')} • {rep.songIds.length} {rep.songIds.length === 1 ? t('library.songSingular') : t('library.songsCount')}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  {rep.songIds.map((id) => {
+                    const s = songs.find((song) => song.id === id);
+                    if (!s) return null;
+                    return (
+                      <div
+                        key={id}
+                        onClick={() => onSelectSong(s)}
+                        className="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg bg-white border border-slate-200/70 hover:border-orange-300 transition-colors cursor-pointer group"
+                      >
+                        <div className="min-w-0">
+                          <p className="text-[11px] font-bold text-slate-800 truncate group-hover:text-orange-600">
+                            {s.title}
+                          </p>
+                          <p className="text-[10px] text-slate-400 truncate">{s.artist}</p>
+                        </div>
+                        <Play className="w-3.5 h-3.5 text-orange-500 shrink-0" />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Create New Playlist Modal */}
@@ -307,40 +477,51 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
             onClick={(e) => e.stopPropagation()}
             className="bg-white border border-slate-200 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4"
           >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-xl font-extrabold text-slate-900">Criar Nova Lista / Playlist</h3>
-              <button
-                type="button"
-                onClick={() => setShowNewModal(false)}
-                className="text-slate-400 hover:text-slate-900 font-bold"
-              >
-                ✕
-              </button>
+            <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-3 min-w-0">
+              <div className="min-w-0">
+                <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 leading-tight">
+                  {t('playlist.createNew')}
+                </h3>
+                <p className="text-[11px] font-bold text-slate-500 mt-0.5">
+                  {t('playlist.subtitle')}
+                </p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <Logo size="sm" />
+                <button
+                  type="button"
+                  onClick={() => setShowNewModal(false)}
+                  className="text-slate-400 hover:text-slate-900 font-bold"
+                  aria-label="Fechar"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
 
             <div>
               <label className="text-xs font-bold text-slate-700 block mb-1">
-                Nome da Playlist *
+                {t('playlist.nameLabel')}
               </label>
               <input
                 type="text"
                 required
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
-                placeholder="Ex: Show de Sexta, Modas de Viola..."
+                placeholder={t('playlist.descPlaceholder')}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 text-sm focus:outline-none focus:border-orange-500 font-medium"
               />
             </div>
 
             <div>
               <label className="text-xs font-bold text-slate-700 block mb-1">
-                Descrição (Opcional)
+                {t('playlist.descLabel')}
               </label>
               <input
                 type="text"
                 value={newDesc}
                 onChange={(e) => setNewDesc(e.target.value)}
-                placeholder="Ex: Repertório acústico para ensaio"
+                placeholder={t('playlist.namePlaceholder')}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 text-sm focus:outline-none focus:border-orange-500 font-medium"
               />
             </div>
@@ -348,7 +529,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1">
-                  Categoria
+                  {t('playlist.category')}
                 </label>
                 <select
                   value={newCategory}
@@ -365,7 +546,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
 
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1">
-                  Modo / Dificuldade
+                  {t('playlist.difficulty')}
                 </label>
                 <select
                   value={newDifficulty}
@@ -387,13 +568,13 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
                 onClick={() => setShowNewModal(false)}
                 className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs"
               >
-                Cancelar
+                {t('playlist.cancel')}
               </button>
               <button
                 type="submit"
                 className="px-6 py-2 rounded-xl bg-orange-500 text-white font-extrabold text-xs shadow-2xs"
               >
-                Criar Lista
+                {t('playlist.createList')}
               </button>
             </div>
           </form>
@@ -410,20 +591,57 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
             onClick={(e) => e.stopPropagation()}
             className="bg-white border border-slate-200 rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-4 max-h-[80vh] flex flex-col"
           >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-lg font-extrabold text-slate-900">
-                Adicionar Músicas a "{activePlaylist.title}"
-              </h3>
-              <button
-                onClick={() => setShowAddSongModal(false)}
-                className="text-slate-400 hover:text-slate-900 font-bold"
-              >
-                ✕
-              </button>
+            <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-3 min-w-0">
+              <div className="min-w-0">
+                <h3 className="text-base sm:text-lg font-extrabold text-slate-900 leading-tight">
+                  {t('playlist.addSongs')}
+                </h3>
+                <p className="text-xs font-bold text-orange-600 truncate mt-0.5 max-w-full">
+                  {t('playlist.for')} "{activePlaylist.title}"
+                </p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <Logo size="sm" />
+                <button
+                  onClick={() => setShowAddSongModal(false)}
+                  className="text-slate-400 hover:text-slate-900 font-bold"
+                  aria-label="Fechar"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                value={addSongSearch}
+                onChange={(e) => setAddSongSearch(e.target.value)}
+                placeholder={t('playlist.searchSongs') + ` (${songs.length})`}
+                aria-label={t('playlist.searchSongs')}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-8 py-2 text-sm text-slate-900 focus:outline-none focus:border-orange-500 font-medium"
+              />
+              {addSongSearch && (
+                <button
+                  onClick={() => setAddSongSearch('')}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 font-bold px-1 cursor-pointer"
+                  aria-label={t('playlist.clearSearch')}
+                >
+                  ✕
+                </button>
+              )}
             </div>
 
             <div className="overflow-y-auto space-y-2 flex-1 pr-1">
-              {songs.map((song) => {
+              {addableSongs.length === 0 ? (
+                <div className="text-center py-10 bg-slate-50/70 rounded-xl border border-dashed border-slate-200">
+                  <Music className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                  <p className="text-sm font-extrabold text-slate-600">{t('playlist.noSongs')}</p>
+                  <p className="text-xs text-slate-400 mt-1">{t('playlist.tryAnother')}</p>
+                </div>
+              ) : (
+                addableSongs.map((song) => {
                 const isAlreadyAdded = activePlaylist.songIds.includes(song.id);
                 return (
                   <div
@@ -437,19 +655,20 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
 
                     {isAlreadyAdded ? (
                       <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200 flex items-center gap-1">
-                        <Check className="w-3 h-3" /> Adicionada
+                        <Check className="w-3 h-3" /> {t('playlist.added')}
                       </span>
                     ) : (
                       <button
                         onClick={() => onAddSongToPlaylist(activePlaylist.id, song.id)}
                         className="px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs cursor-pointer shadow-2xs"
                       >
-                        + Adicionar
+                        {t('playlist.add')}
                       </button>
                     )}
                   </div>
                 );
-              })}
+              })
+              )}
             </div>
           </div>
         </div>

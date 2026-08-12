@@ -1,4 +1,8 @@
-import { ChordDefinition } from '../types';
+/**
+ * Dicionário de acordes de ukulele: digitações (posições) para o diagrama SVG, organizadas por nota e tipo.
+ */
+import type { ChordDefinition } from '../types.js';
+import { getOrGenerateChord } from '../utils/chordGenerator.js';
 
 export const ALL_KEYS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
@@ -1253,6 +1257,13 @@ export function findChord(chordName: string): ChordDefinition | undefined {
     );
     if (found) return found;
   }
+
+  // 4. Último recurso: motor de voicings — gera a posição real pela teoria
+  //    musical para acordes que NÃO existem no dicionário (ex.: "D7(9)",
+  //    "Am7M", "F#9-/7", "A6(9)"). Assim nunca apresentamos um acorde sem
+  //    diagrama — o acorde que faltava ganha uma posição tocável no ukulele.
+  const generated = getOrGenerateChord(clean);
+  if (generated) return generated;
 
   return undefined;
 }

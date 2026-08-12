@@ -1,3 +1,6 @@
+/**
+ * SEO por música: gera JSON-LD, meta tags Open Graph/Twitter e título canônico para páginas de cifra.
+ */
 import { useEffect, useMemo } from 'react';
 import { generateSongSeo, updateDocumentMetaTags, SongSeoData, GeneratedSeoResult } from '../utils/seoUtils';
 
@@ -40,7 +43,7 @@ export function useSongSeo(options: UseSongSeoOptions): GeneratedSeoResult {
       updateDocumentMetaTags(seoResult);
 
       return () => {
-        // Reset to default UkeMaster tags when unmounted
+        // Reset to default UkeMaster Pro tags when unmounted
         updateDocumentMetaTags({});
       };
     }

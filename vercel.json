@@ -1,0 +1,68 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; upgrade-insecure-requests; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://www.google.com https://www.gstatic.com https://www.youtube.com https://s.ytimg.com https://n6wxm.com https://nap5k.com https://quge5.com https://5gvci.com https://3nbf4.com https://ep2.adtrafficquality.google https://ep1.adtrafficquality.google; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://ui-avatars.com https://api.dicebear.com https://img.youtube.com https://i.ytimg.com https://*.ytimg.com https://www.google.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.gstatic.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google; connect-src 'self' https://asvjdjawaenxrlwdyziy.supabase.co https://pagead2.googlesyndication.com https://ep2.adtrafficquality.google https://ep1.adtrafficquality.google https://*.google.com https://*.googleapis.com https://3nbf4.com; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://td.doubleclick.net https://ep2.adtrafficquality.google https://n6wxm.com; font-src 'self' data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'"
+        },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin" },
+        { "key": "Cross-Origin-Resource-Policy", "value": "same-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(self), microphone=(self), geolocation=(), interest-cohort=(), browsing-topics=()" },
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
+        { "key": "X-Permitted-Cross-Domain-Policies", "value": "none" },
+        { "key": "Origin-Agent-Cluster", "value": "?2" },
+        { "key": "X-XSS-Protection", "value": "0" },
+        { "key": "X-DNS-Prefetch-Control", "value": "off" }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    }
+  ],
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
+    { "source": "/robots.txt", "destination": "/api/robots" },
+    {
+      "source": "/musica/:id",
+      "destination": "/api/musica",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(bot|crawler|spider|googlebot|bingbot|yandex|duckduckbot|baiduspider|whatsapp|instagram|facebookexternalhit|twitterbot|linkedinbot|telegrambot|discordbot|slackbot|pinterest|applebot|gptbot|ccbot|anthropic|claudebot|perplexitybot|ahrefs|semrush).*"
+        }
+      ]
+    },
+    { "source": "/musica/:id", "destination": "/index.html" },
+    { "source": "/dicionario", "destination": "/index.html" },
+    { "source": "/afinador", "destination": "/index.html" },
+    { "source": "/ritmos", "destination": "/index.html" },
+    { "source": "/trilhas", "destination": "/index.html" },
+    { "source": "/artista", "destination": "/index.html" },
+    { "source": "/artista/:slug", "destination": "/index.html" },
+    { "source": "/playlists", "destination": "/index.html" },
+    { "source": "/playlists/:id", "destination": "/index.html" },
+    { "source": "/auth/callback", "destination": "/index.html" },
+    { "source": "/verificar/:code", "destination": "/index.html" }
+  ],
+  "crons": [
+    {
+      "path": "/api/scrape-platforms",
+      "schedule": "0 9 * * *"
+    }
+  ]
+}

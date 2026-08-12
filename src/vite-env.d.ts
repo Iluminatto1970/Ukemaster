@@ -1,3 +1,6 @@
+/**
+ * Declarações de tipos das variáveis de ambiente VITE_* (import.meta.env) para o TypeScript.
+ */
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
@@ -7,3 +10,4 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+

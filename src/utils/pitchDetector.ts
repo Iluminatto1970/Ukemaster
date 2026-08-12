@@ -1,3 +1,6 @@
+/**
+ * Detecção de pitch (afinador): captura do microfone e análise de frequência (autocorrelação/FFT).
+ */
 // Pitch detection using Autocorrelation algorithm for Ukulele Tuner
 
 export interface PitchResult {

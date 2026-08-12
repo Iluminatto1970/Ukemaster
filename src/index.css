@@ -1,26 +1,324 @@
 @import "tailwindcss";
 
 @theme {
+  /* ============================================================
+     Identidade Visual UkeMaster Pro
+     ============================================================ */
+
+  /* 1. Verde-Petróleo / Teal — cor de destaque principal */
   --color-teal-brand: #0E7C7B;
   --color-teal-brand-dark: #095B5A;
   --color-teal-brand-light: #E7F5F5;
-  
+
+  /* 2. Laranja Vibrante — Call to Action */
   --color-orange-brand: #F26419;
   --color-orange-brand-hover: #D9530D;
   --color-orange-brand-light: #FEF0E8;
-  
+
+  /* 3. Amarelo Girassol / Âmbar — energia */
   --color-yellow-brand: #F6AE2D;
   --color-yellow-brand-hover: #E39C1B;
   --color-yellow-brand-light: #FFF8E7;
-  
+
+  /* 4. Azul-Marinho Fechado / Grafite — base de textos e contraste */
   --color-slate-brand: #1D2D44;
   --color-slate-brand-light: #2C3F5B;
-  
+
+  /* 5. Fundo claro */
   --color-bg-brand: #F8F9FA;
+
+  /* ============================================================
+     Escalas padrão do Tailwind sobrescritas com a paleta da marca
+     (faz todos os componentes existentes usarem as cores oficiais)
+     ============================================================ */
+
+  /* Laranja (CTA) — base #F26419 */
+  --color-orange-50: #FEF4EC;
+  --color-orange-100: #FDE9D9;
+  --color-orange-200: #FBCFB4;
+  --color-orange-300: #F8AD83;
+  --color-orange-400: #F58854;
+  --color-orange-500: #F26419;
+  --color-orange-600: #D9530D;
+  --color-orange-700: #B4450B;
+  --color-orange-800: #8F3A0C;
+  --color-orange-900: #75300C;
+
+  /* Teal (destaque principal) — base #0E7C7B */
+  --color-teal-50: #EDF7F6;
+  --color-teal-100: #D5ECEA;
+  --color-teal-200: #AAD9D6;
+  --color-teal-300: #78C0BC;
+  --color-teal-400: #3F9F9B;
+  --color-teal-500: #0E7C7B;
+  --color-teal-600: #0A5F5E;
+  --color-teal-700: #084D4C;
+  --color-teal-800: #073D3C;
+  --color-teal-900: #06302F;
+
+  /* Âmbar / Amarelo Girassol — base #F6AE2D */
+  --color-amber-50: #FEF8E9;
+  --color-amber-100: #FDEEC8;
+  --color-amber-200: #FBDE93;
+  --color-amber-300: #F9CB5D;
+  --color-amber-400: #F6AE2D;
+  --color-amber-500: #E39C1B;
+  --color-amber-600: #C77F15;
+  --color-amber-700: #A56513;
+  --color-amber-800: #855112;
+  --color-amber-900: #6E4312;
+
+  /* Slate (grafite azulado) — base #1D2D44 */
+  --color-slate-50: #F5F7F9;
+  --color-slate-100: #E8EDF1;
+  --color-slate-200: #D4DCE4;
+  --color-slate-300: #B1BECC;
+  --color-slate-400: #8C9BAE;
+  --color-slate-500: #6C7E93;
+  --color-slate-600: #52647A;
+  --color-slate-700: #3E4E61;
+  --color-slate-800: #2B3A4B;
+  --color-slate-900: #1D2D44;
+
+  /* ============================================================
+     Cores SEMÂNTICAS harmonizadas com a paleta da marca
+     (sucesso = teal, perigo = vermelho quente, info = azul-marinho)
+     ============================================================ */
+
+  /* Emerald / Verde (sucesso, "Iniciante", check) → família Teal da marca */
+  --color-emerald-50: #EDF7F6;
+  --color-emerald-100: #D5ECEA;
+  --color-emerald-200: #AAD9D6;
+  --color-emerald-300: #78C0BC;
+  --color-emerald-400: #3F9F9B;
+  --color-emerald-500: #0E7C7B;
+  --color-emerald-600: #0A5F5E;
+  --color-emerald-700: #084D4C;
+  --color-emerald-800: #073D3C;
+  --color-emerald-900: #06302F;
+
+  /* Red / Rose (perigo, excluir, erros) → vermelho quente que conversa
+     com o laranja da marca (não é um vermelho frio genérico) */
+  --color-red-50: #FDF2EF;
+  --color-red-100: #FADED6;
+  --color-red-200: #F3B9AB;
+  --color-red-300: #E98D7B;
+  --color-red-400: #D95F4E;
+  --color-red-500: #C13B2C;
+  --color-red-600: #A82F23;
+  --color-red-700: #8C281F;
+  --color-red-800: #73221B;
+  --color-red-900: #5E1D16;
+
+  --color-rose-50: #FDF2EF;
+  --color-rose-100: #FADED6;
+  --color-rose-200: #F3B9AB;
+  --color-rose-300: #E98D7B;
+  --color-rose-400: #D95F4E;
+  --color-rose-500: #C13B2C;
+  --color-rose-600: #A82F23;
+  --color-rose-700: #8C281F;
+  --color-rose-800: #73221B;
+  --color-rose-900: #5E1D16;
+
+  /* Blue (informativo) → família Azul-Marinho/Grafite da marca */
+  --color-blue-50: #F2F5F9;
+  --color-blue-100: #E1E8F1;
+  --color-blue-200: #C3CFE0;
+  --color-blue-300: #97ABC8;
+  --color-blue-400: #64809F;
+  --color-blue-500: #3F5A78;
+  --color-blue-600: #2C4864;
+  --color-blue-700: #263C54;
+  --color-blue-800: #203247;
+  --color-blue-900: #1A293B;
+
+  /* Purple (badges secundários, ex.: repertório "Misto") → violeta suave
+     que mantém contraste com teal e laranja sem fugir da identidade */
+  --color-purple-50: #F5F4F9;
+  --color-purple-100: #E6E4F0;
+  --color-purple-200: #CBC7E0;
+  --color-purple-300: #A8A1C7;
+  --color-purple-400: #7F76A8;
+  --color-purple-500: #5E548A;
+  --color-purple-600: #4A4270;
+  --color-purple-700: #3C365C;
+  --color-purple-800: #302B4A;
+  --color-purple-900: #27223C;
+
+  /* Stone (painéis escuros: afinador, editor) → família Azul-Marinho da
+     marca em vez do cinza frio padrão do Tailwind */
+  --color-stone-50: #F5F7F9;
+  --color-stone-100: #E8EDF1;
+  --color-stone-200: #D4DCE4;
+  --color-stone-300: #B1BECC;
+  --color-stone-400: #8C9BAE;
+  --color-stone-500: #6C7E93;
+  --color-stone-600: #52647A;
+  --color-stone-700: #3E4E61;
+  --color-stone-800: #2B3A4B;
+  --color-stone-900: #1D2D44;
+  --color-stone-950: #152138;
 }
 
 body {
   background-color: var(--color-bg-brand);
   color: var(--color-slate-brand);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
 }
+
+/* ============================================================
+   Previne overflow horizontal / pan fora da tela no mobile
+   (as letras/cifras não podem "sair" da área visível ao arrastar)
+   ============================================================ */
+html,
+body {
+  /* `clip` não cria um scroll container (diferente de `hidden`), então
+     o position: sticky do header/sidebar continua funcionando */
+  overflow-x: clip;
+  max-width: 100%;
+}
+@supports not (overflow: clip) {
+  html,
+  body {
+    overflow-x: hidden;
+  }
+}
+body {
+  overscroll-behavior-x: contain;
+}
+
+/* Qualquer bloco de cifra/letra nunca pode estourar a largura do pai */
+.line-block {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+/* ============================================================
+   Responsividade Mobile
+   ============================================================ */
+
+/* Esconde a barra de rolagem horizontal (carrosséis, tabs, chips) */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Evita zoom automático do iOS ao focar inputs com fonte pequena */
+/* Viewer de cifra em TELA CHEIA no mobile: preenche a área visível do
+   dispositivo. Classe própria FORA de @layer — regras não-camadas vencem
+   as utilities do Tailwind (o `min-h-dvh` era anulado pela cascata em
+   contexto real dentro do layout). */
+@media (max-width: 767px) {
+  .ukemaster-viewer-fullscreen {
+    min-height: 100dvh;
+  }
+}
+
+@media (max-width: 640px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Safe area para iPhone com notch / home indicator */
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Animações suaves de entrada */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.animate-fade-in {
+  animation: fade-in 0.25s ease-out both;
+}
+.animate-slide-in-left {
+  animation: slide-in-left 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Splash screen de abertura ────────────────────────────── */
+@keyframes splash-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.6) translateY(10px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes splash-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-splash-pop {
+  animation: splash-pop 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.animate-splash-rise {
+  animation: splash-rise 0.5s ease-out both;
+}
+.animate-splash-rise:nth-child(1) {
+  animation-delay: 0.15s;
+}
+.animate-splash-rise:nth-child(2) {
+  animation-delay: 0.25s;
+}
+.animate-splash-rise:nth-child(3) {
+  animation-delay: 0.35s;
+}
+
+/* Certificado: ao imprimir, só a área do certificado sai no papel */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .certificate-print-area,
+  .certificate-print-area * {
+    visibility: visible;
+  }
+  .certificate-print-area {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .certificate-print-area canvas {
+    max-height: 100vh;
+  }
+}
+
