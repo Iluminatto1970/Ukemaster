@@ -103,12 +103,15 @@ export function parseYouTubeFeed(xml: string): Omit<ChannelVideo, 'url' | 'kind'
     const id = entry.match(/<yt:videoId>([^<]+)<\/yt:videoId>/)?.[1];
     const title = entry.match(/<media:title>([^<]*)<\/media:title>/)?.[1];
     const publishedAt = entry.match(/<published>([^<]+)<\/published>/)?.[1];
-    const thumbnail = entry.match(/<media:thumbnail url="([^"]+)"/)?.[1];
+    const rawThumb = entry.match(/<media:thumbnail url="([^"]+)"/)?.[1];
     if (!id || !title) continue;
     videos.push({
       id,
       title: decodeXmlEntities(title),
-      thumbnail: thumbnail || hqThumb(id),
+      // O feed às vezes devolve thumbnails de outro subdomínio do CDN
+      // (ex.: i4.ytimg.com), que o CSP do site não libera — normaliza
+      // sempre para i.ytimg.com.
+      thumbnail: rawThumb?.startsWith('https://i.ytimg.com/') ? rawThumb : hqThumb(id),
       publishedAt: publishedAt || new Date().toISOString(),
     });
   }

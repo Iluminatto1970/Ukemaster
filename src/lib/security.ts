@@ -133,7 +133,7 @@ export function securityHeaders(opts: SecurityHeaderOptions = {}): Record<string
       "style-src 'self' 'unsafe-inline'",
       // Imagens: próprias + avatares + thumbnails + anúncios (inclui a
       // telemetria de qualidade do AdSense: ep1/ep2.adtrafficquality.google).
-      "img-src 'self' data: blob: https://ui-avatars.com https://api.dicebear.com https://img.youtube.com https://i.ytimg.com https://www.google.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.gstatic.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google",
+      "img-src 'self' data: blob: https://ui-avatars.com https://api.dicebear.com https://img.youtube.com https://i.ytimg.com https://*.ytimg.com https://www.google.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.gstatic.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google",
       // Conexões (fetch/XHR/WS): Supabase (REST + Auth) + Vite HMR (dev) + ads.
       "connect-src 'self' https://asvjdjawaenxrlwdyziy.supabase.co wss://localhost:* ws://localhost:* https://pagead2.googlesyndication.com https://ep2.adtrafficquality.google https://ep1.adtrafficquality.google https://*.google.com https://*.googleapis.com https://n6wxm.com https://nap5k.com https://quge5.com https://5gvci.com https://3nbf4.com",
       // Frames: YouTube embed + iframes de anúncio (inclui a vignette Monetag).

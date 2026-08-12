@@ -13,7 +13,7 @@
  * têm badge próprio e link /shorts/ (vídeos seguem /watch).
  */
 import React, { useEffect, useMemo, useState } from 'react';
-import { Clock, Lightbulb, MessageCircle, Play, Star, TrendingUp, Youtube, ExternalLink } from 'lucide-react';
+import { Clock, Lightbulb, MessageCircle, Play, Star, TrendingUp, X, Youtube, ExternalLink } from 'lucide-react';
 import { Song } from '../types';
 import { useT } from '../lib/i18n';
 import { getTipOfTheDay } from '../lib/sidebarTips';
@@ -94,6 +94,8 @@ export const SideWidgets: React.FC<SideWidgetsProps> = ({
   // mantém o fallback — o card nunca fica vazio.
   const [channelVideos, setChannelVideos] = useState<ChannelVideo[]>(FALLBACK_VIDEOS);
   const [videoIndex, setVideoIndex] = useState<number>(0);
+  // Publicação em reprodução no embed (modal) — null = fechado.
+  const [playingVideo, setPlayingVideo] = useState<ChannelVideo | null>(null);
   useEffect(() => {
     let cancelled = false;
     fetch('/api/youtube-channel-videos')
@@ -110,6 +112,16 @@ export const SideWidgets: React.FC<SideWidgetsProps> = ({
       cancelled = true;
     };
   }, []);
+
+  // Fecha o embed com ESC.
+  useEffect(() => {
+    if (!playingVideo) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setPlayingVideo(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [playingVideo]);
 
   // Widgets disponíveis (a cifra do dia só entra se existir; o YouTube
   // sempre entra — tem fallback)
@@ -252,13 +264,18 @@ export const SideWidgets: React.FC<SideWidgetsProps> = ({
           </span>
         ) : null;
 
+      // Abre o player embutido na própria página (modal) em vez de nova aba.
+      const openVideo = (e: React.MouseEvent, v: ChannelVideo) => {
+        e.preventDefault();
+        setPlayingVideo(v);
+      };
+
       return (
         <div className="rounded-2xl bg-[#1D2D44] border border-slate-200/90 shadow-sm overflow-hidden">
-          {/* Destaque → abre no YouTube (nova aba; /shorts/ ou /watch) */}
+          {/* Destaque → abre o player embutido na própria página */}
           <a
             href={video.url}
-            target="_blank"
-            rel="noopener noreferrer"
+            onClick={(e) => openVideo(e, video)}
             title={video.title}
             className="relative block aspect-video w-full group"
           >
@@ -303,11 +320,10 @@ export const SideWidgets: React.FC<SideWidgetsProps> = ({
             <div className="mt-2.5 flex items-center gap-2">
               <a
                 href={video.url}
-                target="_blank"
-                rel="noopener noreferrer"
+                onClick={(e) => openVideo(e, video)}
                 className="inline-flex flex-1 items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-[10px] font-extrabold text-white transition-colors"
               >
-                {t('sidebar.ytWatch')} <ExternalLink className="w-3 h-3" />
+                <Play className="w-3 h-3 fill-white" /> {t('sidebar.ytWatch')}
               </a>
               <a
                 href={YOUTUBE_CHANNEL_URL}
@@ -331,8 +347,7 @@ export const SideWidgets: React.FC<SideWidgetsProps> = ({
                   <a
                     key={v.id}
                     href={v.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    onClick={(e) => openVideo(e, v)}
                     title={v.title}
                     className="group/row flex items-center gap-2 rounded-lg -mx-1 px-1 py-1.5 hover:bg-white/5"
                   >
@@ -374,8 +389,7 @@ export const SideWidgets: React.FC<SideWidgetsProps> = ({
                   <a
                     key={v.id}
                     href={v.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    onClick={(e) => openVideo(e, v)}
                     title={v.title}
                     className="group/row flex items-center gap-2 rounded-lg -mx-1 px-1 py-1.5 hover:bg-white/5"
                   >
@@ -417,6 +431,7 @@ export const SideWidgets: React.FC<SideWidgetsProps> = ({
   };
 
   return (
+    <>
     <aside
       className="w-full lg:w-64 xl:w-72 shrink-0 flex flex-col gap-3"
       aria-label={t('sidebar.widgets')}
@@ -445,5 +460,54 @@ export const SideWidgets: React.FC<SideWidgetsProps> = ({
         <AdSenseSlot format="rectangle" label="" className="min-h-[100px]" />
       </div>
     </aside>
-  );
+
+    {/* Player embutido: assiste na própria página (modal), sem sair do site.
+        Fecha com o X, clicando fora ou com ESC. O iframe usa /embed do
+        YouTube (funciona para vídeos e shorts) — liberado no CSP. */}
+    {playingVideo && (
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={playingVideo.title}
+        onClick={() => setPlayingVideo(null)}
+        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4"
+      >
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="w-full max-w-3xl overflow-hidden rounded-2xl bg-[#0F172A] shadow-2xl"
+        >
+          <div className="relative aspect-video w-full bg-black">
+            <iframe
+              src={`https://www.youtube.com/embed/${playingVideo.id}?autoplay=1&rel=0`}
+              title={playingVideo.title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              className="absolute inset-0 h-full w-full"
+            />
+            <button
+              onClick={() => setPlayingVideo(null)}
+              aria-label={t('sidebar.ytClose')}
+              className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/70 text-white hover:bg-black/90 transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="flex items-center justify-between gap-3 p-3">
+            <p className="min-w-0 truncate text-xs font-bold text-white">
+              {playingVideo.title}
+            </p>
+            <a
+              href={playingVideo.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-white/10 px-2.5 py-1.5 text-[10px] font-extrabold text-white transition-colors hover:bg-white/20"
+            >
+              {t('sidebar.ytOpen')} <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        </div>
+      </div>
+    )}
+  </>
+);
 };
