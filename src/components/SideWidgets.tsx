@@ -1,16 +1,16 @@
 /**
  * Painel de widgets do lado DIREITO da tela (Cifra do Dia, Dica do Dia,
  * Comunidade WhatsApp e Canal do YouTube): divididos para cá, fora do menu —
- * TODOS visíveis empilhados, com a ORDEM SORTEADA no carregamento e
- * REORDENANDO sozinha a cada 15s. Sem carrossel e sem botão: nenhuma
- * interação do usuário.
+ * TODOS visíveis empilhados, na ORDEM FIXA (Cifra do Dia, Dica, WhatsApp,
+ * YouTube). Sem carrossel, sem reordenação e sem botão: nenhuma interação
+ * do usuário e nada muda de lugar.
  *
  * O widget do YouTube mostra as publicações mais recentes do canal oficial
  * (via /api/youtube-channel-videos → feed RSS + innertube, sem API key):
- * vídeos E shorts — o destaque troca junto com a rotação de 15s, abaixo
- * vêm as 4 últimas publicações (vídeos e shorts) e o rank dos mais vistos;
- * uma publicação nova aparece sozinha em até ~5 min, sem deploy. Shorts
- * têm badge próprio e link /shorts/ (vídeos seguem /watch).
+ * vídeos E shorts — o destaque é a publicação mais recente, abaixo vêm as
+ * 4 últimas publicações (vídeos e shorts) e o rank dos mais vistos; uma
+ * publicação nova aparece sozinha em até ~5 min, sem deploy. Shorts têm
+ * badge próprio e link /shorts/ (vídeos seguem /watch).
  */
 import React, { useEffect, useMemo, useState } from 'react';
 import { Clock, Lightbulb, MessageCircle, Play, Star, TrendingUp, X, Youtube, ExternalLink } from 'lucide-react';
@@ -25,9 +25,6 @@ import {
 } from '../lib/youtubeChannel';
 import { AdSenseSlot } from './AdSenseSlot';
 
-/** Intervalo da reordenação automática (ms). */
-const ROTATION_MS = 15000;
-
 /** Considera "novo" o vídeo publicado nos últimos 14 dias (badge NOVO). */
 const NEW_VIDEO_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
 
@@ -38,16 +35,6 @@ interface SideWidgetsProps {
 }
 
 type WidgetKind = 'featured' | 'tip' | 'whatsapp' | 'youtube';
-
-/** Embaralha a lista (Fisher–Yates) — sorteio uniforme a cada chamada. */
-function shuffleArray<T>(list: T[]): T[] {
-  const arr = [...list];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
 
 /** Número compacto ("1,2 mil") no idioma atual — Intl nativo. */
 function formatViews(n: number, lang: string): string {
@@ -93,7 +80,6 @@ export const SideWidgets: React.FC<SideWidgetsProps> = ({
   // lista real assim que /api/youtube-channel-videos responder. Se falhar,
   // mantém o fallback — o card nunca fica vazio.
   const [channelVideos, setChannelVideos] = useState<ChannelVideo[]>(FALLBACK_VIDEOS);
-  const [videoIndex, setVideoIndex] = useState<number>(0);
   // Publicação em reprodução no embed (modal) — null = fechado.
   const [playingVideo, setPlayingVideo] = useState<ChannelVideo | null>(null);
   useEffect(() => {
@@ -123,47 +109,12 @@ export const SideWidgets: React.FC<SideWidgetsProps> = ({
     return () => window.removeEventListener('keydown', onKey);
   }, [playingVideo]);
 
-  // Widgets disponíveis (a cifra do dia só entra se existir; o YouTube
-  // sempre entra — tem fallback)
-  const available = useMemo<WidgetKind[]>(() => {
+  // Widgets na ORDEM FIXA (a cifra do dia só entra se existir; o YouTube
+  // sempre entra — tem fallback). Nada reordena nem rotaciona.
+  const widgets = useMemo<WidgetKind[]>(() => {
     const list: WidgetKind[] = ['featured', 'tip', 'whatsapp', 'youtube'];
     return featuredSong ? list : list.filter((k) => k !== 'featured');
   }, [featuredSong]);
-
-  // Ordem de exibição — sorteada no carregamento
-  const [order, setOrder] = useState<WidgetKind[]>(() =>
-    shuffleArray(available.length ? available : ['tip'])
-  );
-
-  // Se um widget deixar de existir (ex.: a cifra em destaque sumiu), remove
-  // da lista preservando a ordem dos que sobraram.
-  useEffect(() => {
-    setOrder((prev) => {
-      const filtered = prev.filter((k) => available.includes(k));
-      return filtered.length ? filtered : ['tip'];
-    });
-  }, [available]);
-
-  // REORDENAÇÃO AUTOMÁTICA: a cada 15s a ordem muda sozinha (sem carrossel)
-  // e, se houver mais de um vídeo do canal, o vídeo em destaque também
-  // troca. Só roda com a aba VISÍVEL — em segundo plano pausa (economia +
-  // o leitor não vê os cards pularem ao voltar).
-  useEffect(() => {
-    if (available.length <= 1) return;
-    const timer = setInterval(() => {
-      if (document.visibilityState !== 'visible') return;
-      setOrder((prev) => {
-        let next = shuffleArray(prev);
-        // Evita repetir a mesma ordem consecutivamente (se houver mais de 1)
-        if (next.join() === prev.join()) next = shuffleArray(prev);
-        return next;
-      });
-      setVideoIndex((prev) =>
-        channelVideos.length > 1 ? (prev + 1) % channelVideos.length : 0
-      );
-    }, ROTATION_MS);
-    return () => clearInterval(timer);
-  }, [available.length, channelVideos.length]);
 
   const renderCard = (kind: WidgetKind) => {
     if (kind === 'featured' && featuredSong) {
@@ -239,10 +190,8 @@ export const SideWidgets: React.FC<SideWidgetsProps> = ({
     }
 
     if (kind === 'youtube') {
-      const video =
-        channelVideos[videoIndex % channelVideos.length] ??
-        channelVideos[0] ??
-        FALLBACK_VIDEOS[0];
+      // Destaque = publicação mais recente (vídeo ou short) — fixo, sem rotação.
+      const video = channelVideos[0] ?? FALLBACK_VIDEOS[0];
       const isNewest = channelVideos[0]?.id === video.id;
       const isNew =
         isNewest && Date.now() - new Date(video.publishedAt).getTime() < NEW_VIDEO_WINDOW_MS;
@@ -440,11 +389,11 @@ export const SideWidgets: React.FC<SideWidgetsProps> = ({
         <Star className="w-3 h-3 text-[#F6AE2D]" /> {t('sidebar.widgets')}
       </div>
 
-      {/* TODOS os widgets, na ordem sorteada/rotativa. Responsivo: quando o
-          painel ocupa a largura toda (< lg), os cards ficam em 2 colunas em
-          telas médias; ao lado do conteúdo (lg+) voltam a 1 coluna. */}
+      {/* TODOS os widgets, na ordem fixa. Responsivo: quando o painel ocupa
+          a largura toda (< lg), os cards ficam em 2 colunas em telas
+          médias; ao lado do conteúdo (lg+) voltam a 1 coluna. */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
-        {order.map((kind) => (
+        {widgets.map((kind) => (
           <div key={kind} className="min-w-0">
             {renderCard(kind)}
           </div>
