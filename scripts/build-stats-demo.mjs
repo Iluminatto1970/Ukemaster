@@ -28,8 +28,14 @@ for (const k of [
   if (env[k]) define[`import.meta.env.${k}`] = JSON.stringify(env[k]);
 }
 
-if (!env.VITE_SUPABASE_URL || !env.VITE_SUPABASE_ANON_KEY) {
-  console.error('❌ .env.local sem VITE_SUPABASE_URL/ANON — demo não pode acessar dados.');
+// Aceita qualquer combinação de prefixo (VITE_* local; NEXT_PUBLIC_* na Vercel).
+const hasUrl = env.VITE_SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL;
+const hasKey =
+  env.VITE_SUPABASE_ANON_KEY ||
+  env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+if (!hasUrl || !hasKey) {
+  console.error('❌ Sem credenciais Supabase (VITE_* ou NEXT_PUBLIC_*) — demo não pode acessar dados.');
   process.exit(1);
 }
 
