@@ -3,11 +3,18 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
-import { discoverSongLinks, fetchHtml, scrapeSong } from './src/lib/scraper';
+import {
+  discoverArtistSongLinks,
+  inferPlatformLang,
+  scrapeLinksChunk,
+  scrapeSongWithVariants,
+} from './src/lib/scraper';
 import { runPlatformCron } from './src/lib/platformCron';
 import {
   fetchAllSongsServer,
   fetchSongByIdServer,
+  fetchSongCountServer,
+  getCachedSongCount,
   getSiteUrl,
   isBotRequest,
 } from './src/lib/supabaseServer';
@@ -50,6 +57,9 @@ async function startServer() {
   // está ocupada por outro processo (ex.: outro projeto em dev local).
   const PORT = Number(process.env.PORT) || 3000;
   const isProd = process.env.NODE_ENV === 'production';
+
+  // Warm-up: busca a contagem real do acervo em background (title/og/JSON-LD).
+  fetchSongCountServer().catch(() => {});
 
   // ── Política de segurança: headers HTTP em TODAS as respostas ────────
   // (CSP, nosniff, frame-options, referrer-policy, HSTS em produção...)
@@ -330,18 +340,20 @@ async function startServer() {
 
       const body = req.body || {};
 
-      // Modo descoberta
+      // Modo descoberta — varre o CATÁLOGO COMPLETO (raiz + /musicas.html).
+      // Antes só a página informada era varrida: Roberto Carlos achava 25 de
+      // 617 músicas (a raiz mostra só as populares).
       if (body.discover) {
         const url = String(body.discover).trim();
         if (!/^https?:\/\//i.test(url) || !isAllowedFetchUrl(url)) {
           return res.status(400).json({ error: SSRF_ERROR });
         }
-        const html = await fetchHtml(url);
-        const links = discoverSongLinks(html, url);
+        const links = await discoverArtistSongLinks(url);
         return res.json({ ok: true, links, total: links.length });
       }
 
-      // Modo scrape em lote
+      // Modo scrape em lote (seleção manual) — com variantes simplificadas
+      // e idioma da plataforma, igual ao cron.
       if (Array.isArray(body.songs) && body.songs.length > 0) {
         const urls = body.songs.slice(0, 6).map((u: unknown) => String(u));
         // Anti-SSRF também no lote: cada URL precisa ser de plataforma permitida.
@@ -349,10 +361,15 @@ async function startServer() {
         if (blocked.length > 0) {
           return res.status(403).json({ error: SSRF_ERROR });
         }
+        const lang = inferPlatformLang(urls[0] || '');
         const results = [];
         for (const u of urls) {
           try {
-            results.push({ song: await scrapeSong(u) });
+            const variants = await scrapeSongWithVariants(u);
+            for (const song of variants) {
+              if (lang && !song.lang) song.lang = lang;
+              results.push({ song });
+            }
           } catch (e: any) {
             results.push({ url: u, error: e?.message || 'Erro ao processar esta música.' });
           }
@@ -360,7 +377,29 @@ async function startServer() {
         return res.json({ ok: true, results });
       }
 
-      return res.status(400).json({ error: 'Envie { discover } ou { songs } no corpo da requisição.' });
+      // Importação do CATÁLOGO COMPLETO em chunks (admin) — mesma lógica da
+      // serverless function: o cliente descobre os links e varre em fatias.
+      if (Array.isArray(body.links) && body.links.length > 0) {
+        const offset = Math.max(0, Number(body.offset) || 0);
+        const count = Math.max(1, Math.min(Number(body.count) || 6, 12));
+        const links = (body.links as any[])
+          .map((l) => ({
+            url: String(l?.url || l || ''),
+            title: String(l?.title || ''),
+            artist: String(l?.artist || ''),
+          }))
+          .filter((l) => l.url && isAllowedFetchUrl(l.url));
+        if (links.length === 0) {
+          return res.status(400).json({ error: SSRF_ERROR });
+        }
+        const lang = inferPlatformLang(links[0].url);
+        const result = await scrapeLinksChunk(links, { offset, count, delayMs: 350, lang });
+        return res.json({ ok: true, ...result });
+      }
+
+      return res
+        .status(400)
+        .json({ error: 'Envie { discover }, { songs } ou { links, offset, count } no corpo da requisição.' });
     } catch (err: any) {
       return res.status(500).json({ error: err?.message || 'Erro no scraping.' });
     }
@@ -397,10 +436,36 @@ async function startServer() {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
+      plugins: [
+        {
+          // Injeta a contagem REAL do acervo no index.html (title/og/JSON-LD)
+          // servido pelo Vite — o preview/tab mostra 16.044, não o estático.
+          name: 'inject-real-song-count',
+          transformIndexHtml(html: string) {
+            const count = getCachedSongCount();
+            if (count == null) return html;
+            return html.replaceAll('16.000+', count.toLocaleString('pt-BR'));
+          },
+        },
+      ],
     });
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
+    // Injeta a contagem REAL do acervo no index.html servido em produção
+    // (title/og/JSON-LD do site). Renova o cache se estiver vazio.
+    app.use(async (req, res, next) => {
+      if (req.path !== '/' && req.path !== '/index.html') return next();
+      let count = getCachedSongCount();
+      if (count == null) count = await fetchSongCountServer();
+      const distIndex = path.join(distPath, 'index.html');
+      if (count != null && fs.existsSync(distIndex)) {
+        let html = fs.readFileSync(distIndex, 'utf-8');
+        html = html.replaceAll('16.000+', count.toLocaleString('pt-BR'));
+        return res.type('text/html').send(html);
+      }
+      next();
+    });
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));

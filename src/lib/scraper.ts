@@ -258,6 +258,12 @@ export function discoverSongLinks(html: string, baseUrl: string): ScrapedLink[] 
       }
     }
 
+    // Remove query string e âncora ANTES de tudo: o CifraClub polui os hrefs
+    // com ?instrument=... (variantes por instrumento) e #autoplay=true
+    // (videoaulas) — sem isso eles virariam "músicas" falsas (ex.:
+    // "/artista/musicas.html?instrument=lyrics" ou "/artista/musica/#autoplay").
+    rawHref = rawHref.split(/[?#]/)[0];
+
     // Ignora caminhos de imagem/arquivo/âncora
     if (/\.(jpg|jpeg|png|gif|webp|svg|css|js|ico|pdf|zip|woff2?|mp3|mp4)$/i.test(rawHref)) continue;
 
@@ -302,12 +308,20 @@ export function discoverSongLinks(html: string, baseUrl: string): ScrapedLink[] 
     // Pega título do slug (última parte), artist do penúltimo
     const slugTitle = parts[parts.length - 1];
     const slugArtist = parts[parts.length - 2];
+    // Base do slug sem extensão (.html/.php) — os sufixos de variante do
+    // CifraClub chegam com extensão (ex.: "/artista/musica/simplificada.html").
+    const slugBase = slugTitle.replace(/\.(html?|php)$/i, '');
 
     // Ignora versões que NÃO são cifra principal (CifraClub usa sufixos):
     // "musica-letra", "musica-video-aula", "musica-tab", "musica-solos",
     // "musica-guitarpro", "musica-backing-track"…
-    const nonChordVersion = /-(letra|letras|video-aula|videoaula|tab|tabs|solos|solo|guitarpro|cifra-simplificada|simplificada|backing-track|playback|partitura|exercicios)$/i;
-    if (nonChordVersion.test(slugTitle)) continue;
+    const variantWords = 'letra|letras|video-aula|videoaula|tab|tabs|solos|solo|guitarpro|cifra-simplificada|simplificada|backing-track|playback|partitura|exercicios';
+    const nonChordVersion = new RegExp(`-(${variantWords})$`, 'i');
+    if (nonChordVersion.test(slugBase)) continue;
+    // Página da própria variante (profundidade extra): o CifraClub usa
+    // /artista/musica/simplificada.html — o último segmento é o NOME da
+    // variante, não uma música ("Simplificada", "Letra"...).
+    if (new RegExp(`^(${variantWords})$`, 'i').test(slugBase)) continue;
 
     const key = `${slugArtist}/${slugTitle}`;
     if (seen.has(key)) continue;
@@ -1143,10 +1157,109 @@ export function discoverCatalogUrls(html: string, baseUrl: string): string[] {
 }
 
 /**
+ * Descobre o catálogo COMPLETO de um artista/página de lista.
+ * - Busca a página informada e extrai os links (discoverSongLinks);
+ * - Completa com o CATÁLOGO COMPLETO (CifraClub: /artista/musicas.html lista
+ *   TODAS as músicas; a raiz mostra só as ~15 principais; Ultimate-Guitar:
+ *   paginação do js-store, pagination.pages);
+ * - Deduplica por URL e filtra links de outros artistas da navegação.
+ *
+ * BUGFIX (Roberto Carlos: 25 de 617): o /api/scrape em modo "descobrir"
+ * varria só a página raiz — por isso achava apenas as músicas populares. Aqui
+ * a raiz é mesclada com /musicas.html, que lista o catálogo inteiro.
+ *
+ * Detalhe de profundidade: o catálogo (/artista/musicas.html) TEM profundidade
+ * 2 e as músicas também têm 2 — usar a URL do catálogo como base faria o
+ * filtro `parts.length <= baseDepth` descartar TODAS as músicas. Por isso a
+ * descoberta usa a RAIZ do artista (profundidade 1) como base e filtra só
+ * links do próprio artista (evita músicas de artistas vizinhos da navegação).
+ * No UG o filtro por prefixo não se aplica (URLs tabs.ultimate-guitar.com) —
+ * o próprio extrator já retorna só cifras do artista consultado.
+ */
+export interface DiscoverArtistSongLinksOptions {
+  /** Corte máximo de links (0/undefined = todos — usado pelo descobridor). */
+  limit?: number;
+  /** Atraso entre fetch de páginas de catálogo (ms). */
+  delayMs?: number;
+  /** Corta por tempo (ms) — 0/undefined = sem corte. */
+  timeoutMs?: number;
+}
+
+export async function discoverArtistSongLinks(
+  pageUrl: string,
+  options: DiscoverArtistSongLinksOptions = {}
+): Promise<ScrapedLink[]> {
+  let url = normalizeUrl(pageUrl);
+  const pathname = new URL(url).pathname;
+  const firstSeg = pathname.split('/').filter(Boolean)[0] || '';
+  const segs = pathname.split('/').filter(Boolean);
+  const lastSeg = segs[segs.length - 1] || '';
+
+  // Normaliza a URL de entrada para a RAIZ do artista (é ela que lista o
+  // catálogo completo) em dois casos:
+  //  1. A URL JÁ é o catálogo (/artista/musicas.html): o filtro de
+  //     profundidade do discoverSongLinks descartaria TODAS as músicas
+  //     (mesma profundidade do catálogo) — a raiz tem profundidade 1.
+  //  2. A URL é uma página de MÚSICA (CifraClub: /artista/musica/): a página
+  //     não lista o catálogo nem links de outras músicas no HTML — subimos
+  //     para a raiz do artista (mesmo primeiro segmento) e varremos dela.
+  if (firstSeg && /cifraclub/i.test(new URL(url).hostname)) {
+    const isCatalogPage = /^musicas\.html?$/i.test(lastSeg);
+    const isSongOrSubPage = segs.length >= 2 && !isCatalogPage;
+    if (isCatalogPage || isSongOrSubPage) {
+      // Caminho absoluto (com barra inicial): um caminho RELATIVO resolveria
+      // contra o último segmento da base e viraria /artista/artista/ (404).
+      url = new URL('/' + firstSeg + '/', url).href;
+    }
+  }
+
+  const startedAt = Date.now();
+  const html = await fetchHtml(url);
+  const links = discoverSongLinks(html, url);
+  const isUltimateGuitar = new URL(url).hostname.includes('ultimate-guitar');
+
+  // Completa com o CATÁLOGO COMPLETO do artista (CifraClub: /musicas.html;
+  // Ultimate-Guitar: paginação do js-store).
+  const catalogUrls = isUltimateGuitar
+    ? discoverUltimateGuitarNextPages(html, url)
+    : discoverCatalogUrls(html, url);
+  // Filtro pelo ARTISTA: usa o PRIMEIRO segmento da URL base — cobre a raiz
+  // (/roberto-carlos/) E páginas de música (/roberto-carlos/detalhes/).
+  const artistPrefix = firstSeg ? `/${firstSeg}` : '';
+  const seenUrls = new Set(links.map((l) => l.url));
+
+  for (const catalogUrl of catalogUrls) {
+    if (options.timeoutMs && Date.now() - startedAt > options.timeoutMs) break;
+    // Já temos links suficientes? Não busca mais páginas (evita requests
+    // desperdiçados em testes/limites pequenos).
+    if (options.limit && links.length >= options.limit) break;
+    try {
+      const catHtml = await fetchHtml(catalogUrl);
+      const catLinks = discoverSongLinks(catHtml, url).filter((l) => {
+        if (isUltimateGuitar) return true;
+        const p = new URL(l.url).pathname.replace(/\/$/, '');
+        // Só links DENTRO do catálogo do próprio artista (evita prefixo
+        // comum falso-positivo: /chitaozinho-e-xororo2/musica/ não passa).
+        return p === artistPrefix || p.startsWith(artistPrefix + '/');
+      });
+      for (const l of catLinks) {
+        if (!seenUrls.has(l.url)) {
+          seenUrls.add(l.url);
+          links.push(l);
+        }
+      }
+    } catch {
+      // catálogo indisponível — segue com o que já tem
+    }
+    if (options.delayMs) await new Promise((r) => setTimeout(r, options.delayMs));
+  }
+
+  return options.limit ? links.slice(0, options.limit) : links;
+}
+
+/**
  * Scrape de todas as músicas de um artista/página de lista.
- * - Descobre os links na página
- * - Se houver filtro alfabético (A-Z), varre as sub-páginas para capturar o
- *   CATÁLOGO COMPLETO do artista (CifraClub lista só uma parte na página raiz)
+ * - Descobre o CATÁLOGO COMPLETO (raiz + /musicas.html) via discoverArtistSongLinks
  * - Processa cada música com delay educado
  * - Ignora duplicados existentes (por título+artista)
  * Retorna { songs, errors, totalEncontradas, duplicadosIgnorados }
@@ -1168,52 +1281,8 @@ export async function scrapeArtistPage(
   const startedAt = Date.now();
   const url = normalizeUrl(pageUrl);
 
-  const html = await fetchHtml(url);
-  const links = discoverSongLinks(html, url);
-  const isUltimateGuitar = new URL(url).hostname.includes('ultimate-guitar');
-
-  // Completa com o CATÁLOGO COMPLETO do artista (CifraClub: /musicas.html
-  // lista todas as músicas; a raiz mostra só as principais). No Ultimate-
-  // Guitar, a paginação do js-store (pagination.pages) cobre as ~6 páginas.
-  const catalogUrls = isUltimateGuitar
-    ? discoverUltimateGuitarNextPages(html, url)
-    : discoverCatalogUrls(html, url);
-  const artistPrefix = new URL(url).pathname.replace(/\/$/, '');
-  const seenUrls = new Set(links.map((l) => l.url));
-  for (const catalogUrl of catalogUrls) {
-    if (timeoutMs > 0 && Date.now() - startedAt > timeoutMs) break;
-    // Já temos links suficientes? Não busca mais páginas (evita requests
-    // desperdiçados em testes/limites pequenos).
-    if (links.length >= limit) break;
-    try {
-      const catHtml = await fetchHtml(catalogUrl);
-      // BUGFIX: o catálogo (/artista/musicas.html) TEM profundidade 2, e as
-      // músicas também têm 2 — usar a URL do catálogo como base faz o filtro
-      // `parts.length <= baseDepth` descartar TODAS as músicas. Usamos a raiz
-      // do ARTISTA (profundidade 1) como base e filtramos só links do próprio
-      // artista (evita trazer músicas de artistas vizinhos da navegação). No
-      // UG o filtro por prefixo não se aplica (as URLs são tabs.ultimate-
-      // guitar.com/tab/{artista}/...) — o próprio extrator já só retorna
-      // cifras do artista da página consultada.
-      const catLinks = discoverSongLinks(catHtml, url).filter((l) => {
-        if (isUltimateGuitar) return true;
-        const p = new URL(l.url).pathname.replace(/\/$/, '');
-        // Só links DENTRO do catálogo do próprio artista (evita prefixo
-        // comum falso-positivo: /chitaozinho-e-xororo2/musica/ não passa).
-        return p === artistPrefix || p.startsWith(artistPrefix + '/');
-      });
-      for (const l of catLinks) {
-        if (!seenUrls.has(l.url)) {
-          seenUrls.add(l.url);
-          links.push(l);
-        }
-      }
-    } catch {
-      // catálogo indisponível — segue com o que já tem
-    }
-    if (delayMs > 0) await new Promise((r) => setTimeout(r, delayMs));
-  }
-
+  // Descobre raiz + catálogo completo numa função só (com limite e timeout).
+  const links = await discoverArtistSongLinks(url, { limit, delayMs, timeoutMs });
   const cappedLinks = links.slice(0, limit);
 
   const songs: Song[] = [];
@@ -1268,4 +1337,88 @@ export async function scrapeArtistPage(
 /** Expõe os acordes detectados (para preview). */
 export function detectChordsOfContent(content: string): string[] {
   return extractUniqueChords(content, 0);
+}
+
+/**
+ * Idioma da plataforma de origem, pelo hostname — espelha o lang que o cron
+ * aplica (cifraclub→pt, ufret→ja, guitaretab→multi, ukutabs→en). As sugestões
+ * da home filtram por idioma da interface, então cada música importada deve
+ * carregar o lang de onde veio.
+ */
+export function inferPlatformLang(url: string): string | undefined {
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+    if (host.includes('cifraclub')) return 'pt';
+    if (host.includes('ufret')) return 'ja';
+    if (host.includes('guitaretab')) return 'multi';
+    if (host.includes('ukutabs')) return 'en';
+    if (host.includes('ultimate-guitar')) return 'en';
+  } catch {
+    // URL inválida
+  }
+  return undefined;
+}
+
+export interface ScrapeLinksChunkOptions {
+  /** Índice inicial dentro da lista de links (0 = primeira música). */
+  offset?: number;
+  /** Quantas músicas processar nesta chamada (padrão 6). */
+  count?: number;
+  /** Atraso educado entre músicas (ms). */
+  delayMs?: number;
+  /** Idioma da plataforma de origem (aplicado às músicas sem lang). */
+  lang?: string;
+}
+
+export interface ScrapeLinksChunkResult {
+  /** Tamanho total do catálogo (para o cliente calcular o progresso). */
+  total: number;
+  offset: number;
+  count: number;
+  songs: Song[];
+  errors: { url: string; error: string }[];
+}
+
+/**
+ * Processa uma FAIXA do catálogo de um artista (usado pelo importador em
+ * lote da área admin). Cada chamada processa `count` links com:
+ *  - variantes simplificadas ("Título (Simplificada)" quando existem);
+ *  - delay educado entre músicas (não bombardeia o site de origem);
+ *  - filtro de lixo (artista/título inválidos) e idioma da plataforma.
+ * Retorna as músicas prontas + erros + o total do catálogo, para o cliente
+ * avançar o offset até concluir. Idempotente: o cliente deduplica antes de
+ * salvar, então interromper e retomar não duplica nada.
+ */
+export async function scrapeLinksChunk(
+  links: ScrapedLink[],
+  options: ScrapeLinksChunkOptions = {}
+): Promise<ScrapeLinksChunkResult> {
+  const offset = Math.max(0, options.offset || 0);
+  const count = Math.max(1, Math.min(options.count || 6, 12));
+  const slice = links.slice(offset, offset + count);
+  const songs: Song[] = [];
+  const errors: { url: string; error: string }[] = [];
+
+  for (let i = 0; i < slice.length; i++) {
+    const link = slice[i];
+    try {
+      // Uma música pode gerar MAIS de uma entrada: a original + a
+      // SIMPLIFICADA ("Título (Simplificada)") quando o CifraClub a oferece.
+      const variants = await scrapeSongWithVariants(link.url);
+      for (const s of variants) {
+        // Rede de segurança: trecho de cifra nunca vira artista/título
+        if (isJunkArtistName(s.artist) || isJunkTitle(s.title)) continue;
+        if (options.lang && !s.lang) s.lang = options.lang;
+        songs.push(s);
+      }
+    } catch (e: any) {
+      errors.push({ url: link.url, error: e?.message || 'Erro desconhecido' });
+    }
+
+    if (i < slice.length - 1 && options.delayMs) {
+      await new Promise((r) => setTimeout(r, options.delayMs));
+    }
+  }
+
+  return { total: links.length, offset, count: slice.length, songs, errors };
 }

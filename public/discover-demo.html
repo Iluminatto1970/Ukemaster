@@ -1,0 +1,2526 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Descobridor corrigido — Roberto Carlos (617 músicas)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: #0d1117; color: #e6edf3; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: #8b949e; font-size: 13px; margin-bottom: 20px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 14px 16px; }
+  .card .num { font-size: 26px; font-weight: 800; }
+  .card .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #8b949e; margin-top: 2px; }
+  .card.good .num { color: #3fb950; }
+  .card.bad .num { color: #f85149; }
+  .card.warn .num { color: #d29922; }
+  .note { background: #161b22; border: 1px solid #30363d; border-left: 3px solid #3fb950; border-radius: 8px; padding: 12px 14px; font-size: 12.5px; line-height: 1.6; color: #c9d1d9; margin-bottom: 24px; }
+  .note b { color: #e6edf3; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li { display: flex; align-items: baseline; gap: 10px; padding: 7px 10px; border-bottom: 1px solid #21262d; font-size: 13px; }
+  li:hover { background: #161b22; }
+  a { color: #58a6ff; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .artist { color: #8b949e; font-size: 11.5px; }
+  .count { font-size: 12px; color: #8b949e; margin: 16px 0 8px; }
+  .pill { display: inline-block; background: #1f6feb22; border: 1px solid #1f6feb66; color: #58a6ff; border-radius: 999px; padding: 2px 10px; font-size: 11px; font-weight: 600; margin-left: 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🎸 Descobridor de Músicas — Roberto Carlos <span class="pill">CifraClub</span></h1>
+  <p class="sub">Relatório gerado a partir do endpoint real <code>/api/scrape</code> (local) com a correção aplicada — dados 100% reais, sem simulação.</p>
+
+  <div class="cards">
+    <div class="card good"><div class="num">617</div><div class="lbl">Músicas descobertas agora</div></div>
+    <div class="card bad"><div class="num">25</div><div class="lbl">Antes (só página raiz)</div></div>
+    <div class="card good"><div class="num">617</div><div class="lbl">Links únicos</div></div>
+    <div class="card warn"><div class="num">0</div><div class="lbl">Lixo (instrument/autoplay)</div></div>
+  </div>
+
+  <div class="note">
+    <b>O que estava errado:</b> a descoberta varria apenas a página raiz do artista
+    (<code>/roberto-carlos/</code>), que mostra só as ~15 músicas "populares" — por isso o sistema
+    achava 25. <b>A correção:</b> a descoberta agora varre também o catálogo completo
+    (<code>/roberto-carlos/musicas.html</code> — as ~617 músicas do CifraClub), mescla com a raiz,
+    deduplica por URL e filtra lixo (<code>?instrument=</code>, <code>#autoplay</code>, variantes
+    <code>simplificada</code>). O mesmo fluxo vale para o cron diário e para o importador da área admin.
+  </div>
+
+  <p class="count">Lista completa (617 músicas):</p>
+  <ul>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/como-grande-meu-amor-por-voce/" target="_blank" rel="noopener">Como Grande Meu Amor Por Voce</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/de-tanto-amor/" target="_blank" rel="noopener">De Tanto Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/meu-querido-meu-velho-meu-amigo/" target="_blank" rel="noopener">Meu Querido Meu Velho Meu Amigo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/amor-perfeito/" target="_blank" rel="noopener">Amor Perfeito</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/outra-vez/" target="_blank" rel="noopener">Outra Vez</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/como-vai-voce/" target="_blank" rel="noopener">Como Vai Voce</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/detalhes/" target="_blank" rel="noopener">Detalhes</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/se-voce-pensa/" target="_blank" rel="noopener">Se Voce Pensa</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/amada-amante/" target="_blank" rel="noopener">Amada Amante</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/e-preciso-saber-viver/" target="_blank" rel="noopener">E Preciso Saber Viver</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/amor-sem-limites/" target="_blank" rel="noopener">Amor Sem Limites</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-portao/" target="_blank" rel="noopener">O Portao</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/jesus-cristo/" target="_blank" rel="noopener">Jesus Cristo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/debaixo-dos-caracois-dos-seus-cabelos/" target="_blank" rel="noopener">Debaixo Dos Caracois Dos Seus Cabelos</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/como-dois-dois/" target="_blank" rel="noopener">Como Dois Dois</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/esse-cara-sou-eu/" target="_blank" rel="noopener">Esse Cara Sou Eu</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/a-mulher-que-eu-amo/" target="_blank" rel="noopener">A Mulher Que Eu Amo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/estilos/jovem-guarda/" target="_blank" rel="noopener">Jovem Guarda</a>
+        <span class="artist">Estilos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/120150200-km-por-hora/" target="_blank" rel="noopener">120150200 Km Por Hora</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/120150-200-km-por-hora/" target="_blank" rel="noopener">120150 200 Km Por Hora</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/a-janela/" target="_blank" rel="noopener">A Janela</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/as-vezes-penso/" target="_blank" rel="noopener">As Vezes Penso</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/aguia-dourada/" target="_blank" rel="noopener">Aguia Dourada</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/e-meu-e-meu-e-meu/" target="_blank" rel="noopener">E Meu E Meu E Meu</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/e-meu-meu-meu/" target="_blank" rel="noopener">E Meu Meu Meu</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/e-papo-firme/" target="_blank" rel="noopener">E Papo Firme</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/-preciso-ser-assim/" target="_blank" rel="noopener"> Preciso Ser Assim</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/e-proibido-fumar/" target="_blank" rel="noopener">E Proibido Fumar</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/e-tempo-de-amar/" target="_blank" rel="noopener">E Tempo De Amar</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/india/" target="_blank" rel="noopener">India</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/a-atriz/" target="_blank" rel="noopener">A Atriz</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/a-che-serve-volare/" target="_blank" rel="noopener">A Che Serve Volare</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/a-cigana/" target="_blank" rel="noopener">A Cigana</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/a-cor-do-amor/" target="_blank" rel="noopener">A Cor Do Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/a-deusa-da-minha-rua/" target="_blank" rel="noopener">A Deusa Da Minha Rua</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/a-distancia/" target="_blank" rel="noopener">A Distancia</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/a-estacao/" target="_blank" rel="noopener">A Estacao</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/a-garota-do-baile/" target="_blank" rel="noopener">A Garota Do Baile</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/a-guerra-dos-meninos/" target="_blank" rel="noopener">A Guerra Dos Meninos</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/a-ilha/" target="_blank" rel="noopener">A Ilha</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/a-menina-e-o-poeta/" target="_blank" rel="noopener">A Menina E O Poeta</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/a-menina-o-poeta/" target="_blank" rel="noopener">A Menina O Poeta</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/a-montanha/" target="_blank" rel="noopener">A Montanha</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/a-namorada/" target="_blank" rel="noopener">A Namorada</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/a-namoradinha-de-um-amigo-meu/" target="_blank" rel="noopener">A Namoradinha De Um Amigo Meu</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/a-palavra-adeus/" target="_blank" rel="noopener">A Palavra Adeus</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/a-partir-desse-instante/" target="_blank" rel="noopener">A Partir Desse Instante</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/a-partir-deste-instante/" target="_blank" rel="noopener">A Partir Deste Instante</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/a-primeira-vez/" target="_blank" rel="noopener">A Primeira Vez</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/a-volta/" target="_blank" rel="noopener">A Volta</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/a-la-antigua/" target="_blank" rel="noopener">A La Antigua</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/abandono/" target="_blank" rel="noopener">Abandono</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/abre-las-ventanas-al-amor/" target="_blank" rel="noopener">Abre Las Ventanas Al Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/abrazame-asi/" target="_blank" rel="noopener">Abrazame Asi</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/acalanto/" target="_blank" rel="noopener">Acalanto</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/aceito-seu-coracao/" target="_blank" rel="noopener">Aceito Seu Coracao</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/acrostico/" target="_blank" rel="noopener">Acrostico</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/actitudes/" target="_blank" rel="noopener">Actitudes</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/adios/" target="_blank" rel="noopener">Adios</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/agora-eu-sei/" target="_blank" rel="noopener">Agora Eu Sei</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/ahora-yo-se/" target="_blank" rel="noopener">Ahora Yo Se</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/ai-que-saudades-da-amelia/" target="_blank" rel="noopener">Ai Que Saudades Da Amelia</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/aleluia/" target="_blank" rel="noopener">Aleluia</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/aleluya/" target="_blank" rel="noopener">Aleluya</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/alem-do-horizonte/" target="_blank" rel="noopener">Alem Do Horizonte</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/alo/" target="_blank" rel="noopener">Alo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/amami-e-non-pensare-a-niente/" target="_blank" rel="noopener">Amami E Non Pensare A Niente</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/amanheceu/" target="_blank" rel="noopener">Amanheceu</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/amanha-de-manha/" target="_blank" rel="noopener">Amanha De Manha</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/amante-a-la-antigua/" target="_blank" rel="noopener">Amante A La Antigua</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/amante-moda-antiga/" target="_blank" rel="noopener">Amante Moda Antiga</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/amapola/" target="_blank" rel="noopener">Amapola</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/amate-a-la-antigua/" target="_blank" rel="noopener">Amate A La Antigua</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/amazonia/" target="_blank" rel="noopener">Amazonia</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/amiga/" target="_blank" rel="noopener">Amiga</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/amigo/" target="_blank" rel="noopener">Amigo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/amigos-amigos/" target="_blank" rel="noopener">Amigos Amigos</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/amor-perfecto/" target="_blank" rel="noopener">Amor Perfecto</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/amor-sem-limite/" target="_blank" rel="noopener">Amor Sem Limite</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/amor-de-estudiante/" target="_blank" rel="noopener">Amor De Estudiante</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/amor-sin-limite/" target="_blank" rel="noopener">Amor Sin Limite</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/ana/" target="_blank" rel="noopener">Ana</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/antigamente-era-assim/" target="_blank" rel="noopener">Antigamente Era Assim</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/apocalipse/" target="_blank" rel="noopener">Apocalipse</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/apocalipsis/" target="_blank" rel="noopener">Apocalipsis</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/aquela-casa-simples/" target="_blank" rel="noopener">Aquela Casa Simples</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/aquele-beijo-que-te-dei/" target="_blank" rel="noopener">Aquele Beijo Que Te Dei</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/ar-de-moco-bom/" target="_blank" rel="noopener">Ar De Moco Bom</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/arrasta-uma-cadeira/" target="_blank" rel="noopener">Arrasta Uma Cadeira</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/arrastra-una-silla/" target="_blank" rel="noopener">Arrastra Una Silla</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/as-baleias/" target="_blank" rel="noopener">As Baleias</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/as-canes-que-voc-fez-pra-mim/" target="_blank" rel="noopener">As Canes Que Voc Fez Pra Mim</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/as-cancoes-que-voce-fez-pra-mim/" target="_blank" rel="noopener">As Cancoes Que Voce Fez Pra Mim</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/as-curvas-da-estrada-de-santos/" target="_blank" rel="noopener">As Curvas Da Estrada De Santos</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/as-flores-do-jardim-da-nossa-casa/" target="_blank" rel="noopener">As Flores Do Jardim Da Nossa Casa</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/as-mesmas-coisas/" target="_blank" rel="noopener">As Mesmas Coisas</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/atitudes/" target="_blank" rel="noopener">Atitudes</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/ave-maria-franz-schubert/" target="_blank" rel="noopener">Ave Maria Franz Schubert</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/aventuras/" target="_blank" rel="noopener">Aventuras</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/baby-meu-bem/" target="_blank" rel="noopener">Baby Meu Bem</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/ballenas/" target="_blank" rel="noopener">Ballenas</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/breakfast/" target="_blank" rel="noopener">Breakfast</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/broto-do-jacare/" target="_blank" rel="noopener">Broto Do Jacare</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/brucutu/" target="_blank" rel="noopener">Brucutu</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/buttons-on-your-blouse/" target="_blank" rel="noopener">Buttons On Your Blouse</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/c-est-fini-il-faut-se-dire-adieu/" target="_blank" rel="noopener">C Est Fini Il Faut Se Dire Adieu</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/cabalgata/" target="_blank" rel="noopener">Cabalgata</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/cafe-da-manha-/" target="_blank" rel="noopener">Cafe Da Manha </a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/cama-mesa/" target="_blank" rel="noopener">Cama Mesa</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/cama-y-mesa/" target="_blank" rel="noopener">Cama Y Mesa</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/caminhoneiro/" target="_blank" rel="noopener">Caminhoneiro</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/camionero/" target="_blank" rel="noopener">Camionero</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/candilegas/" target="_blank" rel="noopener">Candilegas</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/candilejas/" target="_blank" rel="noopener">Candilejas</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/canzone-per-te/" target="_blank" rel="noopener">Canzone Per Te</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/cancao-do-sonho-bom/" target="_blank" rel="noopener">Cancao Do Sonho Bom</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/carnavalito/" target="_blank" rel="noopener">Carnavalito</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/cartas-de-amor/" target="_blank" rel="noopener">Cartas De Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/cavalgada/" target="_blank" rel="noopener">Cavalgada</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/cenario/" target="_blank" rel="noopener">Cenario</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/chegaste/" target="_blank" rel="noopener">Chegaste</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/cheirosa/" target="_blank" rel="noopener">Cheirosa</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/chore-por-mim/" target="_blank" rel="noopener">Chore Por Mim</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/chorei/" target="_blank" rel="noopener">Chorei</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/ciume-de-voce/" target="_blank" rel="noopener">Ciume De Voce</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/coimbra/" target="_blank" rel="noopener">Coimbra</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/coisa-bonita/" target="_blank" rel="noopener">Coisa Bonita</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/coisas-que-nao-se-esquece/" target="_blank" rel="noopener">Coisas Que Nao Se Esquece</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/coisas-do-coracao/" target="_blank" rel="noopener">Coisas Do Coracao</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/com-muito-amor-e-carinho/" target="_blank" rel="noopener">Com Muito Amor E Carinho</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/com-muito-amor-carinho/" target="_blank" rel="noopener">Com Muito Amor Carinho</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/come-to-me-tonight/" target="_blank" rel="noopener">Come To Me Tonight</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/comentarios/" target="_blank" rel="noopener">Comentarios</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/como-as-ondas-voltam-para-mar/" target="_blank" rel="noopener">Como As Ondas Voltam Para Mar</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/como-dois-e-dois/" target="_blank" rel="noopener">Como Dois E Dois</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/como-es-grande-mi-amor-por-ti/" target="_blank" rel="noopener">Como Es Grande Mi Amor Por Ti</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/como-foi/" target="_blank" rel="noopener">Como Foi</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/como-bom-saber/" target="_blank" rel="noopener">Como Bom Saber</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/como-possivel/" target="_blank" rel="noopener">Como Possivel</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/concavo-e-o-convexo/" target="_blank" rel="noopener">Concavo E O Convexo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/concavo-y-convexo/" target="_blank" rel="noopener">Concavo Y Convexo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/confesion/" target="_blank" rel="noopener">Confesion</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/confissao/" target="_blank" rel="noopener">Confissao</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/contradicciones/" target="_blank" rel="noopener">Contradicciones</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/contradicoes/" target="_blank" rel="noopener">Contradicoes</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/coqueiro-verde/" target="_blank" rel="noopener">Coqueiro Verde</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/coracao/" target="_blank" rel="noopener">Coracao</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/coracao-sertanejo/" target="_blank" rel="noopener">Coracao Sertanejo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/coracao-de-jesus/" target="_blank" rel="noopener">Coracao De Jesus</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/corro-demais/" target="_blank" rel="noopener">Corro Demais</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/cosas-de-la-vida/" target="_blank" rel="noopener">Cosas De La Vida</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/costumbres/" target="_blank" rel="noopener">Costumbres</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/costumes/" target="_blank" rel="noopener">Costumes</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/cuando-yo-quiero-hablar-con-dios/" target="_blank" rel="noopener">Cuando Yo Quiero Hablar Con Dios</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/custe-que-custar/" target="_blank" rel="noopener">Custe Que Custar</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/da-boca-pra-fora/" target="_blank" rel="noopener">Da Boca Pra Fora</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/de-coracao-pra-coracao/" target="_blank" rel="noopener">De Coracao Pra Coracao</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/de-manana-mi-amor/" target="_blank" rel="noopener">De Manana Mi Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/de-que-vale-tudo-isso/" target="_blank" rel="noopener">De Que Vale Tudo Isso</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/de-corazon-a-corazon/" target="_blank" rel="noopener">De Corazon A Corazon</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/de-repente-el-amor/" target="_blank" rel="noopener">De Repente El Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/debaixo-dos-caracois-dos-seus-cabelos-2/" target="_blank" rel="noopener">Debaixo Dos Caracois Dos Seus Cabelos 2</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/desabafo-2/" target="_blank" rel="noopener">Desabafo 2</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/desabafo/" target="_blank" rel="noopener">Desabafo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/desahogo/" target="_blank" rel="noopener">Desahogo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/desamarre-meu-coracao/" target="_blank" rel="noopener">Desamarre Meu Coracao</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/desde-el-fondo-de-mi-corazon/" target="_blank" rel="noopener">Desde El Fondo De Mi Corazon</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/desenhos-na-parede/" target="_blank" rel="noopener">Desenhos Na Parede</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/despedida/" target="_blank" rel="noopener">Despedida</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/detalles/" target="_blank" rel="noopener">Detalles</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/detras-del-horizonte/" target="_blank" rel="noopener">Detras Del Horizonte</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/diga-me-coisas-bonitas/" target="_blank" rel="noopener">Diga Me Coisas Bonitas</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/dime/" target="_blank" rel="noopener">Dime</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/dito-e-feito/" target="_blank" rel="noopener">Dito E Feito</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/dizem-que-um-homem-nao-deve-chorar/" target="_blank" rel="noopener">Dizem Que Um Homem Nao Deve Chorar</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/do-fundo-do-meu-corao/" target="_blank" rel="noopener">Do Fundo Do Meu Corao</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/do-fundo-do-meu-coracao/" target="_blank" rel="noopener">Do Fundo Do Meu Coracao</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/do-outro-lado-da-cidade/" target="_blank" rel="noopener">Do Outro Lado Da Cidade</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/doce-loucura/" target="_blank" rel="noopener">Doce Loucura</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/e-nao-vou-mais-deixar-voce-tao-so/" target="_blank" rel="noopener">E Nao Vou Mais Deixar Voce Tao So</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/e-por-isso-estou-aqui/" target="_blank" rel="noopener">E Por Isso Estou Aqui</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/el-amor-y-la-moda/" target="_blank" rel="noopener">El Amor Y La Moda</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/el-ao-pasado/" target="_blank" rel="noopener">El Ao Pasado</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/el-ano-passado/" target="_blank" rel="noopener">El Ano Passado</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/el-cuerpo/" target="_blank" rel="noopener">El Cuerpo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/el-dia-que-me-quieras/" target="_blank" rel="noopener">El Dia Que Me Quieras</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/el-esta-al-llegar/" target="_blank" rel="noopener">El Esta Al Llegar</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/el-gato-en-la-oscuridad/" target="_blank" rel="noopener">El Gato En La Oscuridad</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/el-gato-triste-y-azul/" target="_blank" rel="noopener">El Gato Triste Y Azul</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/el-hombre/" target="_blank" rel="noopener">El Hombre</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/el-humahuaqueo/" target="_blank" rel="noopener">El Humahuaqueo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/el-porton/" target="_blank" rel="noopener">El Porton</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/el-progeso/" target="_blank" rel="noopener">El Progeso</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/el-gato-que-esta-triste-y-azul/" target="_blank" rel="noopener">El Gato Que Esta Triste Y Azul</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/el-jardin-del-vecino/" target="_blank" rel="noopener">El Jardin Del Vecino</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/el-show-ya-termino/" target="_blank" rel="noopener">El Show Ya Termino</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/elas-por-elas/" target="_blank" rel="noopener">Elas Por Elas</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/ele-esta-pra-chegar/" target="_blank" rel="noopener">Ele Esta Pra Chegar</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/em-tempo-certo/" target="_blank" rel="noopener">Em Tempo Certo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/emociones/" target="_blank" rel="noopener">Emociones</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/emocoes/" target="_blank" rel="noopener">Emocoes</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/enamorada-de-un-amigo-mio/" target="_blank" rel="noopener">Enamorada De Un Amigo Mio</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/entre-candilejas/" target="_blank" rel="noopener">Entre Candilejas</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/esa-mujer/" target="_blank" rel="noopener">Esa Mujer</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/escreva-uma-carta-meu-amor/" target="_blank" rel="noopener">Escreva Uma Carta Meu Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/ese-tipo-soy-yo/" target="_blank" rel="noopener">Ese Tipo Soy Yo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/esperando-voce/" target="_blank" rel="noopener">Esperando Voce</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/esperando-un-bebe/" target="_blank" rel="noopener">Esperando Un Bebe</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/esqueca-/" target="_blank" rel="noopener">Esqueca </a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/esta-tarde-vi-llover/" target="_blank" rel="noopener">Esta Tarde Vi Llover</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/estou-aqui/" target="_blank" rel="noopener">Estou Aqui</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/estoy-aqui/" target="_blank" rel="noopener">Estoy Aqui</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/estas-tan-linda/" target="_blank" rel="noopener">Estas Tan Linda</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eternamente/" target="_blank" rel="noopener">Eternamente</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-amo-demais/" target="_blank" rel="noopener">Eu Amo Demais</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-daria-minha-vida/" target="_blank" rel="noopener">Eu Daria Minha Vida</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-disse-adeus/" target="_blank" rel="noopener">Eu Disse Adeus</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-e-ela/" target="_blank" rel="noopener">Eu E Ela</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-estou-apaixonado-por-voce/" target="_blank" rel="noopener">Eu Estou Apaixonado Por Voce</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-me-recordo/" target="_blank" rel="noopener">Eu Me Recordo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-me-vi-tao-so/" target="_blank" rel="noopener">Eu Me Vi Tao So</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-nunca-amei-alguem-como-eu-te-amei/" target="_blank" rel="noopener">Eu Nunca Amei Alguem Como Eu Te Amei</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-nao-vou-mais-deixar-voce-tao-so/" target="_blank" rel="noopener">Eu Nao Vou Mais Deixar Voce Tao So</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-preciso-desse-amor/" target="_blank" rel="noopener">Eu Preciso Desse Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-preciso-de-voce/" target="_blank" rel="noopener">Eu Preciso De Voce</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-quero-apenas/" target="_blank" rel="noopener">Eu Quero Apenas</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-quero-voltar-pra-voce/" target="_blank" rel="noopener">Eu Quero Voltar Pra Voce</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-sei-que-vou-te-amar/" target="_blank" rel="noopener">Eu Sei Que Vou Te Amar</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-sem-voce/" target="_blank" rel="noopener">Eu Sem Voce</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-sou-fa-do-monoquini/" target="_blank" rel="noopener">Eu Sou Fa Do Monoquini</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-sou-terrivel/" target="_blank" rel="noopener">Eu Sou Terrivel</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-so-tenho-um-caminho/" target="_blank" rel="noopener">Eu So Tenho Um Caminho</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-te-adoro-meu-amor/" target="_blank" rel="noopener">Eu Te Adoro Meu Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-te-amo/" target="_blank" rel="noopener">Eu Te Amo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-te-amo-tanto/" target="_blank" rel="noopener">Eu Te Amo Tanto</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-te-amo-te-amo-te-amo/" target="_blank" rel="noopener">Eu Te Amo Te Amo Te Amo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-te-darei-ceu/" target="_blank" rel="noopener">Eu Te Darei Ceu</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-vou-sempre-amar-voce/" target="_blank" rel="noopener">Eu Vou Sempre Amar Voce</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/eu-ela/" target="_blank" rel="noopener">Eu Ela</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/evidencias/" target="_blank" rel="noopener">Evidencias</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/existe-algo-errado/" target="_blank" rel="noopener">Existe Algo Errado</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/falando-serio/" target="_blank" rel="noopener">Falando Serio</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/fera-ferida/" target="_blank" rel="noopener">Fera Ferida</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/festa-de-arromba/" target="_blank" rel="noopener">Festa De Arromba</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/fiera-herida/" target="_blank" rel="noopener">Fiera Herida</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/filho-unico/" target="_blank" rel="noopener">Filho Unico</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/fim-de-amor/" target="_blank" rel="noopener">Fim De Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/fim-de-semana/" target="_blank" rel="noopener">Fim De Semana</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/fiquei-tao-triste/" target="_blank" rel="noopener">Fiquei Tao Triste</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/flor-maior/" target="_blank" rel="noopener">Flor Maior</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/folhas-de-outono/" target="_blank" rel="noopener">Folhas De Outono</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/forca-estranha/" target="_blank" rel="noopener">Forca Estranha</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/furduncio/" target="_blank" rel="noopener">Furduncio</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/fe/" target="_blank" rel="noopener">Fe</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/garota-de-ipanema-part-caetano-veloso/" target="_blank" rel="noopener">Garota De Ipanema Part Caetano Veloso</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/gatinha-manhosa/" target="_blank" rel="noopener">Gatinha Manhosa</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/gosto-do-jeitinho-dela/" target="_blank" rel="noopener">Gosto Do Jeitinho Dela</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/hablando-en-serio/" target="_blank" rel="noopener">Hablando En Serio</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/hacerte-mi-mujer/" target="_blank" rel="noopener">Hacerte Mi Mujer</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/historia-de-um-homem-mau/" target="_blank" rel="noopener">Historia De Um Homem Mau</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/hoje-e-domingo/" target="_blank" rel="noopener">Hoje E Domingo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/i-love-you/" target="_blank" rel="noopener">I Love You</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/ilegal-imoral-ou-engorda/" target="_blank" rel="noopener">Ilegal Imoral Ou Engorda</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/ilegal-inmoral-o-engorda/" target="_blank" rel="noopener">Ilegal Inmoral O Engorda</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/ingenuo-y-sonador-ingenuo-e-sonhador/" target="_blank" rel="noopener">Ingenuo Y Sonador Ingenuo E Sonhador</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/ingenuo-e-sonhador/" target="_blank" rel="noopener">Ingenuo E Sonhador</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/ingenuo-sonhador/" target="_blank" rel="noopener">Ingenuo Sonhador</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/inolvidable/" target="_blank" rel="noopener">Inolvidable</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/insensatez/" target="_blank" rel="noopener">Insensatez</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/io-ti-darei-il-cielo-eu-te-darei-ou-ceu/" target="_blank" rel="noopener">Io Ti Darei Il Cielo Eu Te Darei Ou Ceu</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/jerusalem-de-ouro/" target="_blank" rel="noopener">Jerusalem De Ouro</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/jesucristo/" target="_blank" rel="noopener">Jesucristo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/jesus-salvador/" target="_blank" rel="noopener">Jesus Salvador</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/jogo-de-damas/" target="_blank" rel="noopener">Jogo De Damas</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/jovens-tardes-de-domingo/" target="_blank" rel="noopener">Jovens Tardes De Domingo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/juego-de-damas/" target="_blank" rel="noopener">Juego De Damas</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/jura-me/" target="_blank" rel="noopener">Jura Me</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/la-carcachita/" target="_blank" rel="noopener">La Carcachita</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/la-distancia/" target="_blank" rel="noopener">La Distancia</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/la-donna-di-un-amico-mio/" target="_blank" rel="noopener">La Donna Di Un Amico Mio</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/la-gitana/" target="_blank" rel="noopener">La Gitana</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/la-ventana/" target="_blank" rel="noopener">La Ventana</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/la-enamorada-de-un-amigo-mio/" target="_blank" rel="noopener">La Enamorada De Un Amigo Mio</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/la-guerra-de-los-ninos/" target="_blank" rel="noopener">La Guerra De Los Ninos</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/la-montana/" target="_blank" rel="noopener">La Montana</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/la-mujer-que-amo/" target="_blank" rel="noopener">La Mujer Que Amo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/la-nina-y-el-poeta/" target="_blank" rel="noopener">La Nina Y El Poeta</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/la-vida-te-ofrece-otras-cosas/" target="_blank" rel="noopener">La Vida Te Ofrece Otras Cosas</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/la-ultima-cancion/" target="_blank" rel="noopener">La Ultima Cancion</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/lady-laura/" target="_blank" rel="noopener">Lady Laura</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/largo-tudo-e-venho-te-buscar/" target="_blank" rel="noopener">Largo Tudo E Venho Te Buscar</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/las-flores-de-tu-jardin/" target="_blank" rel="noopener">Las Flores De Tu Jardin</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/ligia-com-tom-jobim/" target="_blank" rel="noopener">Ligia Com Tom Jobim</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/linda/" target="_blank" rel="noopener">Linda</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/llegaste/" target="_blank" rel="noopener">Llegaste</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/lobo-mau/" target="_blank" rel="noopener">Lobo Mau</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/loco-por-ella/" target="_blank" rel="noopener">Loco Por Ella</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/los-botones/" target="_blank" rel="noopener">Los Botones</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/louco-nao-estou-mais/" target="_blank" rel="noopener">Louco Nao Estou Mais</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/louco-por-voce/" target="_blank" rel="noopener">Louco Por Voce</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/lua-nova/" target="_blank" rel="noopener">Lua Nova</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/lultima-cosa/" target="_blank" rel="noopener">Lultima Cosa</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/luz-divina/" target="_blank" rel="noopener">Luz Divina</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/madrasta/" target="_blank" rel="noopener">Madrasta</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/maior-que-o-meu-amor/" target="_blank" rel="noopener">Maior Que O Meu Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/maior-que-meu-amor/" target="_blank" rel="noopener">Maior Que Meu Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/mais-uma-vez/" target="_blank" rel="noopener">Mais Uma Vez</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/maria-carnaval-e-cinzas/" target="_blank" rel="noopener">Maria Carnaval E Cinzas</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/me-conte-sua-historia/" target="_blank" rel="noopener">Me Conte Sua Historia</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/me-disse-adeus/" target="_blank" rel="noopener">Me Disse Adeus</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/me-quiero-casar-contigo/" target="_blank" rel="noopener">Me Quiero Casar Contigo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/medley/" target="_blank" rel="noopener">Medley</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/menina/" target="_blank" rel="noopener">Menina</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/meu-ciume/" target="_blank" rel="noopener">Meu Ciume</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/meu-coracao-ainda-quer-voce/" target="_blank" rel="noopener">Meu Coracao Ainda Quer Voce</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/meu-ego/" target="_blank" rel="noopener">Meu Ego</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/meu-grande-bem/" target="_blank" rel="noopener">Meu Grande Bem</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/meu-grito/" target="_blank" rel="noopener">Meu Grito</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/meu-menino-jesus/" target="_blank" rel="noopener">Meu Menino Jesus</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/meu-pequeno-cachoeiro/" target="_blank" rel="noopener">Meu Pequeno Cachoeiro</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/meu-querido-meu-velho/" target="_blank" rel="noopener">Meu Querido Meu Velho</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/meus-amores-da-televisao/" target="_blank" rel="noopener">Meus Amores Da Televisao</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/mexericos-da-candinha/" target="_blank" rel="noopener">Mexericos Da Candinha</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/mi-cacharrito/" target="_blank" rel="noopener">Mi Cacharrito</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/mi-fin-de-semana/" target="_blank" rel="noopener">Mi Fin De Semana</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/mi-querido-mi-viejo-mi-amigo/" target="_blank" rel="noopener">Mi Querido Mi Viejo Mi Amigo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/minha-fama-de-mau/" target="_blank" rel="noopener">Minha Fama De Mau</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/minha-historia-de-amor/" target="_blank" rel="noopener">Minha Historia De Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/minha-senhora/" target="_blank" rel="noopener">Minha Senhora</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/minha-tia/" target="_blank" rel="noopener">Minha Tia</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/mis-amores/" target="_blank" rel="noopener">Mis Amores</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/mrsandman/" target="_blank" rel="noopener">Mrsandman</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/mucuripe/" target="_blank" rel="noopener">Mucuripe</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/mudanca/" target="_blank" rel="noopener">Mudanca</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/muito-romantico/" target="_blank" rel="noopener">Muito Romantico</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/mujer/" target="_blank" rel="noopener">Mujer</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/mujer-pequena/" target="_blank" rel="noopener">Mujer Pequena</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/mujer-de-40/" target="_blank" rel="noopener">Mujer De 40</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/mulher-pequena/" target="_blank" rel="noopener">Mulher Pequena</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/mulher-de-40/" target="_blank" rel="noopener">Mulher De 40</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/musica-suave/" target="_blank" rel="noopener">Musica Suave</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/na-lua-nao-ha/" target="_blank" rel="noopener">Na Lua Nao Ha</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/na-paz-do-seu-sorriso/" target="_blank" rel="noopener">Na Paz Do Seu Sorriso</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nada-tenho-a-perder/" target="_blank" rel="noopener">Nada Tenho A Perder</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nada-tenho-perder/" target="_blank" rel="noopener">Nada Tenho Perder</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nada-vai-me-convencer/" target="_blank" rel="noopener">Nada Vai Me Convencer</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/namoradinha-de-um-amigo-meu/" target="_blank" rel="noopener">Namoradinha De Um Amigo Meu</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nasci-pra-chorar/" target="_blank" rel="noopener">Nasci Pra Chorar</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/necesito-de-tu-amor/" target="_blank" rel="noopener">Necesito De Tu Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/necesito-llamar-su-atencion/" target="_blank" rel="noopener">Necesito Llamar Su Atencion</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/negra/" target="_blank" rel="noopener">Negra</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/negro-gato/" target="_blank" rel="noopener">Negro Gato</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nem-mesmo-voce/" target="_blank" rel="noopener">Nem Mesmo Voce</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nem-as-paredes-confesso/" target="_blank" rel="noopener">Nem As Paredes Confesso</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/ninguem-vai-tirar-voce-de-mim/" target="_blank" rel="noopener">Ninguem Vai Tirar Voce De Mim</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/no-mesmo-verao/" target="_blank" rel="noopener">No Mesmo Verao</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/no-te-apartes-de-mi/" target="_blank" rel="noopener">No Te Apartes De Mi</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/no-te-olvides-de-mi/" target="_blank" rel="noopener">No Te Olvides De Mi</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/no-te-puedo-olvidar/" target="_blank" rel="noopener">No Te Puedo Olvidar</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/noite-de-terror/" target="_blank" rel="noopener">Noite De Terror</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nossa-cancao/" target="_blank" rel="noopener">Nossa Cancao</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nossa-senhora/" target="_blank" rel="noopener">Nossa Senhora</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nosso-amor/" target="_blank" rel="noopener">Nosso Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nunca-mais-te-deixarei/" target="_blank" rel="noopener">Nunca Mais Te Deixarei</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nunca-te-esqueci/" target="_blank" rel="noopener">Nunca Te Esqueci</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nao-adianta-186655/" target="_blank" rel="noopener">Nao Adianta 186655</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nao-adianta/" target="_blank" rel="noopener">Nao Adianta</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nao-adianta-nada/" target="_blank" rel="noopener">Nao Adianta Nada</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nao-ha-dinheiro-que-pague/" target="_blank" rel="noopener">Nao Ha Dinheiro Que Pague</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nao-me-deixe/" target="_blank" rel="noopener">Nao Me Deixe</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nao-precisas-chorar/" target="_blank" rel="noopener">Nao Precisas Chorar</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nao-quero-ver-voce-triste/" target="_blank" rel="noopener">Nao Quero Ver Voce Triste</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nao-quero-ver-voce-triste-assim/" target="_blank" rel="noopener">Nao Quero Ver Voce Triste Assim</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nao-se-afaste-de-mim/" target="_blank" rel="noopener">Nao Se Afaste De Mim</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nao-se-esqueca-de-mim/" target="_blank" rel="noopener">Nao Se Esqueca De Mim</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nao-vou-ficar/" target="_blank" rel="noopener">Nao Vou Ficar</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nao--papo-pra-mim/" target="_blank" rel="noopener">Nao Papo Pra Mim</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/nao--por-mim/" target="_blank" rel="noopener">Nao Por Mim</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-amor-e-mais/" target="_blank" rel="noopener">O Amor E Mais</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-amor-mais/" target="_blank" rel="noopener">O Amor Mais</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-amor-e-moda/" target="_blank" rel="noopener">O Amor E Moda</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-amor-a-moda/" target="_blank" rel="noopener">O Amor A Moda</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-ano-passado/" target="_blank" rel="noopener">O Ano Passado</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-astronauta/" target="_blank" rel="noopener">O Astronauta</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-austronauta/" target="_blank" rel="noopener">O Austronauta</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-baile-da-fazenda/" target="_blank" rel="noopener">O Baile Da Fazenda</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-barquinho/" target="_blank" rel="noopener">O Barquinho</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-cadillac/" target="_blank" rel="noopener">O Cadillac</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-calhambeque-road-hog/" target="_blank" rel="noopener">O Calhambeque Road Hog</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-careta/" target="_blank" rel="noopener">O Careta</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-charme-dos-seus-oculos/" target="_blank" rel="noopener">O Charme Dos Seus Oculos</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-concavo-e-o-convexo/" target="_blank" rel="noopener">O Concavo E O Convexo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-concavo-o-convexo/" target="_blank" rel="noopener">O Concavo O Convexo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-dia-dia/" target="_blank" rel="noopener">O Dia Dia</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-diamante-cor-de-rosa/" target="_blank" rel="noopener">O Diamante Cor De Rosa</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-diva/" target="_blank" rel="noopener">O Diva</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-feio/" target="_blank" rel="noopener">O Feio</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-gosto-de-tudo/" target="_blank" rel="noopener">O Gosto De Tudo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-grande-amor-da-minha-vida/" target="_blank" rel="noopener">O Grande Amor Da Minha Vida</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-genio/" target="_blank" rel="noopener">O Genio</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-homem/" target="_blank" rel="noopener">O Homem</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-homem-bom/" target="_blank" rel="noopener">O Homem Bom</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-moco-velho/" target="_blank" rel="noopener">O Moco Velho</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-nosso-amor/" target="_blank" rel="noopener">O Nosso Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-progresso-2/" target="_blank" rel="noopener">O Progresso 2</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-progresso/" target="_blank" rel="noopener">O Progresso</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-que-que-eu-faco/" target="_blank" rel="noopener">O Que Que Eu Faco</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-quintal-do-vizinho/" target="_blank" rel="noopener">O Quintal Do Vizinho</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-show-ja-terminou/" target="_blank" rel="noopener">O Show Ja Terminou</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-sosia/" target="_blank" rel="noopener">O Sosia</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-taxista/" target="_blank" rel="noopener">O Taxista</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-tempo-vai-apagar/" target="_blank" rel="noopener">O Tempo Vai Apagar</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-tempo-o-vento/" target="_blank" rel="noopener">O Tempo O Vento</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-terco/" target="_blank" rel="noopener">O Terco</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-tolo/" target="_blank" rel="noopener">O Tolo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-velho-caminhoneiro/" target="_blank" rel="noopener">O Velho Caminhoneiro</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/o-velho-homem-do-mar/" target="_blank" rel="noopener">O Velho Homem Do Mar</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/obsessao/" target="_blank" rel="noopener">Obsessao</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/oh-meu-imenso-amor/" target="_blank" rel="noopener">Oh Meu Imenso Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/olha/" target="_blank" rel="noopener">Olha</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/olhando-estrelas/" target="_blank" rel="noopener">Olhando Estrelas</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/onde-anda-o-meu-amor/" target="_blank" rel="noopener">Onde Anda O Meu Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/onde-anda-o-meu-grande-amor/" target="_blank" rel="noopener">Onde Anda O Meu Grande Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/oracao-de-um-triste/" target="_blank" rel="noopener">Oracao De Um Triste</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/os-sete-cabeludos/" target="_blank" rel="noopener">Os Sete Cabeludos</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/os-seus-botoes/" target="_blank" rel="noopener">Os Seus Botoes</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/os-velhinhos/" target="_blank" rel="noopener">Os Velhinhos</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/otra-vez/" target="_blank" rel="noopener">Otra Vez</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/palabras/" target="_blank" rel="noopener">Palabras</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/palavras/" target="_blank" rel="noopener">Palavras</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/panorama-ecologico/" target="_blank" rel="noopener">Panorama Ecologico</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/papo-de-esquina/" target="_blank" rel="noopener">Papo De Esquina</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/parabens/" target="_blank" rel="noopener">Parabens</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/parei-na-contramao/" target="_blank" rel="noopener">Parei Na Contramao</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/parei-olhei/" target="_blank" rel="noopener">Parei Olhei</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/pasatiempo/" target="_blank" rel="noopener">Pasatiempo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/passatempo/" target="_blank" rel="noopener">Passatempo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/paz-na-terra/" target="_blank" rel="noopener">Paz Na Terra</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/pega-ladrao/" target="_blank" rel="noopener">Pega Ladrao</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/pelas-esquinas-da-nossa-casa/" target="_blank" rel="noopener">Pelas Esquinas Da Nossa Casa</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/pelo-avesso/" target="_blank" rel="noopener">Pelo Avesso</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/pensamentos/" target="_blank" rel="noopener">Pensamentos</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/perdoa/" target="_blank" rel="noopener">Perdoa</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/perdona/" target="_blank" rel="noopener">Perdona</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/pergunte-pro-seu-coracao/" target="_blank" rel="noopener">Pergunte Pro Seu Coracao</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/piel-canela/" target="_blank" rel="noopener">Piel Canela</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/pleno-verano/" target="_blank" rel="noopener">Pleno Verano</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/por-amor/" target="_blank" rel="noopener">Por Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/por-ela/" target="_blank" rel="noopener">Por Ela</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/por-ella/" target="_blank" rel="noopener">Por Ella</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/por-isso-corro-demais/" target="_blank" rel="noopener">Por Isso Corro Demais</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/por-isso-eu-corro-demais/" target="_blank" rel="noopener">Por Isso Eu Corro Demais</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/por-motivo-de-forca-maior/" target="_blank" rel="noopener">Por Motivo De Forca Maior</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/pra-sempre/" target="_blank" rel="noopener">Pra Sempre</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/pra-voce/" target="_blank" rel="noopener">Pra Voce</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/preciso-chamar-sua-atencao/" target="_blank" rel="noopener">Preciso Chamar Sua Atencao</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/preciso-lhe-encontrar/" target="_blank" rel="noopener">Preciso Lhe Encontrar</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/preciso-de-voce/" target="_blank" rel="noopener">Preciso De Voce</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/primeira-dama/" target="_blank" rel="noopener">Primeira Dama</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/procura-se/" target="_blank" rel="noopener">Procura Se</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/professor-de-amor/" target="_blank" rel="noopener">Professor De Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/progreso/" target="_blank" rel="noopener">Progreso</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/promessa/" target="_blank" rel="noopener">Promessa</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/proposta/" target="_blank" rel="noopener">Proposta</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/propuesta/" target="_blank" rel="noopener">Propuesta</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/pra-ser-so-minha-mulher/" target="_blank" rel="noopener">Pra Ser So Minha Mulher</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/pajaro-herido/" target="_blank" rel="noopener">Pajaro Herido</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/passaro-ferido/" target="_blank" rel="noopener">Passaro Ferido</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/quando/" target="_blank" rel="noopener">Quando</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/quando-as-criancas-sairem-de-ferias/" target="_blank" rel="noopener">Quando As Criancas Sairem De Ferias</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/quando-digo-que-te-amo/" target="_blank" rel="noopener">Quando Digo Que Te Amo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/quando-eu-quero-falar-com-deus/" target="_blank" rel="noopener">Quando Eu Quero Falar Com Deus</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/quando-o-sol-nascer/" target="_blank" rel="noopener">Quando O Sol Nascer</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/quando-vi-voce-passar/" target="_blank" rel="noopener">Quando Vi Voce Passar</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/quando-gente-ama/" target="_blank" rel="noopener">Quando Gente Ama</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/quando-sol-nascer/" target="_blank" rel="noopener">Quando Sol Nascer</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/quantos-momentos-bonitos/" target="_blank" rel="noopener">Quantos Momentos Bonitos</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/quase-fui-lhe-procurar/" target="_blank" rel="noopener">Quase Fui Lhe Procurar</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/que-sera-de-ti-como-vai-voce/" target="_blank" rel="noopener">Que Sera De Ti Como Vai Voce</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/que-yo-te-vea/" target="_blank" rel="noopener">Que Yo Te Vea</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/que-sera-de-ti/" target="_blank" rel="noopener">Que Sera De Ti</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/querem-acabar-comigo/" target="_blank" rel="noopener">Querem Acabar Comigo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/quero-lhe-falar-do-meu-amor/" target="_blank" rel="noopener">Quero Lhe Falar Do Meu Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/quero-me-casar-contigo/" target="_blank" rel="noopener">Quero Me Casar Contigo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/quero-paz/" target="_blank" rel="noopener">Quero Paz</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/quero-que-tudo-va-para-o-inferno/" target="_blank" rel="noopener">Quero Que Tudo Va Para O Inferno</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/quero-que-va-tudo-para-inferno/" target="_blank" rel="noopener">Quero Que Va Tudo Para Inferno</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/quero-ter-voce-perto-de-mim/" target="_blank" rel="noopener">Quero Ter Voce Perto De Mim</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/quero-ver-voce-de-perto/" target="_blank" rel="noopener">Quero Ver Voce De Perto</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/recordacoes/" target="_blank" rel="noopener">Recordacoes</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/recordacoes-e-mais-nada/" target="_blank" rel="noopener">Recordacoes E Mais Nada</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/recordacoes-mais-nada/" target="_blank" rel="noopener">Recordacoes Mais Nada</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/regreso/" target="_blank" rel="noopener">Regreso</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/relembrando-malena/" target="_blank" rel="noopener">Relembrando Malena</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/resumen/" target="_blank" rel="noopener">Resumen</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/resumo/" target="_blank" rel="noopener">Resumo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/romantico/" target="_blank" rel="noopener">Romantico</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/rosa-rosita-2/" target="_blank" rel="noopener">Rosa Rosita 2</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/rosa-rosita/" target="_blank" rel="noopener">Rosa Rosita</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/rosinha/" target="_blank" rel="noopener">Rosinha</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/rosita/" target="_blank" rel="noopener">Rosita</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/rotina/" target="_blank" rel="noopener">Rotina</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/rutina/" target="_blank" rel="noopener">Rutina</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/sabores/" target="_blank" rel="noopener">Sabores</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/sail-away/" target="_blank" rel="noopener">Sail Away</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/se-diverte-ja-nao-pensa-em-mim/" target="_blank" rel="noopener">Se Diverte Ja Nao Pensa Em Mim</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/se-eu-partir/" target="_blank" rel="noopener">Se Eu Partir</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/se-eu-pudesse-voltar-no-tempo/" target="_blank" rel="noopener">Se Eu Pudesse Voltar No Tempo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/se-voce-disser-que-nao-me-ama/" target="_blank" rel="noopener">Se Voce Disser Que Nao Me Ama</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/se-voce-gostou/" target="_blank" rel="noopener">Se Voce Gostou</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/se-voce-pretende/" target="_blank" rel="noopener">Se Voce Pretende</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/se-voce-quer/" target="_blank" rel="noopener">Se Voce Quer</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/se-busca/" target="_blank" rel="noopener">Se Busca</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/se-divierte-y-ya-no-piensa-en-mi/" target="_blank" rel="noopener">Se Divierte Y Ya No Piensa En Mi</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/se-amor-se-vai/" target="_blank" rel="noopener">Se Amor Se Vai</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/sentado-a-la-vera-de-un-camino/" target="_blank" rel="noopener">Sentado A La Vera De Un Camino</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/sentado-a-beira-do-caminho/" target="_blank" rel="noopener">Sentado A Beira Do Caminho</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/sentado-beira-do-caminho/" target="_blank" rel="noopener">Sentado Beira Do Caminho</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/sereia/" target="_blank" rel="noopener">Sereia</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/seres-humanos/" target="_blank" rel="noopener">Seres Humanos</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/seu-corpo/" target="_blank" rel="noopener">Seu Corpo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/si-el-amor-se-va/" target="_blank" rel="noopener">Si El Amor Se Va</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/si-me-vas-a-olvidar/" target="_blank" rel="noopener">Si Me Vas A Olvidar</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/si-piensas-si-quieres/" target="_blank" rel="noopener">Si Piensas Si Quieres</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/si-tu-te-vas-yo-tambien/" target="_blank" rel="noopener">Si Tu Te Vas Yo Tambien</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/siento-mucho-amiga-mia/" target="_blank" rel="noopener">Siento Mucho Amiga Mia</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/silencio/" target="_blank" rel="noopener">Silencio</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/simples-magica/" target="_blank" rel="noopener">Simples Magica</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/sinto-muito-minha-amiga/" target="_blank" rel="noopener">Sinto Muito Minha Amiga</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/solamente-una-vez/" target="_blank" rel="noopener">Solamente Una Vez</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/solo-per-te/" target="_blank" rel="noopener">Solo Per Te</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/sonho-lindo/" target="_blank" rel="noopener">Sonho Lindo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/sonho-de-amor/" target="_blank" rel="noopener">Sonho De Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/sonrie/" target="_blank" rel="noopener">Sonrie</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/sorrindo-para-mim/" target="_blank" rel="noopener">Sorrindo Para Mim</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/splish-splash/" target="_blank" rel="noopener">Splish Splash</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/sua-estupidez/" target="_blank" rel="noopener">Sua Estupidez</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/super-heroi/" target="_blank" rel="noopener">Super Heroi</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/simbolo-sexual/" target="_blank" rel="noopener">Simbolo Sexual</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/so-por-amor/" target="_blank" rel="noopener">So Por Amor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/so-voce/" target="_blank" rel="noopener">So Voce</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/so-vou-gostar-de-quem-gosta-de-mim/" target="_blank" rel="noopener">So Vou Gostar De Quem Gosta De Mim</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/so-vou-se-voce-for/" target="_blank" rel="noopener">So Vou Se Voce For</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/tanta-solidao/" target="_blank" rel="noopener">Tanta Solidao</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/te-agradezco-senor/" target="_blank" rel="noopener">Te Agradezco Senor</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/telepatia/" target="_blank" rel="noopener">Telepatia</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/tem-coisas-que-gente-nao-tira-do-coracao/" target="_blank" rel="noopener">Tem Coisas Que Gente Nao Tira Do Coracao</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/tengo-que-olvidar/" target="_blank" rel="noopener">Tengo Que Olvidar</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/tenho-um-amor-melhor-que-o-seu/" target="_blank" rel="noopener">Tenho Um Amor Melhor Que O Seu</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/tentativa/" target="_blank" rel="noopener">Tentativa</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/tente-esquecer/" target="_blank" rel="noopener">Tente Esquecer</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/tente-viver-sem-mim/" target="_blank" rel="noopener">Tente Viver Sem Mim</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/ternura/" target="_blank" rel="noopener">Ternura</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/ternura-antiga/" target="_blank" rel="noopener">Ternura Antiga</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/testardo-io/" target="_blank" rel="noopener">Testardo Io</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/toda-va-filosofia/" target="_blank" rel="noopener">Toda Va Filosofia</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/todas-as-manhas/" target="_blank" rel="noopener">Todas As Manhas</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/todas-as-nossas-senhoras/" target="_blank" rel="noopener">Todas As Nossas Senhoras</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/todas-las-mananas/" target="_blank" rel="noopener">Todas Las Mananas</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/todo-mundo-e-alguem/" target="_blank" rel="noopener">Todo Mundo E Alguem</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/todo-para/" target="_blank" rel="noopener">Todo Para</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/todos-estao-surdos/" target="_blank" rel="noopener">Todos Estao Surdos</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/todos-os-meus-rumos/" target="_blank" rel="noopener">Todos Os Meus Rumos</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/tolo/" target="_blank" rel="noopener">Tolo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/traumas/" target="_blank" rel="noopener">Traumas</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/triste-e-abandonado/" target="_blank" rel="noopener">Triste E Abandonado</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/tristes-momentos/" target="_blank" rel="noopener">Tristes Momentos</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/tu-eres-mi-amigo-del-alma/" target="_blank" rel="noopener">Tu Eres Mi Amigo Del Alma</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/tu-regreso/" target="_blank" rel="noopener">Tu Regreso</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/tu-en-mi-vida/" target="_blank" rel="noopener">Tu En Mi Vida</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/tu-eres-mia/" target="_blank" rel="noopener">Tu Eres Mia</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/tu-no-sabes/" target="_blank" rel="noopener">Tu No Sabes</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/tu-es-a-verdade-jesus/" target="_blank" rel="noopener">Tu Es A Verdade Jesus</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/tu-es-verdade-jesus/" target="_blank" rel="noopener">Tu Es Verdade Jesus</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/tudo/" target="_blank" rel="noopener">Tudo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/tudo-para/" target="_blank" rel="noopener">Tudo Para</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/tudo-que-sonhei/" target="_blank" rel="noopener">Tudo Que Sonhei</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/tao-somente-uma-vez/" target="_blank" rel="noopener">Tao Somente Uma Vez</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/um-jeito-estupido-de-te-amar/" target="_blank" rel="noopener">Um Jeito Estupido De Te Amar</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/um-leao-esta-solto-nas-ruas/" target="_blank" rel="noopener">Um Leao Esta Solto Nas Ruas</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/um-milhao-de-amigos/" target="_blank" rel="noopener">Um Milhao De Amigos</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/tema-de-fim-de-ano-rede-globo/" target="_blank" rel="noopener">Tema De Fim De Ano Rede Globo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/uma-palavra-amiga/" target="_blank" rel="noopener">Uma Palavra Amiga</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/un-gatto-nel-blu/" target="_blank" rel="noopener">Un Gatto Nel Blu</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/un-millon-de-amigos/" target="_blank" rel="noopener">Un Millon De Amigos</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/un-leon-escapo/" target="_blank" rel="noopener">Un Leon Escapo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/una-casita-blanca/" target="_blank" rel="noopener">Una Casita Blanca</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/usted-ya-me-olvido/" target="_blank" rel="noopener">Usted Ya Me Olvido</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/un-gato-en-la-obscuridad/" target="_blank" rel="noopener">Un Gato En La Obscuridad</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/verde-e-amarelo/" target="_blank" rel="noopener">Verde E Amarelo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/vista-a-roupa-meu-bem/" target="_blank" rel="noopener">Vista A Roupa Meu Bem</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/vivendo-por-viver/" target="_blank" rel="noopener">Vivendo Por Viver</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/voce-na-minha-mente/" target="_blank" rel="noopener">Voce Na Minha Mente</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/voce/" target="_blank" rel="noopener">Voce</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/voce-como-vai/" target="_blank" rel="noopener">Voce Como Vai</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/voce-deixou-alguem-te-esperar/" target="_blank" rel="noopener">Voce Deixou Alguem Te Esperar</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/voce-em-minha-vida/" target="_blank" rel="noopener">Voce Em Minha Vida</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/voce-ja-me-esqueceu/" target="_blank" rel="noopener">Voce Ja Me Esqueceu</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/voce-me-pediu/" target="_blank" rel="noopener">Voce Me Pediu</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/voce-mexeu-com-minha-vida/" target="_blank" rel="noopener">Voce Mexeu Com Minha Vida</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/voce-nao-sabe/" target="_blank" rel="noopener">Voce Nao Sabe</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/voce-nao-sabe-o-que-vai-perder/" target="_blank" rel="noopener">Voce Nao Sabe O Que Vai Perder</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/voce-nao-serve-pra-mim/" target="_blank" rel="noopener">Voce Nao Serve Pra Mim</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/voce-e-linda/" target="_blank" rel="noopener">Voce E Linda</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/voce-e-minha/" target="_blank" rel="noopener">Voce E Minha</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/voce-minha/" target="_blank" rel="noopener">Voce Minha</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/voltei-ao-passado/" target="_blank" rel="noopener">Voltei Ao Passado</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/volver/" target="_blank" rel="noopener">Volver</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/vou-chegar-mais-cedo-em-casa/" target="_blank" rel="noopener">Vou Chegar Mais Cedo Em Casa</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/ve-se-volta/" target="_blank" rel="noopener">Ve Se Volta</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/yo-quisiera/" target="_blank" rel="noopener">Yo Quisiera</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/yo-solo-quiero/" target="_blank" rel="noopener">Yo Solo Quiero</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/yo-te-recuerdo/" target="_blank" rel="noopener">Yo Te Recuerdo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/yo-te-amo/" target="_blank" rel="noopener">Yo Te Amo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/yo-te-amo-yo-te-amo-yo-te-amo/" target="_blank" rel="noopener">Yo Te Amo Yo Te Amo Yo Te Amo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/yo-te-propongo/" target="_blank" rel="noopener">Yo Te Propongo</a>
+        <span class="artist">Roberto Carlos</span>
+      </li>
+      <li>
+        <a href="https://www.cifraclub.com.br/roberto-carlos/yo-y-ella/" target="_blank" rel="noopener">Yo Y Ella</a>
+        <span class="artist">Roberto Carlos</span>
+      </li></ul>
+</div>
+</body>
+</html>

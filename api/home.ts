@@ -51,6 +51,32 @@ interface SongRow {
  * Limita a 60 para o HTML do SSR ficar leve. Ordena por views desc (as
  * "Mais Acessadas" primeiro, como o app destaca).
  */
+/**
+ * Contagem REAL de músicas no banco (title/og/JSON-LD mostram o acervo
+ * verdadeiro, não um número fixo). `Prefer: count=exact` → header
+ * `content-range: 0-0/16044` — 1 requisição leve. Null = fallback "16.000+".
+ */
+async function fetchSongCount(): Promise<number | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const res = await fetch(`${sb.url}/rest/v1/songs?select=id&limit=1`, {
+      headers: {
+        apikey: sb.key,
+        Authorization: `Bearer ${sb.key}`,
+        Prefer: 'count=exact',
+      },
+    });
+    if (!res.ok) return null;
+    const range = res.headers.get('content-range');
+    const m = range ? range.match(/\/(\d+)$/) : null;
+    const count = m ? Number(m[1]) : null;
+    return count != null && Number.isFinite(count) ? count : null;
+  } catch {
+    return null;
+  }
+}
+
 async function fetchSuggestedSongs(): Promise<SongRow[] | null> {
   const sb = getSupabase();
   if (!sb) return null;
@@ -104,9 +130,10 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
   const siteUrl = getSiteUrl();
   const ogImage = `${siteUrl}/og-image.png`;
-  const title = 'UkeMaster Pro — Cifras de Ukulele, Acordes & Afinador Grátis';
-  const description =
-    'O Portal do Ukulele com milhares de cifras gratuitas: acordes, letra, ritmo, dicionário de acordes, afinador de precisão e repertório privado. 100% grátis.';
+  const count = await fetchSongCount();
+  const countLabel = count != null ? count.toLocaleString('pt-BR') : '16.000+';
+  const title = `UkeMaster Pro — ${countLabel} Cifras de Ukulele, Acordes & Afinador Grátis`;
+  const description = `O Portal do Ukulele com ${countLabel} cifras gratuitas: acordes, letra, ritmo, dicionário de acordes, afinador de precisão e repertório privado. 100% grátis.`;
 
   const songs = await fetchSuggestedSongs();
 
@@ -164,7 +191,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
             }</li>`
         )
         .join('\n')}\n  </ul>`
-    : '<p>Milhares de cifras de ukulele gratuitas — busque no app.</p>';
+    : `<p>${countLabel} cifras de ukulele gratuitas — busque no app.</p>`;
 
   const html = `<!doctype html>
 <html lang="pt-BR">
@@ -197,7 +224,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 <body>
   <h1>${esc('UkeMaster Pro — Cifras de Ukulele Grátis')}</h1>
   <p>${esc(description)}</p>
-  <p>Milhares de cifras com letra, acordes, ritmo e tom — de CifraClub, Ultimate-Guitar, U-FRET e mais. Abra o app para tocar com dicionário de acordes, afinador e repertório privado.</p>
+  <p>${countLabel} cifras com letra, acordes, ritmo e tom — de CifraClub, Ultimate-Guitar, U-FRET e mais. Abra o app para tocar com dicionário de acordes, afinador e repertório privado.</p>
   ${suggestionsHtml}
   <p><a href="${siteUrl}/">Abrir o UkeMaster Pro</a></p>
 </body>

@@ -1,7 +1,7 @@
 /**
  * Área ADMIN (só iluminatto@gmail.com): importação em massa, scraping por URL/artista e disparo do cron de plataformas.
  */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Song } from '../types';
 import { CHORD_PLATFORMS } from '../lib/platforms';
 import {
@@ -94,6 +94,24 @@ function parseWorkerFromId(workerId: string): string {
   return m.slice(0, -2).join('-') || 'desconhecido';
 }
 
+/**
+ * Deriva a URL da RAIZ do artista para o worker processar: prioriza a URL
+ * digitada (aceita página de artista, de música ou de catálogo — o próprio
+ * worker normaliza); se a caixa estiver vazia, usa o primeiro link descoberto
+ * (/artista/musica/ → https://site/artista/).
+ */
+function artistRootUrl(input: string, links: DiscoveredLink[]): string {
+  const trimmed = input.trim();
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  try {
+    const u = new URL(links[0]?.url || '');
+    const seg = u.pathname.split('/').filter(Boolean)[0];
+    return seg ? `${u.origin}/${seg}/` : '';
+  } catch {
+    return '';
+  }
+}
+
 /** Formata um ISO em "há Xh Ymin" / "há Xd" / "nunca". */
 function formatAgo(iso: string | null): string {
   if (!iso) return 'nunca';
@@ -134,6 +152,20 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
   const [scrapeProgress, setScrapeProgress] = useState<{ done: number; total: number } | null>(null);
   const [resultLog, setResultLog] = useState<{ ok: boolean; message: string }[]>([]);
   const [error, setError] = useState<string>('');
+
+  // Importação do CATÁLOGO COMPLETO (qualquer artista): processa em chunks
+  // no servidor (variantes + idioma) e salva incrementalmente — interromper
+  // não perde o que já foi importado.
+  const [importingAll, setImportingAll] = useState<boolean>(false);
+  const [allProgress, setAllProgress] = useState<{
+    done: number;
+    total: number;
+    imported: number;
+    duplicates: number;
+    errors: number;
+    startedAt: number;
+  } | null>(null);
+  const cancelAllRef = useRef<boolean>(false);
 
   // Cron state
   const [cronRunning, setCronRunning] = useState<boolean>(false);
@@ -204,6 +236,52 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
   const handleCancelCommand = async (id: string) => {
     await patchRows('worker_commands', `?id=eq.${id}&status=eq.pending`, { status: 'canceled' });
     await loadCommands();
+  };
+
+  /**
+   * Enfileira a importação do CATÁLOGO COMPLETO (todas as músicas descobertas)
+   * para o DESKTOP processar — Vercel NÃO é usada (o comando vai direto ao
+   * Supabase; o Desktop pega no polling de 1 min). O Desktop importa com o
+   * pipeline do cron (variantes Simplificada, idioma, dedupe, histórico) e o
+   * status aparece na lista de comandos abaixo.
+   */
+  const handleDispatchArtistImport = async () => {
+    const root = artistRootUrl(urlInput, links);
+    if (!root) {
+      setCronResult('Descubra o catálogo primeiro: cole a URL do artista (ou de uma música) e clique em “Descobrir Músicas”.');
+      return;
+    }
+    setDispatching(true);
+    setCronResult('');
+    try {
+      const { ok, status } = await supabaseRequest('worker_commands', {
+        method: 'POST',
+        body: [
+          {
+            command: 'run',
+            target: 'desktop', // única máquina ativa (além desta) — vira 'desktop' no painel
+            artist_url: root,
+            platform_id: null,
+            update_existing: false,
+          },
+        ],
+      });
+      if (!ok) {
+        setCronResult(
+          `Erro ao enfileirar a importação (HTTP ${status}). Faça login como admin para usar esta fila.`
+        );
+      } else {
+        setCronResult(
+          `✅ Catálogo completo enfileirado para o Desktop: ${links.length} músicas (${root}). ` +
+            `O Desktop pega na próxima checagem (até 1-2 min) e importa tudo com o pipeline do cron — acompanhe o status abaixo.`
+        );
+        await loadCommands();
+      }
+    } catch (e: any) {
+      setCronResult(`Erro: ${e?.message}`);
+    } finally {
+      setDispatching(false);
+    }
   };
 
   // ── Status das máquinas (última atividade por worker + lease) ───────
@@ -380,6 +458,131 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
     }
   };
 
+  /**
+   * Importa o CATÁLOGO COMPLETO do artista (todas as músicas descobertas),
+   * em chunks processados no servidor — funciona para QUALQUER artista,
+   * por maior que seja (Roberto Carlos: 617; Elvis: centenas). O servidor
+   * devolve as músicas prontas (com variantes Simplificada e idioma); aqui
+   * deduplicamos contra o acervo, salvamos em lote e mostramos progresso.
+   * Se interromper (Parar), o que já foi importado permanece salvo.
+   */
+  const handleImportAll = async () => {
+    // Garante o catálogo descoberto (aceita URL de artista OU de música).
+    let discovered = links;
+    if (discovered.length === 0) {
+      const url = urlInput.trim();
+      if (!url) return;
+      setError('');
+      setDiscovering(true);
+      try {
+        const res = await fetch('/api/scrape', {
+          method: 'POST',
+          headers: adminHeaders(),
+          body: JSON.stringify({ discover: url }),
+        });
+        const data = await readAdminJson<{ links?: DiscoveredLink[] }>(res);
+        discovered = data?.links || [];
+        setLinks(discovered);
+        setSelected(new Set(discovered.map((l) => l.url)));
+      } catch (e: any) {
+        setError(e?.message || 'Erro ao descobrir músicas.');
+        setDiscovering(false);
+        return;
+      }
+      setDiscovering(false);
+    }
+    if (discovered.length === 0) {
+      setError('Nenhuma música encontrada para importar.');
+      return;
+    }
+
+    setImportingAll(true);
+    cancelAllRef.current = false;
+    setResultLog([]);
+    const startedAt = Date.now();
+    let duplicates = 0;
+    let errors = 0;
+    let importedCount = 0;
+    const seenKeys = new Set<string>();
+    const CHUNK = 6; // mesmo limite do servidor (BATCH_LIMIT/maxDuration 60s)
+
+    for (let offset = 0; offset < discovered.length; offset += CHUNK) {
+      if (cancelAllRef.current) {
+        setResultLog((prev) => [
+          ...prev,
+          { ok: false, message: '⏹ Importação interrompida. Tudo o que já foi salvo permanece no acervo.' },
+        ]);
+        break;
+      }
+      setAllProgress({
+        done: Math.min(offset + CHUNK, discovered.length),
+        total: discovered.length,
+        imported: importedCount,
+        duplicates,
+        errors,
+        startedAt,
+      });
+      try {
+        const res = await fetch('/api/scrape', {
+          method: 'POST',
+          headers: adminHeaders(),
+          body: JSON.stringify({
+            artist: urlInput.trim(),
+            links: discovered,
+            offset,
+            count: CHUNK,
+          }),
+        });
+        const data = await readAdminJson<{
+          ok?: boolean;
+          songs?: Song[];
+          errors?: { url: string; error: string }[];
+        }>(res);
+        const fresh: Song[] = [];
+        for (const s of data?.songs || []) {
+          const key = `${s.title.toLowerCase()}|${s.artist.toLowerCase()}`;
+          // Dedupe em duas camadas: já importado nesta execução + acervo atual
+          if (seenKeys.has(key)) {
+            duplicates++;
+            continue;
+          }
+          if (findDuplicateSong(s.title, s.artist, songs)) {
+            duplicates++;
+            continue;
+          }
+          seenKeys.add(key);
+          fresh.push(s);
+        }
+        importedCount += fresh.length;
+        errors += (data?.errors || []).length;
+        for (const f of fresh) {
+          setResultLog((prev) => [...prev, { ok: true, message: `✓ ${f.title} — ${f.artist}` }]);
+        }
+        for (const e of data?.errors || []) {
+          setResultLog((prev) => [...prev, { ok: false, message: `✗ ${e.error}` }]);
+        }
+        // Salva incrementalmente: parar/errar no meio não perde o progresso
+        if (fresh.length > 0) onImportSongs(fresh);
+      } catch (e: any) {
+        errors += CHUNK;
+        setResultLog((prev) => [
+          ...prev,
+          { ok: false, message: `✗ Lote ${offset / CHUNK + 1} — ${e?.message}` },
+        ]);
+      }
+    }
+
+    setAllProgress(null);
+    setImportingAll(false);
+    setResultLog((prev) => [
+      ...prev,
+      {
+        ok: true,
+        message: `✅ Catálogo concluído: ${importedCount} nova(s) importada(s), ${duplicates} duplicada(s) ignorada(s), ${errors} erro(s).`,
+      },
+    ]);
+  };
+
   const handleRunCron = async (platformId?: string, artistUrl?: string) => {
     setCronRunning(true);
     setCronResult('');
@@ -536,10 +739,34 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
               })}
             </div>
 
+            {/* ── Importação do CATÁLOGO COMPLETO via Desktop (sem Vercel) ── */}
+            <button
+              onClick={handleDispatchArtistImport}
+              disabled={dispatching || importingAll || links.length === 0}
+              title="Enfileira no Supabase; o Desktop processa o catálogo inteiro com o pipeline do cron (variantes, idioma, dedupe)"
+              className="w-full py-3 rounded-xl bg-[#1D2D44] hover:bg-[#0F2537] disabled:opacity-50 text-white font-black text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-lg shadow-[#1D2D44]/25"
+            >
+              {dispatching ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" /> Enfileirando...
+                </>
+              ) : (
+                <>
+                  <MonitorCog className="w-4 h-4" /> Importar Catálogo Completo no Desktop ({links.length} músicas)
+                </>
+              )}
+            </button>
+            <p className="text-[10px] text-slate-400 -mt-1">
+              🖥️ O <strong>Desktop</strong> importa tudo em background (polling de 1 min) — a Vercel não é
+              usada. O status aparece na lista de comandos abaixo. Se o Desktop estiver desligado, use a
+              opção de importação local logo abaixo.
+            </p>
+
+            {/* ── Fallback: importação aqui (via Vercel/local, em chunks) ── */}
             <button
               onClick={handleScrapeSelected}
-              disabled={scraping || selected.size === 0}
-              className="w-full py-3 rounded-xl bg-[#F26419] hover:bg-[#D9530D] disabled:opacity-50 text-white font-black text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-lg shadow-[#F26419]/25"
+              disabled={scraping || importingAll || selected.size === 0}
+              className="w-full py-2.5 rounded-xl bg-white border border-slate-200 hover:border-[#F26419] hover:text-[#F26419] disabled:opacity-50 text-slate-500 font-bold text-[11px] flex items-center justify-center gap-2 transition-colors cursor-pointer"
             >
               {scraping ? (
                 <>
@@ -548,7 +775,7 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4" /> Importar {selected.size} Música(s) Selecionada(s)
+                  <Sparkles className="w-4 h-4" /> Importar {selected.size} selecionada(s) aqui (sem Desktop)
                 </>
               )}
             </button>

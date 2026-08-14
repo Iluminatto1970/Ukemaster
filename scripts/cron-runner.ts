@@ -58,6 +58,11 @@ const fast = args.includes('--fast');
 const reset = args.includes('--reset');
 const repair = args.includes('--repair');
 const update = args.includes('--update');
+// --commands-only: processa APENAS os comandos do painel admin e encerra
+// (mesmo sem comando pendente). Usado pelo agendamento rápido (1 min) do
+// Desktop para os imports enfileirados pela área admin chegarem na hora,
+// sem disparar a rotação normal do cron a cada minuto.
+const commandsOnly = args.includes('--commands-only');
 
 // Orçamento: prioriza --budget <ms> (cross-platform), depois env, depois padrão
 const budgetArg = getArg('--budget');
@@ -65,12 +70,24 @@ const timeBudgetMs = budgetArg
   ? Number(budgetArg)
   : Number(process.env.CRON_TIME_BUDGET_MS || (fast ? 30_000 : 480_000));
 
+// Comando com artista dedicado (import do catálogo COMPLETO pela admin):
+// o orçamento padrão de 8 min cortaria o artista no meio (Roberto Carlos
+// tem 617 músicas ≈ 15-30 min com delays). Com orçamento de artista
+// (padrão 2h), scrapeArtistPage roda com timeout amplo e conclui o
+// catálogo inteiro numa passada só.
+const artistBudgetMs = Number(process.env.CRON_ARTIST_BUDGET_MS || 7_200_000);
+
 // Timeout absoluto: o processo SEMPRE termina, mesmo se algo inesperado
-// travar (DNS, rede, etc.). Orçamento + 2 min de folga.
+// travar (DNS, rede, etc.). Orçamento + 2 min de folga. No polling rápido
+// (--commands-only) o teto acompanha o orçamento de artista: o processo
+// pode ficar de pé o tempo que o import do catálogo precisar.
+const effectiveBudgetMs = commandsOnly
+  ? Math.max(timeBudgetMs, artistBudgetMs)
+  : timeBudgetMs;
 const hardTimer = setTimeout(() => {
   console.error(JSON.stringify({ fatal: true, error: 'Hard timeout excedido — encerrando.' }));
   process.exit(2);
-}, timeBudgetMs + 120_000);
+}, effectiveBudgetMs + 120_000);
 hardTimer.unref?.();
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -237,7 +254,11 @@ async function processPendingCommands(
       : await claimCommand(sb.url, sb.key, cmd.id, worker);
     if (!claimed) continue; // outro worker pegou (ou ainda é recente)
     processed++;
-    const remainingMs = Math.max(30_000, budgetMs - (Date.now() - startedAt));
+    // Comando com artista dedicado (import pela admin) usa o orçamento de
+    // ARTISTA — o catálogo inteiro entra numa passada (sem cortar no meio).
+    // Comandos genéricos (rotação) seguem o orçamento normal da rodada.
+    const commandBudgetMs = cmd.artist_url ? artistBudgetMs : budgetMs;
+    const remainingMs = Math.max(30_000, commandBudgetMs - (Date.now() - startedAt));
     try {
       const result = await runPlatformCron({
         platformId: cmd.platform_id || undefined,
@@ -268,18 +289,23 @@ async function main() {
   const sb = getSupabaseEnv();
   const hasDb = Boolean(sb.url && sb.key);
 
-  // 1) Comandos do painel admin (rodada imediata nas máquinas) — se houver,
-  //    processa e encerra (o fluxo normal roda na próxima execução).
+  // 1) Comandos do painel admin (rodada imediata nas máquinas). No modo
+  //    --commands-only (polling de 1 min), encerra SEMPRE aqui — sem comando
+  //    pendente a execução é uma consulta barata ao Supabase; com comando,
+  //    processa (orçamento de artista p/ catálogo completo) e encerra.
   if (hasDb) {
     const commandsProcessed = await processPendingCommands(sb, timeBudgetMs);
-    if (commandsProcessed > 0) {
+    if (commandsProcessed > 0 || commandsOnly) {
       console.log(
         JSON.stringify(
           {
             ranAt: new Date().toISOString(),
             worker: getWorkerName(),
             commandsProcessed,
-            message: 'Comandos do painel processados — fluxo normal adiado para a próxima rodada.',
+            message:
+              commandsProcessed > 0
+                ? 'Comandos do painel processados — fluxo normal adiado para a próxima rodada.'
+                : 'Polling de comandos (--commands-only): nenhum comando pendente.',
           },
           null,
           2

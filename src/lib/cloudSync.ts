@@ -187,7 +187,7 @@ function songToRowLegacy(s: Song): Omit<SongRow, 'votes' | 'views'> {
 // ── Colunas de METADADOS (sem content/simplified_content) ───────────────
 // A lista do acervo só precisa dos metadados; a cifra COMPLETA de cada música
 // é buscada sob demanda ao ABRIR (fetchSongFromCloud). Buscar tudo (content)
-// significa ~15MB para 4.600+ músicas — em conexão lenta o acervo demora
+// significa ~15MB para 16.000+ músicas — em conexão lenta o acervo demora
 // minutos para aparecer e parece vazio. Só metadados: ~1,5MB, carrega rápido.
 const SONG_METADATA_COLUMNS =
   'id,title,artist,key,tempo,strumming_pattern,youtube_url,youtube_id,difficulty,category,lang,tags,seo_description,hashtags,votes,views,created_at,updated_at';
@@ -209,7 +209,7 @@ interface RepertoireRow {
 
 /**
  * Busca o acervo de músicas na nuvem (PAGINADO — o PostgREST limita a
- * resposta em 1000 linhas; o acervo real tem 4.600+). Busca SÓ METADADOS
+ * resposta em 1000 linhas; o acervo real tem 16.000+). Busca SÓ METADADOS
  * (sem a cifra) para a lista carregar em segundos em qualquer conexão.
  * null = indisponível.
  */

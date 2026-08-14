@@ -75,6 +75,50 @@ export async function fetchAllSongsServer(): Promise<SongRow[] | null> {
   return all;
 }
 
+// Cache da contagem do acervo (o número muda pouco entre rodadas do cron).
+let songCountCache: { count: number; at: number } | null = null;
+const SONG_COUNT_TTL = 10 * 60 * 1000; // 10 min
+
+/**
+ * Contagem REAL de músicas no banco (para title/og/JSON-LD do site).
+ * Usa `Prefer: count=exact` → header `content-range: 0-0/16044` — 1 requisição
+ * leve, sem trazer linhas. Retorna null se indisponível (fallback: 16.000+).
+ */
+export async function fetchSongCountServer(): Promise<number | null> {
+  if (songCountCache && Date.now() - songCountCache.at < SONG_COUNT_TTL) {
+    return songCountCache.count;
+  }
+  const sb = getSupabaseServer();
+  if (!sb) return null;
+  try {
+    const res = await fetch(`${sb.url}/rest/v1/songs?select=id&limit=1`, {
+      headers: {
+        apikey: sb.key,
+        Authorization: `Bearer ${sb.key}`,
+        Prefer: 'count=exact',
+      },
+    });
+    if (!res.ok) return null;
+    const range = res.headers.get('content-range');
+    const m = range ? range.match(/\/(\d+)$/) : null;
+    const count = m ? Number(m[1]) : null;
+    if (count != null && Number.isFinite(count)) {
+      songCountCache = { count, at: Date.now() };
+      return count;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/** Versão síncrona (para hooks que não podem aguardar) — usa o cache. */
+export function getCachedSongCount(): number | null {
+  return songCountCache && Date.now() - songCountCache.at < SONG_COUNT_TTL
+    ? songCountCache.count
+    : null;
+}
+
 /** Busca UMA música por id (para o prerender de /musica/:id). */
 export async function fetchSongByIdServer(id: string): Promise<SongRow | null> {
   const sb = getSupabaseServer();
