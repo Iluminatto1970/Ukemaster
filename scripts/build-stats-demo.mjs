@@ -1,17 +1,19 @@
 /**
  * Builda public/admin-stats-demo.js (demo do painel "Acervo").
- * Define as import.meta.env.* do cliente com os valores reais do .env.local.
+ * Define as import.meta.env.* do cliente com os valores reais:
+ *  - local: .env.local
+ *  - Vercel: process.env (VITE_* injetadas pelo build)
  */
 import { build } from 'esbuild';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const env = {};
+const env = { ...process.env };
 try {
   const content = fs.readFileSync(path.join(process.cwd(), '.env.local'), 'utf-8');
   content.split(/\r?\n/).forEach((line) => {
     const m = line.match(/^([A-Z_][A-Z0-9_]*)\s*=\s*"?([^"]*?)"?\s*$/);
-    if (m) env[m[1]] = m[2];
+    if (m && !env[m[1]]) env[m[1]] = m[2];
   });
 } catch {}
 
