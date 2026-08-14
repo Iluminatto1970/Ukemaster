@@ -61,3 +61,6 @@ mcp-backup/
 
 # Arquivo criado por acidente (dev/null relativo em Windows) — nunca versionar
 dev/null
+
+# Bundle de demo do painel admin (gerado por scripts/build-stats-demo.mjs)
+public/admin-stats-demo.js

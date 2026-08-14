@@ -18,7 +18,13 @@ import {
 import { Song, AffiliateLink, PartnerLink, BlogPost } from '../../types';
 import { getSessionAccessToken } from '../../lib/supabase';
 
-export type AdminSection = 'visao-geral' | 'musicas' | 'usuarios' | 'conteudo' | 'manutencao';
+export type AdminSection =
+  | 'visao-geral'
+  | 'musicas'
+  | 'usuarios'
+  | 'conteudo'
+  | 'manutencao'
+  | 'acervo';
 
 interface AdminDashboardProps {
   songs: Song[];

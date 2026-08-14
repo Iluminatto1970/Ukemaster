@@ -5,16 +5,18 @@
  *   3) Usuários     (gestão de contas: suspender/excluir)
  *   4) Conteúdo     (afiliados, parceiros, blog — painel anterior)
  *   5) Manutenção   (scraping/cron)
+ *   6) Acervo       (contagem em tempo real + crescimento por dia)
  * Apenas o proprietário acessa (renderizado condicionalmente no App).
  */
 import React, { useState } from 'react';
-import { LayoutDashboard, Music, Users, ShoppingBag, Wrench, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, Music, Users, ShoppingBag, Wrench, ShieldCheck, BarChart3 } from 'lucide-react';
 import { Song, AffiliateLink, PartnerLink, BlogPost } from '../../types';
 import { AdminDashboard, AdminSection } from './AdminDashboard';
 import { AdminSongs } from './AdminSongs';
 import { AdminUsers } from './AdminUsers';
 import { AdminContentPanel } from '../AdminContentPanel';
 import { AdminScraper } from '../AdminScraper';
+import { AdminCatalogStats } from './AdminCatalogStats';
 
 interface AdminPanelProps {
   songs: Song[];
@@ -37,6 +39,7 @@ const TABS: { id: AdminSection; label: string; icon: React.ReactNode }[] = [
   { id: 'usuarios', label: 'Usuários', icon: <Users className="w-4 h-4" /> },
   { id: 'conteudo', label: 'Conteúdo', icon: <ShoppingBag className="w-4 h-4" /> },
   { id: 'manutencao', label: 'Manutenção', icon: <Wrench className="w-4 h-4" /> },
+  { id: 'acervo', label: 'Acervo', icon: <BarChart3 className="w-4 h-4" /> },
 ];
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({
@@ -136,6 +139,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           />
         )}
         {section === 'manutencao' && <AdminScraper songs={songs} onImportSongs={onImportSongs} />}
+        {section === 'acervo' && (
+          <AdminCatalogStats songs={songs} onSongsChange={onSongsChange} />
+        )}
       </div>
     </div>
   );
