@@ -210,7 +210,7 @@ create table if not exists public.song_feedback (
 --   platform_id     plataforma específica (ex.: 'cifraclub-br') ou NULL = todas
 --   artist_url      artista específico ou NULL = fila normal
 --   update_existing re-scrapeia e atualiza o que já temos (checkbox do painel)
---   target          'acer' | 'desktop' | 'all' (nome do CRON_WORKER_NAME)
+--   target          'vps' | 'desktop' | 'all' (nome do CRON_WORKER_NAME)
 --   status          pending → processing → done | failed | canceled
 --   worker          quem pegou o comando (CRON_WORKER_NAME ou hostname)
 --   picked_at/finished_at  tempos de pega/conclusão

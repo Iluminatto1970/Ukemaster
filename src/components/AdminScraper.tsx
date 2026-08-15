@@ -84,9 +84,9 @@ interface WorkerInfo {
 }
 
 /** Nomes esperados de worker no painel (máquinas locais + Vercel). */
-const EXPECTED_WORKERS = ['acer', 'desktop', 'vercel'];
+const EXPECTED_WORKERS = ['vps', 'desktop', 'vercel'];
 
-/** Converte `worker-acer-1234-abc1` → `acer` (remove prefixo + pid + rand).
+/** Converte `worker-vps-1234-abc1` → `vps` (remove prefixo + pid + rand).
  * Formato legado sem nome (`worker-1234-abc1`) → 'desconhecido'. */
 function parseWorkerFromId(workerId: string): string {
   const m = workerId.replace(/^worker-/, '').split('-');
@@ -175,7 +175,7 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
   // simplificadas novas. Sem ele, o cron só adiciona músicas novas.
   const [cronUpdateExisting, setCronUpdateExisting] = useState<boolean>(false);
 
-  // Máquinas locais (Acer/Desktop): fila de comandos para rodada imediata
+  // Máquinas locais (VPS/Desktop): fila de comandos para rodada imediata
   const [commands, setCommands] = useState<WorkerCommand[]>([]);
   const [dispatching, setDispatching] = useState<boolean>(false);
 
@@ -198,7 +198,7 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeCommands]);
 
-  const handleDispatch = async (target: 'all' | 'acer' | 'desktop') => {
+  const handleDispatch = async (target: 'all' | 'vps' | 'desktop') => {
     setDispatching(true);
     setCronResult('');
     try {
@@ -240,10 +240,10 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
 
   /**
    * Enfileira a importação do CATÁLOGO COMPLETO (todas as músicas descobertas)
-   * para o DESKTOP processar — Vercel NÃO é usada (o comando vai direto ao
-   * Supabase; o Desktop pega no polling de 1 min). O Desktop importa com o
-   * pipeline do cron (variantes Simplificada, idioma, dedupe, histórico) e o
-   * status aparece na lista de comandos abaixo.
+   * para as máquinas locais processarem — Vercel NÃO é usada (o comando vai
+   * direto ao Supabase; a VPS/Desktop pega no polling de 1 min). A máquina
+   * importa com o pipeline do cron (variantes Simplificada, idioma, dedupe,
+   * histórico) e o status aparece na lista de comandos abaixo.
    */
   const handleDispatchArtistImport = async () => {
     const root = artistRootUrl(urlInput, links);
@@ -259,7 +259,7 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
         body: [
           {
             command: 'run',
-            target: 'desktop', // única máquina ativa (além desta) — vira 'desktop' no painel
+            target: 'all', // qualquer máquina local ativa (VPS 24/7 ou Desktop) pega
             artist_url: root,
             platform_id: null,
             update_existing: false,
@@ -272,8 +272,8 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
         );
       } else {
         setCronResult(
-          `✅ Catálogo completo enfileirado para o Desktop: ${links.length} músicas (${root}). ` +
-            `O Desktop pega na próxima checagem (até 1-2 min) e importa tudo com o pipeline do cron — acompanhe o status abaixo.`
+          `✅ Catálogo completo enfileirado: ${links.length} músicas (${root}). ` +
+            `A VPS (24/7) ou o Desktop pega na próxima checagem (até 1-2 min) e importa tudo com o pipeline do cron — acompanhe o status abaixo.`
         );
         await loadCommands();
       }
@@ -956,7 +956,13 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
                     <MonitorCog className="w-3.5 h-3.5 text-[#0E7C7B]" />
-                    {w.worker === 'vercel' ? 'Vercel (cron diário)' : w.worker}
+                    {w.worker === 'vercel'
+                      ? 'Vercel (cron diário)'
+                      : w.worker === 'vps'
+                        ? 'VPS (Linux — 24/7)'
+                        : w.worker === 'desktop'
+                          ? 'Desktop'
+                          : w.worker}
                   </span>
                   <span
                     className={`text-[9px] px-2 py-0.5 rounded-full font-extrabold uppercase tracking-wider border ${status.cls}`}
@@ -998,25 +1004,25 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
         </div>
       </div>
 
-      {/* ── Rodada imediata nas máquinas (Acer/Desktop) ────────────────── */}
+      {/* ── Rodada imediata nas máquinas (VPS/Desktop) ────────────────── */}
       <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs space-y-4">
         <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
           <MonitorCog className="w-5 h-5 text-[#0E7C7B]" />
           <h2 className="text-sm font-extrabold text-[#1D2D44] uppercase tracking-wider">
-            Rodada Imediata nas Máquinas (Acer / Desktop)
+            Rodada Imediata nas Máquinas (VPS / Desktop)
           </h2>
         </div>
 
         <p className="text-xs text-slate-500 leading-relaxed">
-          Enfileira um comando no Supabase que o <strong>Acer</strong> e o <strong>Desktop</strong>{' '}
-          (Linux Mint — Tailscale) consultam no início de cada execução (a cada 30 min). Você dispara uma rodada{' '}
+          Enfileira um comando no Supabase que a <strong>VPS</strong> (24/7) e o <strong>Desktop</strong>{' '}
+          (Tailscale) consultam no início de cada execução. Você dispara uma rodada{' '}
           <strong>agora</strong>, sem esperar o agendamento. Requisito: as máquinas precisam rodar o
           bundle atualizado (regere com <code className="text-[#0E7C7B] font-mono">npm run build:cron</code>{' '}
           e copie o <code className="text-[#0E7C7B] font-mono">dist-cron/</code> para elas).
         </p>
 
         <div className="flex flex-wrap items-center gap-2">
-          {(['all', 'acer', 'desktop'] as const).map((target) => (
+          {(['all', 'vps', 'desktop'] as const).map((target) => (
             <button
               key={target}
               onClick={() => handleDispatch(target)}
@@ -1030,8 +1036,8 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
               )}
               {target === 'all'
                 ? 'Rodar em Todas as Máquinas'
-                : target === 'acer'
-                  ? 'Rodar no Acer'
+                : target === 'vps'
+                  ? 'Rodar na VPS'
                   : 'Rodar no Desktop'}
             </button>
           ))}

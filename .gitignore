@@ -64,3 +64,5 @@ dev/null
 
 # Bundle de demo do painel admin (gerado por scripts/build-stats-demo.mjs)
 public/admin-stats-demo.js
+docs/anydesk-vps.md
+docs/acesso-vps.md
