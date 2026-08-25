@@ -15,18 +15,13 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="UkeMaster Pro" />
 
-    <!-- Google AdSense (loader no head — exigido pelo Google para o site ser
-         reconhecido desde o primeiro load; o id "adsense-loader" é o mesmo que
-         o AdSenseSlot.tsx procura, evitando injeção duplicada do script). -->
-    <script
-      id="adsense-loader"
-      async
-      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7409769323856107"
-      crossorigin="anonymous"
-    ></script>
-    <!-- Método alternativo de verificação do AdSense (além do snippet e do
-         ads.txt) — o Google aceita a meta tag google-adsense-account no head. -->
+    <!-- Google AdSense: meta tag para verificação da conta + auto-ads.
+         O script principal (adsbygoogle.js) é injetado dinamicamente pelo
+         AdSenseSlot.tsx quando há slots na página. O auto-ads abaixo permite
+         que o Google decida posições adicionais automaticamente. -->
     <meta name="google-adsense-account" content="ca-pub-7409769323856107" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7409769323856107"
+     crossorigin="anonymous"></script>
 
     <!-- SEO / Open Graph -->
     <title>UkeMaster Pro — 16.000+ Cifras de Ukulele, Acordes & Afinador</title>

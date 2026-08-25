@@ -24,6 +24,8 @@ import {
   YOUTUBE_CHANNEL_URL,
 } from '../lib/youtubeChannel';
 import { AdSenseSlot } from './AdSenseSlot';
+import { ADSENSE_SLOTS } from '../config';
+import { getAbVariant } from '../lib/abTest';
 
 /** Considera "novo" o vídeo publicado nos últimos 14 dias (badge NOVO). */
 const NEW_VIDEO_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
@@ -32,6 +34,8 @@ interface SideWidgetsProps {
   /** Cifra em destaque do dia (preenchida pelo App — abre ao clicar). */
   featuredSong?: Song | null;
   onSelectFeaturedSong?: (song: Song) => void;
+  /** Mostra o slot AdSense só em páginas com conteúdo editorial (AdSense policy). */
+  showAd?: boolean;
 }
 
 type WidgetKind = 'featured' | 'tip' | 'whatsapp' | 'youtube';
@@ -71,8 +75,12 @@ function formatRelativeTime(iso: string, lang: string): string {
 export const SideWidgets: React.FC<SideWidgetsProps> = ({
   featuredSong,
   onSelectFeaturedSong,
+  showAd = true,
 }) => {
   const { t, lang } = useT();
+
+  // A/B test: sidebar_ad — control = mostrar ad, hide = esconder ad
+  const sidebarVariant = getAbVariant('sidebar_ad');
   const tipOfTheDay = useMemo(() => getTipOfTheDay(t), [t]);
 
   // ── Vídeos do canal do YouTube ────────────────────────────────────────
@@ -401,13 +409,13 @@ export const SideWidgets: React.FC<SideWidgetsProps> = ({
       </div>
 
       {/* Anúncio do AdSense — retângulo de sidebar, logo abaixo dos widgets.
-          Mesmo padrão do StickyBottomAd: o slot é renderizado sempre e o
-          Google só serve o anúncio quando a conta for aprovada (aí basta
-          ligar ADSENSE_APPROVED no config.ts para a Monetag desligar). O
-          min-h evita o layout "pular" quando o anúncio carregar. */}
-      <div className="min-h-[100px]">
-        <AdSenseSlot format="rectangle" label="" className="min-h-[100px]" />
-      </div>
+          Só renderiza em páginas com conteúdo editorial (AdSense policy:
+          no ad units on pages without substantial original content). */}
+      {showAd && sidebarVariant === 'control' && (
+        <div className="min-h-[100px]">
+          <AdSenseSlot format="autorelaxed" label="Publicidade" className="min-h-[100px]" adSlot={ADSENSE_SLOTS.sidebar} abTestId="sidebar_ad" />
+        </div>
+      )}
     </aside>
 
     {/* Player embutido: assiste na própria página (modal), sem sair do site.

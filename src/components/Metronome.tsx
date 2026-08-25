@@ -7,11 +7,22 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Play, Pause, RotateCcw, Timer, HeartPulse } from 'lucide-react';
 import { useT } from '../lib/i18n';
+import { useToolSeo } from '../hooks/useToolSeo';
 
 const clampBpm = (bpm: number) => Math.max(30, Math.min(240, bpm));
 
 export const Metronome: React.FC = () => {
   const { t } = useT();
+
+  // SEO: JSON-LD WebApplication para metrônomo
+  useToolSeo({
+    slug: 'metronomo',
+    title: 'Metrônomo Online Grátis para Ukulele',
+    description: 'Metrônomo online gratuito com BPM ajustável, subdivisions (semínima, colcheia, tercina) e compassos 2/4, 3/4, 4/4, 6/8. Ideal para praticar ukulele.',
+    url: `${window.location.origin}/ritmos`,
+    applicationCategory: 'MultimediaApplication',
+  });
+
   const [bpm, setBpm] = useState<number>(90);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [subdivision, setSubdivision] = useState<string>('1/4');
@@ -294,6 +305,156 @@ export const Metronome: React.FC = () => {
       <p className="text-[10px] text-slate-400 max-w-2xl leading-relaxed flex items-start gap-1.5">
         {t('metronome.tip')}
       </p>
+
+      {/* Conteúdo editorial educativo — guia completo de metrônomo e prática (AdSense: substantial original content, 1000+ words) */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-2xs space-y-6">
+        <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+          <Timer className="w-5 h-5 text-[#0E7C7B]" /> Metrônomo: Como Usar para Evoluir Rápido
+        </h3>
+
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div className="bg-[#0E7C7B]/5 border border-[#0E7C7B]/20 rounded-xl p-4 space-y-2">
+            <h4 className="text-sm font-extrabold text-[#0E7C7B]">🎯 Por que Usar Metrônomo?</h4>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              O metrônomo é a ferramenta mais importante para desenvolver <strong>timing</strong> — a
+              capacidade de manter o ritmo constante. Músicos com bom timing tocam melhor em
+              banda, gravam mais fácil e impressionam mais o público. Pratique com metrônomo
+              <strong> todos os dias</strong>, mesmo que por 5 minutos. Estudos mostram que músicos
+              que praticam com metrônomo evoluem 2-3x mais rápido que tocam "só no feeling".
+              O metrônomo expõe fraquezas que passam despercebidas — e só quem enxerga seus erros
+              pode corrigi--lo. Grandes virtuoses como Paul McCartney e Tommy Emmanuel praticam
+              com metrônomo até hoje.
+            </p>
+          </div>
+
+          <div className="bg-amber-50/80 border border-amber-200 rounded-xl p-4 space-y-2">
+            <h4 className="text-sm font-extrabold text-amber-800">⚡ Faixas de BPM por Gênero</h4>
+            <p className="text-[10px] text-slate-500 leading-relaxed mb-1">
+              BPM (Batidas Por Minuto) — a velocidade do andamento. Use estas referências para
+              posicionar o metrônomo antes de tocar:
+            </p>
+            <div className="space-y-1">
+              {[
+                { genre: 'Balada / Lenta', bpm: '60–80 BPM', color: 'text-blue-600' },
+                { genre: 'Pop / Ukulele', bpm: '90–120 BPM', color: 'text-green-600' },
+                { genre: 'Reggae / Samba', bpm: '100–130 BPM', color: 'text-amber-600' },
+                { genre: 'Rock / Sertanejo', bpm: '120–160 BPM', color: 'text-orange-600' },
+                { genre: 'Funk / Rap', bpm: '80–110 BPM', color: 'text-purple-600' },
+              ].map((g) => (
+                <div key={g.genre} className="flex items-center justify-between text-xs">
+                  <span className="text-slate-600 font-medium">{g.genre}</span>
+                  <span className={`font-mono font-bold ${g.color}`}>{g.bpm}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-orange-50/80 border border-orange-200 rounded-xl p-4 space-y-2">
+            <h4 className="text-sm font-extrabold text-orange-800">📈 Método de Prática com Metrônomo</h4>
+            <p className="text-[10px] text-slate-500 leading-relaxed mb-1">
+              O método progressivo é o mais eficiente para desenvolver velocidade e precisão sem
+              formar vícios:
+            </p>
+            <ol className="text-xs text-slate-600 leading-relaxed space-y-1.5 list-decimal list-inside">
+              <li>Comece <strong>lento</strong> (60-70 BPM) — toque a música inteira sem erro.</li>
+              <li>Aumente <strong>5 BPM</strong> por vez e repita até errar.</li>
+              <li>Volte 10 BPM e pratique novamente nesse nível.</li>
+              <li>Use <strong>subdivisões</strong> (colcheia, tercina) para ritmos mais complexos.</li>
+              <li>Tente <strong>tap tempo</strong> (clique no botão) para descobrir o BPM de qualquer música.</li>
+            </ol>
+          </div>
+
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2">
+            <h4 className="text-sm font-extrabold text-slate-800">🎵 Compassos Comuns no Ukulele</h4>
+            <ul className="text-xs text-slate-600 leading-relaxed space-y-1.5 list-disc list-inside">
+              <li><strong>4/4</strong> — O mais comum: pop, rock, sertanejo, samba.</li>
+              <li><strong>3/4</strong> — Valso e baladas: "um-dois-três, um-dois-três".</li>
+              <li><strong>2/4</strong> — Marcha e frevo: "um-dois, um-dois".</li>
+              <li><strong>6/8</strong> — Bossa nova e baladas românticas: dois grupos de três.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-[#0E7C7B]/5 to-teal-50 border border-[#0E7C7B]/20 rounded-xl p-5 space-y-3">
+          <h4 className="text-sm font-extrabold text-[#0E7C7B]">🥁 Como Usar o Metrônomo Passo a Passo</h4>
+          <ol className="text-xs text-slate-700 leading-relaxed space-y-2 list-decimal list-inside">
+            <li><strong>Escolha o BPM correto:</strong> pesquise o andamento da música ou use o botão Tap Tempo para descobrir. Comece sempre 20 BPM mais lento que o original.</li>
+            <li><strong>Ative o acento:</strong> o primeiro beat de cada compasso deve ser mais forte (o metrônomo marca com um som diferente). Isso ajuda a sentir o "um" do compasso.</li>
+            <li><strong>Conte em voz alta:</strong> antes de tocar, conte "um-dois-três-quatro" em voz alta com o metrônomo. Isso sincroniza seu corpo com o andamento.</li>
+            <li><strong>Comece com batidas simples:</strong> toque apenas palmas ou batidas no corpo do ukulele no tempo — sem acordes ainda. Sinta o ritmo primeiro.</li>
+            <li><strong>Adicione os acordes:</strong> quando estiver confortável com as batidas, troque por acordes. Mantenha o metrônomo alto o suficiente para ouvir sobre sua execução.</li>
+            <li><strong>Registre seu progresso:</strong> anote o BPM máximo que você consegue tocar uma música sem errar. Toda semana, tente aumentar 5 BPM.</li>
+          </ol>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div className="bg-blue-50/80 border border-blue-200 rounded-xl p-4 space-y-2">
+            <h4 className="text-sm font-extrabold text-blue-800">🧠 Por que o Ritmo é Mais Importante que a Velocidade?</h4>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Muitos iniciantes cometem o erro de tentar tocar rápido antes de dominar o ritmo.
+              A realidade é que <strong>um acorde perfeitamente no tempo soa melhor que 10 acordes
+              desafinados</strong>. O público percebe quando o ritmo "flui" — isso é o que faz
+              uma música ser envolvente. Um solo técnico sem groove não prende atenção;
+              uma levada simples e firme faz qualquer pessoa querer dançar. Por isso,
+              profissionais priorizam timing acima de qualquer técnica avançada.
+            </p>
+            <p className="text-[10px] text-slate-500 leading-relaxed">
+              Experimente: toque uma música que você domina bem com o metrônomo em 80% da
+              velocidade original. Você vai perceber que soa MELHOR que tocar no ritmo original
+              com hesitações e erros.
+            </p>
+          </div>
+
+          <div className="bg-purple-50/80 border border-purple-200 rounded-xl p-4 space-y-2">
+            <h4 className="text-sm font-extrabold text-purple-800">🥁 Levadas Populares no Ukulele</h4>
+            <div className="space-y-2">
+              <div className="bg-white/80 rounded-lg p-2">
+                <p className="text-[10px] font-bold text-slate-700">Island Strum (Mais Popular)</p>
+                <p className="text-[10px] text-slate-500 font-mono">↓ ↓ ↑ . ↑ ↓ ↑</p>
+                <p className="text-[10px] text-slate-600">Pausa no 3º tempo — "down-down-up, up-down-up"</p>
+              </div>
+              <div className="bg-white/80 rounded-lg p-2">
+                <p className="text-[10px] font-bold text-slate-700">Pop Rock</p>
+                <p className="text-[10px] text-slate-500 font-mono">↓ ↓ ↑ ↑ ↓ ↑</p>
+                <p className="text-[10px] text-slate-600">Simétrico e firme — ideal para rock e sertanejo.</p>
+              </div>
+              <div className="bg-white/80 rounded-lg p-2">
+                <p className="text-[10px] font-bold text-slate-700">Reggae / Ska</p>
+                <p className="text-[10px] text-slate-500 font-mono">. ↑ . ↑ . ↑ . ↑</p>
+                <p className="text-[10px] text-slate-600">Só no tempo fraco — "chuck" no 2 e 4.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-slate-900 rounded-xl p-4 text-center">
+          <p className="text-xs text-slate-400 leading-relaxed max-w-2xl mx-auto">
+            <strong className="text-[#0E7C7B]">Dica Pro:</strong> Grave-se tocando com o metrônomo e
+            ouça depois. Você vai perceber onde "sai do tempo" — isso é o caminho para a
+            <strong className="text-white"> precision</strong> que separa amadores de profissionais.
+            Tente tocar com fones de ouvido para isolar o som do metrônomo e concentra-se
+            em fazer o palhetto cair exatamente quando o "clique" soa.
+          </p>
+        </div>
+
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+          <h4 className="text-sm font-extrabold text-slate-800 mb-2">❓ Perguntas Frequentes</h4>
+          <div className="space-y-3">
+            <div>
+              <p className="text-xs font-bold text-slate-700">Qual BPM devo usar para começar?</p>
+              <p className="text-[11px] text-slate-600 leading-relaxed">Comece sempre entre 60-70 BPM. É mais lento que parece, mas é o ritmo onde você desenvolve precisão. Muitos músicos profissionais praticam em 60 BPM para aquecer.</p>
+            </div>
+            <div>
+              <p className="text-xs font-bold text-slate-700">O metrônomo "mata" a musicalidade?</p>
+              <p className="text-[11px] text-slate-600 leading-relaxed">Não — o contrário! Quando você domina o timing, pode decidir INTENCIONALMENTE adiantar ou atrasar notas (rubato) para criar emoção. Sem timing, essas nuances são acidentes.</p>
+            </div>
+            <div>
+              <p className="text-xs font-bold text-slate-700">Devo praticar sempre com metrônomo?</p>
+              <p className="text-[11px] text-slate-600 leading-relaxed">Não necessariamente 100% do tempo. Use o metrônomo para técnica e precisão, mas reserve tempo para tocar livre ("no feeling") para desenvolver expressão e phrasing.</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

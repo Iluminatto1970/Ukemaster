@@ -24,7 +24,7 @@
     background: var(--paper);
     color: var(--ink);
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    line-height: 1.6;
+    line-height: 1.65;
   }
   .wrap { max-width: 860px; margin: 0 auto; padding: 0 20px; }
 
@@ -45,8 +45,9 @@
   h1 { font-size: clamp(26px, 4vw, 36px); line-height: 1.2; margin: 0 0 6px; color: var(--navy); }
   .updated { color: var(--muted); font-size: 13px; margin: 0 0 26px; }
   h2 { font-size: 18px; margin: 30px 0 8px; color: var(--navy); }
+  h3 { font-size: 15px; margin: 20px 0 6px; color: var(--navy); }
   p { margin: 0 0 12px; font-size: 14.5px; }
-  ul { margin: 0 0 14px; padding-left: 22px; font-size: 14.5px; }
+  ul, ol { margin: 0 0 14px; padding-left: 22px; font-size: 14.5px; }
   li { margin-bottom: 6px; }
   a { color: var(--teal); }
   .note {
@@ -57,9 +58,26 @@
     font-size: 13.5px;
     margin: 16px 0;
   }
+  .note-warn {
+    background: #fef9ee;
+    border: 1px solid #f0dfa0;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13.5px;
+    margin: 16px 0;
+  }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; font-size: 13.5px; }
+  th, td { text-align: left; padding: 8px 10px; border: 1px solid var(--line); }
+  th { background: #f3f4f6; font-weight: 700; color: var(--navy); }
+  .toc { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 0 0 24px; }
+  .toc h2 { margin: 0 0 8px; font-size: 14px; }
+  .toc ol { margin: 0; padding-left: 18px; columns: 2; column-gap: 20px; }
+  .toc li { margin-bottom: 3px; font-size: 13px; }
+  .toc a { text-decoration: none; }
 
   .foot { text-align: center; padding: 26px 20px 40px; color: var(--muted); font-size: 12.5px; border-top: 1px solid var(--line); margin-top: 36px; background: #fff; }
   .foot a { color: var(--teal); text-decoration: none; }
+  @media (max-width: 600px) { .toc ol { columns: 1; } }
 </style>
 </head>
 <body>
@@ -73,63 +91,357 @@
 
   <main class="wrap">
     <h1>Política de Privacidade</h1>
-    <p class="updated">Última atualização: 11 de agosto de 2026</p>
+    <p class="updated">Última atualização: 25 de agosto de 2026</p>
 
-    <p>Esta Política explica como o <b>UkeMaster Pro</b> (o "portal") coleta, usa e protege as informações
-    dos usuários. O portal é <b>100% gratuito</b> e se mantém no ar com anúncios, comunidade (APOIA.se) e
+    <div class="toc">
+      <h2>Sumário</h2>
+      <ol>
+        <li><a href="#dados">Dados que coletamos</a></li>
+        <li><a href="#cookies">Cookies e armazenamento</a></li>
+        <li><a href="#lista-cookies">Lista de cookies</a></li>
+        <li><a href="#ads">Publicidade (AdSense e Monetag)</a></li>
+        <li><a href="#compartilhamento">Compartilhamento de dados</a></li>
+        <li><a href="#retencao">Retenção de dados</a></li>
+        <li><a href="#seguranca">Segurança</a></li>
+        <li><a href="#gdpr">Direitos GDPR (Europa)</a></li>
+        <li><a href="#ccpa">Direitos CCPA (Califórnia)</a></li>
+        <li><a href="#coppa">Crianças (COPPA)</a></li>
+        <li><a href="#terceiros">Serviços de terceiros</a></li>
+        <li><a href="#contato">Contato</a></li>
+        <li><a href="#alteracoes">Alterações desta Política</a></li>
+      </ol>
+    </div>
+
+    <p>Esta Política de Privacidade descreve como o <b>UkeMaster Pro</b> ("portal", "site", "aplicativo")
+    coleta, usa, armazena e protege as informações dos usuários. O portal é
+    <b>100% gratuito</b> e se mantém no ar com anúncios, comunidade
+    (<a href="https://apoia.se/ukemasterpro" target="_blank" rel="noopener">APOIA.se</a>) e
     apoio voluntário. Ao usar o portal, você concorda com esta Política.</p>
 
-    <h2>1. Dados que coletamos</h2>
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="dados">1. Dados que coletamos</h2>
+
+    <h3>1.1 Dados fornecidos por você</h3>
     <ul>
-      <li><b>Dados de conta:</b> nome de usuário e e-mail (se você criar uma conta — autenticação via Supabase, com senha armazenada com hash seguro).</li>
-      <li><b>Conteúdo que você cria:</b> repertório privado, playlists, favoritos, comentários e certificados de trilhas.</li>
-      <li><b>Dados técnicos básicos:</b> as páginas visitadas, de forma anônima e agregada, apenas para melhorar o portal.</li>
+      <li><b>Conta (opcional):</b> nome de usuário e endereço de e-mail, fornecidos ao criar uma conta.
+      A autenticação é feita via Supabase, com senha armazenada com hash seguro (bcrypt).
+      Você pode usar o portal sem criar conta.</li>
+      <li><b>Conteúdo que você cria:</b> repertório privado, playlists, favoritos, votos em músicas,
+      comentários e certificados de trilhas de aprendizado.</li>
+      <li><b>Contato voluntário:</b> nome, e-mail e WhatsApp, fornecidos ao participar do formulário
+      de captação de lead (opcional, antes do cadastro).</li>
     </ul>
-    <p>Não vendemos nem alugamos seus dados a ninguém. Cifras e acordes são gratuitos para toda a comunidade.</p>
 
-    <h2>2. Cookies e armazenamento local</h2>
-    <p>Usamos <b>cookies de sessão</b> (para manter você conectado), <b>armazenamento local do navegador</b>
-    (preferências, cache de cifras e configurações de anúncios) e cookies de <b>redes de anúncios</b> (veja abaixo).</p>
+    <h3>1.2 Dados coletados automaticamente</h3>
+    <ul>
+      <li><b>Dados de uso:</b> páginas visitadas, tempo de permanência, ações realizadas
+      (abrir cifra, voto, busca) — de forma anônima e agregada, apenas para melhorar o portal.</li>
+      <li><b>Dados do dispositivo:</b> tipo de navegador, sistema operacional, resolução de tela,
+      idioma — para otimizar a experiência.</li>
+      <li><b>Endereço IP:</b> registrado temporariamente em logs de servidor para segurança
+      (proteção contra ataques) e geolocalização aproximada para anúncios relevantes.</li>
+    </ul>
 
-    <h2>3. Publicidade (Google AdSense e Monetag)</h2>
-    <p>Para manter o portal gratuito, exibimos anúncios fornecidos pelo <b>Google AdSense</b> e, durante o período
-    de transição, também pela rede <b>Monetag</b> (incluindo notificações push, somente para quem aceitar).</p>
+    <h3>1.3 Dados que NÃO coletamos</h3>
+    <ul>
+      <li>Número de telefone ou endereço físico</li>
+      <li>Dados financeiros ou de pagamento</li>
+      <li>Informações de saúde ou biométricas</li>
+      <li>Dados de menores de 13 anos (ver seção <a href="#coppa">COPPA</a>)</li>
+    </ul>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="cookies">2. Cookies e armazenamento local</h2>
+
+    <p>Este site utiliza cookies e tecnologias similares para:</p>
+    <ul>
+      <li><b>Funcionamento básico:</b> manter você conectado, lembrar preferências (tema, idioma, configurações do afinador).</li>
+      <li><b>Anúncios:</b> exibir publicidade relevante (Google AdSense, Monetag) e medir eficácia.</li>
+      <li><b>Analytics:</b> entender como o portal é utilizado (de forma agregada e anônima).</li>
+    </ul>
+
+    <p>Você pode gerenciar cookies nas configurações do seu navegador. Ao desativar cookies
+    completos, algumas funcionalidades podem ficar indisponíveis (login, preferências salvas).</p>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="lista-cookies">3. Lista de cookies</h2>
+
+    <table>
+      <thead>
+        <tr><th>Cookie</th><th>Fornecedor</th><th>Finalidade</th><th>Duração</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>sb-access-token</code> / <code>sb-refresh-token</code></td>
+          <td>Supabase</td>
+          <td>Autenticação da sessão do usuário</td>
+          <td>Sessão / 7 dias</td>
+        </tr>
+        <tr>
+          <td><code>ukemaster_songs_v1</code></td>
+          <td>UkeMaster</td>
+          <td>Cache local de músicas (localStorage)</td>
+          <td>Até limpeza manual</td>
+        </tr>
+        <tr>
+          <td><code>ukemaster_playlists_v1</code></td>
+          <td>UkeMaster</td>
+          <td>Cache local de playlists (localStorage)</td>
+          <td>Até limpeza manual</td>
+        </tr>
+        <tr>
+          <td><code>ukemaster_ads_shown</code></td>
+          <td>UkeMaster</td>
+          <td>Contador diário de anúncios intersticiais (localStorage)</td>
+          <td>1 dia</td>
+        </tr>
+        <tr>
+          <td><code>ukemaster_splash_seen</code></td>
+          <td>UkeMaster</td>
+          <td>Controle da splash screen (1x por dia)</td>
+          <td>1 dia</td>
+        </tr>
+        <tr>
+          <td><code>_ga</code> / <code>_gid</code></td>
+          <td>Google Analytics*</td>
+          <td>Análise de tráfego (se habilitado)</td>
+          <td>2 anos / 24h</td>
+        </tr>
+        <tr>
+          <td><code>__gads</code> / <code>IDE</code></td>
+          <td>Google AdSense</td>
+          <td>Anúncios personalizados (DART cookie)</td>
+          <td>1-2 anos</td>
+        </tr>
+        <tr>
+          <td><code>monetag_* / ntfc_* / nap5k_*</code></td>
+          <td>Monetag</td>
+          <td>Notificações push, vignette, in-page push</td>
+          <td>Sessão / 30 dias</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="font-size:12.5px; color: var(--muted);">* Google Analytics é opcional e pode estar desabilitado.
+    Cookies de terceiros são regidos pelas políticas de cada fornecedor.</p>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="ads">4. Publicidade (Google AdSense e Monetag)</h2>
+
+    <p>Para manter o portal gratuito, exibimos anúncios fornecidos pelo <b>Google AdSense</b> e,
+    durante o período de transição, também pela rede <b>Monetag</b>.</p>
+
+    <h3>4.1 Google AdSense</h3>
     <div class="note">
-      <p style="margin:0;"><b>Google AdSense:</b> o Google, como fornecedor terceirizado, utiliza cookies para exibir anúncios
-      neste site. O uso do cookie DART pelo Google permite exibir anúncios com base nas visitas dos usuários a este e a
-      outros sites na Internet. Os usuários podem desativar o cookie DART acessando as
-      <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener">políticas de privacidade da rede de conteúdo e de anúncios do Google</a>.</p>
+      <p style="margin:0;"><b>Google AdSense:</b> o Google, como fornecedor terceirizado, utiliza cookies
+      para exibir anúncios neste site. O uso do cookie DART pelo Google permite exibir anúncios
+      com base nas visitas dos usuários a este e a outros sites na Internet. Os usuários podem
+      desativar o cookie DART acessando as
+      <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener">políticas
+      de privacidade da rede de conteúdo e de anúncios do Google</a>.</p>
     </div>
     <ul>
-      <li>O Google e seus parceiros podem exibir anúncios com base nas suas visitas a este site e a outros sites da Internet.</li>
-      <li>Você pode saber mais e desativar anúncios personalizados em
-        <a href="https://adssettings.google.com" target="_blank" rel="noopener">https://adssettings.google.com</a>.</li>
-      <li>Links de <b>afiliados</b> (Mercado Livre, Shopee, Amazon, etc.) e <b>parceiros</b> podem usar cookies próprios para medir cliques e comissões.</li>
+      <li>O Google e seus parceiros podem exibir anúncios com base nas suas visitas a este site e a
+      outros sites da Internet.</li>
+      <li>Você pode desativar anúncios personalizados em
+      <a href="https://adssettings.google.com" target="_blank" rel="noopener">adssettings.google.com</a>.</li>
+      <li>Links de <b>afiliados</b> (Mercado Livre, Shopee, Amazon, etc.) e <b>parceiros</b> podem usar
+      cookies próprios para medir cliques e comissões.</li>
     </ul>
 
-    <h2>4. Compartilhamento de dados</h2>
-    <p>Seus dados são armazenados de forma segura (Supabase) com acesso restrito. Nada é vendido ou alugado.
-    Compartilhamos apenas: (a) com redes de anúncios, o necessário para exibir anúncios (dados anônimos);
-    (b) com o <a href="https://apoia.se/ukemasterpro" target="_blank" rel="noopener">APOIA.se</a>, caso você faça uma
-    doação (os dados ficam na plataforma de doação); e (c) quando exigido por lei.</p>
-
-    <h2>5. Segurança</h2>
-    <p>Usamos HTTPS em todas as conexões, autenticação segura (Supabase), isolamento entre usuários e boas práticas
-    de segurança. Recomendamos usar senhas fortes e não compartilhá-las.</p>
-
-    <h2>6. Seus direitos</h2>
+    <h3>4.2 Monetag (período de transição)</h3>
+    <p>A rede Monetag fornece notificações push (somente para quem aceitar voluntariamente), banners
+    in-page e vignettes (anúncios de tela cheia exibidos periodicamente). A Monetag será
+    <b>desativada automaticamente</b> assim que o Google AdSense for aprovado.</p>
     <ul>
-      <li><b>Excluir sua conta e dados:</b> você pode solicitar a exclusão pelo portal (ou falando com o administrador).</li>
-      <li><b>Desativar anúncios personalizados</b> em <a href="https://adssettings.google.com" target="_blank" rel="noopener">adssettings.google.com</a>.</li>
-      <li><b>Recusar notificações push</b> a qualquer momento nas configurações do navegador.</li>
+      <li><b>Web Push:</b> o navegador pede permissão ao usuário. Aceitar é voluntário — você pode
+      recusar ou desativar depois nas configurações do navegador.</li>
+      <li><b>Vignette:</b> anúncio de tela cheia exibido periodicamente (máximo 4 vezes por dia).</li>
+      <li>Para mais informações, consulte a
+      <a href="https://monetag.com/privacy-policy/" target="_blank" rel="noopener">Política de Privacidade da Monetag</a>.</li>
     </ul>
 
-    <h2>7. Contato</h2>
-    <p>Dúvidas sobre esta Política ou sobre seus dados: fale com o administrador do portal
-    (link no rodapé do site).</p>
+    <h3>4.3 Anúncios intersticiais</h3>
+    <p>Alguns links e ações (abrir cifra, baixar conteúdo) podem exibir um anúncio intersticial
+    antes de liberar o acesso. Este mecanismo é controlado pelo site e tem limite de
+    <b>4 exibições por dia</b> com intervalo mínimo de <b>5 minutos</b> entre exibições.</p>
 
-    <h2>8. Alterações desta Política</h2>
-    <p>Esta Política pode ser atualizada quando necessário. A data no topo indica a versão mais recente.</p>
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="compartilhamento">5. Compartilhamento de dados</h2>
+
+    <p>Seus dados são armazenados de forma segura (Supabase) com acesso restrito. Nada é vendido
+    ou alugado. Compartilhamos apenas:</p>
+    <ol>
+      <li><b>Redes de anúncios</b> (Google, Monetag): dados anônimos de navegação, necessários para
+      exibir publicidade relevante.</li>
+      <li><b>APOIA.se:</b> caso você faça uma doação, os dados ficam na plataforma de doação e não
+      são acessados pelo UkeMaster Pro.</li>
+      <li><b>Legais:</b> quando exigido por lei ou ordem judicial.</li>
+    </ol>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="retencao">6. Retenção de dados</h2>
+
+    <table>
+      <thead>
+        <tr><th>Tipo de dado</th><th>Retenção</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Conta do usuário</td><td>Enquanto a conta existir (excluído a pedido)</td></tr>
+        <tr><td>Repertório / playlists</td><td>Enquanto a conta existir</td></tr>
+        <tr><td>Votos e comentários</td><td>Enquanto a conta existir</td></tr>
+        <tr><td>Certificados de trilhas</td><td>Enquanto a conta existir (ou exclusão local)</td></tr>
+        <tr><td>Logs de servidor</td><td>30 dias (rotatividade automática)</td></tr>
+        <tr><td>Dados de analytics</td><td>26 meses (Google Analytics padrão)</td></tr>
+        <tr><td>Cache local (localStorage)</td><td>Até o usuário limpar dados do navegador</td></tr>
+        <tr><td>Dados de push notification</td><td>Enquanto o usuário não desativar</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="seguranca">7. Segurança</h2>
+
+    <ul>
+      <li><b>HTTPS:</b> todas as conexões são criptografadas (TLS 1.2+).</li>
+      <li><b>Autenticação:</b> senhas são armazenadas com hash seguro (Supabase/PostgreSQL + bcrypt).</li>
+      <li><b>Isolamento:</b> cada usuário só acessa seus próprios dados (Row Level Security no Supabase).</li>
+      <li><b>Acesso restrito:</b> dados sensíveis são acessíveis apenas pelo proprietário do portal.</li>
+    </ul>
+    <p>Recomendamos usar senhas fortes e não compartilhá-las. Nenhum sistema é 100% seguro —
+    caso suspeite de uso não autorizado, entre em contato imediatamente.</p>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="gdpr">8. Direitos GDPR (União Europeia)</h2>
+
+    <p>Se você está na União Europeia, EEA ou Reino Unido, você tem direitos adicionais sob o
+    <b>Regulamento Geral de Proteção de Dados (GDPR)</b>:</p>
+
+    <ul>
+      <li><b>Acesso:</b> solicitar uma cópia de todos os dados que temos sobre você.</li>
+      <li><b>Retificação:</b> corrigir dados incompletos ou incorretos.</li>
+      <li><b>Exclusão ("direito ao esquecimento"):</b> solicitar a exclusão permanente de todos os seus dados.</li>
+      <li><b>Restrição:</b> limitar o processamento dos seus dados em certas circunstâncias.</li>
+      <li><b>Portabilidade:</b> receber seus dados em formato estruturado e legível por máquina.</li>
+      <li><b>Objeção:</b> se opor ao processamento dos seus dados para fins de marketing direto.</li>
+      <li><b>Revogação do consentimento:</b> retirar o consentimento a qualquer momento (sem afetar
+      o processamento anterior).</li>
+    </ul>
+
+    <p><b>Base legal para processamento:</b></p>
+    <ul>
+      <li><b>Execução de contrato:</b> processar dados para fornecer o serviço (conta, repertório, cifras).</li>
+      <li><b>Legítimo interesse:</b> analytics agregados, segurança, prevenção de fraude.</li>
+      <li><b>Consentimento:</b> cookies de anúncios, notificações push.</li>
+    </ul>
+
+    <p>Para exercer seus direitos GDPR, entre em contato pelo e-mail indicado na seção
+    <a href="#contato">Contato</a>. Responderemos em até <b>30 dias</b>.</p>
+
+    <div class="note">
+      <p style="margin:0;"><b>Encarregado de Dados (DPO):</b> como o UkeMaster Pro é um projeto
+      individual de pequena escala, o proprietário atua como ponto de contato para assuntos
+      de proteção de dados.</p>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="ccpa">9. Direitos CCPA (Califórnia, EUA)</h2>
+
+    <p>Se você é residente da Califórnia, você tem direitos adicionais sob a
+    <b>California Consumer Privacy Act (CCPA)</b> e a <b>California Privacy Rights Act (CPRA)</b>:</p>
+
+    <ul>
+      <li><b>Direito de saber:</b> quais dados pessoais coletamos, como os usamos e com quem
+      compartilhamos.</li>
+      <li><b>Direito de exclusão:</b> solicitar a exclusão dos seus dados pessoais.</li>
+      <li><b>Direito de opt-out:</b> optar por não ter seus dados pessoais vendidos. O UkeMaster Pro
+      <b>não vende dados pessoais</b> a terceiros.</li>
+      <li><b>Direito de não ser discriminado:</b> não ser discriminado por exercer seus direitos
+      de privacidade.</li>
+    </ul>
+
+    <p>Para exercer seus direitos CCPA, entre em contato pelo e-mail indicado na seção
+    <a href="#contato">Contato</a>.</p>
+
+    <div class="note">
+      <p style="margin:0;"><b>Venda de dados:</b> o UkeMaster Pro <b>não vende</b> dados pessoais
+      conforme definido pelo CCPA. Dados de navegação anônimos podem ser compartilhados com
+      redes de anúncios para fins de publicidade, mas isso não constitui "venda" de dados
+      pessoais identificáveis.</p>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="coppa">10. Crianças (COPPA)</h2>
+
+    <p>O UkeMaster Pro <b>não é direcionado a crianças menores de 13 anos</b> (ou 16 anos na
+    União Europeia). Não coletamos intencionalmente dados pessoais de crianças.</p>
+
+    <ul>
+      <li>Se você é pai/mãe e acredita que seu filho forneceu dados pessoais, entre em contato
+      para que possamos excluí-los.</li>
+      <li>Se soubermos que coletamos dados de uma criança, excluiremos essas informações
+      imediatamente.</li>
+    </ul>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="terceiros">11. Serviços de terceiros</h2>
+
+    <p>Utilizamos os seguintes serviços de terceiros que podem coletar dados:</p>
+
+    <table>
+      <thead>
+        <tr><th>Serviço</th><th>Fornecedor</th><th>Finalidade</th><th>Política</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Autenticação e banco de dados</td>
+          <td>Supabase</td>
+          <td>Conta, cifras, playlists</td>
+          <td><a href="https://supabase.com/privacy" target="_blank" rel="noopener">Política</a></td>
+        </tr>
+        <tr>
+          <td>Anúncios</td>
+          <td>Google AdSense</td>
+          <td>Publicidade</td>
+          <td><a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Política</a></td>
+        </tr>
+        <tr>
+          <td>Notificações push / banners</td>
+          <td>Monetag</td>
+          <td>Publicidade (transição)</td>
+          <td><a href="https://monetag.com/privacy-policy/" target="_blank" rel="noopener">Política</a></td>
+        </tr>
+        <tr>
+          <td>Hospedagem</td>
+          <td>Vercel</td>
+          <td>Servidor e CDN</td>
+          <td><a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener">Política</a></td>
+        </tr>
+        <tr>
+          <td>Vídeos</td>
+          <td>YouTube</td>
+          <td>Videoaulas embutidas</td>
+          <td><a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Política</a></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="contato">12. Contato</h2>
+
+    <p>Dúvidas, solicitações ou exercícios de direitos sobre esta Política ou sobre seus dados:</p>
+    <ul>
+      <li><b>E-mail:</b> <a href="mailto:iluminatto@gmail.com">iluminatto@gmail.com</a></li>
+      <li><b>Proprietário:</b> Iluminatto Moraes</li>
+      <li><b>Portal:</b> <a href="https://ukemasterpro.com">ukemasterpro.com</a></li>
+    </ul>
+    <p>Responderemos todas as solicitações em até <b>30 dias</b> (ou prazo legal aplicável).</p>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="alteracoes">13. Alterações desta Política</h2>
+
+    <p>Esta Política pode ser atualizada quando necessário. A data no topo indica a versão mais
+    recente. Mudanças significativas serão comunicadas pelo portal ou por e-mail (se você tiver
+    uma conta).</p>
+
   </main>
 
   <footer class="foot">

@@ -56,33 +56,38 @@ import { StickyBottomAd } from './components/StickyBottomAd';
 import { useT } from './lib/i18n';
 import { AdInterstitialModal } from './components/AdInterstitialModal';
 import { Monetag } from './components/Monetag';
+import { ConsentManager } from './components/ConsentManager';
 import { SupportPrompt } from './components/SupportPrompt';
 import { LeadCaptureModal } from './components/LeadCaptureModal';
 import { SplashScreen } from './components/SplashScreen';
+import { ADSENSE_APPROVED } from './config';
 
 /** Máximo de anúncios intersticiais por dia (por dispositivo) — equilíbrio
  * entre receita e experiência: depois do limite, as ações abrem direto. */
-const ADS_DAILY_LIMIT = 6;
+const ADS_DAILY_LIMIT = 4;
 
 /**
  * Cadência do intersticial por AÇÃO (contador por sessão): a ação abre o
  * modal quando contador % every === 0. Todas compartilham o limite diário
  * (ADS_DAILY_LIMIT) e o intervalo mínimo (MIN_AD_INTERVAL_MS) — é o
  * "sempre com limite diário".
- *   song       → abrir cifra: a cada 3ª (era 6ª; aumentado a pedido do
- *                proprietário, mantendo limite diário + intervalo)
- *   download   → baixar cifra/coleção: a cada 2º
- *   playlists  → abrir playlists: a cada 3ª
- *   tuner      → entrar no afinador: a cada 2ª
- *   metronome  → entrar no metrônomo: a cada 2ª
+ *
+ * SUAVIZADO (ago/2026): cadências antigas (2ª/3ª) eram agressivas e
+ * geravam reclamações. Agora o usuário consegue navegar com naturalidade
+ * e só vê o intersticial em momentos de "pausa" entre ações.
+ *   song       → abrir cifra: a cada 5ª vez
+ *   download   → baixar cifra/coleção: a cada 3ª vez
+ *   playlists  → abrir playlists: a cada 5ª vez
+ *   tuner      → entrar no afinador: a cada 5ª vez
+ *   metronome  → entrar no metrônomo: a cada 5ª vez
  */
 type AdGateKey = 'song' | 'download' | 'playlists' | 'tuner' | 'metronome';
 const AD_GATE_EVERY: Record<AdGateKey, number> = {
-  song: 3,
-  download: 2,
-  playlists: 3,
-  tuner: 2,
-  metronome: 2,
+  song: 5,
+  download: 3,
+  playlists: 5,
+  tuner: 5,
+  metronome: 5,
 };
 import {
   loadRepertoire,
@@ -347,7 +352,7 @@ export default function App() {
   // conseguir navegar/ler sem ser interrompido a cada ação.
   const adsShownRef = useRef<{ date: string; count: number }>({ date: '', count: 0 });
   const lastAdAtRef = useRef<number>(0);
-  const MIN_AD_INTERVAL_MS = 3 * 60 * 1000; // 3 minutos entre intersticiais
+  const MIN_AD_INTERVAL_MS = 5 * 60 * 1000; // 5 minutos entre intersticiais (era 3)
   // Contadores por ação (sessão) — ver AD_GATE_EVERY
   const adGateCountersRef = useRef<Record<AdGateKey, number>>({
     song: 0,
@@ -393,6 +398,12 @@ export default function App() {
     run: () => void,
     meta?: { title?: string; artist?: string; openLabel?: string }
   ) => {
+    // Quando o AdSense é aprovado, a Monetag é desligada e o interstitial
+    // da Monetag não existe mais — libera a ação direto sem gate.
+    if (ADSENSE_APPROVED) {
+      run();
+      return;
+    }
     adGateCountersRef.current[key] += 1;
     const count = adGateCountersRef.current[key];
     const now = Date.now();
@@ -1103,8 +1114,53 @@ export default function App() {
       blog: 'Blog',
       admin: 'Admin',
     };
-    trackPageView(labels[activeTab] || activeTab);
+    const paths: Record<ActiveTab, string> = {
+      dashboard: '/dashboard',
+      musicas: '/musicas',
+      dicionario: '/dicionario',
+      trilhas: '/trilhas',
+      afinador: '/afinador',
+      ritmos: '/ritmos',
+      metronomo: '/metronomo',
+      videos: '/videos',
+      blog: '/blog',
+      admin: '/admin',
+    };
+    trackPageView(labels[activeTab] || activeTab, paths[activeTab]);
     trackEvent('tab_view', { tab: activeTab });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
+
+  // Analytics: scroll depth — rastrea o quanto o usuário rola em cada página.
+  // Dados de scroll depth ajudam a otimizar posições de anúncio:
+  //  - Se 80% dos usuários rolam até 500px, colocar ads nessa altura maximiza impressões.
+  //  - Se a maioria não passa de 300px, ads no final da página são desperdício.
+  useEffect(() => {
+    let maxScrollPercent = 0;
+    let sent = false;
+
+    const onScroll = () => {
+      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (scrollHeight <= 0) return;
+      const percent = Math.round((window.scrollY / scrollHeight) * 100);
+      if (percent > maxScrollPercent) maxScrollPercent = percent;
+    };
+
+    const onBeforeUnload = () => {
+      if (sent || maxScrollPercent === 0) return;
+      sent = true;
+      // Envia a faixa de scroll (buckets: 25, 50, 75, 90, 100)
+      const bucket = maxScrollPercent >= 100 ? '100' : maxScrollPercent >= 90 ? '90' : maxScrollPercent >= 75 ? '75' : maxScrollPercent >= 50 ? '50' : maxScrollPercent >= 25 ? '25' : '0';
+      trackEvent('scroll_depth', { percent: bucket, max_percent: maxScrollPercent });
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('beforeunload', onBeforeUnload);
+      onBeforeUnload(); // envia ao desmontar (troca de tab)
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
@@ -1206,10 +1262,25 @@ export default function App() {
     });
   };
 
+  // ── AdSense: só exibe anúncios em telas com conteúdo editorial ───────
+  // Evita violação de política do Google AdSense ("valuable content").
+  // Telas SEM conteúdo: editor, playlists, dashboard, admin.
+  // Telas COM conteúdo: lista de músicas, cifra, dicionário, ritmos,
+  //   trilhas, vídeos, blog, afinador, metrônomo.
+  const hasEditorialContent = useMemo(() => {
+    if (verifyCode) return false;
+    if (activeTab === 'dashboard' || activeTab === 'admin') return false;
+    if (activeTab === 'musicas' && (viewMode === 'editor' || viewMode === 'playlists')) return false;
+    return true;
+  }, [activeTab, viewMode, verifyCode]);
+
   return (
     <div className="min-h-screen bg-bg-brand text-slate-900 font-sans antialiased flex flex-col">
       {/* Splash de abertura — aparece 1x por dia, some sozinha (fade out) */}
       {showSplash && <SplashScreen onFinish={finishSplash} />}
+
+      {/* Consent Management Platform (CMP) — GDPR/TCF v2 para visitantes europeus */}
+      <ConsentManager />
 
       {/* Monetag Ads (banners in-page) — script injetado no <head> */}
       <Monetag />
@@ -1490,6 +1561,7 @@ export default function App() {
             setViewMode('list');
             handleSelectSong(song);
           }}
+          showAd={hasEditorialContent}
         />
       </div>
 
@@ -1531,8 +1603,8 @@ export default function App() {
         </div>
       </footer>
 
-      {/* Sticky Bottom Ad Banner (mobile: apenas se houver conteúdo — hoje é placeholder) */}
-      <StickyBottomAd />
+      {/* Sticky Bottom Ad Banner (mobile) — só em telas com conteúdo editorial */}
+      <StickyBottomAd show={hasEditorialContent} />
 
       {/* Interstitial Ad Modal — gate genérico: libera a ação pendente
           (cifra, download, playlists, afinador, metrônomo) após o anúncio */}

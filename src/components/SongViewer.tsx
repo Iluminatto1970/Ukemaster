@@ -18,6 +18,8 @@ import { ChordDiagram } from './ChordDiagram';
 import { YouTubePlayer } from './YouTubePlayer';
 import { TraditionalTabBlock } from './TraditionalTabBlock';
 import { AdSenseSlot } from './AdSenseSlot';
+import { ADSENSE_SLOTS } from '../config';
+import { getAbVariant } from '../lib/abTest';
 import { AffiliateAdCard } from './AffiliateAdCard';
 import type { AffiliateLink } from '../types';
 import {
@@ -925,8 +927,19 @@ export const SongViewer: React.FC<SongViewerProps> = ({
         )}
       </div>
 
-      {/* Bottom Ad Banner after chord sheet */}
-      <AdSenseSlot format="horizontal" label={t('viewer.adGoogle')} />
+      {/* Bottom Ad Banner after chord sheet — só quando há conteúdo real
+          (AdSense policy: no ads on pages without substantial content). */}
+      {!contentLoading && (song.content || '').trim() && (
+        <>
+          <AdSenseSlot format="fluid" layout="in-article" label="Publicidade" adSlot={ADSENSE_SLOTS.songViewer} abTestId="multiplex_ad" />
+          {/* Multiplex: recomendação de cifras similares (fim da página) — A/B test: multiplex_ad */}
+          {getAbVariant('multiplex_ad') === 'control' && (
+            <div className="mt-6">
+              <AdSenseSlot format="auto" label="Você também pode gostar" adSlot={ADSENSE_SLOTS.multiplex} className="max-w-2xl mx-auto" abTestId="multiplex_ad" />
+            </div>
+          )}
+        </>
+      )}
 
       {/* Comunidade: comentários + correção de cifra (contribuir exige login) */}
       <SongComments

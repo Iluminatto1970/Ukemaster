@@ -38,6 +38,8 @@ import {
 import { ImportSongModal } from './ImportSongModal';
 import { TopContributors } from './TopContributors';
 import { AdSenseSlot } from './AdSenseSlot';
+import { ADSENSE_SLOTS } from '../config';
+import { getAbVariant } from '../lib/abTest';
 import { AffiliateAdCard } from './AffiliateAdCard';
 import { PartnersSection } from './PartnersSection';
 import type { AffiliateLink, PartnerLink, BlogPost } from '../types';
@@ -868,7 +870,12 @@ export const SongList: React.FC<SongListProps> = ({
           {shownSongs.length > 0 ? (
             <div className="space-y-2">
               {shownSongs.map((song, index) => {
-                const showFeedAd = index > 0 && index % 8 === 0;
+                // AdSense: máx 1 ad no feed por página (total ≤3: StickyBottom +
+                // SideWidgets + 1 feed). Só quando há ≥16 músicas visíveis.
+                // A/B test: feed_ad_position — early (index 8), late (index 16), none
+                const feedAdVariant = getAbVariant('feed_ad_position');
+                const feedAdIndex = feedAdVariant === 'late' ? 16 : 8;
+                const showFeedAd = shownSongs.length >= 16 && index === feedAdIndex && feedAdVariant !== 'none';
                 // Afiliado 1× por página (a cada 6) para aparecer na primeira
                 // tela com a lista curta — o card "Patrocinado" é conteúdo
                 // que o proprietário quer visível, não enterrado.
@@ -883,7 +890,7 @@ export const SongList: React.FC<SongListProps> = ({
                     )}
                     {showFeedAd && (
                       <div className="my-1">
-                        <AdSenseSlot format="horizontal" label={t('library.adRepertoire')} />
+                        <AdSenseSlot format="fluid" layout="in-article" label="Publicidade" adSlot={ADSENSE_SLOTS.feed} abTestId="feed_ad_position" />
                       </div>
                     )}
 
@@ -1055,6 +1062,24 @@ export const SongList: React.FC<SongListProps> = ({
               >
                 {t('library.newSong')}
               </button>
+
+              {/* Conteúdo editorial no estado vazio — guia rápido para novos usuários */}
+              <div className="mt-6 text-left space-y-3 max-w-md mx-auto">
+                <h4 className="text-xs font-extrabold text-slate-700 uppercase tracking-wider">💡 Enquanto isso, confira:</h4>
+                <div className="grid grid-cols-1 gap-2">
+                  {[
+                    { icon: '🎵', text: 'Use a busca acima para encontrar cifras por título ou artista.' },
+                    { icon: '🎸', text: 'Explore o Dicionário de Acordes para aprender novas formas de tocar.' },
+                    { icon: '📚', text: 'As Trilhas de Aprendizado guiados de iniciante a avançado.' },
+                    { icon: '🎤', text: 'O Afinador ajuda a manter seu ukulele sempre afinado.' },
+                  ].map((tip) => (
+                    <div key={tip.text} className="flex items-start gap-2 p-2 rounded-lg bg-slate-50 border border-slate-100">
+                      <span className="text-sm shrink-0 mt-0.5">{tip.icon}</span>
+                      <p className="text-[11px] text-slate-600 leading-relaxed">{tip.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
         </div>

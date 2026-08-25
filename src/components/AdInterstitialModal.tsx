@@ -15,6 +15,7 @@ import { useT } from '../lib/i18n';
 import { Clock, Music, ArrowRight, Megaphone } from 'lucide-react';
 import { Logo } from './Logo';
 import { ADSENSE_APPROVED, MONETAG_VIGNETTE } from '../config';
+import { trackEvent } from '../lib/analytics';
 
 interface AdInterstitialModalProps {
   isOpen: boolean;
@@ -95,7 +96,16 @@ export const AdInterstitialModal: React.FC<AdInterstitialModalProps> = ({
     document.head.appendChild(s);
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  // Quando o AdSense é aprovado, a Monetag é desligada e este modal
+  // não tem anúncio para mostrar (o AdSense não tem vignette interstitial
+  // equivalente). O gate de ação continua funcionando — a ação é liberada
+  // direto no App.tsx sem passar pelo modal.
+  // Analytics: rastrear quando o interstitial é exibido
+  if (isOpen && !ADSENSE_APPROVED) {
+    trackEvent('interstitial_show', { title, artist });
+  }
+
+  if (!isOpen || ADSENSE_APPROVED) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md animate-fade-in">
@@ -112,7 +122,7 @@ export const AdInterstitialModal: React.FC<AdInterstitialModalProps> = ({
 
           {canSkip ? (
             <button
-              onClick={onComplete}
+              onClick={() => { trackEvent('interstitial_complete', { title, artist }); onComplete(); }}
               className="px-3 py-1 rounded-full bg-[#F26419] hover:bg-[#D9530D] text-white font-extrabold text-xs transition-all cursor-pointer flex items-center gap-1 shadow-xs"
             >
               <span>{t('ad.continue')}</span>

@@ -227,6 +227,13 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   <p>${countLabel} cifras com letra, acordes, ritmo e tom — de CifraClub, Ultimate-Guitar, U-FRET e mais. Abra o app para tocar com dicionário de acordes, afinador e repertório privado.</p>
   ${suggestionsHtml}
   <p><a href="${siteUrl}/">Abrir o UkeMaster Pro</a></p>
+  <!-- AdSense slots para o AdsBot-Google (SSR) -->
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-7409769323856107"
+       data-ad-slot=""
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
 </body>
 </html>`;
 

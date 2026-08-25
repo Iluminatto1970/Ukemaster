@@ -39,10 +39,59 @@ export const MONETAG_TAG_QUGE5 = {
 };
 
 /**
- * REGRA DE TRANSIÇÃO (igual ao SistemaPainho): a rede antiga (Monetag)
- * continua no ar ATÉ o Google AdSense ser aprovado (site READY no painel).
- * Quando aprovar, mude para `true` — toda a Monetag para de carregar
- * (Monetag.tsx e a vignette do intersticial) e o AdSense, que já está
- * integrado (loader no index.html + AdSenseSlot), assume sozinho.
+ * IDs das unidades de anúncio AdSense — criadas no painel do AdSense
+ * (Meus anúncios → Unidades de anúncio). Cada tela usa um formato
+ * diferente; cole o ID numérico de cada unidade aqui.
+ *
+ * Se algum ID ficar vazio, o AdSenseSlot usa auto-format (funciona,
+ * mas perde controle de formato e métricas por slot).
+ */
+/**
+ * Slots AdSense criados no painel — 5 formatos diferentes:
+ *  - SLOT_AUTO (5519639690): auto — fallback geral, responsivo
+ *  - SLOT_OUT_OF_PAGE (6539253495): autorelaxed — sidebar
+ *  - SLOT_IN_ARTICLE (7294871315): in-article fluid — dentro do conteúdo
+ *  - SLOT_STICKY (5748916007): fluid + layout-key — sticky/anchor bottom
+ *  - SLOT_MULTIPLEX: multiplex — recomendações de conteúdo no final da cifra
+ *
+ * AUTO-ADS: o Google AdSense auto-ads está ativo via index.html.
+ * Ele coloca anúncios adicionais automaticamente nos espaços mortos.
+ * No painel do AdSense, configure: Anúncios → Auto-ads → ativar +
+ * escolher formatos permitidos (Anchor, Interstitial, In-article, Multiplex).
+ */
+const SLOT_AUTO = '5519639690';
+const SLOT_OUT_OF_PAGE = '6539253495';
+const SLOT_IN_ARTICLE = '7294871315';
+const SLOT_STICKY = '5748916007';
+
+export const ADSENSE_SLOTS = {
+  /** Sticky bottom mobile (fluid + layout-key responsivo) */
+  stickyBottom: import.meta.env.VITE_ADSENSE_SLOT_STICKY || SLOT_STICKY,
+  /** Sidebar retângulo (autorelaxed) */
+  sidebar: import.meta.env.VITE_ADSENSE_SLOT_SIDEBAR || SLOT_OUT_OF_PAGE,
+  /** Feed da lista de músicas (in-article fluid) */
+  feed: import.meta.env.VITE_ADSENSE_SLOT_FEED || SLOT_IN_ARTICLE,
+  /** Abaixo da cifra (in-article fluid) */
+  songViewer: import.meta.env.VITE_ADSENSE_SLOT_VIEWER || SLOT_IN_ARTICLE,
+  /** Dicionário de acordes (in-article fluid) */
+  dictionary: import.meta.env.VITE_ADSENSE_SLOT_DICTIONARY || SLOT_IN_ARTICLE,
+  /** Fallback geral (auto) — usado por slots sem ID específico */
+  fallback: import.meta.env.VITE_ADSENSE_SLOT_FALLBACK || SLOT_AUTO,
+  /** Multiplex — recomendações de conteúdo similar no final da cifra */
+  multiplex: import.meta.env.VITE_ADSENSE_SLOT_MULTIPLEX || SLOT_AUTO,
+};
+
+/**
+ * REGRA DE TRANSIÇÃO: a Monetag continua no ar ATÉ o AdSense ser aprovado.
+ *
+ * CHECKLIST ao trocar para `true`:
+ *  1. Trocar ADSENSE_APPROVED para `true` neste arquivo.
+ *  2. Verificar que os 5 ADSENSE_SLOTS estão com IDs reais (não vazios).
+ *  3. O Monetag.tsx para de injetar scripts (web push, in-page, vignette).
+ *  4. O AdInterstitialModal retorna null (sem modal de 10s sem ad).
+ *  5. O gateAdAction no App.tsx libera ações direto (sem interstitial).
+ *  6. Remover as chaves MONETAG_* deste arquivo (cleanup opcional).
+ *  7. Desativar as zonas Monetag no painel deles (não só no código).
+ *  8. Fazer deploy e verificar no Painel do AdSense → Revisão.
  */
 export const ADSENSE_APPROVED = false;

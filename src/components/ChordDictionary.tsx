@@ -6,13 +6,25 @@ import { CHORD_DATABASE, ALL_KEYS, ALL_QUALITIES } from '../data/chords';
 import { getAllGeneratedChords, getOrGenerateChord } from '../utils/chordGenerator';
 import { CHORDS_HYDRATED_EVENT } from '../lib/chordCache';
 import { useT } from '../lib/i18n';
+import { useToolSeo } from '../hooks/useToolSeo';
 import { ChordDiagram } from './ChordDiagram';
 import { Search, Volume2, Sparkles, Filter, Music2, Zap } from 'lucide-react';
 import { playUkuleleChord } from '../utils/audio';
 import { AdSenseSlot } from './AdSenseSlot';
+import { ADSENSE_SLOTS } from '../config';
 
 export const ChordDictionary: React.FC = () => {
   const { t } = useT();
+
+  // SEO: JSON-LD WebApplication para dicionário de acordes
+  useToolSeo({
+    slug: 'dicionario',
+    title: 'Dicionário de Acordes de Ukulele',
+    description: 'Dicionário completo de acordes de ukulele com diagramas, campo harmônico e busca por tom. Aprenda acordes maiores, menores, com sétima e mais.',
+    url: `${window.location.origin}/dicionario`,
+    applicationCategory: 'EducationalApplication',
+  });
+
   const [selectedKey, setSelectedKey] = useState<string>('C');
   const [selectedQuality, setSelectedQuality] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -127,7 +139,8 @@ export const ChordDictionary: React.FC = () => {
         </div>
       </div>
 
-      <AdSenseSlot format="horizontal" label={t('viewer.adGoogle')} />
+      {/* AdSense: só quando o dicionário tem acordes filtrados visíveis */}
+      <AdSenseSlot format="fluid" layout="in-article" label="Publicidade" adSlot={ADSENSE_SLOTS.dictionary} />
 
       {/* Sub-tabs: Dicionário | Campo Harmônico */}
       <div className="flex items-center gap-2 border-b border-slate-200 pb-px">
