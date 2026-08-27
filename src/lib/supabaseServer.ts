@@ -52,10 +52,10 @@ export async function fetchAllSongsServer(): Promise<SongRow[] | null> {
   const all: SongRow[] = [];
   const pageSize = 1000;
   let offset = 0;
-  for (let page = 0; page < 50; page++) {
+  for (let page = 0; page < 300; page++) {
     const url = `${sb.url}/rest/v1/songs?select=${encodeURIComponent(
       'id,title,artist,key,category,difficulty,tags,seo_description,updated_at,votes'
-    )}&limit=${pageSize}&offset=${offset}`;
+    )}&order=id&limit=${pageSize}&offset=${offset}`;
     try {
       const res = await fetch(url, {
         headers: {
@@ -63,12 +63,21 @@ export async function fetchAllSongsServer(): Promise<SongRow[] | null> {
           Authorization: `Bearer ${sb.key}`,
         },
       });
-      if (!res.ok) return null;
+      if (!res.ok) {
+        // Em caso de falha parcial, retorna o que já foi carregado
+        if (all.length > 0) {
+          console.warn(`[supabaseServer] fetchAllSongsServer: falha na página ${page} (offset=${offset}), retornando ${all.length} registros parciais`);
+          return all;
+        }
+        return null;
+      }
       const rows = (await res.json()) as SongRow[];
       all.push(...rows);
       if (rows.length < pageSize) break;
       offset += pageSize;
     } catch {
+      // Em caso de erro de rede, retorna parcial se houver dados
+      if (all.length > 0) return all;
       return null;
     }
   }

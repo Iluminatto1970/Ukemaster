@@ -163,7 +163,9 @@ export async function fetchRows<T>(
  * (o PostgREST limita a resposta em 1000 linhas por padrão). Usa query params
  * e não header `Range` porque o navegador pode descartar o header em CORS
  * (pré-flight) — o que faria o loop repetir a mesma página indefinidamente.
- * Retorna `[]` se a tabela estiver vazia e `null` se alguma página falhar.
+ * Retorna `[]` se a tabela estiver vazia. Se alguma página falhar (timeout/
+ * erro), retorna os dados já carregados até aquele ponto (em vez de null)
+ * para que o site mostre pelo menos parte do acervo.
  */
 export async function fetchAllRows<T>(
   table: string,
@@ -178,13 +180,29 @@ export async function fetchAllRows<T>(
   const filter = query.startsWith('&') ? query.slice(1) : query.replace(/^\?/, '');
   // Concatena corretamente: com filtro, separa com '&' antes do limit/offset
   const filterAnd = filter ? `${filter}&` : '';
-  // Limite de segurança: 50 páginas (50k linhas) — nunca deve ser alcançado.
-  for (let page = 0; page < 50; page++) {
+  // ORDER BY id: essencial para performance em tabelas grandes — sem ORDER BY,
+  // o PostgreSQL faz um full table scan a cada OFFSET (O(n²)). Com ORDER BY id
+  // (que tem índice), cada página é O(log n) + O(pageSize).
+  // Sem filtro prévio de ordenação do caller, acrescenta 'order=id'.
+  const hasOrderBy = /order=/i.test(filter);
+  const orderClause = hasOrderBy ? '' : 'order=id';
+  // Limite de segurança: 300 páginas (300k linhas) — suporta acervos grandes.
+  // Com ORDER BY id + índice, cada página leva ~0.5-1s mesmo em offset alto.
+  for (let page = 0; page < 300; page++) {
     const { ok, data } = await supabaseRequest<T[]>(table, {
-      query: `?select=${encodeURIComponent(columns)}&${filterAnd}limit=${pageSize}&offset=${offset}`,
+      query: `?select=${encodeURIComponent(columns)}&${filterAnd}${orderClause ? 'order=id&' : ''}limit=${pageSize}&offset=${offset}`,
       silent,
     });
-    if (!ok) return null;
+    if (!ok) {
+      // Em caso de falha (timeout do PostgreSQL em offsets altos), retorna
+      // os dados já carregados em vez de null — o site mostra pelo menos
+      // parte do acervo em vez de parecer "vazio".
+      if (all.length > 0) {
+        console.warn(`[supabase] fetchAllRows: falha na página ${page} (offset=${offset}), retornando ${all.length} registros parciais`);
+        return all;
+      }
+      return null;
+    }
     if (data && data.length) all.push(...data);
     if (!data || data.length < pageSize) break;
     offset += pageSize;
