@@ -4,8 +4,8 @@
  *
  * Consulta o status de aprovação do site ukemasterpro.com na conta AdSense
  * via MCP (Appsyogi) e:
- *   1. Loga o status atual em .freebuff/adsense-status.log (com data/hora);
- *   2. Guarda o último status conhecido em .freebuff/adsense-status.json;
+ *   1. Loga o status atual em .ukemaster/adsense-status.log (com data/hora);
+ *   2. Guarda o último status conhecido em .ukemaster/adsense-status.json;
  *   3. Quando o status MUDAR para READY ("aprovado e servindo anúncios"),
  *      escreve um aviso destacado no log e dispara uma notificação do SO
  *      (Windows: msg/balão via PowerShell · Linux: notify-send).
@@ -29,7 +29,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
-const STATE_DIR = path.join(ROOT, '.freebuff');
+const STATE_DIR = path.join(ROOT, '.ukemaster');
 const LOG_FILE = path.join(STATE_DIR, 'adsense-status.log');
 const STATE_FILE = path.join(STATE_DIR, 'adsense-status.json');
 

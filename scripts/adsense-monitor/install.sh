@@ -11,7 +11,7 @@
 #   bash scripts/adsense-monitor/install.sh --dry-run    # mostra o que faria
 #
 # Requisitos: node ≥ 18 e OAuth do MCP já feito (`adsense-mcp init`).
-# Logs: .freebuff/adsense-status.log · estado: .freebuff/adsense-status.json
+# Logs: .ukemaster/adsense-status.log · estado: .ukemaster/adsense-status.json
 # ═══════════════════════════════════════════════════════════════════════
 set -euo pipefail
 
@@ -49,11 +49,11 @@ fi
 OS="$(uname -s)"
 if [ "$DRY_RUN" = "1" ]; then
   echo "◆ DRY-RUN — nada agendado. Comandos que seriam usados:"
-  echo "  Linux/macOS:  ( crontab -l 2>/dev/null | grep -v 'monitor-adsense-status.mjs'; echo \"$SCHEDULE_TIME cd \\\"$ROOT\\\" && node \\\"$SCRIPT\\\" >> .freebuff/adsense-status.log 2>&1\" ) | crontab -"
+  echo "  Linux/macOS:  ( crontab -l 2>/dev/null | grep -v 'monitor-adsense-status.mjs'; echo \"$SCHEDULE_TIME cd \\\"$ROOT\\\" && node \\\"$SCRIPT\\\" >> .ukemaster/adsense-status.log 2>&1\" ) | crontab -"
   echo "  Windows:       schtasks //Create //F //TN \"$TASK_NAME\" //TR \"<cmd-wrapper>\" //SC DAILY //ST $SCHEDULE_TIME"
 elif [ "$OS" = "Linux" ] || [ "$OS" = "Darwin" ]; then
-  mkdir -p "$ROOT/.freebuff"
-  CRON_LINE="$SCHEDULE_TIME cd \"$ROOT\" && node \"$SCRIPT\" >> .freebuff/adsense-status.log 2>&1"
+  mkdir -p "$ROOT/.ukemaster"
+  CRON_LINE="$SCHEDULE_TIME cd \"$ROOT\" && node \"$SCRIPT\" >> .ukemaster/adsense-status.log 2>&1"
   ( crontab -l 2>/dev/null | grep -v "monitor-adsense-status.mjs"; echo "$CRON_LINE" ) | crontab -
   echo "✔ Cron instalado (diário às $SCHEDULE_TIME):"
   echo "  $CRON_LINE"
@@ -63,7 +63,7 @@ else
   cat > "$WRAPPER" <<EOF
 @echo off
 cd /d "$ROOT"
-node "$SCRIPT" >> "$ROOT\.freebuff\adsense-status.log" 2>&1
+node "$SCRIPT" >> "$ROOT\.ukemaster\adsense-status.log" 2>&1
 EOF
   WIN_WRAPPER="$(cygpath -w "$WRAPPER" 2>/dev/null || echo "$WRAPPER")"
   if schtasks //Create //F //TN "$TASK_NAME" //TR "\"$WIN_WRAPPER\"" //SC DAILY //ST "$SCHEDULE_TIME" >/dev/null 2>&1; then

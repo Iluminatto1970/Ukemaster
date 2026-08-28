@@ -44,7 +44,7 @@ metadata.json
 scripts/handoff.ts
 
 # Dados locais da interface
-.freebuff/
+.ukemaster/
 
 # Cron bundle standalone (build artifact)
 dist-cron/

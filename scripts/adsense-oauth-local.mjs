@@ -12,7 +12,7 @@
  *      autorizado no OAuth client (Console → Credenciais → client → URIs).
  *   3. Abra a URL impressa, autorize — o Google redireciona para
  *      http://localhost:8787?code=... e o código é salvo em
- *      .freebuff/adsense-oauth-code.txt
+ *      .ukemaster/adsense-oauth-code.txt
  */
 import http from 'node:http';
 import fs from 'node:fs';
@@ -46,11 +46,11 @@ const server = http.createServer((req, res) => {
     process.exit(1);
   }
   if (code) {
-    const outDir = path.join(ROOT, '.freebuff');
+    const outDir = path.join(ROOT, '.ukemaster');
     fs.mkdirSync(outDir, { recursive: true });
     fs.writeFileSync(path.join(outDir, 'adsense-oauth-code.txt'), code);
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-    res.end('<h1>✅ Autorização recebida!</h1><p>Código salvo. Pode fechar esta aba e voltar ao Freebuff.</p>');
+    res.end('<h1>✅ Autorização recebida!</h1><p>Código salvo. Pode fechar esta aba e voltar ao UkeMaster.</p>');
     console.log('CODE_SAVED');
     setTimeout(() => { server.close(); process.exit(0); }, 500);
     return;
@@ -64,5 +64,5 @@ server.listen(PORT, () => {
   console.log(`\n1. Confirme que "${REDIRECT}" está nas URIs de redirecionamento autorizadas do client OAuth.`);
   console.log(`\n2. Abra no navegador (logado como dono do AdSense):\n\n${authUrl}\n`);
   console.log('\n3. Autorize — o Google redireciona de volta e o código será salvo.');
-  console.log('   (o arquivo ficará em .freebuff/adsense-oauth-code.txt)\n');
+  console.log('   (o arquivo ficará em .ukemaster/adsense-oauth-code.txt)\n');
 });
