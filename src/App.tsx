@@ -1269,8 +1269,12 @@ export default function App() {
   //   trilhas, vídeos, blog, afinador, metrônomo.
   const hasEditorialContent = useMemo(() => {
     if (verifyCode) return false;
+    // Telas SEM conteúdo editorial (ferramentas, edição, config):
     if (activeTab === 'dashboard' || activeTab === 'admin') return false;
     if (activeTab === 'musicas' && (viewMode === 'editor' || viewMode === 'playlists')) return false;
+    // Ferramentas (afinador, metrônomo) não são conteúdo editorial —
+    // exibir anúncios aqui viola a política do Google AdSense.
+    if (activeTab === 'afinador' || activeTab === 'metronomo') return false;
     return true;
   }, [activeTab, viewMode, verifyCode]);
 
@@ -1598,6 +1602,15 @@ export default function App() {
               className="underline decoration-white/50 underline-offset-2 hover:text-[#FFE3D0] transition-colors cursor-pointer"
             >
               Privacidade
+            </a>
+            <span aria-hidden className="opacity-40">•</span>
+            <a
+              href="/termos.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline decoration-white/50 underline-offset-2 hover:text-[#FFE3D0] transition-colors cursor-pointer"
+            >
+              Termos de Uso
             </a>
           </span>
         </div>
