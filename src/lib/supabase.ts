@@ -175,37 +175,37 @@ export async function fetchAllRows<T>(
   silent = false
 ): Promise<T[] | null> {
   const all: T[] = [];
-  let offset = 0;
   // Normaliza o filtro: callers passam '' ou "&filtro=..." (sem o '?')
   const filter = query.startsWith('&') ? query.slice(1) : query.replace(/^\?/, '');
-  // Concatena corretamente: com filtro, separa com '&' antes do limit/offset
   const filterAnd = filter ? `${filter}&` : '';
-  // ORDER BY id: essencial para performance em tabelas grandes — sem ORDER BY,
-  // o PostgreSQL faz um full table scan a cada OFFSET (O(n²)). Com ORDER BY id
-  // (que tem índice), cada página é O(log n) + O(pageSize).
-  // Sem filtro prévio de ordenação do caller, acrescenta 'order=id'.
-  const hasOrderBy = /order=/i.test(filter);
-  const orderClause = hasOrderBy ? '' : 'order=id';
-  // Limite de segurança: 300 páginas (300k linhas) — suporta acervos grandes.
-  // Com ORDER BY id + índice, cada página leva ~0.5-1s mesmo em offset alto.
+
+  // ── CURSOR-BASED PAGINATION (id > último_id) ──────────────────────────
+  // Em vez de OFFSET (que fica O(n²) em tabelas grandes — o PostgreSQL
+  // escanear 16.000 linhas a cada página), usa WHERE id > último_id com
+  // ORDER BY id — cada página é O(log n) via índice, rápido mesmo no
+  // final do acervo. Máximo 300 páginas (300k linhas).
+  let lastId: string | null = null;
+
   for (let page = 0; page < 300; page++) {
+    const cursorFilter = lastId ? `id=gt.${encodeURIComponent(lastId)}&` : '';
     const { ok, data } = await supabaseRequest<T[]>(table, {
-      query: `?select=${encodeURIComponent(columns)}&${filterAnd}${orderClause ? 'order=id&' : ''}limit=${pageSize}&offset=${offset}`,
+      query: `?select=${encodeURIComponent(columns)}&${cursorFilter}${filterAnd}order=id&limit=${pageSize}`,
       silent,
     });
     if (!ok) {
-      // Em caso de falha (timeout do PostgreSQL em offsets altos), retorna
-      // os dados já carregados em vez de null — o site mostra pelo menos
-      // parte do acervo em vez de parecer "vazio".
       if (all.length > 0) {
-        console.warn(`[supabase] fetchAllRows: falha na página ${page} (offset=${offset}), retornando ${all.length} registros parciais`);
+        console.warn(`[supabase] fetchAllRows: falha na página ${page}, retornando ${all.length} registros parciais`);
         return all;
       }
       return null;
     }
-    if (data && data.length) all.push(...data);
+    if (data && data.length) {
+      all.push(...data);
+      // Extrai o id da última linha para o cursor da próxima página
+      const last = data[data.length - 1] as Record<string, unknown>;
+      lastId = (last?.id as string) || null;
+    }
     if (!data || data.length < pageSize) break;
-    offset += pageSize;
   }
   return all;
 }

@@ -5,18 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Termos de Uso — UkeMaster Pro</title>
 <meta name="description" content="Termos de Uso do UkeMaster Pro: regras de uso, propriedade intelectual, responsabilidades e limitações.">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="noindex, nofollow">
 <link rel="canonical" href="https://ukemasterpro.com/termos.html">
 <style>
-  :root {
-    --teal: #0E7C7B;
-    --navy: #1D2D44;
-    --orange: #F26419;
-    --paper: #fafaf9;
-    --ink: #1f2937;
-    --muted: #6b7280;
-    --line: #e5e7eb;
-  }
+  :root { --teal: #0E7C7B; --navy: #1D2D44; --orange: #F26419; --paper: #fafaf9; --ink: #1f2937; --muted: #6b7280; --line: #e5e7eb; }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--paper); color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.65; }
   .wrap { max-width: 860px; margin: 0 auto; padding: 0 20px; }
@@ -36,6 +28,7 @@
   a { color: var(--teal); }
   .note { background: #eef7f7; border: 1px solid #bfe0df; border-radius: 10px; padding: 12px 16px; font-size: 13.5px; margin: 16px 0; }
   .note-warn { background: #fef9ee; border: 1px solid #f0dfa0; border-radius: 10px; padding: 12px 16px; font-size: 13.5px; margin: 16px 0; }
+  .note-danger { background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 12px 16px; font-size: 13.5px; margin: 16px 0; }
   .toc { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 0 0 24px; }
   .toc h2 { margin: 0 0 8px; font-size: 14px; }
   .toc ol { margin: 0; padding-left: 18px; columns: 2; column-gap: 20px; }
@@ -63,141 +56,336 @@
       <h2>Sumário</h2>
       <ol>
         <li><a href="#aceitacao">Aceitação dos Termos</a></li>
+        <li><a href="#definicoes">Definições</a></li>
         <li><a href="#servico">Descrição do Serviço</a></li>
         <li><a href="#conta">Cadastro e Conta</a></li>
         <li><a href="#uso">Uso Aceitável</a></li>
+        <li><a href="#anti-scraping">Anti-Scraping e Automação</a></li>
         <li><a href="#propriedade">Propriedade Intelectual</a></li>
-        <li><a href="#conteudo">Conteúdo do Usuário</a></li>
+        <li><a href="#fair-use">Uso Justo (Fair Use)</a></li>
+        <li><a href="#conteudo-user">Conteúdo do Usuário</a></li>
         <li><a href="#publicidade">Publicidade</a></li>
+        <li><a href="#links">Links Externos</a></li>
         <li><a href="#responsabilidade">Limitação de Responsabilidade</a></li>
+        <li><a href="#indenizacao">Indenização</a></li>
         <li><a href="#disponibilidade">Disponibilidade do Serviço</a></li>
         <li><a href="#menores">Menores de Idade</a></li>
+        <li><a href="#rescisao">Rescisão</a></li>
         <li><a href="#alteracoes">Alterações nestes Termos</a></li>
-        <li><a href="#legislacao">Legislação Aplicável</a></li>
+        <li><a href="#legislacao">Legislação Aplicável e Foro</a></li>
         <li><a href="#contato-tos">Contato</a></li>
       </ol>
     </div>
 
     <p>Ao acessar ou usar o <b>UkeMaster Pro</b> ("portal", "site", "aplicativo"), você concorda
-    com estes Termos de Uso. Se não concordar, não use o portal.</p>
+    integralmente com estes Termos de Uso. Se não concordar com qualquer parte, não use o portal.</p>
 
+    <div class="note-warn">
+      <p style="margin:0;"><b>IMPORTANTE:</b> Estes Termos constituem um acordo jurídico vinculante.
+      Recomendamos que você leia todos os artigos antes de usar o portal. Ao prosseguir, você
+      confirma que compreendeu e aceitou todos os termos aqui descritos.</p>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
     <h2 id="aceitacao">1. Aceitação dos Termos</h2>
-    <p>Estes Termos de Uso ("Termos") constituem um acordo legal entre você ("usuário") e
-    <b>Iluminatto Moraes</b> ("proprietário", "nós"). Ao acessar o UkeMaster Pro, você
-    confirma que leu, compreendeu e aceitou estes Termos e nossa
-    <a href="/privacidade.html">Política de Privacidade</a>.</p>
+    <p>Estes Termos de Uso ("Termos") constituem um acordo legal e obrigatório entre você
+    ("usuário", "titular de dados") e <b>Iluminatto Moraes</b>, CPF [*], inscrito no
+    CNPJ [*], com sede em Recife/PE, Brasil ("proprietário", "controlador", "nós").</p>
+    <p>Ao acessar, navegar ou usar o UkeMaster Pro, você declara que:</p>
+    <ul>
+      <li>Tem pelo menos 18 anos de idade ou a maioridade em sua jurisdição;</li>
+      <li>Leu e compreendeu integralmente estes Termos;</li>
+      <li>Aceita estar legalmente vinculado por estes Termos;</li>
+      <li>Concordou com nossa <a href="/privacidade.html">Política de Privacidade</a>.</li>
+    </ul>
+    <p>Se você estiver agindo em nome de uma empresa ou entidade, declara ter autoridade
+    para vincular essa entidade a estes Termos.</p>
 
-    <h2 id="servico">2. Descrição do Serviço</h2>
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="definicoes">2. Definições</h2>
+    <ul>
+      <li><b>"Portal"</b> — o site ukemasterpro.com, incluindo todas as páginas, funcionalidades, APIs e serviços associados.</li>
+      <li><b>"Usuário"</b> — toda pessoa física ou jurídica que acessa ou usa o Portal.</li>
+      <li><b>"Conteúdo"</b> — todo material disponibilizado no Portal, incluindo cifras, letras, acordes, vídeos, textos, imagens, software e dados.</li>
+      <li><b>"Conteúdo de Terceiros"</b> — material de propriedade de terceiros exibido no Portal (cifras, letras, acordes, vídeos do YouTube).</li>
+      <li><b>"Conta"</b> — registro do Usuário no Portal com credenciais de acesso (e-mail + senha).</li>
+      <li><b>"Serviço"</b> — todas as funcionalidades oferecidas pelo Portal, incluindo busca, visualização, criação e compartilhamento de conteúdo.</li>
+      <li><b>"Dados Pessoais"</b> — qualquer informação relativa a pessoa natural identificada ou identificável, conforme LGPD (Lei 13.709/2018).</li>
+    </ul>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="servico">3. Descrição do Serviço</h2>
     <p>O UkeMaster Pro é um portal gratuito de cifras de ukulele que oferece:</p>
     <ul>
-      <li>Biblioteca de cifras (acordes, letra, ritmo, tom)</li>
-      <li>Dicionário de acordes interativo</li>
+      <li>Biblioteca de cifras (acordes, letra, ritmo, tom, nível de dificuldade)</li>
+      <li>Dicionário de acordes interativo com diagramas</li>
       <li>Afinador de precisão</li>
-      <li>Trilhas de aprendizado</li>
+      <li>Metrônomo</li>
+      <li>Trilhas de aprendizado guiadas</li>
       <li>Repertórios privados e playlists</li>
-      <li>Comunidade de músicos</li>
+      <li>Comunidade de músicos (votos, comentários, contribuições)</li>
+      <li>Blog com artigos educacionais</li>
+      <li>Vídeo-aulas e conteúdo multimídia</li>
     </ul>
-    <p>O serviço é mantido integralmente por publicidade e apoio voluntário.</p>
+    <p>O serviço é mantido integralmente por <b>publicidade</b> (Google AdSense e, temporariamente,
+    Monetag) e <b>apoio voluntário</b> (APOIA.se). Não há assinatura paga nem paywall.</p>
 
-    <h2 id="conta">3. Cadastro e Conta</h2>
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="conta">4. Cadastro e Conta</h2>
     <ul>
-      <li>O cadastro é <b>gratuito</b> e opcional — o portal funciona sem conta.</li>
-      <li>Uma pessoa por conta. Não compartilhe credenciais.</li>
-      <li>Você é responsável por manter sua senha segura.</li>
-      <li>Podemos suspender contas que violem estes Termos.</li>
+      <li>O cadastro é <b>gratuito e opcional</b> — o Portal funciona sem conta para leitura.</li>
+      <li><b>Uma pessoa por conta.</b> Contas duplicadas poderão ser desativadas.</li>
+      <li>O Usuário é <b>responsável exclusivo</b> pela segurança de suas credenciais.</li>
+      <li>O Usuário é responsável por todas as atividades realizadas em sua Conta.</li>
+      <li>Notifique-nos imediatamente sobre uso não autorizado da sua Conta.</li>
+      <li>O proprietário reserva-se o direito de suspender ou excluir Contas que violem estes Termos, sem aviso prévio e sem direito a indenização.</li>
     </ul>
 
-    <h2 id="uso">4. Uso Aceitável</h2>
-    <p>Ao usar o portal, você concorda em <b>NÃO</b>:</p>
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="uso">5. Uso Aceitável</h2>
+    <p>Ao usar o Portal, você concorda em <b>NÃO</b>:</p>
     <ul>
-      <li>Usar bots, scrapers ou ferramentas automatizadas para extrair o acervo</li>
-      <li>Tentar acessar contas de outros usuários</li>
-      <li>Enviar conteúdo ilegatório, ofensivo ou que viole direitos autorais</li>
-      <li>Explorar falhas de segurança</li>
-      <li>Reproduzir massivamente o conteúdo sem autorização</li>
-      <li>Usar o portal para fins comerciais sem autorização</li>
+      <li>Usar bots, spiders, crawlers, scrapers ou qualquer ferramenta automatizada para acessar, extrair ou reproduzir conteúdo do Portal;</li>
+      <li>Tentar contornar medidas de segurança, proteção contra acesso não autorizado ou autenticação;</li>
+      <li>Explorar falhas de segurança, vulnerabilidades ou bugs do Portal;</li>
+      <li>Acessar contas de outros usuários sem autorização expressa;</li>
+      <li>Enviar, publicar ou transmitir conteúdo ilegal, ofensivo, difamatório, calunioso, obsceno ou que viole direitos de terceiros;</li>
+      <li>Reproduzir, distribuir, modificar ou criar obras derivadas do conteúdo do Portal sem autorização;</li>
+      <li>Usar o Portal para fins comerciais não autorizados, incluindo revenda de conteúdo;</li>
+      <li>Realizar engenharia reversa, descompilar ou desmontar qualquer parte do Portal;</li>
+      <li>Interferir ou interromper o funcionamento do Portal ou seus servidores;</li>
+      <li>Exceder limites de uso razoável (queries excessivas, abuso de APIs);</li>
+      <li>Usar o conteúdo para treinar modelos de inteligência artificial sem autorização expressa e por escrito.</li>
     </ul>
 
-    <div class="note-warn">
-      <p style="margin:0;"><b>Anti-scraping:</b> o portal utiliza proteções técnicas contra
-      raspagem automatizada. Violações podem resultar em bloqueio permanente e
-      notificação legal.</p>
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="anti-scraping">6. Anti-Scraping e Automação</h2>
+
+    <div class="note-danger">
+      <p style="margin:0;"><b>⚠ AVISO LEGAL:</b> O Portal utiliza proteções técnicas contra
+      raspagem automatizada (anti-scraping). O acesso automatizado ao Portal constitui
+      <b>acesso não autorizado</b> conforme o Art. 154 do Código Penal Brasileiro e pode
+      configurar violação à Lei Carolina Dieckmann (Lei 12.737/2012). Violações serão
+      tratadas civil e criminalmente.</p>
     </div>
 
-    <h2 id="propriedade">5. Propriedade Intelectual</h2>
-    <h3>5.1 Conteúdo do portal</h3>
-    <p>O layout, design, código-fonte, funcionalidades e textos originais do portal são
-    protegidos por direitos autorais. Não é permitido copiar, reproduzir ou distribuir
-    estes elementos sem autorização.</p>
+    <p>É <b>expressamente proibido</b>:</p>
+    <ul>
+      <li>Usar qualquer ferramenta automatizada (bots, spiders, crawlers, scripts, scrapers, headless browsers) para acessar ou extrair conteúdo do Portal;</li>
+      <li>Copiar, reproduzir ou armazenar massivamente o acervo do Portal, total ou parcialmente;</li>
+      <li>Usar o conteúdo do Portal para treinar, validar ou alimentar modelos de inteligência artificial, machine learning ou dados;</li>
+      <li>Realizar engenharia reversa sobre o conteúdo, estrutura ou funcionalidades do Portal;</li>
+      <li>Contornar ou desativar as proteções anti-scraping implementadas no Portal.</li>
+    </ul>
+    <p>Violações serão tratadas com:</p>
+    <ul>
+      <li>Bloqueio permanente do IP e/ou identificador do dispositivo;</li>
+      <li>Notificação formal ao responsável pelo acesso;</li>
+      <li>Ação judicial por danos materiais e morais, quando aplicável;</li>
+      <li>Representação criminal, nos termos da legislação vigente.</li>
+    </ul>
 
-    <h3>5.2 Cifras e letras de músicas</h3>
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="propriedade">7. Propriedade Intelectual</h2>
+
+    <h3>7.1 Conteúdo do Portal (elementos originais)</h3>
+    <p>O layout, design, código-fonte, funcionalidades, algoritmos, textos originais, gráficos,
+    logotipos, ícones, banco de dados e demais elementos criados pelo proprietário são
+    protegidos por direitos autorais (Lei 9.610/1998), direitos de autor de banco de dados
+    (Lei 9.609/1998) e legislação aplicável.</p>
+    <p>Qualquer reprodução, distribuição, modificação, comunicação pública ou exploração
+    comercial deste conteúdo <b>somente é permitida mediante autorização prévia e por
+    escrito</b> do proprietário.</p>
+
+    <h3>7.2 Conteúdo musical (cifras, letras, acordes)</h3>
     <div class="note-warn">
-      <p style="margin:0;"><b>Aviso importante:</b> as cifras e letras exibidas neste portal
-      são de propriedade dos respectivos compositores e editoras. O UkeMaster Pro exibe
-      estes conteúdos em caráter de <b>uso justo (fair use)</b> para fins educacionais
-      e de referência, sem intuito de lucro direto sobre o conteúdo musical.</p>
+      <p style="margin:0;"><b>AVISO SOBRE DIREITOS AUTORAIS:</b> As cifras, letras e acordes
+      exibidos neste Portal são de propriedade dos respectivos compositores, editores e/ou
+      titulares de direitos autorais. O UkeMaster Pro <b>não reivindica propriedade</b>
+      sobre este conteúdo de terceiros.</p>
     </div>
     <ul>
-      <li>As cifras são ferramentas educacionais que auxiliam no aprendizado musical.</li>
-      <li>Letras são exibidas em trechos para referência, não como substituição da obra original.</li>
-      <li>Recomendamos adquirir álbuns oficiais e apoiar os artistas.</li>
-      <li>Se você é titular de direitos autorais e deseja que seu conteúdo seja removido,
-      entre em contato: <a href="mailto:iluminatto@gmail.com">iluminatto@gmail.com</a>.</li>
+      <li>As cifras e letras são exibidas em caráter <b>exclusivamente educacional e informativo</b>.</li>
+      <li>O Portal funciona como <b>ferramenta de referência musical</b>, similar a livros de cifras impressos.</li>
+      <li>O conteúdo é disponibilizado para uso <b>não-comercial, pessoal e educacional</b>.</li>
+      <li>O Portal <b>não substitui</b> a aquisição de álbuns oficiais, partituras licenciadas ou assinaturas de serviços musicais.</li>
+      <li>Recomendamos expressamente que os usuários <b>adquiram álbuns oficiais e apoiem os artistas</b>.</li>
     </ul>
 
-    <h3>5.3 Conteúdo gerado pelo usuário</h3>
-    <p>Ao criar cifras, playlists ou repertórios no portal, você mantém a propriedade
-    intelectual do conteúdo. Ao tornar repertórios públicos, você autoriza a exibição
-    no portal.</p>
-
-    <h2 id="conteudo">6. Conteúdo do Usuário</h2>
+    <h3>7.3 Conteúdo gerado pelo usuário</h3>
     <ul>
-      <li>Você é responsável pelo conteúdo que cria ou compartilha.</li>
-      <li>Não publique conteúdo que viole direitos autorais de terceiros.</li>
-      <li>O proprietário reserva-se o direito de remover conteúdo inadequado.</li>
-      <li>Ao submeter conteúdo, você declara ter os direitos necessários.</li>
+      <li>O Usuário <b>mantém a propriedade intelectual</b> do conteúdo que cria ou contribui.</li>
+      <li>Ao criar ou editar cifras, o Usuário declara ter o direito de fazê-lo e não violar direitos de terceiros.</li>
+      <li>Ao tornar repertórios <b>públicos</b>, o Usuário concede ao Portal uma <b>licença não-exclusiva, gratuita e mundial</b> para exibir, reproduzir e distribuir tal conteúdo exclusivamente para fins de operação do Portal.</li>
+      <li>O proprietário reserva-se o direito de remover qualquer conteúdo que viole direitos de terceiros ou estes Termos.</li>
     </ul>
 
-    <h2 id="publicidade">7. Publicidade</h2>
-    <p>O portal é gratuito e mantido por anúncios. Ao usar o portal, você concorda com
-    a exibição de publicidade. Anúncios são fornecidos por terceiros (Google AdSense,
-    Monetag) e regidos por suas respectivas políticas.</p>
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="fair-use">8. Uso Justo (Fair Use) e Limitações Legais</h2>
 
-    <h2 id="responsabilidade">8. Limitação de Responsabilidade</h2>
-    <p>O portal é fornecido "como está", sem garantias de qualquer tipo. Em nenhuma
-    circunstância o proprietário será responsável por:</p>
+    <div class="note">
+      <p style="margin:0;"><b>Fundamentação Legal:</b> A exibição de cifras e letras neste
+      Portal ampara-se no <b>uso justo (fair use)</b> previsto no Art. 10 da Lei 9.610/1998
+      (Direitos Autorais) e na jurisprudência brasileira que reconhece o caráter educacional
+      de ferramentas musicais de referência.</p>
+    </div>
+
+    <p>O Portal opera sob os seguintes princípios de uso justo:</p>
+    <ol>
+      <li><b>Finalidade educacional:</b> o conteúdo destina-se exclusivamente ao aprendizado musical, não à substituição da obra original.</li>
+      <li><b>Natureza do conteúdo:</b> cifras e acordes são elementos técnicos (descrição de acordes e progressões), não a obra musical em si.</li>
+      <li><b>Quantidade:</b> o Portal exibe o necessário para fins de referência e aprendizado.</li>
+      <li><b>Efeito no mercado:</b> o Portal <b>não substitui</b> a aquisição de obras originais — ao contrário, promove o consumo musical e o apoio a artistas.</li>
+      <li><b>Sem fins lucrativos diretos:</b> o conteúdo musical não é objeto de monetização direta — a receita vem de publicidade genérica, não de venda do conteúdo.</li>
+    </ol>
+
+    <p><b>Notificação de remoção (DMCA / Copyright Takedown):</b> Se você é titular de
+    direitos autorais e deseja que seu conteúdo seja removido do Portal, entre em contato
+    pelo e-mail <a href="mailto:iluminatto@gmail.com">iluminatto@gmail.com</a> com as
+    seguintes informações:</p>
     <ul>
-      <li>Danos diretos, indiretos ou consequenciais</li>
-      <li>Perda de dados ou interrupção de serviço</li>
-      <li>Erros de precisão no conteúdo (cifras podem conter imprecisões)</li>
-      <li>Ações de terceiros (anunciantes, provedores de infraestrutura)</li>
+      <li>Identificação do titular dos direitos;</li>
+      <li>Descrição do conteúdo protegido e localização no Portal;</li>
+      <li>Prova de titularidade dos direitos;</li>
+      <li>Declaração de boa-fé.</li>
     </ul>
+    <p>Removeremos o conteúdo em até <b>48 horas</b> após recebermos notificação válida.</p>
 
-    <h2 id="disponibilidade">9. Disponibilidade do Serviço</h2>
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="conteudo-user">9. Conteúdo do Usuário</h2>
     <ul>
-      <li>Não garantimos disponibilidade 100% do serviço.</li>
-      <li>Podemos realizar manutenções programadas sem aviso prévio.</li>
-      <li>O serviço pode ser descontinuado a qualquer momento (com aviso razoável).</li>
+      <li>O Usuário é <b>responsável exclusivo</b> pelo conteúdo que cria, editou ou compartilha.</li>
+      <li>Não publique conteúdo que viole direitos autorais, marcas registradas ou direitos de privacidade de terceiros.</li>
+      <li>O proprietário <b>não se responsabiliza</b> pelo conteúdo gerado por usuários.</li>
+      <li>O proprietário reserva-se o direito de <b>remover, editar ou desativar</b> qualquer conteúdo que viole estes Termos, sem aviso prévio.</li>
+      <li>Ao submeter conteúdo, o Usuário declara e garante que tem todos os direitos necessários para fazê-lo.</li>
     </ul>
 
-    <h2 id="menores">10. Menores de Idade</h2>
-    <p>O portal não é direcionado a crianças menores de 13 anos. Menores de 18 anos
-    devem usar o portal com supervisão de um responsável legal.</p>
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="publicidade">10. Publicidade</h2>
+    <p>O Portal é gratuito e mantido por anúncios. Ao usar o Portal, você concorda com a
+    exibição de publicidade. Anúncios são fornecidos por terceiros (Google AdSense, Monetag)
+    e regidos por suas respectivas políticas de privacidade.</p>
+    <ul>
+      <li>O proprietário <b>não controla</b> o conteúdo dos anúncios de terceiros.</li>
+      <li>Clicar ou interagir com anúncios é de <b>responsabilidade exclusiva</b> do Usuário.</li>
+      <li>O proprietário <b>não se responsabiliza</b> por danos decorrentes de interação com anúncios.</li>
+    </ul>
 
-    <h2 id="alteracoes">11. Alterações nestes Termos</h2>
-    <p>Estes Termos podem ser atualizados a qualquer momento. Mudanças significativas
-    serão comunicadas pelo portal. O uso continuado após alterações constitui aceitação.</p>
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="links">11. Links Externos</h2>
+    <p>O Portal pode conter links para sites de terceiros. O proprietário <b>não controla</b>
+    e <b>não se responsabiliza</b> pelo conteúdo, políticas de privacidade ou práticas de
+    sites de terceiros. O uso de links externos é por conta e risco do Usuário.</p>
 
-    <h2 id="legislacao">12. Legislação Aplicável</h2>
-    <p>Estes Termos são regidos pelas leis da <b>República Federativa do Brasil</b>.
-    Foro eleito: comarca de Recife/PE.</p>
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="responsabilidade">12. Limitação de Responsabilidade</h2>
 
-    <h2 id="contato-tos">13. Contato</h2>
+    <div class="note-danger">
+      <p style="margin:0;"><b>IMPORTANTE:</b> Esta seção contém limitações significativas de
+      responsabilidade que afetam seus direitos legais. Leia com atenção.</p>
+    </div>
+
+    <p>O Portal é fornecido <b>"COMO ESTÁ" e "CONFORME DISPONÍVEL"</b>, sem garantias de
+    qualquer tipo, expressas ou implícitas, incluindo, mas não se limitando a:</p>
+    <ul>
+      <li>Garantias de commerciabilidade, adequação a fim específico, não violação;</li>
+      <li>Garantias de que o Portal será ininterrupto, seguro ou livre de erros;</li>
+      <li>Garantias de precisão, completude ou atualidade do conteúdo;</li>
+      <li>Garantias de resultados específicos obtidos com o uso do Portal.</li>
+    </ul>
+
+    <p>Em <b>nenhuma circunstância</b> o proprietário, seus sócios, funcionários, contratados
+    ou parceiros serão responsáveis por:</p>
+    <ul>
+      <li>Danos diretos, indiretos, incidentais, especiais, consecutivos ou punitivos;</li>
+      <li>Perda de lucros, receita, dados, oportunidades de negócios;</li>
+      <li>Danos morais ou materiais decorrentes do uso ou impossibilidade de uso do Portal;</li>
+      <li>Erros, imprecisões ou omissões no conteúdo (incluindo cifras e letras);</li>
+      <li>Ações de terceiros (incluindo outros usuários, anunciantes ou provedores de infraestrutura);</li>
+      <li>Interrupções, suspensões ou descontinuação do serviço;</li>
+      <li>Vírus ou outros componentes maliciosos传播ados através do Portal;</li>
+      <li>Acesso não autorizado às suas contas ou dados.</li>
+    </ul>
+
+    <p><b>Responsabilidade máxima:</b> Em qualquer hipótese, a responsabilidade total do
+    proprietário em relação a estes Termos ou ao Portal será limitada ao <b>valor pago
+    pelo Usuário ao proprietário nos últimos 12 meses</b> (que é ZERO, pois o serviço
+    é gratuito). Esta limitação se aplica mesmo que o proprietário tenha sido informado
+    da possibilidade de tais danos.</p>
+
+    <p><b>Exceções:</b> As limitações acima não se aplicam quando proibido pela legislação
+    aplicável. Neste caso, a responsabilidade será limitada ao máximo permitido por lei.</p>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="indenizacao">13. Indenização</h2>
+    <p>O Usuário concorda em <b>indenizar, defender e isentar</b> o proprietário de e contra
+    quaisquer reclamações, demandas, danos, perdas, custos e despesas (incluindo honorários
+    advocatícios razoáveis) decorrentes de:</p>
+    <ul>
+      <li>Seu uso do Portal;</li>
+      <li>Sua violação destes Termos;</li>
+      <li>Sua violação de direitos de terceiros;</li>
+      <li>Conteúdo que você enviou, publicou ou transmitiu pelo Portal;</li>
+      <li>Sua interação com outros usuários do Portal.</li>
+    </ul>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="disponibilidade">14. Disponibilidade do Serviço</h2>
+    <ul>
+      <li>O proprietário <b>não garante</b> disponibilidade 100% do Portal.</li>
+      <li>O Portal pode ser temporariamente indisponível para manutenção, atualizações ou razões técnicas.</li>
+      <li>O proprietário pode modificar, suspender ou descontinuar qualquer funcionalidade, com ou sem aviso prévio.</li>
+      <li>O proprietário não será responsável por qualquer perda decorrente da indisponibilidade do Portal.</li>
+    </ul>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="menores">15. Menores de Idade</h2>
+    <p>O Portal <b>não é direcionado</b> a crianças menores de 13 anos. Menores de 18 anos
+    devem usar o Portal com supervisão e consentimento de um responsável legal. O proprietário
+    não se responsabiliza pelo uso do Portal por menores de idade.</p>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="rescisao">16. Rescisão</h2>
+    <ul>
+      <li>O Usuário pode encerrar sua Conta a qualquer momento solicitando pelo e-mail
+      <a href="mailto:iluminatto@gmail.com">iluminatto@gmail.com</a>.</li>
+      <li>O proprietário pode <b>suspender ou encerrar</b> o acesso do Usuário a qualquer
+      momento, sem aviso prévio, por violação destes Termos.</li>
+      <li>Ao rescindir, os dados do Usuário serão tratados conforme a
+      <a href="/privacidade.html">Política de Privacidade</a>.</li>
+      <li>As seções 7, 8, 12, 13 e 17 sobrevivem à rescisão deste acordo.</li>
+    </ul>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="alteracoes">17. Alterações nestes Termos</h2>
+    <ul>
+      <li>O proprietário reserva-se o direito de alterar estes Termos a qualquer momento.</li>
+      <li>Alterações significativas serão comunicadas pelo Portal ou por e-mail (se disponível).</li>
+      <li>O uso continuado do Portal após alterações constitui <b>aceitação</b> dos novos Termos.</li>
+      <li>Recomendamos que o Usuário revise periodicamente esta página.</li>
+    </ul>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="legislacao">18. Legislação Aplicável e Foro</h2>
+    <p>Estes Termos são regidos e interpretados pelas leis da <b>República Federativa do
+    Brasil</b>, independentemente de conflitos de princípios legais.</p>
+    <p>Qualquer disputa, controvérsia ou reclamação decorrente destes Termos ou do uso
+    do Portal será submetida ao <b>foro da comarca de Recife/PE</b>, com renúncia
+    expressa a qualquer outro, por mais privilegiado que seja.</p>
+    <p>Antes de ingressar em ação judicial, as partes concordam em tentar resolver a
+    controvérsia por <b>negociação direta</b> pelo período de 30 (trinta) dias.</p>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="contato-tos">19. Contato</h2>
+    <p>Questões, notificações ou solicitações relacionadas a estes Termos:</p>
     <ul>
       <li><b>E-mail:</b> <a href="mailto:iluminatto@gmail.com">iluminatto@gmail.com</a></li>
       <li><b>Proprietário:</b> Iluminatto Moraes</li>
       <li><b>Portal:</b> <a href="https://ukemasterpro.com">ukemasterpro.com</a></li>
     </ul>
+    <p>Notificações legais devem ser enviadas exclusivamente pelo e-mail indicado acima.</p>
+
   </main>
 
   <footer class="foot">
