@@ -379,3 +379,66 @@ export function toAuthUser(u: SupabaseUser): {
     email,
   };
 }
+
+// ── Exclusão de conta (LGPD Art. 18, VI) ─────────────────────────────
+
+/**
+ * Exclui todos os dados do usuário e encerra a conta.
+ *
+ * Fluxo:
+ *  1. Deleta dados do banco (repertórios, playlists do usuário)
+ *  2. Deleta a conta no Supabase Auth
+ *  3. Limpa o localStorage
+ *
+ * Retorna { ok, error? } — nunca lança exceção.
+ */
+export async function deleteAccount(
+  session: SupabaseSession
+): Promise<{ ok: boolean; error?: string }> {
+  const sb = getSupabase();
+  if (!sb || !session?.access_token) {
+    return { ok: false, error: 'Sessão não disponível.' };
+  }
+
+  const headers = {
+    apikey: sb.anonKey,
+    Authorization: `Bearer ${session.access_token}`,
+    'Content-Type': 'application/json',
+  };
+  const userId = session.user?.id;
+  if (!userId) return { ok: false, error: 'Usuário não identificado.' };
+
+  try {
+    // 1. Deleta dados associados ao usuário (RLS garante que só deleta os seus)
+    await fetch(`${sb.url}/rest/v1/repertoires?user_id=eq.${encodeURIComponent(userId)}`, {
+      method: 'DELETE',
+      headers,
+    });
+
+    // 2. Deleta a conta no Supabase Auth
+    const res = await fetch(`${sb.url}/auth/v1/user`, {
+      method: 'DELETE',
+      headers,
+    });
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      return { ok: false, error: `Erro ao excluir conta: ${res.status} ${errText}` };
+    }
+
+    // 3. Limpa tudo do localStorage
+    try {
+      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(OAUTH_VERIFIER_KEY);
+      localStorage.removeItem('ukemaster_songs_v1');
+      localStorage.removeItem('ukemaster_playlists_v1');
+      localStorage.removeItem('ukemaster_ads_shown');
+      localStorage.removeItem('ukemaster_splash_seen');
+    } catch {
+      // ignora — localStorage pode estar cheio ou indisponível
+    }
+
+    return { ok: true };
+  } catch (e: any) {
+    return { ok: false, error: e?.message || 'Erro ao excluir conta.' };
+  }
+}

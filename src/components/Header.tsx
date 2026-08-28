@@ -7,7 +7,7 @@ import { Logo } from './Logo';
 import { DonationModal } from './DonationModal';
 import { useAuth } from '../auth';
 import { useT, LANGS } from '../lib/i18n';
-import { Search, Menu, Sparkles, Bell, Mail, LogOut, Globe, Check } from 'lucide-react';
+import { Search, Menu, Sparkles, Bell, Mail, LogOut, Globe, Check, Trash2 } from 'lucide-react';
 
 interface HeaderProps {
   setActiveTab: (tab: ActiveTab) => void;
@@ -30,7 +30,7 @@ export const Header: React.FC<HeaderProps> = ({
   onCloseDonation,
 }) => {
   const [localDonationOpen, setLocalDonationOpen] = useState(false);
-  const { available, isLoaded, isSignedIn, user, openSignIn, openSignUp, signOut } = useAuth();
+  const { available, isLoaded, isSignedIn, user, openSignIn, openSignUp, signOut, deleteAccount } = useAuth();
 
   // Suporte a ambos: estado interno (fallback) e controlado pelo App
   const isDonationOpen = onOpenDonation ? donationOpen : localDonationOpen;
@@ -188,6 +188,23 @@ export const Header: React.FC<HeaderProps> = ({
                       className="p-1.5 rounded-full text-slate-500 hover:text-[#F26419] hover:bg-white transition-colors cursor-pointer"
                     >
                       <LogOut className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={async () => {
+                        const msg = 'Tem certeza que deseja encerrar sua conta? Esta ação é PERMANENTE e não pode ser desfeita. Todos os seus dados (repertórios, playlists, favoritos) serão excluídos.';
+                        if (window.confirm(msg)) {
+                          const result = await deleteAccount();
+                          if (result.ok) {
+                            window.location.href = '/';
+                          } else {
+                            alert('Erro ao encerrar conta: ' + (result.error || 'Tente novamente.'));
+                          }
+                        }
+                      }}
+                      title="Encerrar conta permanentemente"
+                      className="p-1.5 rounded-full text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ) : (
