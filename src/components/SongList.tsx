@@ -367,6 +367,16 @@ export const SongList: React.FC<SongListProps> = ({
     [langBaseSongs]
   );
 
+  // ── Stats aggregados da home: total de artistas, votos e visualizações ──
+  const totalArtists = useMemo(
+    () => new Set(songs.map((s) => s.artist.trim())).size,
+    [songs]
+  );
+  const totalViews = useMemo(
+    () => songs.reduce((acc, s) => acc + (s.views ?? 0), 0),
+    [songs]
+  );
+
   // Trecho da LETRA para o preview do card — o foco visual é a letra,
   // não os diagramas de acordes (que ficam no viewer da cifra).
   const lyricsPreviewMap = useMemo(() => {
@@ -526,10 +536,71 @@ export const SongList: React.FC<SongListProps> = ({
       </div>
 
       {/* ════════════════════ HOME DINÂMICA (sem busca/filtro) ════════════════════
-          Vitrine de conteúdo variado: ranking hero + mini-rankings + parceiros +
+          Vitrine de conteúdo variado: stats + ranking hero + mini-rankings + parceiros +
           patrocinado + blog. Cada bloco só aparece quando há dados. */}
       {!isFiltering && (
         <div className="space-y-6">
+          {/* ══════════════ STATS BAR: dados agregados do acervo ══════════════ */}
+          {songs.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#F26419]/10 text-[#F26419] flex items-center justify-center shrink-0">
+                  <Music className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xl font-black text-slate-900 leading-none tabular-nums">
+                    {catalogLoading ? '···' : songs.length.toLocaleString('pt-BR')}
+                  </p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+                    {t('library.songsCount')}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#0E7C7B]/10 text-[#0E7C7B] flex items-center justify-center shrink-0">
+                  <User className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xl font-black text-slate-900 leading-none tabular-nums">
+                    {catalogLoading ? '···' : totalArtists.toLocaleString('pt-BR')}
+                  </p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+                    Artistas
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+                  <Star className="w-5 h-5 fill-current" />
+                </div>
+                <div>
+                  <p className="text-xl font-black text-slate-900 leading-none tabular-nums">
+                    {catalogLoading ? '···' : totalVotes.toLocaleString('pt-BR')}
+                  </p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+                    {t('library.votes')}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-500 flex items-center justify-center shrink-0">
+                  <Eye className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xl font-black text-slate-900 leading-none tabular-nums">
+                    {catalogLoading ? '···' : totalViews.toLocaleString('pt-BR')}
+                  </p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+                    Visualizações
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* RANKING HERO estilo CifraClub: o protagonista da página inicial */}
           {heroSongs.length > 0 && (
             <div className="bg-white border border-slate-200/90 rounded-2xl shadow-2xs overflow-hidden">
