@@ -128,6 +128,9 @@ export function securityHeaders(opts: SecurityHeaderOptions = {}): Record<string
       // Site 100% HTTPS: o navegador sobe qualquer recurso http:// para https.
       'upgrade-insecure-requests',
       // Scripts: próprio site + AdSense + YouTube + Monetag (auth Supabase é REST, sem script externo).
+      // TODO(security): quando AdSense for aprovado, migrar para nonces dinâmicos
+      // (gerar nonce por request e injetar no <script>) para eliminar unsafe-inline.
+      // Por ora, unsafe-inline é necessário para o React e AdSense inline scripts.
       "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://www.google.com https://www.gstatic.com https://www.youtube.com https://s.ytimg.com https://n6wxm.com https://nap5k.com https://quge5.com https://5gvci.com https://3nbf4.com https://ep2.adtrafficquality.google https://ep1.adtrafficquality.google",
       // Estilos: inline necessário para React/Tailwind; sem 'unsafe-eval'.
       "style-src 'self' 'unsafe-inline'",
@@ -271,12 +274,22 @@ interface RateBucket {
   resetAt: number;
 }
 
+/** LRU fixo: no máximo 2000 buckets (cada IP × scope). Evita DoS por
+ *  injeção de chaves únicas que consumam memória infinitamente. */
+const MAX_BUCKETS = 2000;
 const rateBuckets = new Map<string, RateBucket>();
 
-/** Remove buckets expirados (evita vazamento de memória). */
+/** Remove buckets expirados e garante o limite LRU. */
 function sweepRateBuckets(now: number): void {
   for (const [key, b] of rateBuckets) {
     if (b.resetAt <= now) rateBuckets.delete(key);
+  }
+  // LRU: se ainda estourou, remove as entradas mais antigas
+  if (rateBuckets.size > MAX_BUCKETS) {
+    const entries = [...rateBuckets.entries()]
+      .sort((a, b) => a[1].resetAt - b[1].resetAt);
+    const toRemove = entries.slice(0, entries.length - MAX_BUCKETS + 100);
+    for (const [key] of toRemove) rateBuckets.delete(key);
   }
 }
 
@@ -291,12 +304,19 @@ export function rateLimit(
   windowMs: number
 ): { ok: boolean; retryAfter?: number } {
   const now = Date.now();
-  if (rateBuckets.size > 500) sweepRateBuckets(now);
+  // Limpeza: a cada 200 novas entradas OU quando excedeu o limite
+  if (rateBuckets.size > MAX_BUCKETS || rateBuckets.size % 200 === 0) {
+    sweepRateBuckets(now);
+  }
 
   const key = `${scope}:${ip}`;
   const bucket = rateBuckets.get(key);
 
   if (!bucket || bucket.resetAt <= now) {
+    // Se o IP é novo e já atingiu o limite de chaves, nega (anti-abuso)
+    if (rateBuckets.size >= MAX_BUCKETS) {
+      return { ok: false, retryAfter: 60 };
+    }
     rateBuckets.set(key, { count: 1, resetAt: now + windowMs });
     return { ok: true };
   }
@@ -320,12 +340,15 @@ export function rateLimit(
  * que valida o JWT do usuário Supabase — mais seguro que secret no bundle.
  */
 export function requireAdminSecret(secretHeader: string | undefined): { ok: boolean; reason?: string } {
-  const expected = process.env.ADMIN_SECRET;
+  // Em produção: NUNCA aceita x-admin-secret — usa JWT Supabase via adminAuth.ts.
+  // Em dev: permite ADMIN_SECRET para conveniência local.
   const isProd = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
-  if (!expected) {
-    if (isProd) return { ok: false, reason: 'ADMIN_SECRET não configurado em produção.' };
-    return { ok: true }; // dev sem secret → aberto (conveniência local)
+  if (isProd) {
+    // Fail-closed: em produção, este endpoint requer JWT do admin (não secret).
+    return { ok: false, reason: 'Autenticação requerida. Faça login como administrador.' };
   }
+  const expected = process.env.ADMIN_SECRET;
+  if (!expected) return { ok: true }; // dev sem secret → aberto
   if (!secretHeader) return { ok: false, reason: 'Token de administração ausente.' };
   if (secretHeader !== expected) return { ok: false, reason: 'Token de administração inválido.' };
   return { ok: true };

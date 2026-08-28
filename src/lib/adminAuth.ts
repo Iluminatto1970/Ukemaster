@@ -111,12 +111,9 @@ export async function authorizeAdminRequest(
     if (typeof secret === 'string' && secret === expected) return { ok: true };
   }
 
-  // 3. Cron legacy: o header x-vercel-cron é forjável — aceito APENAS quando
-  //    CRON_SECRET não está configurado (transição). Com CRON_SECRET definido,
-  //    somente o Bearer correto abre o cron.
-  if (opts.allowCron && !process.env.CRON_SECRET && headers['x-vercel-cron'] === '1') {
-    return { ok: true };
-  }
+  // 3. x-vercel-cron NÃO é mais aceito como autenticação — é forjável.
+  //    O cron DEVE usar CRON_SECRET (injetado pela Vercel automaticamente)
+  //    ou o JWT do admin. Sem nenhuma credencial válida → 403.
 
   // Fail-closed em produção: sem credencial válida → nega.
   const isProd = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
