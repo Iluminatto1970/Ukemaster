@@ -174,7 +174,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
               {item.badge !== undefined && (
                 <span className="text-[10px] px-2 py-0.5 rounded-full font-mono font-bold bg-[#F26419] text-white">
-                  {catalogLoading && item.id === 'musicas' ? '···' : item.badge}
+                  {item.badge}
                 </span>
               )}
             </button>
