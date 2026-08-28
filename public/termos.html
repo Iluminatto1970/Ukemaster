@@ -4,19 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Termos de Uso — UkeMaster Pro</title>
-<meta name="description" content="Termos de Uso do UkeMaster Pro: regras de uso, propriedade intelectual, responsabilidades e limitações.">
+<meta name="description" content="Termos de Uso do UkeMaster Pro.">
 <meta name="robots" content="noindex, nofollow">
 <link rel="canonical" href="https://ukemasterpro.com/termos.html">
 <style>
   :root { --teal: #0E7C7B; --navy: #1D2D44; --orange: #F26419; --paper: #fafaf9; --ink: #1f2937; --muted: #6b7280; --line: #e5e7eb; }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--paper); color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.65; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.7; }
   .wrap { max-width: 860px; margin: 0 auto; padding: 0 20px; }
-  header.nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid var(--line); background: #fff; }
+  header { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid var(--line); background: #fff; }
   .logo { font-weight: 900; font-size: 18px; letter-spacing: .3px; color: var(--navy); text-decoration: none; }
   .logo em { color: var(--teal); font-style: normal; }
-  .nav .links { display: flex; gap: 12px; align-items: center; font-size: 13.5px; }
-  .nav .links a { color: var(--teal); text-decoration: none; font-weight: 600; }
+  header a { color: var(--teal); text-decoration: none; font-weight: 600; font-size: 13.5px; }
   main { padding: 34px 0 10px; }
   h1 { font-size: clamp(26px, 4vw, 36px); line-height: 1.2; margin: 0 0 6px; color: var(--navy); }
   .updated { color: var(--muted); font-size: 13px; margin: 0 0 26px; }
@@ -26,9 +25,9 @@
   ul, ol { margin: 0 0 14px; padding-left: 22px; font-size: 14.5px; }
   li { margin-bottom: 6px; }
   a { color: var(--teal); }
-  .note { background: #eef7f7; border: 1px solid #bfe0df; border-radius: 10px; padding: 12px 16px; font-size: 13.5px; margin: 16px 0; }
-  .note-warn { background: #fef9ee; border: 1px solid #f0dfa0; border-radius: 10px; padding: 12px 16px; font-size: 13.5px; margin: 16px 0; }
-  .note-danger { background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 12px 16px; font-size: 13.5px; margin: 16px 0; }
+  .warn { background: #fef9ee; border: 1px solid #f0dfa0; border-radius: 10px; padding: 12px 16px; font-size: 13.5px; margin: 16px 0; }
+  .danger { background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 12px 16px; font-size: 13.5px; margin: 16px 0; }
+  .info { background: #eef7f7; border: 1px solid #bfe0df; border-radius: 10px; padding: 12px 16px; font-size: 13.5px; margin: 16px 0; }
   .toc { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 0 0 24px; }
   .toc h2 { margin: 0 0 8px; font-size: 14px; }
   .toc ol { margin: 0; padding-left: 18px; columns: 2; column-gap: 20px; }
@@ -40,9 +39,9 @@
 </style>
 </head>
 <body>
-  <header class="nav">
+  <header>
     <a class="logo" href="/">UkeMaster <em>Pro</em></a>
-    <div class="links">
+    <div style="display:flex;gap:12px;align-items:center;">
       <a href="/">Início</a>
       <a href="/privacidade.html">Privacidade</a>
     </div>
@@ -50,347 +49,463 @@
 
   <main class="wrap">
     <h1>Termos de Uso</h1>
-    <p class="updated">Última atualização: 28 de agosto de 2026</p>
+    <p class="updated">Última atualização: 28 de agosto de 2026 · Versão 2.0</p>
 
     <div class="toc">
       <h2>Sumário</h2>
       <ol>
-        <li><a href="#aceitacao">Aceitação dos Termos</a></li>
+        <li><a href="#aceitacao">Aceitação</a></li>
         <li><a href="#definicoes">Definições</a></li>
-        <li><a href="#servico">Descrição do Serviço</a></li>
-        <li><a href="#conta">Cadastro e Conta</a></li>
-        <li><a href="#uso">Uso Aceitável</a></li>
-        <li><a href="#anti-scraping">Anti-Scraping e Automação</a></li>
+        <li><a href="#servico">O Serviço</a></li>
+        <li><a href="#conta">Conta de Usuário</a></li>
+        <li><a href="#regras">Regras de Uso</a></li>
+        <li><a href="#scraping">Proteção contra Scraping</a></li>
+        <li><a href="#ia">Uso por Inteligência Artificial</a></li>
         <li><a href="#propriedade">Propriedade Intelectual</a></li>
-        <li><a href="#fair-use">Uso Justo (Fair Use)</a></li>
-        <li><a href="#conteudo-user">Conteúdo do Usuário</a></li>
-        <li><a href="#publicidade">Publicidade</a></li>
-        <li><a href="#links">Links Externos</a></li>
-        <li><a href="#responsabilidade">Limitação de Responsabilidade</a></li>
+        <li><a href="#fairuse">Uso Justo — Cifras e Letras</a></li>
+        <li><a href="#takedown">Remoção de Conteúdo</a></li>
+        <li><a href="#user-content">Conteúdo do Usuário</a></li>
+        <li><a href="#ads">Publicidade</a></li>
+        <li><a href="#terceiros">Serviços de Terceiros</a></li>
+        <li><a href="#dados">Dados e Privacidade</a></li>
+        <li><a href="#responsabilidade">Isenção de Responsabilidade</a></li>
         <li><a href="#indenizacao">Indenização</a></li>
-        <li><a href="#disponibilidade">Disponibilidade do Serviço</a></li>
+        <li><a href="#limite">Limite de Responsabilidade</a></li>
+        <li><a href="#manutencao">Manutenção e Disponibilidade</a></li>
         <li><a href="#menores">Menores de Idade</a></li>
         <li><a href="#rescisao">Rescisão</a></li>
-        <li><a href="#alteracoes">Alterações nestes Termos</a></li>
-        <li><a href="#legislacao">Legislação Aplicável e Foro</a></li>
-        <li><a href="#contato-tos">Contato</a></li>
+        <li><a href="#alteracoes">Alterações</a></li>
+        <li><a href="#legislacao">Legislação e Foro</a></li>
+        <li><a href="#contato">Contato</a></li>
       </ol>
     </div>
 
-    <p>Ao acessar ou usar o <b>UkeMaster Pro</b> ("portal", "site", "aplicativo"), você concorda
-    integralmente com estes Termos de Uso. Se não concordar com qualquer parte, não use o portal.</p>
-
-    <div class="note-warn">
-      <p style="margin:0;"><b>IMPORTANTE:</b> Estes Termos constituem um acordo jurídico vinculante.
-      Recomendamos que você leia todos os artigos antes de usar o portal. Ao prosseguir, você
-      confirma que compreendeu e aceitou todos os termos aqui descritos.</p>
+    <div class="danger">
+      <p style="margin:0;"><b>⚠ LEIA COM ATENÇÃO:</b> Estes Termos de Uso constituem um
+      acordo legal vinculante entre você e o proprietário do UkeMaster Pro. Ao acessar ou
+      usar o portal, você concorda com TODOS os termos aqui descritos. Se não concordar,
+      não use o portal.</p>
     </div>
 
     <!-- ════════════════════════════════════════════════════════════════ -->
     <h2 id="aceitacao">1. Aceitação dos Termos</h2>
-    <p>Estes Termos de Uso ("Termos") constituem um acordo legal e obrigatório entre você
-    ("usuário", "titular de dados") e <b>Iluminatto Moraes</b>, CPF [*], inscrito no
-    CNPJ [*], com sede em Recife/PE, Brasil ("proprietário", "controlador", "nós").</p>
-    <p>Ao acessar, navegar ou usar o UkeMaster Pro, você declara que:</p>
+    <p>Estes Termos de Uso ("Termos") são um acordo jurídico obrigatório entre
+    <b>você</b> ("Usuário") e <b>Iluminatto Moraes</b>, pessoa física, CPF [*],
+    residente e domiciliado em Recife/PE, Brasil ("Proprietário", "Controlador").</p>
+    <p>Ao acessar o portal ukemasterpro.com ou qualquer de seus subdomínios, APIs,
+    aplicações móveis ou serviços derivados ("Portal"), você declara e garante que:</p>
     <ul>
-      <li>Tem pelo menos 18 anos de idade ou a maioridade em sua jurisdição;</li>
-      <li>Leu e compreendeu integralmente estes Termos;</li>
-      <li>Aceita estar legalmente vinculado por estes Termos;</li>
-      <li>Concordou com nossa <a href="/privacidade.html">Política de Privacidade</a>.</li>
+      <li>Tem pelo menos 18 anos de idade;</li>
+      <li>Leu, compreendeu e aceita integralmente estes Termos;</li>
+      <li>Leu e aceitou nossa <a href="/privacidade.html">Política de Privacidade</a>;</li>
+      <li>Tem capacidade legal para firmar este acordo;</li>
+      <li>Não está impedido por lei de celebrar este acordo.</li>
     </ul>
-    <p>Se você estiver agindo em nome de uma empresa ou entidade, declara ter autoridade
-    para vincular essa entidade a estes Termos.</p>
+    <p>O proprietário pode alterar estes Termos a qualquer momento. O uso continuado
+    após alterações constitui aceitação. Recomendamos revisão periódica.</p>
 
     <!-- ════════════════════════════════════════════════════════════════ -->
     <h2 id="definicoes">2. Definições</h2>
     <ul>
-      <li><b>"Portal"</b> — o site ukemasterpro.com, incluindo todas as páginas, funcionalidades, APIs e serviços associados.</li>
-      <li><b>"Usuário"</b> — toda pessoa física ou jurídica que acessa ou usa o Portal.</li>
-      <li><b>"Conteúdo"</b> — todo material disponibilizado no Portal, incluindo cifras, letras, acordes, vídeos, textos, imagens, software e dados.</li>
-      <li><b>"Conteúdo de Terceiros"</b> — material de propriedade de terceiros exibido no Portal (cifras, letras, acordes, vídeos do YouTube).</li>
-      <li><b>"Conta"</b> — registro do Usuário no Portal com credenciais de acesso (e-mail + senha).</li>
-      <li><b>"Serviço"</b> — todas as funcionalidades oferecidas pelo Portal, incluindo busca, visualização, criação e compartilhamento de conteúdo.</li>
-      <li><b>"Dados Pessoais"</b> — qualquer informação relativa a pessoa natural identificada ou identificável, conforme LGPD (Lei 13.709/2018).</li>
+      <li><b>"Portal"</b> — o site ukemasterpro.com, suas páginas, funcionalidades, APIs, bases de dados e todos os serviços associados.</li>
+      <li><b>"Conteúdo"</b> — todo material disponibilizado no Portal: cifras, letras, acordes, diagramas, vídeos, textos, imagens, software, dados e código.</li>
+      <li><b>"Conteúdo de Terceiros"</b> — material protegido por direitos autorais de terceiros exibido no Portal (obras musicais, cifras, letras, acordes, composições).</li>
+      <li><b>"Conteúdo do Usuário"</b> — material criado, editado ou compartilhado pelo Usuário no Portal (repertórios, playlists, comentários, votos, cifras editadas).</li>
+      <li><b>"Conta"</b> — registro autenticado do Usuário (e-mail + senha via Supabase).</li>
+      <li><b>"Dados Pessoais"</b> — conforme Art. 5º, I da LGPD (Lei 13.709/2018).</li>
+      <li><b>"Serviço"</b> — todas as funcionalidades do Portal, incluindo busca, visualização, criação e compartilhamento.</li>
     </ul>
 
     <!-- ════════════════════════════════════════════════════════════════ -->
-    <h2 id="servico">3. Descrição do Serviço</h2>
-    <p>O UkeMaster Pro é um portal gratuito de cifras de ukulele que oferece:</p>
-    <ul>
-      <li>Biblioteca de cifras (acordes, letra, ritmo, tom, nível de dificuldade)</li>
-      <li>Dicionário de acordes interativo com diagramas</li>
-      <li>Afinador de precisão</li>
-      <li>Metrônomo</li>
-      <li>Trilhas de aprendizado guiadas</li>
-      <li>Repertórios privados e playlists</li>
-      <li>Comunidade de músicos (votos, comentários, contribuições)</li>
-      <li>Blog com artigos educacionais</li>
-      <li>Vídeo-aulas e conteúdo multimídia</li>
-    </ul>
-    <p>O serviço é mantido integralmente por <b>publicidade</b> (Google AdSense e, temporariamente,
-    Monetag) e <b>apoio voluntário</b> (APOIA.se). Não há assinatura paga nem paywall.</p>
+    <h2 id="servico">3. O Serviço</h2>
+    <p>O UkeMaster Pro é um <b>portal gratuito</b> de cifras de ukulele mantido por
+    publicidade e apoio voluntário. Não há assinatura, paywall ou cobrança por qualquer
+    funcionalidade.</p>
+    <p>O Serviço inclui, entre outras: biblioteca de cifras, dicionário de acordes,
+    afinador, metrônomo, trilhas de aprendizado, playlists, repertórios privados,
+    blog e vídeo-aulas.</p>
+    <p>O Proprietário reserva-se o direito de, a seu exclusivo critério, modificar,
+    suspender ou descontinuar qualquer funcionalidade, total ou parcialmente, a
+    qualquer momento, sem aviso prévio e sem responsabilidade.</p>
 
     <!-- ════════════════════════════════════════════════════════════════ -->
-    <h2 id="conta">4. Cadastro e Conta</h2>
+    <h2 id="conta">4. Conta de Usuário</h2>
     <ul>
-      <li>O cadastro é <b>gratuito e opcional</b> — o Portal funciona sem conta para leitura.</li>
-      <li><b>Uma pessoa por conta.</b> Contas duplicadas poderão ser desativadas.</li>
-      <li>O Usuário é <b>responsável exclusivo</b> pela segurança de suas credenciais.</li>
-      <li>O Usuário é responsável por todas as atividades realizadas em sua Conta.</li>
-      <li>Notifique-nos imediatamente sobre uso não autorizado da sua Conta.</li>
-      <li>O proprietário reserva-se o direito de suspender ou excluir Contas que violem estes Termos, sem aviso prévio e sem direito a indenização.</li>
+      <li>O cadastro é <b>gratuito e opcional</b>. O Portal funciona sem conta para leitura.</li>
+      <li><b>Uma pessoa, uma conta.</b> Contas duplicadas serão desativadas.</li>
+      <li>O Usuário é <b>inteiramente responsável</b> pela segurança de suas credenciais e por todas as atividades realizadas em sua Conta.</li>
+      <li>O Usuário deve notificar imediatamente o proprietário sobre qualquer uso não autorizado de sua Conta.</li>
+      <li>O proprietário <b>não se responsabiliza</b> por perdas decorrentes de uso não autorizado da Conta.</li>
+      <li>O proprietário pode suspender ou excluir Contas a qualquer momento, sem aviso prévio, por qualquer motivo, incluindo violação destes Termos.</li>
+      <li>Após o encerramento da Conta, certos dados poderão ser retidos conforme a
+      <a href="/privacidade.html">Política de Privacidade</a> e legislação aplicável.</li>
     </ul>
 
     <!-- ════════════════════════════════════════════════════════════════ -->
-    <h2 id="uso">5. Uso Aceitável</h2>
-    <p>Ao usar o Portal, você concorda em <b>NÃO</b>:</p>
+    <h2 id="regras">5. Regras de Uso</h2>
+    <p>O Usuário <b>somente poderá</b> usar o Portal para fins lícitos e em conformidade
+    com estes Termos. É <b>expressamente proibido</b>:</p>
+
+    <h3>5.1 Uso proibido em geral</h3>
     <ul>
-      <li>Usar bots, spiders, crawlers, scrapers ou qualquer ferramenta automatizada para acessar, extrair ou reproduzir conteúdo do Portal;</li>
-      <li>Tentar contornar medidas de segurança, proteção contra acesso não autorizado ou autenticação;</li>
-      <li>Explorar falhas de segurança, vulnerabilidades ou bugs do Portal;</li>
-      <li>Acessar contas de outros usuários sem autorização expressa;</li>
-      <li>Enviar, publicar ou transmitir conteúdo ilegal, ofensivo, difamatório, calunioso, obsceno ou que viole direitos de terceiros;</li>
-      <li>Reproduzir, distribuir, modificar ou criar obras derivadas do conteúdo do Portal sem autorização;</li>
-      <li>Usar o Portal para fins comerciais não autorizados, incluindo revenda de conteúdo;</li>
-      <li>Realizar engenharia reversa, descompilar ou desmontar qualquer parte do Portal;</li>
+      <li>Violar qualquer lei, regulamento ou direito de terceiros;</li>
+      <li>Usar o Portal para fins comerciais não autorizados;</li>
+      <li>Enviar conteúdo ilegal, ofensivo, difamatório, calunioso, obsceno, fraudulento ou que viole direitos de terceiros;</li>
       <li>Interferir ou interromper o funcionamento do Portal ou seus servidores;</li>
-      <li>Exceder limites de uso razoável (queries excessivas, abuso de APIs);</li>
-      <li>Usar o conteúdo para treinar modelos de inteligência artificial sem autorização expressa e por escrito.</li>
+      <li>Tentar acessar áreas restritas, contas de outros usuários ou sistemas internos;</li>
+      <li>Usar o Portal para transmitir vírus, malware, spam ou qualquer material prejudicial;</li>
+      <li>Coleitar dados de outros usuários sem autorização;</li>
+      <li>Fazer engenharia reversa, descompilar ou desmontar qualquer parte do Portal;</li>
+      <li>Contornar ou desativar qualquer proteção de segurança ou funcionalidade de controle de acesso;</li>
+      <li>Usar o conteúdo para treinar, validar ou alimentar modelos de inteligência artificial ou machine learning (ver seção 7);</li>
+      <li>Reproduzir, distribuir ou criar obras derivadas do conteúdo sem autorização;</li>
+      <li>Exceder limites de uso razoável ou fazer queries excessivas às APIs.</li>
+    </ul>
+
+    <h3>5.2 Consequências da violação</h3>
+    <p>Violações poderão resultar em, sem aviso prévio e a exclusivo critério do proprietário:</p>
+    <ul>
+      <li>Aviso formal;</li>
+      <li>Suspensão temporária ou permanente do acesso;</li>
+      <li>Exclusão da Conta e todos os dados associados;</li>
+      <li>Bloqueio de IP, dispositivo e/ou identificadores;</li>
+      <li>Notificação a autoridades competentes;</li>
+      <li>Ação civil por danos materiais e morais;</li>
+      <li>Representação criminal, conforme legislação aplicável.</li>
     </ul>
 
     <!-- ════════════════════════════════════════════════════════════════ -->
-    <h2 id="anti-scraping">6. Anti-Scraping e Automação</h2>
-
-    <div class="note-danger">
-      <p style="margin:0;"><b>⚠ AVISO LEGAL:</b> O Portal utiliza proteções técnicas contra
-      raspagem automatizada (anti-scraping). O acesso automatizado ao Portal constitui
-      <b>acesso não autorizado</b> conforme o Art. 154 do Código Penal Brasileiro e pode
-      configurar violação à Lei Carolina Dieckmann (Lei 12.737/2012). Violações serão
-      tratadas civil e criminalmente.</p>
+    <h2 id="scraping">6. Proteção contra Scraping</h2>
+    <div class="danger">
+      <p style="margin:0;"><b>⚠ PROTEÇÃO LEGAL:</b> O Portal utiliza medidas técnicas e
+      legais contra acesso automatizado. Violações sujeitam o infrator às sanções civis e
+      criminais da legislação brasileira.</p>
     </div>
 
-    <p>É <b>expressamente proibido</b>:</p>
+    <p>É <b>terminantemente proibido</b>:</p>
     <ul>
-      <li>Usar qualquer ferramenta automatizada (bots, spiders, crawlers, scripts, scrapers, headless browsers) para acessar ou extrair conteúdo do Portal;</li>
+      <li>Usar bots, spiders, crawlers, scrapers, scripts automatizados, headless browsers ou qualquer ferramenta de automação para acessar, extrair ou reproduzir conteúdo do Portal;</li>
       <li>Copiar, reproduzir ou armazenar massivamente o acervo do Portal, total ou parcialmente;</li>
-      <li>Usar o conteúdo do Portal para treinar, validar ou alimentar modelos de inteligência artificial, machine learning ou dados;</li>
-      <li>Realizar engenharia reversa sobre o conteúdo, estrutura ou funcionalidades do Portal;</li>
-      <li>Contornar ou desativar as proteções anti-scraping implementadas no Portal.</li>
+      <li>Realizar engenharia reversa sobre o conteúdo, estrutura, algoritmos ou funcionalidades do Portal;</li>
+      <li>Contornar as proteções anti-scraping (bloqueio de User-Agent, rate limiting, honeypots);</li>
+      <li>Usar代理 (proxies) ou serviços de terceiros para ocultar o acesso automatizado;</li>
+      <li>Disponibilizar o conteúdo extraído em outros sites, aplicativos ou bases de dados.</li>
     </ul>
-    <p>Violações serão tratadas com:</p>
+
+    <p><b>Fundamentação legal:</b></p>
+    <ul>
+      <li><b>Art. 154 do Código Penal Brasileiro</b> — invasão de dispositivo informático (acesso não autorizado a sistema de informações);</li>
+      <li><b>Lei 12.737/2012 (Lei Carolina Dieckmann)</b> — violação de dispositivos informáticos;</li>
+      <li><b>Art. 10 da Lei 9.609/1998</b> — ofensa aos direitos de autor de banco de dados;</li>
+      <li><b>Art. 7º da Lei 12.965/2014 (Marco Civil da Internet)</b> — inviolabilidade da intimidade e sigilo de comunicações;</li>
+      <li><b>Art. 18 da Lei 13.709/2018 (LGPD)</b> — tratamento de dados sem consentimento;</li>
+      <li><b>Art. 6º da Lei 12.529/2011 (CDC)</b> — práticas abusivas e concorrência desleal.</li>
+    </ul>
+
+    <p><b>Sanções aplicáveis:</b></p>
     <ul>
       <li>Bloqueio permanente do IP e/ou identificador do dispositivo;</li>
+      <li>Ação indenizatória por danos materiais (custos de infraestrutura, lucros cessantes) e morais;</li>
       <li>Notificação formal ao responsável pelo acesso;</li>
-      <li>Ação judicial por danos materiais e morais, quando aplicável;</li>
-      <li>Representação criminal, nos termos da legislação vigente.</li>
+      <li>Representação criminal nos termos da Lei Carolina Dieckmann;</li>
+      <li>Notificação a provedores de acesso e plataformas de hospedagem do infrator.</li>
     </ul>
 
     <!-- ════════════════════════════════════════════════════════════════ -->
-    <h2 id="propriedade">7. Propriedade Intelectual</h2>
-
-    <h3>7.1 Conteúdo do Portal (elementos originais)</h3>
-    <p>O layout, design, código-fonte, funcionalidades, algoritmos, textos originais, gráficos,
-    logotipos, ícones, banco de dados e demais elementos criados pelo proprietário são
-    protegidos por direitos autorais (Lei 9.610/1998), direitos de autor de banco de dados
-    (Lei 9.609/1998) e legislação aplicável.</p>
-    <p>Qualquer reprodução, distribuição, modificação, comunicação pública ou exploração
-    comercial deste conteúdo <b>somente é permitida mediante autorização prévia e por
-    escrito</b> do proprietário.</p>
-
-    <h3>7.2 Conteúdo musical (cifras, letras, acordes)</h3>
-    <div class="note-warn">
-      <p style="margin:0;"><b>AVISO SOBRE DIREITOS AUTORAIS:</b> As cifras, letras e acordes
-      exibidos neste Portal são de propriedade dos respectivos compositores, editores e/ou
-      titulares de direitos autorais. O UkeMaster Pro <b>não reivindica propriedade</b>
-      sobre este conteúdo de terceiros.</p>
+    <h2 id="ia">7. Uso por Inteligência Artificial</h2>
+    <div class="danger">
+      <p style="margin:0;"><b>⚠ PROIBIÇÃO DE TREINAMENTO DE IA:</b> O conteúdo do Portal
+      não pode ser usado para treinar, validar, testar ou alimentar modelos de inteligência
+      artificial, machine learning, large language models ou qualquer sistema de processamento
+      automático de linguagem natural.</p>
     </div>
-    <ul>
-      <li>As cifras e letras são exibidas em caráter <b>exclusivamente educacional e informativo</b>.</li>
-      <li>O Portal funciona como <b>ferramenta de referência musical</b>, similar a livros de cifras impressos.</li>
-      <li>O conteúdo é disponibilizado para uso <b>não-comercial, pessoal e educacional</b>.</li>
-      <li>O Portal <b>não substitui</b> a aquisição de álbuns oficiais, partituras licenciadas ou assinaturas de serviços musicais.</li>
-      <li>Recomendamos expressamente que os usuários <b>adquiram álbuns oficiais e apoiem os artistas</b>.</li>
-    </ul>
 
-    <h3>7.3 Conteúdo gerado pelo usuário</h3>
     <ul>
-      <li>O Usuário <b>mantém a propriedade intelectual</b> do conteúdo que cria ou contribui.</li>
-      <li>Ao criar ou editar cifras, o Usuário declara ter o direito de fazê-lo e não violar direitos de terceiros.</li>
-      <li>Ao tornar repertórios <b>públicos</b>, o Usuário concede ao Portal uma <b>licença não-exclusiva, gratuita e mundial</b> para exibir, reproduzir e distribuir tal conteúdo exclusivamente para fins de operação do Portal.</li>
-      <li>O proprietário reserva-se o direito de remover qualquer conteúdo que viole direitos de terceiros ou estes Termos.</li>
+      <li>Crawlers, bots de IA e scraping para treinamento são <b>expressamente proibidos</b>;</li>
+      <li>O conteúdo extraído por IA <b>não pode ser reproduzido</b> em outros sistemas;</li>
+      <li>Respostas geradas por IA que reproduzam conteúdo do Portal <b>violam direitos autorais</b>;</li>
+      <li>O proprietário reserva-se o direito de bloquear e processar qualquer acesso identificado como originado de sistemas de IA;</li>
+      <li>Esta proibição se estende a afiliados, contratados e terceiros que atuem em nome do Usuário.</li>
     </ul>
 
     <!-- ════════════════════════════════════════════════════════════════ -->
-    <h2 id="fair-use">8. Uso Justo (Fair Use) e Limitações Legais</h2>
+    <h2 id="propriedade">8. Propriedade Intelectual</h2>
 
-    <div class="note">
-      <p style="margin:0;"><b>Fundamentação Legal:</b> A exibição de cifras e letras neste
-      Portal ampara-se no <b>uso justo (fair use)</b> previsto no Art. 10 da Lei 9.610/1998
-      (Direitos Autorais) e na jurisprudência brasileira que reconhece o caráter educacional
-      de ferramentas musicais de referência.</p>
+    <h3>8.1 Conteúdo original do Portal</h3>
+    <p>O layout, design, código-fonte, algoritmos, funcionalidades, textos originais,
+    gráficos, logotipos, ícones, banco de dados, estrutura de navegação e todos os
+    elementos criados pelo Proprietário são protegidos por:</p>
+    <ul>
+      <li><b>Lei 9.610/1998</b> — Lei de Direitos Autorais;</li>
+      <li><b>Lei 9.609/1998</b> — Lei de Software e Proteção de Banco de Dados;</li>
+      <li><b>Lei 9.279/1996</b> — Lei de Propriedade Industrial (quando aplicável);</li>
+      <li>Convenções internacionais de proteção intelectual.</li>
+    </ul>
+    <p>Qualquer reprodução, distribuição, modificação, comunicação pública, exploração
+    comercial ou criação de obras derivadas deste conteúdo <b>somente é permitida mediante
+    autorização prévia, expressa e por escrito</b> do Proprietário.</p>
+
+    <h3>8.2 Banco de dados</h3>
+    <p>O catálogo de cifras, metadados, estatísticas e informações musicais do Portal
+    constitui <b>banco de dados protegido</b> nos termos dos Arts. 8º e 9º da Lei 9.609/1998.
+    É vedada a reprodução total ou parcial, em meio qualquer, dos dados do banco de dados,
+    salvo autorização expressa do titular dos direitos.</p>
+
+    <h3>8.3 Conteúdo de Terceiros</h3>
+    <p>Cifras, letras, acordes e composições musicais exibidos no Portal são de
+    <b>propriedade dos respectivos compositores, editoras e titulares de direitos
+    autorais</b>. O Portal <b>não reivindica</b> propriedade sobre este material.</p>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="fairuse">9. Uso Justo — Cifras e Letras</h2>
+
+    <div class="info">
+      <p style="margin:0;"><b>Fundamentação Legal:</b> Art. 10 da Lei 9.610/1998 —
+      não ofende o direito autoral a reprodução de passagens de obra para fins de
+      estudo, crítica ou discussão, desde que não constitua prática de concorrência
+      desleal. A exibição de cifras e letras no Portal enquadra-se no uso justo
+      educacional e de referência.</p>
     </div>
 
     <p>O Portal opera sob os seguintes princípios de uso justo:</p>
     <ol>
-      <li><b>Finalidade educacional:</b> o conteúdo destina-se exclusivamente ao aprendizado musical, não à substituição da obra original.</li>
-      <li><b>Natureza do conteúdo:</b> cifras e acordes são elementos técnicos (descrição de acordes e progressões), não a obra musical em si.</li>
-      <li><b>Quantidade:</b> o Portal exibe o necessário para fins de referência e aprendizado.</li>
-      <li><b>Efeito no mercado:</b> o Portal <b>não substitui</b> a aquisição de obras originais — ao contrário, promove o consumo musical e o apoio a artistas.</li>
-      <li><b>Sem fins lucrativos diretos:</b> o conteúdo musical não é objeto de monetização direta — a receita vem de publicidade genérica, não de venda do conteúdo.</li>
+      <li><b>Finalidade exclusivamente educacional:</b> o conteúdo destina-se ao aprendizado e referência musical, não à substituição da obra original.</li>
+      <li><b>Natureza técnica:</b> cifras e acordes são <b>descrições técnicas</b> (progressões harmônicas, formas de dedilhado), não a composição musical em si. A proteção autoral recai sobre a composição (melodia + letra), não sobre a representação técnica de acordes.</li>
+      <li><b>Sem fins lucrativos diretos:</b> a receita do Portal vem de publicidade genérica e doações — não de venda, licenciamento ou monetização do conteúdo musical.</li>
+      <li><b>Efeito promocional:</b> o Portal promove o consumo musical e o apoio a artistas, não substitui a aquisição de álbuns oficiais.</li>
+      <li><b>Caráter referencial:</b> o conteúdo funciona como referência rápida, similar a livros de cifras impressos amplamente aceitos no mercado.</li>
     </ol>
 
-    <p><b>Notificação de remoção (DMCA / Copyright Takedown):</b> Se você é titular de
-    direitos autorais e deseja que seu conteúdo seja removido do Portal, entre em contato
-    pelo e-mail <a href="mailto:iluminatto@gmail.com">iluminatto@gmail.com</a> com as
-    seguintes informações:</p>
-    <ul>
-      <li>Identificação do titular dos direitos;</li>
-      <li>Descrição do conteúdo protegido e localização no Portal;</li>
-      <li>Prova de titularidade dos direitos;</li>
-      <li>Declaração de boa-fé.</li>
-    </ul>
-    <p>Removeremos o conteúdo em até <b>48 horas</b> após recebermos notificação válida.</p>
+    <p><b>Nota:</b> o Portal recomenda expressamente que os usuários adquiram álbuns
+    oficiais, partituras licenciadas e apoiem os artistas diretamente.</p>
 
     <!-- ════════════════════════════════════════════════════════════════ -->
-    <h2 id="conteudo-user">9. Conteúdo do Usuário</h2>
+    <h2 id="takedown">10. Remoção de Conteúdo (Copyright Takedown)</h2>
+    <p>O Proprietário respeita os direitos autorais de terceiros e responde
+    prontamente a notificações válidas de remoção.</p>
+
+    <h3>10.1 Como solicitar remoção</h3>
+    <p>Se você é titular de direitos autorais e deseja que seu conteúdo seja removido,
+    envie notificação para <a href="mailto:iluminatto@gmail.com">iluminatto@gmail.com</a>
+    contendo:</p>
+    <ol>
+      <li>Identificação completa do titular dos direitos (nome, documento, contato);</li>
+      <li>Descrição precisa do conteúdo protegido;</li>
+      <li>URL ou localização exata do conteúdo no Portal;</li>
+      <li>Prova de titularidade (registro de obra, contrato de edição, declaração);</li>
+      <li>Declaração, sob pena de perjúrio, de que o uso não foi autorizado;</li>
+      <li>Assinatura física ou eletrônica do titular ou de seu representante legal.</li>
+    </ol>
+
+    <h3>10.2 Prazo de atendimento</h3>
     <ul>
-      <li>O Usuário é <b>responsável exclusivo</b> pelo conteúdo que cria, editou ou compartilha.</li>
-      <li>Não publique conteúdo que viole direitos autorais, marcas registradas ou direitos de privacidade de terceiros.</li>
-      <li>O proprietário <b>não se responsabiliza</b> pelo conteúdo gerado por usuários.</li>
-      <li>O proprietário reserva-se o direito de <b>remover, editar ou desativar</b> qualquer conteúdo que viole estes Termos, sem aviso prévio.</li>
-      <li>Ao submeter conteúdo, o Usuário declara e garante que tem todos os direitos necessários para fazê-lo.</li>
+      <li><b>Notificações válidas:</b> remoção em até <b>48 horas</b> úteis;</li>
+      <li><b>Notificações incompletas:</b> esclarecimento em até 5 dias úteis;</li>
+      <li><b>Contranotificação:</b> o Usuário que teve conteúdo removido pode apresentar defesa em até 15 dias.</li>
+    </ul>
+
+    <h3>10.3 Política de usuários recorrentes</h3>
+    <p>Usuários que recebem múltiplas notificações válidas de remoção terão sua
+    Conta permanentemente encerrada, sem possibilidade de reabertura.</p>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="user-content">11. Conteúdo do Usuário</h2>
+    <ul>
+      <li>O Usuário é <b>responsável exclusivo e integral</b> por todo o conteúdo que cria, edita, publica ou compartilha no Portal.</li>
+      <li>O Usuário <b>declara e garante</b> que tem todos os direitos necessários sobre o conteúdo que submete e que este não viola direitos de terceiros.</li>
+      <li>O proprietário <b>não assume e não terá</b> qualquer responsabilidade por conteúdo de Usuários.</li>
+      <li>Ao tornar repertórios <b>públicos</b>, o Usuário concede ao Portal uma licença
+      <b>não-exclusiva, gratuita, mundial, irrevogável e transferível</b> para usar,
+      exibir, reproduzir e distribuir tal conteúdo exclusivamente para operação do Portal.</li>
+      <li>O proprietário reserva-se o direito de <b>remover, editar, bloquear ou desativar</b>
+      qualquer conteúdo de Usuário a qualquer momento, sem aviso prévio e sem
+      obrigação de justificativa.</li>
+      <li>O proprietário <b>não se obriga</b> a manter, preservar ou fornecer cópia de
+      conteúdo de Usuário após o encerramento da Conta.</li>
     </ul>
 
     <!-- ════════════════════════════════════════════════════════════════ -->
-    <h2 id="publicidade">10. Publicidade</h2>
-    <p>O Portal é gratuito e mantido por anúncios. Ao usar o Portal, você concorda com a
-    exibição de publicidade. Anúncios são fornecidos por terceiros (Google AdSense, Monetag)
-    e regidos por suas respectivas políticas de privacidade.</p>
+    <h2 id="ads">12. Publicidade</h2>
     <ul>
-      <li>O proprietário <b>não controla</b> o conteúdo dos anúncios de terceiros.</li>
+      <li>O Portal exibe anúncios para manter o serviço gratuito. O Usuário concorda com a exibição de publicidade ao usar o Portal.</li>
+      <li>Os anúncios são fornecidos por <b>terceiros</b> (Google AdSense, Monetag) e regidos por suas próprias políticas.</li>
+      <li>O Proprietário <b>não controla</b> o conteúdo dos anúncios, não os endossa e <b>não se responsabiliza</b> por quaisquer danos decorrentes de interação com anúncios.</li>
       <li>Clicar ou interagir com anúncios é de <b>responsabilidade exclusiva</b> do Usuário.</li>
-      <li>O proprietário <b>não se responsabiliza</b> por danos decorrentes de interação com anúncios.</li>
     </ul>
 
     <!-- ════════════════════════════════════════════════════════════════ -->
-    <h2 id="links">11. Links Externos</h2>
-    <p>O Portal pode conter links para sites de terceiros. O proprietário <b>não controla</b>
-    e <b>não se responsabiliza</b> pelo conteúdo, políticas de privacidade ou práticas de
-    sites de terceiros. O uso de links externos é por conta e risco do Usuário.</p>
+    <h2 id="terceiros">13. Serviços de Terceiros</h2>
+    <p>O Portal pode conter links, widgets, incorporações (iframes) ou integrações com
+    serviços de terceiros (YouTube, Supabase, Vercel, etc.). O Proprietário:</p>
+    <ul>
+      <li><b>Não controla</b> e não endossa serviços de terceiros;</li>
+      <li><b>Não se responsabiliza</b> pelo conteúdo, políticas, práticas ou disponibilidade de serviços de terceiros;</li>
+      <li><b>Não é parte</b> em quaisquer transações entre o Usuário e terceiros;</li>
+      <li>Recomenda que o Usuário leia as políticas de privacidade e termos de uso de cada serviço de terceiros.</li>
+    </ul>
 
     <!-- ════════════════════════════════════════════════════════════════ -->
-    <h2 id="responsabilidade">12. Limitação de Responsabilidade</h2>
+    <h2 id="dados">14. Dados e Privacidade</h2>
+    <p>O tratamento de dados pessoais é regido pela nossa
+    <a href="/privacidade.html">Política de Privacidade</a>, que é parte integrante
+    destes Termos. O Proprietário trata dados em conformidade com a LGPD (Lei 13.709/2018),
+    GDPR e CCPA, conforme aplicável.</p>
+    <p>O Usuário concorda com a coleta, uso e armazenamento de dados conforme descrito
+    na Política de Privacidade.</p>
 
-    <div class="note-danger">
-      <p style="margin:0;"><b>IMPORTANTE:</b> Esta seção contém limitações significativas de
-      responsabilidade que afetam seus direitos legais. Leia com atenção.</p>
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="responsabilidade">15. Isenção de Responsabilidade</h2>
+
+    <div class="danger">
+      <p style="margin:0;"><b>⚠ LEIA COM ATENÇÃO — ESTA SEÇÃO LIMITA SIGNIFICATIVAMENTE
+      A RESPONSABILIDADE DO PROPRIETÁRIO E AFETA SEUS DIREITOS LEGAIS.</b></p>
     </div>
 
-    <p>O Portal é fornecido <b>"COMO ESTÁ" e "CONFORME DISPONÍVEL"</b>, sem garantias de
-    qualquer tipo, expressas ou implícitas, incluindo, mas não se limitando a:</p>
+    <h3>15.1 O serviço é fornecido "COMO ESTÁ"</h3>
+    <p>O Portal e todo o seu conteúdo são fornecidos <b>"COMO ESTÁ" e "CONFORME
+    DISPONÍVEL"</b>, sem garantias de qualquer tipo, expressas ou implícitas,
+    incluindo, sem limitação:</p>
     <ul>
-      <li>Garantias de commerciabilidade, adequação a fim específico, não violação;</li>
-      <li>Garantias de que o Portal será ininterrupto, seguro ou livre de erros;</li>
-      <li>Garantias de precisão, completude ou atualidade do conteúdo;</li>
+      <li>Garantias de comerciabilidade, adequação a fim específico, qualidade satisfatória e não violação;</li>
+      <li>Garantias de que o Portal será ininterrupto, seguro, tempestivo ou livre de erros;</li>
+      <li>Garantias de precisão, completude, confiabilidade ou atualidade do conteúdo;</li>
+      <li>Garantias de que defeitos serão corrigidos;</li>
       <li>Garantias de resultados específicos obtidos com o uso do Portal.</li>
     </ul>
 
-    <p>Em <b>nenhuma circunstância</b> o proprietário, seus sócios, funcionários, contratados
-    ou parceiros serão responsáveis por:</p>
+    <h3>15.2 Isenção de responsabilidade por conteúdo</h3>
+    <p>O Proprietário <b>NÃO se responsabiliza</b> por:</p>
     <ul>
-      <li>Danos diretos, indiretos, incidentais, especiais, consecutivos ou punitivos;</li>
-      <li>Perda de lucros, receita, dados, oportunidades de negócios;</li>
-      <li>Danos morais ou materiais decorrentes do uso ou impossibilidade de uso do Portal;</li>
-      <li>Erros, imprecisões ou omissões no conteúdo (incluindo cifras e letras);</li>
-      <li>Ações de terceiros (incluindo outros usuários, anunciantes ou provedores de infraestrutura);</li>
-      <li>Interrupções, suspensões ou descontinuação do serviço;</li>
-      <li>Vírus ou outros componentes maliciosos传播ados através do Portal;</li>
-      <li>Acesso não autorizado às suas contas ou dados.</li>
+      <li>Erros, imprecisões, omissões ou desatualizações em cifras, letras, acordes ou qualquer conteúdo do Portal;</li>
+      <li>Danos decorrentes do uso ou confiança depositada no conteúdo;</li>
+      <li>Conteúdo de terceiros (cifras, letras, acordes, vídeos do YouTube);</li>
+      <li>Conteúdo criado ou compartilhado por outros Usuários;</li>
+      <li>Conteúdo de anúncios exibidos no Portal;</li>
+      <li>Links externos ou serviços de terceiros.</li>
     </ul>
 
-    <p><b>Responsabilidade máxima:</b> Em qualquer hipótese, a responsabilidade total do
-    proprietário em relação a estes Termos ou ao Portal será limitada ao <b>valor pago
-    pelo Usuário ao proprietário nos últimos 12 meses</b> (que é ZERO, pois o serviço
-    é gratuito). Esta limitação se aplica mesmo que o proprietário tenha sido informado
+    <h3>15.3 Isenção de responsabilidade por danos</h3>
+    <p>Em <b>NENHUMA hipótese</b> o Proprietário, seus sócios, diretores, empregados,
+    contratados, agentes, fornecedores ou parceiros serão responsáveis por:</p>
+    <ul>
+      <li><b>Danos diretos</b> — perda real de dinheiro, propriedade ou dados;</li>
+      <li><b>Danos indiretos</b> — perda de lucros, receita, oportunidades de negócios;</li>
+      <li><b>Danos incidentais</b> — danos que ocorrem como consequência secundária;</li>
+      <li><b>Danos especiais</b> — punição, exemplares ou consecutivos;</li>
+      <li><b>Danos morais</b> — sofrimento psicológico, humilhação, ofensa;</li>
+      <li><b>Perda de dados</b> — corrupção, exclusão ou falha no armazenamento;</li>
+      <li><b>Interrupção de serviço</b> — indisponibilidade temporária ou permanente;</li>
+      <li><b>Ações de terceiros</b> — reclamações de outros usuários, titulares de direitos autorais ou autoridades;</li>
+      <li><b>Vírus ou malware</b> — infecção de dispositivos do Usuário;</li>
+      <li><b>Erro humano ou técnico</b> — falhas no sistema, segurança ou operação.</li>
+    </ul>
+    <p>Esta isenção se aplica independentemente da teoria jurídica (contratual, extracontratual,
+    responsabilidade objetiva, culpa, dolo) e mesmo que o Proprietário tenha sido informado
     da possibilidade de tais danos.</p>
 
-    <p><b>Exceções:</b> As limitações acima não se aplicam quando proibido pela legislação
-    aplicável. Neste caso, a responsabilidade será limitada ao máximo permitido por lei.</p>
-
     <!-- ════════════════════════════════════════════════════════════════ -->
-    <h2 id="indenizacao">13. Indenização</h2>
-    <p>O Usuário concorda em <b>indenizar, defender e isentar</b> o proprietário de e contra
-    quaisquer reclamações, demandas, danos, perdas, custos e despesas (incluindo honorários
-    advocatícios razoáveis) decorrentes de:</p>
+    <h2 id="indenizacao">16. Indenização</h2>
+    <p>O Usuário concorda em <b>indenizar, defender e isentar</b> o Proprietário, seus
+    sócios, diretores, empregados, contratados, agentes e fornecedores de e contra
+    TODAS as reclamações, demandas, ações judiciais, processos administrativos,
+    danos, perdas, custos e despesas (incluindo honorários advocatícios) decorrentes de:</p>
     <ul>
       <li>Seu uso do Portal;</li>
       <li>Sua violação destes Termos;</li>
       <li>Sua violação de direitos de terceiros;</li>
-      <li>Conteúdo que você enviou, publicou ou transmitiu pelo Portal;</li>
-      <li>Sua interação com outros usuários do Portal.</li>
+      <li>Conteúdo que você enviou, publicou ou transmitiu;</li>
+      <li>Sua interação com outros Usuários;</li>
+      <li>Sua interação com anúncios ou serviços de terceiros;</li>
+      <li>Sua negligência ou conduta dolosa.</li>
+    </ul>
+    <p>Esta obrigação de indenização sobrevive ao encerramento destes Termos e ao
+    encerramento da sua Conta.</p>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="limite">17. Limite de Responsabilidade</h2>
+    <p>Em qualquer hipótese, a responsabilidade total do Proprietário em relação
+    a estes Termos ou ao Portal será <b>limitada ao menor dos seguintes valores</b>:</p>
+    <ul>
+      <li>(a) O valor efetivamente pago pelo Usuário ao Proprietário nos últimos 12 meses — que é <b>ZERO</b>, pois o serviço é gratuito;</li>
+      <li>(b) R$ 100,00 (cem reais).</li>
+    </ul>
+    <p>Esta limitação se aplica ao máximo permitido pela legislação aplicável. Quando
+    a legislação não permitir a limitação total, a responsabilidade será limitada
+    ao máximo permitido em lei.</p>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="manutencao">18. Manutenção e Disponibilidade</h2>
+    <ul>
+      <li>O Proprietário <b>não garante</b> disponibilidade, estabilidade ou performance do Portal.</li>
+      <li>O Portal pode ficar temporariamente indisponível para manutenção, atualizações, correções ou razões técnicas, sem aviso prévio.</li>
+      <li>O Proprietário pode modificar, suspender ou descontinuar qualquer funcionalidade, a qualquer momento, sem responsabilidade.</li>
+      <li>O Proprietário <b>não será responsável</b> por qualquer perda decorrente da indisponibilidade do Portal.</li>
+      <li>Dados de Usuário poderão ser perdidos em caso de falha técnica — o Usuário é responsável por manter cópias de segurança de seu conteúdo.</li>
     </ul>
 
     <!-- ════════════════════════════════════════════════════════════════ -->
-    <h2 id="disponibilidade">14. Disponibilidade do Serviço</h2>
-    <ul>
-      <li>O proprietário <b>não garante</b> disponibilidade 100% do Portal.</li>
-      <li>O Portal pode ser temporariamente indisponível para manutenção, atualizações ou razões técnicas.</li>
-      <li>O proprietário pode modificar, suspender ou descontinuar qualquer funcionalidade, com ou sem aviso prévio.</li>
-      <li>O proprietário não será responsável por qualquer perda decorrente da indisponibilidade do Portal.</li>
-    </ul>
+    <h2 id="menores">19. Menores de Idade</h2>
+    <p>O Portal <b>não é direcionado</b> a crianças menores de 13 anos e não coleta
+    intencionalmente dados de menores. Menores de 18 anos devem usar o Portal com
+    supervisão e consentimento de responsável legal. O Proprietário não se
+    responsabiliza pelo uso do Portal por menores.</p>
 
     <!-- ════════════════════════════════════════════════════════════════ -->
-    <h2 id="menores">15. Menores de Idade</h2>
-    <p>O Portal <b>não é direcionado</b> a crianças menores de 13 anos. Menores de 18 anos
-    devem usar o Portal com supervisão e consentimento de um responsável legal. O proprietário
-    não se responsabiliza pelo uso do Portal por menores de idade.</p>
-
-    <!-- ════════════════════════════════════════════════════════════════ -->
-    <h2 id="rescisao">16. Rescisão</h2>
+    <h2 id="rescisao">20. Rescisão</h2>
     <ul>
-      <li>O Usuário pode encerrar sua Conta a qualquer momento solicitando pelo e-mail
+      <li>O Usuário pode encerrar sua Conta solicitando pelo e-mail
       <a href="mailto:iluminatto@gmail.com">iluminatto@gmail.com</a>.</li>
-      <li>O proprietário pode <b>suspender ou encerrar</b> o acesso do Usuário a qualquer
-      momento, sem aviso prévio, por violação destes Termos.</li>
-      <li>Ao rescindir, os dados do Usuário serão tratados conforme a
-      <a href="/privacidade.html">Política de Privacidade</a>.</li>
-      <li>As seções 7, 8, 12, 13 e 17 sobrevivem à rescisão deste acordo.</li>
+      <li>O Proprietário pode <b>suspender ou encerrar</b> o acesso do Usuário a
+      qualquer momento, sem aviso prévio, por qualquer motivo, incluindo violação
+      destes Termos, sem obrigação de indenização.</li>
+      <li>Ao rescindir: (a) a licença de uso é imediatamente revogada; (b) dados
+      serão tratados conforme a Política de Privacidade; (c) obrigações de
+      indenização e isenção de responsabilidade sobrevivem.</li>
     </ul>
 
     <!-- ════════════════════════════════════════════════════════════════ -->
-    <h2 id="alteracoes">17. Alterações nestes Termos</h2>
+    <h2 id="alteracoes">21. Alterações</h2>
     <ul>
-      <li>O proprietário reserva-se o direito de alterar estes Termos a qualquer momento.</li>
-      <li>Alterações significativas serão comunicadas pelo Portal ou por e-mail (se disponível).</li>
-      <li>O uso continuado do Portal após alterações constitui <b>aceitação</b> dos novos Termos.</li>
-      <li>Recomendamos que o Usuário revise periodicamente esta página.</li>
+      <li>O Proprietário pode alterar estes Termos a qualquer momento, a seu exclusivo critério.</li>
+      <li>Alterações vigoram imediatamente após a publicação no Portal.</li>
+      <li>O uso continuado após alterações constitui <b>aceitação irrevogável</b> dos novos Termos.</li>
+      <li>Recomendamos revisão periódica desta página.</li>
     </ul>
 
     <!-- ════════════════════════════════════════════════════════════════ -->
-    <h2 id="legislacao">18. Legislação Aplicável e Foro</h2>
-    <p>Estes Termos são regidos e interpretados pelas leis da <b>República Federativa do
-    Brasil</b>, independentemente de conflitos de princípios legais.</p>
-    <p>Qualquer disputa, controvérsia ou reclamação decorrente destes Termos ou do uso
-    do Portal será submetida ao <b>foro da comarca de Recife/PE</b>, com renúncia
+    <h2 id="legislacao">22. Legislação e Foro</h2>
+    <p>Estes Termos são regidos pelas leis da <b>República Federativa do Brasil</b>,
+    independentemente de conflitos de princípios legais.</p>
+    <p>Qualquer disputa, controvérsia ou reclamação decorrente destes Termos será
+    submetida ao <b>foro exclusivo da comarca de Recife/PE</b>, com renúncia
     expressa a qualquer outro, por mais privilegiado que seja.</p>
-    <p>Antes de ingressar em ação judicial, as partes concordam em tentar resolver a
-    controvérsia por <b>negociação direta</b> pelo período de 30 (trinta) dias.</p>
+    <p><b>Resolução de disputas:</b> antes de ingressar em ação judicial, as partes
+    concordam em tentar resolver a controvérsia por <b>negociação direta</b> pelo
+    período mínimo de <b>30 (trinta) dias</b>. O infrator arcará com todos os custos
+    de eventual ação judicial, incluindo honorários advocatícios do vencedor.</p>
 
     <!-- ════════════════════════════════════════════════════════════════ -->
-    <h2 id="contato-tos">19. Contato</h2>
-    <p>Questões, notificações ou solicitações relacionadas a estes Termos:</p>
+    <h2 id="contato">23. Contato</h2>
+    <p>Notificações legais, solicitações de remoção de conteúdo e questões sobre
+    estes Termos:</p>
     <ul>
       <li><b>E-mail:</b> <a href="mailto:iluminatto@gmail.com">iluminatto@gmail.com</a></li>
       <li><b>Proprietário:</b> Iluminatto Moraes</li>
       <li><b>Portal:</b> <a href="https://ukemasterpro.com">ukemasterpro.com</a></li>
     </ul>
-    <p>Notificações legais devem ser enviadas exclusivamente pelo e-mail indicado acima.</p>
+    <p>Notificações legais devem ser enviadas <b>exclusivamente</b> pelo e-mail indicado.
+    Outros canais (WhatsApp, redes sociais) não são aceitos para notificações formais.</p>
+
+    <div class="info">
+      <p style="margin:0;">Versão 2.0 destes Termos de Uso — última atualização: 28 de agosto de 2026.
+      O uso do Portal após esta data constitui aceitação integral destes Termos.</p>
+    </div>
 
   </main>
 
   <footer class="foot">
     <div class="wrap">
-      UkeMaster Pro · cifras gratuitas para ukulele · <a href="/termos.html">Termos de Uso</a> · <a href="/privacidade.html">Privacidade</a>
+      UkeMaster Pro · <a href="/termos.html">Termos de Uso</a> · <a href="/privacidade.html">Privacidade</a>
     </div>
   </footer>
 </body>
