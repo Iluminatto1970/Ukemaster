@@ -137,6 +137,10 @@ interface SongListProps {
   onOpenAuth?: (mode?: 'signup' | 'login') => void;
   /** O acervo da nuvem ainda está carregando (mostra indicador no contador). */
   catalogLoading?: boolean;
+  /** Total real de músicas no banco — exibe no subtítulo durante o preview. */
+  totalCount?: number;
+  /** Carrega mais músicas do cloud quando o usuário clica "Mostrar mais". */
+  onLoadMore?: () => void;
   /** Usuário logado — destaque no ranking de contribuidores. */
   currentUser?: { id: string; name: string } | null;
   /** Incrementa a cada contribuição da sessão (o ranking re-busca). */
@@ -166,6 +170,8 @@ export const SongList: React.FC<SongListProps> = ({
   myVotes,
   onVoteSong,
   catalogLoading = false,
+  totalCount = 0,
+  onLoadMore,
   currentUser = null,
   contributionsRefreshKey = 0,
 }) => {
@@ -435,7 +441,10 @@ export const SongList: React.FC<SongListProps> = ({
   };
 
   const shownSongs = filteredSongs.slice(0, visibleCount);
-  const hasMore = filteredSongs.length > visibleCount;
+  // "Mais" quando: ainda há músicas filtradas NÃO exibidas, OU
+  // o cloud tem mais músicas que as carregadas (e não estamos filtrando).
+  const hasMore = filteredSongs.length > visibleCount ||
+    (!isFiltering && totalCount > songs.length);
 
   // Ranking hero estilo CifraClub: escondido quando há busca ou filtro ativo
   // (aí o foco é o resultado filtrado, não o ranking global — igual ao CifraClub).
@@ -470,7 +479,7 @@ export const SongList: React.FC<SongListProps> = ({
             <p className="text-slate-400 text-[11px] font-bold uppercase tracking-widest mt-0.5">
               {catalogLoading
                 ? t('misc.loading')
-                : `${songs.length} ${t('library.subtitle')}`}
+                : `${totalCount > songs.length ? totalCount : songs.length} ${t('library.subtitle')}`}
             </p>
           </div>
 
@@ -1108,14 +1117,20 @@ export const SongList: React.FC<SongListProps> = ({
               {hasMore && (
                 <div className="pt-2">
                   <button
-                    onClick={() => setVisibleCount((c) => c + 10)}
+                    onClick={() => {
+                      // Se já exibiu todas as músicas carregadas, busca mais do cloud
+                      if (visibleCount >= filteredSongs.length && onLoadMore && totalCount > songs.length) {
+                        onLoadMore();
+                      }
+                      setVisibleCount((c) => c + 20);
+                    }}
                     className="w-full py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-extrabold text-slate-600 hover:text-orange-600 hover:border-orange-300 transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                   >
-                    {t('library.showMore')} ({filteredSongs.length - visibleCount} restantes)
+                    {t('library.showMore')} ({totalCount > songs.length ? `${totalCount - songs.length} restantes no catálogo` : `${Math.max(0, filteredSongs.length - visibleCount)} restantes`})
                     <ChevronDown className="w-3.5 h-3.5" />
                   </button>
                   <p className="text-center text-[10px] text-slate-400 font-bold mt-1.5">
-                    {t('library.showing')} {shownSongs.length} {t('library.of')} {filteredSongs.length} {t('library.songsLower')}
+                    {t('library.showing')} {shownSongs.length} {t('library.of')} {totalCount > 0 ? totalCount : filteredSongs.length} {t('library.songsLower')}
                   </p>
                 </div>
               )}

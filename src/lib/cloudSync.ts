@@ -26,6 +26,7 @@ import {
   upsertRowsChunked,
   deleteRows,
   getSupabase,
+  getSessionAccessToken,
   isSupabaseConfigured,
 } from './supabase';
 import { PublicRepertoire, getPublicRepertoires as getLocalPublicRepertoires } from './repertoires';
@@ -206,6 +207,68 @@ interface RepertoireRow {
 }
 
 // ── API pública ────────────────────────────────────────────────────────
+
+/**
+ * Busca as primeiras N músicas (Preview rápido) — uma única query de 200
+ * linhas que resolve em <2s mesmo em conexão lenta. Usado para mostrar
+ * conteúdo imediatamente enquanto o catálogo completo carrega em background.
+ * Ordena por ID DESC (usa a PK index — sem timeout mesmo com 270k+ rows).
+ * null = indisponível.
+ */
+export async function fetchSongsPreview(limit = 200): Promise<Song[] | null> {
+  if (!isSupabaseConfigured()) return null;
+  const hasViews = await checkViewsColumn();
+  const columns = hasViews ? SONG_METADATA_COLUMNS : SONG_METADATA_COLUMNS_LEGACY;
+  const rows = await fetchRows<SongRow>('songs', `&order=id.desc&limit=${limit}`, columns);
+  if (!rows) return null;
+  return rows.map(rowToSong);
+}
+
+/**
+ * Busca a próxima página de músicas a partir de um lastId (cursor).
+ * Usado para carregamento sob demanda quando o usuário clica "Mostrar mais".
+ * Retorna as músicas mais RECENTES (id desc) a partir do lastId informado.
+ * null = indisponível.
+ */
+export async function fetchSongsPage(lastId: string, limit = 200): Promise<Song[] | null> {
+  if (!isSupabaseConfigured()) return null;
+  const hasViews = await checkViewsColumn();
+  const columns = hasViews ? SONG_METADATA_COLUMNS : SONG_METADATA_COLUMNS_LEGACY;
+  const rows = await fetchRows<SongRow>('songs', `&id=lt.${encodeURIComponent(lastId)}&order=id.desc&limit=${limit}`, columns);
+  if (!rows) return null;
+  return rows.map(rowToSong);
+}
+
+/**
+ * Busca o TOTAL de músicas no catálogo (contagem leve, sem transferir dados).
+ * Usa o header Content-Range do PostgREST para obter o count.
+ * 0 = indisponível.
+ */
+export async function fetchSongsCount(): Promise<number> {
+  if (!isSupabaseConfigured()) return 0;
+  try {
+    const sb = getSupabase();
+    if (!sb) return 0;
+    const accessToken = getSessionAccessToken();
+    const res = await fetch(
+      `${sb.url}/rest/v1/songs?select=id&limit=1`,
+      {
+        headers: {
+          apikey: sb.anonKey,
+          Authorization: `Bearer ${accessToken || sb.anonKey}`,
+          Range: '0-0',
+          Prefer: 'count=exact',
+        },
+      }
+    );
+    const range = res.headers.get('content-range');
+    if (range) {
+      const match = range.match(/\/([\d*]+)$/);
+      if (match) return parseInt(match[1], 10) || 0;
+    }
+  } catch { /* ignora */ }
+  return 0;
+}
 
 /**
  * Busca o acervo de músicas na nuvem (PAGINADO — o PostgREST limita a

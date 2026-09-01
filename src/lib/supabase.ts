@@ -167,7 +167,7 @@ export async function fetchRows<T>(
  * erro), retorna os dados já carregados até aquele ponto (em vez de null)
  * para que o site mostre pelo menos parte do acervo.
  */
-export async function fetchAllRows<T>(
+export async function fetchAllRows<
   table: string,
   query = '',
   columns = '*',
@@ -201,7 +201,6 @@ export async function fetchAllRows<T>(
     }
     if (data && data.length) {
       all.push(...data);
-      // Extrai o id da última linha para o cursor da próxima página
       const last = data[data.length - 1] as Record<string, unknown>;
       lastId = (last?.id as string) || null;
     }
