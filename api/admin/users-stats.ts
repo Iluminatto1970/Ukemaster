@@ -35,7 +35,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   if (!auth.ok) {
     res.statusCode = 403;
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ error: auth.reason || 'Acesso restrito.' }));
+    res.end(JSON.stringify({ error: 'Falha no processamento' }));
     return;
   }
 
@@ -57,7 +57,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   if (!url || !serviceRole) {
     res.statusCode = 500;
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ error: 'Supabase não configurado no servidor.' }));
+    res.end(JSON.stringify({ error: 'Falha no processamento' }));
     return;
   }
 
@@ -72,7 +72,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     if (!r.ok) {
       res.statusCode = 502;
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ error: 'Falha ao consultar usuários.' }));
+      res.end(JSON.stringify({ error: 'Falha no processamento' }));
       return;
     }
     const data = (await r.json()) as { users?: AdminUser[] };
@@ -106,6 +106,6 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   } catch {
     res.statusCode = 502;
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ error: 'Erro ao consultar usuários.' }));
+    res.end(JSON.stringify({ error: 'Falha no processamento' }));
   }
 }

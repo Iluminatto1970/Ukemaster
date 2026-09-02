@@ -117,6 +117,10 @@ export const Metronome: React.FC = () => {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
+    if (audioCtxRef.current) {
+      void audioCtxRef.current.close();
+      audioCtxRef.current = null;
+    }
     setIsRunning(false);
     setBeat(-1);
   }, []);

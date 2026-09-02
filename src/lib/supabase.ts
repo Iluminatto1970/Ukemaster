@@ -1,8 +1,5 @@
 /**
  * Cliente Supabase do lado do cliente (browser): acesso ao acervo de músicas, votos, playlists e repertórios via PostgREST com fallback localStorage.
- */
-/**
- * Cliente Supabase mínimo (REST + anon key) — sem dependência externa.
  *
  * Usa o padrão PostgREST do Supabase:
  *  - ler:    GET  {url}/rest/v1/{table}?select=*&{filtros}
@@ -125,7 +122,7 @@ export async function supabaseRequest<T = unknown>(
 
     if (!res.ok) {
       if (!options.silent) {
-        console.error(`[supabase] ${method} ${table} → ${res.status}`, await res.text().catch(() => ''));
+        logger.error(`[supabase] ${method} ${table} → ${res.status}`, await res.text().catch(() => ''));
       }
       return { ok: false, data: null, status: res.status };
     }
@@ -135,7 +132,7 @@ export async function supabaseRequest<T = unknown>(
     const data = text ? (JSON.parse(text) as T) : null;
     return { ok: true, data, status: res.status };
   } catch (e) {
-    console.error('[supabase] Erro de rede:', e);
+    logger.error('[supabase] Erro de rede:', e);
     return { ok: false, data: null, status: 0 };
   }
 }
@@ -167,7 +164,7 @@ export async function fetchRows<T>(
  * erro), retorna os dados já carregados até aquele ponto (em vez de null)
  * para que o site mostre pelo menos parte do acervo.
  */
-export async function fetchAllRows<
+export async function fetchAllRows<T>(
   table: string,
   query = '',
   columns = '*',

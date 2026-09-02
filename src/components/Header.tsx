@@ -53,10 +53,18 @@ export const Header: React.FC<HeaderProps> = ({
     return () => document.removeEventListener('mousedown', onClick);
   }, []);
 
+  const [shrinkHeader, setShrinkHeader] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setShrinkHeader(window.scrollY > 50);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+
   return (
     <>
       {/* O sticky top-0 + safe-top agora ficam no wrapper do App (banner laranja + header juntos, sempre visíveis) */}
-      <header className="bg-white border-b border-slate-200 z-20 shadow-2xs">
+      <header className={`bg-white border-b border-slate-200 z-20 shadow-2xs transition-transform duration-300 ${shrinkHeader ? '-translate-y-2' : ''}`}>
         <div className="max-w-[1600px] mx-auto px-3 sm:px-6">
           <div className="flex flex-wrap items-center justify-between gap-2 py-2 sm:gap-4 sm:py-0 sm:h-16">
             {/* Left: Mobile Menu + Brand Logo (sempre visível, conforme template) */}

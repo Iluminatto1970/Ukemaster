@@ -46,12 +46,55 @@ const USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
 /** Busca o HTML de uma URL (com headers de navegador e timeout). */
-export async function fetchHtml(url: string): Promise<string> {
-  // Timeout absoluto: um link travado não pode pendurar o cron inteiro.
+// Simple proxy rotation
+const PROXIES: string[] = (process.env.SCRAPER_PROXIES || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+let proxyIndex = 0;
+function getNextProxy(): string | undefined {
+  if (PROXIES.length === 0) return undefined;
+  const proxy = PROXIES[proxyIndex];
+  proxyIndex = (proxyIndex + 1) % PROXIES.length;
+  return proxy;
+}
+
+// Circuit‑breaker state
+let failureCount = 0;
+let circuitOpenUntil: number | null = null;
+const FAILURE_THRESHOLD = 5; // failures before opening
+const COOLDOWN_MS = 60_000; // 1 minute
+
+function checkCircuitBreaker() {
+  if (circuitOpenUntil && Date.now() < circuitOpenUntil) {
+    throw new Error('Circuit breaker open – waiting before new requests');
+  }
+}
+
+function recordFailure() {
+  failureCount++;
+  if (failureCount >= FAILURE_THRESHOLD) {
+    circuitOpenUntil = Date.now() + COOLDOWN_MS;
+    failureCount = 0;
+  }
+}
+
+function resetCircuit() {
+  failureCount = 0;
+  circuitOpenUntil = null;
+}
+
+async function fetchHtml(url: string): Promise<string> {
+  // Circuit‑breaker: abort if open
+  checkCircuitBreaker();
+  // Choose proxy if any
+  const proxy = getNextProxy();
+  const target = proxy ? `${proxy}/${url}` : url;
+
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 15_000);
   try {
-    const res = await fetch(url, {
+    const res = await fetch(target, {
       signal: controller.signal,
       headers: {
         'User-Agent': USER_AGENT,
@@ -63,7 +106,11 @@ export async function fetchHtml(url: string): Promise<string> {
     if (!res.ok) {
       throw new Error(`O site respondeu com status ${res.status}.`);
     }
+    resetCircuit();
     return await res.text();
+  } catch (e) {
+    recordFailure();
+    throw e;
   } finally {
     clearTimeout(timer);
   }

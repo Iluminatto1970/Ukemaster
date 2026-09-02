@@ -43,19 +43,21 @@ export interface SongRow {
 }
 
 /**
- * Busca TODAS as músicas (paginação via limit/offset na query — o PostgREST
- * limita a 1000 por página). Retorna [] se vazio, null se falhou.
+ * Busca TODAS as músicas via cursor-based pagination (order=id, after=último id).
+ * Estável sob inserções concorrentes (offset deriva, cursor não). Retorna []
+ * se vazio, null se falhou.
  */
 export async function fetchAllSongsServer(): Promise<SongRow[] | null> {
   const sb = getSupabaseServer();
   if (!sb) return null;
   const all: SongRow[] = [];
   const pageSize = 1000;
-  let offset = 0;
+  let after: string | null = null;
   for (let page = 0; page < 300; page++) {
+    const afterFilter = after ? `&id=gt.${encodeURIComponent(after)}` : '';
     const url = `${sb.url}/rest/v1/songs?select=${encodeURIComponent(
       'id,title,artist,key,category,difficulty,tags,seo_description,updated_at,votes'
-    )}&order=id&limit=${pageSize}&offset=${offset}`;
+    )}&order=id&limit=${pageSize}${afterFilter}`;
     try {
       const res = await fetch(url, {
         headers: {
@@ -64,19 +66,18 @@ export async function fetchAllSongsServer(): Promise<SongRow[] | null> {
         },
       });
       if (!res.ok) {
-        // Em caso de falha parcial, retorna o que já foi carregado
         if (all.length > 0) {
-          console.warn(`[supabaseServer] fetchAllSongsServer: falha na página ${page} (offset=${offset}), retornando ${all.length} registros parciais`);
+          console.warn(`[supabaseServer] fetchAllSongsServer: falha na página ${page} (after=${after}), retornando ${all.length} registros parciais`);
           return all;
         }
         return null;
       }
       const rows = (await res.json()) as SongRow[];
+      if (rows.length === 0) break;
       all.push(...rows);
       if (rows.length < pageSize) break;
-      offset += pageSize;
+      after = rows[rows.length - 1].id;
     } catch {
-      // Em caso de erro de rede, retorna parcial se houver dados
       if (all.length > 0) return all;
       return null;
     }

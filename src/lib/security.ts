@@ -110,6 +110,8 @@ export async function fetchWithRedirectGuard(
 export interface SecurityHeaderOptions {
   /** true em produção → adiciona Strict-Transport-Security. */
   hsts?: boolean;
+  /** nonce para CSP script/style */
+  nonce?: string;
 }
 
 /**
@@ -128,12 +130,10 @@ export function securityHeaders(opts: SecurityHeaderOptions = {}): Record<string
       // Site 100% HTTPS: o navegador sobe qualquer recurso http:// para https.
       'upgrade-insecure-requests',
       // Scripts: próprio site + AdSense + YouTube + Monetag (auth Supabase é REST, sem script externo).
-      // TODO(security): quando AdSense for aprovado, migrar para nonces dinâmicos
-      // (gerar nonce por request e injetar no <script>) para eliminar unsafe-inline.
-      // Por ora, unsafe-inline é necessário para o React e AdSense inline scripts.
-      "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://www.google.com https://www.gstatic.com https://www.youtube.com https://s.ytimg.com https://n6wxm.com https://nap5k.com https://quge5.com https://5gvci.com https://3nbf4.com https://ep2.adtrafficquality.google https://ep1.adtrafficquality.google",
-      // Estilos: inline necessário para React/Tailwind; sem 'unsafe-eval'.
-      "style-src 'self' 'unsafe-inline'",
+      // Nonce dinâmico por request substitui 'unsafe-inline'.
+      "script-src 'self' 'nonce-" + (opts.nonce || '') + "' https://challenges.cloudflare.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://www.google.com https://www.gstatic.com https://www.youtube.com https://s.ytimg.com https://n6wxm.com https://nap5k.com https://quge5.com https://5gvci.com https://3nbf4.com https://ep2.adtrafficquality.google https://ep1.adtrafficquality.google",
+      // Estilos: nonce dinâmico cobre React/Tailwind; sem 'unsafe-eval'.
+      "style-src 'self' 'nonce-" + (opts.nonce || '') + "'",
       // Imagens: próprias + avatares + thumbnails + anúncios (inclui a
       // telemetria de qualidade do AdSense: ep1/ep2.adtrafficquality.google).
       "img-src 'self' data: blob: https://ui-avatars.com https://api.dicebear.com https://img.youtube.com https://i.ytimg.com https://*.ytimg.com https://www.google.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.gstatic.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google",
@@ -249,17 +249,25 @@ export function isAllowedFetchUrl(rawUrl: string): boolean {
 
   // Bloqueia IPs literais (IPv4, IPv6) e localhost — o proxy nunca deve
   // alcançar a rede interna nem o metadata cloud (169.254.169.254).
+  // `URL.hostname` remove colchetes de IPv6, então `host.includes(':')`
+  // identifica um literal IPv6 de forma confiável (hostnames DNS nunca têm `:`).
   const isIpLiteral =
     /^\d{1,3}(\.\d{1,3}){3}$/.test(host) ||
     host === 'localhost' ||
     host.endsWith('.localhost') ||
     host === '::1' ||
-    host.startsWith('[') ||
-    host.includes(':');
+    (host.includes(':') && !host.includes('.'));
 
   // Resolve IPs decimais "camuflados" (ex.: http://2130706433/) e hex.
   const looksNumeric = /^\d+$/.test(host.replace(/\./g, '')) && /\d{5,}/.test(host);
   if (isIpLiteral || looksNumeric) return false;
+
+  // Porta: só 80 (http) e 443 (https) são permitidos. `url.port` é string
+  // vazia quando é a default do protocolo — nesse caso aceitamos.
+  // Bloqueia portas explícitas fora da allowlist (ex.: 22, 8080, 25...).
+  if (url.port !== '' && url.port !== '80' && url.port !== '443') {
+    return false;
+  }
 
   return ALLOWED_CIFRA_DOMAINS.some((re) => re.test(host));
 }
@@ -276,7 +284,7 @@ interface RateBucket {
 
 /** LRU fixo: no máximo 2000 buckets (cada IP × scope). Evita DoS por
  *  injeção de chaves únicas que consumam memória infinitamente. */
-const MAX_BUCKETS = 2000;
+const MAX_BUCKETS = 1000;
 const rateBuckets = new Map<string, RateBucket>();
 
 /** Remove buckets expirados e garante o limite LRU. */
@@ -288,13 +296,46 @@ function sweepRateBuckets(now: number): void {
   if (rateBuckets.size > MAX_BUCKETS) {
     const entries = [...rateBuckets.entries()]
       .sort((a, b) => a[1].resetAt - b[1].resetAt);
-    const toRemove = entries.slice(0, entries.length - MAX_BUCKETS + 100);
+    const toRemove = entries.slice(0, entries.length - MAX_BUCKETS + 50);
     for (const [key] of toRemove) rateBuckets.delete(key);
   }
 }
 
 /**
+ * Anonimiza um IP para uso em chaves/identificadores internos:
+ *  - IPv4: trunca o último octeto (zero) → "203.0.113.x" vira "203.0.113.0".
+ *    Mantém a sub-rede /24 (suficiente para rate-limit e detecção de
+ *    abuso) sem reter o host exato.
+ *  - IPv6: trunca a metade inferior (64 bits mais baixos) → mesma lógica.
+ *  - "unknown" ou string vazia: passa direto.
+ *
+ *  Determinístico: o mesmo IP sempre vira a mesma chave (o bucket do rate
+ *  limit continua agrupando requisições do mesmo cliente). O IP cru nunca
+ *  é exposto em logs — use `getClientIp()` apenas para a chave interna, e
+ *  esta função antes de qualquer persistência ou impressão.
+ */
+export function anonymizeIp(ip: string): string {
+  if (!ip || ip === 'unknown') return ip || 'unknown';
+  // IPv6 (com ou sem colchetes já removidos por URL.hostname)
+  if (ip.includes(':')) {
+    // Expande zeros, pega só os 4 primeiros grupos (64 bits altos).
+    const groups = ip.split('::')[0].split(':');
+    const head = groups.slice(0, 4).join(':').padEnd(4, ':0').split(':').slice(0, 4).join(':');
+    return `${head}::`;
+  }
+  // IPv4
+  const parts = ip.split('.');
+  if (parts.length === 4) {
+    parts[3] = '0';
+    return parts.join('.');
+  }
+  return 'unknown';
+}
+
+/**
  * Limita requisições por IP em uma janela. Retorna { ok } ou { ok:false, retryAfter }.
+ * O IP é anonimizado (truncado) antes de virar chave de bucket e antes de
+ * qualquer log — o IP real NUNCA é persistido.
  * Uso: `const r = rateLimit(ip, 'fetch-url', 10, 60_000); if (!r.ok) return 429;`
  */
 export function rateLimit(
@@ -305,11 +346,12 @@ export function rateLimit(
 ): { ok: boolean; retryAfter?: number } {
   const now = Date.now();
   // Limpeza: a cada 200 novas entradas OU quando excedeu o limite
-  if (rateBuckets.size > MAX_BUCKETS || rateBuckets.size % 200 === 0) {
+  if (rateBuckets.size > MAX_BUCKETS || rateBuckets.size % 100 === 0) {
     sweepRateBuckets(now);
   }
 
-  const key = `${scope}:${ip}`;
+  const anonIp = anonymizeIp(ip);
+  const key = `${scope}:${anonIp}`;
   const bucket = rateBuckets.get(key);
 
   if (!bucket || bucket.resetAt <= now) {
@@ -331,24 +373,18 @@ export function rateLimit(
 
 // ── 4. Proteção de rotas administrativas ──────────────────────────────
 /**
- * Valida o token de admin (header x-admin-secret). Fail-closed em produção:
- * se NODE_ENV=production/VERCEL e ADMIN_SECRET não estiver configurado, a
- * rota é NEGADA (nunca fica aberta em produção). Em dev, sem secret, fica
- * aberta para facilitar o fluxo local.
- *
- * Obs.: para o app em si, use authorizeAdminRequest (src/lib/adminAuth.ts),
- * que valida o JWT do usuário Supabase — mais seguro que secret no bundle.
+ * Valida o token de admin (header x-admin-secret). Fail-closed em todas as
+ * envs: ADMIN_SECRET é OBRIGATÓRIO; sem ele, a rota é NEGADA — não há mais
+ * fallback aberto em dev. Para o app em si, prefira authorizeAdminRequest
+ * (src/lib/adminAuth.ts), que valida o JWT Supabase — mais seguro que
+ * secret no bundle.
  */
 export function requireAdminSecret(secretHeader: string | undefined): { ok: boolean; reason?: string } {
-  // Em produção: NUNCA aceita x-admin-secret — usa JWT Supabase via adminAuth.ts.
-  // Em dev: permite ADMIN_SECRET para conveniência local.
-  const isProd = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
-  if (isProd) {
-    // Fail-closed: em produção, este endpoint requer JWT do admin (não secret).
-    return { ok: false, reason: 'Autenticação requerida. Faça login como administrador.' };
-  }
   const expected = process.env.ADMIN_SECRET;
-  if (!expected) return { ok: true }; // dev sem secret → aberto
+  if (!expected) {
+    // Fail-closed: ADMIN_SECRET ausente = rota bloqueada, sempre.
+    return { ok: false, reason: 'ADMIN_SECRET não configurado. Rota administrativa bloqueada.' };
+  }
   if (!secretHeader) return { ok: false, reason: 'Token de administração ausente.' };
   if (secretHeader !== expected) return { ok: false, reason: 'Token de administração inválido.' };
   return { ok: true };

@@ -20,7 +20,12 @@ interface StickyBottomAdProps {
 
 export const StickyBottomAd: React.FC<StickyBottomAdProps> = ({ show = true }) => {
   const [visible, setVisible] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
+  const [dismissed, setDismissed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return !!localStorage.getItem('sticky_ad_dismissed');
+    }
+    return false;
+  });
 
   useEffect(() => {
     // Só exibe em telas pequenas (mobile) e após scroll de ~400px
@@ -40,22 +45,28 @@ export const StickyBottomAd: React.FC<StickyBottomAdProps> = ({ show = true }) =
   if (!show || !visible || dismissed || abVariant === 'hide') return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white border-t border-slate-200 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] px-2 pt-1.5 pb-1 animate-fade-in">
-      <button
-        onClick={() => { trackEvent('ad_sticky_dismiss'); setDismissed(true); }}
-        aria-label="Fechar anúncio"
-        className="absolute -top-3 right-2 w-6 h-6 rounded-full bg-white border border-slate-200 shadow flex items-center justify-center text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
+    <div className="fixed inset-0 z-40 md:hidden flex items-end justify-center bg-black/30 pointer-events-none" aria-label="Publicidade">
+      <div
+        className="relative w-full max-w-md pointer-events-auto bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] px-2 pt-1.5 pb-1 animate-fade-in min-h-[60px]"
+        style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 4px)' }}
       >
-        <X className="w-3.5 h-3.5" />
-      </button>
-      <AdSenseSlot
-        format="fluid"
-        layoutKey="-hz+e-15-33+a0"
-        label="Publicidade"
-        className="min-h-[50px]"
-        adSlot={ADSENSE_SLOTS.stickyBottom}
-        abTestId="sticky_ad"
-      />
+        <button
+          onClick={() => { trackEvent('ad_sticky_dismiss'); localStorage.setItem('sticky_ad_dismissed', '1'); setDismissed(true); }}
+          aria-label="Fechar anúncio"
+          className="absolute -top-3 right-2 w-6 h-6 rounded-full bg-white border border-slate-200 shadow flex items-center justify-center text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
+        >
+          <X className="w-3.5 h-3.5" />
+        </button>
+        <AdSenseSlot
+          format="fluid"
+          layoutKey="-hz+e-15-33+a0"
+          label="Publicidade"
+          className="min-h-[50px]"
+          adSlot={ADSENSE_SLOTS.stickyBottom}
+          abTestId="sticky_ad"
+        />
+      </div>
     </div>
   );
 };
+

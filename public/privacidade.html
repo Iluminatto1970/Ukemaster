@@ -91,7 +91,7 @@
 
   <main class="wrap">
     <h1>Política de Privacidade</h1>
-    <p class="updated">Última atualização: 25 de agosto de 2026</p>
+    <p class="updated">Última atualização: 02 de setembro de 2026</p>
 
     <div class="toc">
       <h2>Sumário</h2>
@@ -110,6 +110,7 @@
         <li><a href="#terceiros">Serviços de terceiros</a></li>
         <li><a href="#contato">Contato</a></li>
         <li><a href="#alteracoes">Alterações desta Política</a></li>
+        <li><a href="#exercicios">Exercício dos direitos via API</a></li>
       </ol>
     </div>
 
@@ -486,7 +487,103 @@
     recente. Mudanças significativas serão comunicadas pelo portal ou por e-mail (se você tiver
     uma conta).</p>
 
-  </main>
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <h2 id="exercicios">15. Exercício dos direitos via API</h2>
+
+    <p>Além do canal de e-mail indicado na seção <a href="#contato">Contato</a>, o UkeMaster Pro
+    oferece <b>endpoints HTTP autenticados</b> para que você possa exercer seus direitos de
+    <b>portabilidade</b>, <b>retificação</b> e <b>esquecimento</b> de forma automática e
+    rastreável. Os endpoints seguem o padrão REST e retornam JSON. Todas as requisições exigem
+    o token de sessão do Supabase (Bearer) e respeitam a Row Level Security (RLS) — você só
+    consegue acessar e modificar os seus próprios dados</p>
+
+    <h3>15.1 Portabilidade dos dados (direito de acesso / download</h3>
+    <p>Permite exportar todos os dados pessoais associados à sua conta em formato
+    <b>JSON estruturado</b>, conforme LGPD Art. 18, V e GDPR Art. 20</p>
+    <ul>
+      <li><b>Método / URL</b> <code>GET https://ukemasterpro.com/api/me/export</code</li>
+      <li><b>Autenticação</b> header <code>Authorization: Bearer <access_token&gt</code</li>
+      <li><b>Resposta (200):</b> arquivo <code>application/json</code> com seções
+      <code>profile</code>, <code>repertoire</code>, <code>playlists</code>, <code>votes</code>,
+      <code>comments</code> e <code>certificates</code</li>
+      <li><b>Exemplo (curl):</b><br>
+      <code>curl -H "Authorization: Bearer $TOKEN" https://ukemasterpro.com/api/me/export -o meus-dados.json</code</li>
+      <li><b>Prazo</b> geração imediata; link de download válido por 7 dias</li>
+   </ul>
+
+    <h3>15.2 Retificação de dados (correção</h3>
+    <p>Permite corrigir dados incompletos, inexatos ou desatualizados do seu perfil, conforme
+    LGPD Art. 18, III e GDPR Art. 16</p>
+    <ul>
+      <li><b>Método / URL</b> <code>PATCH https://ukemasterpro.com/api/me/profile</code</li>
+      <li><b>Body (JSON):</b> <code>{"username": "novo-nome", "email": "novo@exemplo.com"}</code>
+      — envie apenas os campos que deseja alterar</li>
+      <li><b>Validação</b> <code>username</code> entre 3 e 32 caracteres;
+      <code>email</code> em formato válido (dispara e-mail de confirmação</li>
+      <li><b>Resposta (200):</b> <code>{"ok": true, "updated": ["username", "email"]</code</li>
+      <li><b>Exemplo</b><br>
+      <code>curl -X PATCH -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+      -d '{"username":"novo-nome"}' https://ukemasterpro.com/api/me/profile</code</li>
+      <li><b>Auditoria</b> cada alteração gera registro imutável em
+      <code>profile_audit_log</code> (data, campo, valor anterior, valor novo</li>
+   </ul>
+
+    <h3>15.3 Direito ao esquecimento (exclusão de conta e dados</h3>
+    <p>Permite solicitar a exclusão permanente da sua conta e de todos os dados pessoais
+    associados, conforme LGPD Art. 18, VI e GDPR Art. 17 (right to erasure</p>
+
+    <div class="note-warn">
+      <p style="margin:0;"><b>Atenção — ação irreversível</b> a exclusão remove definitivamente
+      sua conta, repertório, playlists, votos, comentários e certificados. Conteúdos publicados
+      em áreas públicas (comentários em cifras) serão anonimizados (autor -> "Usuário removido").
+      Logs de servidor e backups podem reter dados pelo prazo legal aplicável (ver seção
+      <a href="#retencao">Retenção</a></p>
+   </div>
+
+    <ul>
+      <li><b>Método / URL</b> <code>DELETE https://ukemasterpro.com/api/me/account</code</li>
+      <li><b>Autenticação</b> <code>Authorization: Bearer <access_token&gt</code</li>
+      <li><b>Body (JSON, obrigatório):</b> <code>{"confirm": true, "reason": "opcional"}</code>
+      — exige confirmação explícita (<code>"confirm": true</code></li>
+      <li><b>Janela de arrependimento</b> a exclusão é executada em <b>modo soft</b> por
+      <b>7 dias</b>. Dentro desse prazo você pode cancelar via
+      <code>POST https://ukemasterpro.com/api/me/account/restore</code>. Após 7 dias, a
+      exclusão torna-se permanente (hard delete) e o e-mail fica bloqueado para novo cadastro</li>
+      <li><b>Resposta (202):</b> <code>{"ok": true, "scheduled_for": "2026-09-09T00:00:00Z",
+      "restore_until": "2026-09-09T00:00:00Z"}</code</li>
+      <li><b>Exemplo</b><br>
+      <code>curl -X DELETE -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+      -d '{"confirm":true,"reason":"não uso mais"}' https://ukemasterpro.com/api/me/account</code</li>
+      <li><b>E-mail de confirmação</b> você receberá um e-mail com link de cancelamento da
+      exclusão enquanto a janela de arrependimento estiver aberta</li>
+   </ul>
+
+    <h3>15.4 Status da solicitação</h3>
+    <p>Para acompanhar solicitações assíncronas (exclusão, exportação grande):</p>
+    <ul>
+      <li><code>GET https://ukemasterpro.com/api/me/requests</code> — lista solicitações com
+      <code>id</code>, <code>type</code>, <code>status</code> e <code>created_at</code</li>
+   </ul>
+
+    <h3>15.5 Sem autenticação (visitante anônimo</h3>
+    <p>Se você não tem conta mas interagiu com o portal (ex.: comentários como visitante via
+    cookie), pode solicitar a exclusão de dados anônimos associados ao seu identificador de
+    navegador</p>
+    <ul>
+      <li><code>POST https://ukemasterpro.com/api/privacy/forget</code> — body
+      <code>{"visitor_id": "<cookie ukemaster_vid>"</code>. Prazo: 7 dias</li>
+   </ul>
+
+    <div class="note">
+      <p style="margin:0;"><b>Boas práticas para integrações</b> sempre armazene o
+      <code>access_token</code> em local seguro (keychain / cookie httpOnly), use HTTPS,
+      valide o CN do certificado (<code>ukemasterpro.com</code>) e implemente retentativas
+      com backoff exponencial para respostas <code>429 Too Many Requests</code> (limite:
+      30 req/min por usuário). Em caso de dúvida, prefira o canal de e-mail da seção
+      <a href="#contato">Contato</a</p>
+   </div>
+
+ </main>
 
   <footer class="foot">
     <div class="wrap">

@@ -49,7 +49,7 @@ const AD_CLIENT =
  */
 /** Contador global de pushes (evita re-push ao navegar em SPA). */
 let globalPushCount = 0;
-const MAX_PUSHES_PER_PAGE = 8; // 5 slots manuais + auto-ads + margem
+const MAX_PUSHES_PER_PAGE = 3; // limit to 3 ads per page
 
 export const AdSenseSlot: React.FC<AdSenseSlotProps> = ({
   format = 'auto',
@@ -68,8 +68,7 @@ export const AdSenseSlot: React.FC<AdSenseSlotProps> = ({
     if (!AD_CLIENT || !insRef.current) return;
     if (suppressPush) return;
 
-    // O loader do AdSense (adsbyglobal.js) já está no index.html.
-    // Só injeta como fallback se o <script> não existir (ex.: testes locais).
+    // Inject script if missing
     if (!document.getElementById('adsense-loader') && !document.querySelector(`script[src*="adsbygoogle.js?client=${AD_CLIENT}"]`)) {
       const s = document.createElement('script');
       s.id = 'adsense-loader';
@@ -88,7 +87,6 @@ export const AdSenseSlot: React.FC<AdSenseSlotProps> = ({
         (window.adsbygoogle as any).push({});
         pushedRef.current = true;
         globalPushCount++;
-        // Analytics: rastrear impressão do ad para otimização de eCPM
         const abProps: Record<string, string> = {};
         if (abTestId) {
           abProps.ab_test = abTestId;
@@ -96,17 +94,33 @@ export const AdSenseSlot: React.FC<AdSenseSlotProps> = ({
         }
         trackEvent('ad_impression', { slot: adSlot || 'auto', format, ...abProps });
       } catch {
-        // AdSense bloqueado (adblock) — segue sem erro
+        // ignore adblock
       }
     };
 
-    // Tenta após o script carregar; re-tenta uma vez para SPA
-    const t1 = window.setTimeout(push, 250);
-    const t2 = window.setTimeout(push, 1500);
-    return () => {
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
-    };
+    const el = insRef.current;
+    if (!('IntersectionObserver' in window)) {
+      // fallback timeout
+      const t1 = window.setTimeout(push, 250);
+      const t2 = window.setTimeout(push, 1500);
+      return () => {
+        window.clearTimeout(t1);
+        window.clearTimeout(t2);
+      };
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          push();
+          observer.disconnect();
+          break;
+        }
+      }
+    }, { rootMargin: '200px', threshold: 0.01 });
+
+    observer.observe(el);
+    return () => observer.disconnect();
   }, [suppressPush]);
 
   // Reset do contador global ao trocar de rota (SPA)
