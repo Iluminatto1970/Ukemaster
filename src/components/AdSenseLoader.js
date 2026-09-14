@@ -44,7 +44,7 @@ export default function AdSenseLoader({ pageType }) {
   }, [pageType]);
 
   // Caso a página seja de listagem, renderiza nada.
-  if (pageType === 'listing') return null;
+  if (pageType === 'listing' || pageType === 'premium') return null;
 
   // Renderiza um contêiner de anúncio padrão do AdSense.
   return (
