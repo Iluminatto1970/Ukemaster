@@ -16,6 +16,15 @@ export default function AdSenseLoader({ pageType }) {
     // Se for uma página de listagem, nada a fazer.
     if (pageType === 'listing') return;
 
+    // Integração com Prebid.js
+    if (window.pbjs && window.pbjs.requestBids) {
+      window.pbjs.requestBids({
+        bidsBackHandler: () => {
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+        }
+      });
+    }
+
     // Verifica se o script já foi inserido para evitar duplicação.
     if (document.getElementById('adsense-script')) return;
 
@@ -26,9 +35,11 @@ export default function AdSenseLoader({ pageType }) {
     script.setAttribute('data-ad-client', 'ca-pub-XXXXXXXXXXXXXXXX'); // SUBSTITUA PELO SEU ID
     document.body.appendChild(script);
 
-    // Inicializa o slot de anúncios após o script carregar.
+    // Inicializa o slot de anúncios após o script carregar (caso prebid não tenha rodado).
     script.onload = () => {
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
+      if (!window.pbjs) {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      }
     };
   }, [pageType]);
 
