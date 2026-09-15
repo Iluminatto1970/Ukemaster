@@ -1,0 +1,109 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: "Este portal é 100% gratuito: os anúncios que você vê mantêm tudo de pé. 🙏"
+      - link "💚 Doar no APOIA.se" [ref=e7] [cursor=pointer]:
+        - /url: https://apoia.se/ukemasterpro
+    - banner [ref=e8]:
+      - generic [ref=e10]:
+        - generic [ref=e11]:
+          - button "Abrir Menu" [ref=e12] [cursor=pointer]
+          - generic "Ir para o início" [ref=e14] [cursor=pointer]:
+            - generic "UkeMaster Pro" [ref=e15]:
+              - img "UkeMaster Pro" [ref=e16]
+              - generic [ref=e17]:
+                - generic [ref=e18]:
+                  - generic [ref=e19]: UKE
+                  - generic [ref=e20]: MASTER
+                  - generic [ref=e21]: PRO
+                - generic [ref=e22]: ★ Seu Portal do Ukulele
+        - textbox "Buscar por música, autor, artista, categoria ou gênero..." [ref=e28]
+        - generic [ref=e29]:
+          - button "PT" [ref=e31] [cursor=pointer]
+          - button "Apoiar o projeto — doação ou ver um anúncio" [ref=e36] [cursor=pointer]
+          - button "1" [ref=e40] [cursor=pointer]
+          - generic [ref=e45]:
+            - button "Entrar" [ref=e46] [cursor=pointer]
+            - button "Cadastrar Grátis" [ref=e47] [cursor=pointer]
+  - generic [ref=e53]:
+    - main [ref=e54]:
+      - generic [ref=e56]:
+        - paragraph [ref=e57]: Não foi possível carregar esta tela (conexão instável).
+        - button "Recarregar página" [ref=e58] [cursor=pointer]
+    - complementary "Em Destaque & Dicas" [ref=e59]:
+      - generic [ref=e63]:
+        - button "Cifra do dia Riptide Vance Joy Tom Am TOCAR" [ref=e65] [cursor=pointer]:
+          - paragraph [ref=e66]: Cifra do dia
+          - paragraph [ref=e67]: Riptide
+          - paragraph [ref=e68]: Vance Joy
+          - generic [ref=e69]:
+            - generic [ref=e70]: Tom Am
+            - generic [ref=e71]: TOCAR
+        - generic [ref=e75]:
+          - generic [ref=e76]: Dica do Dia
+          - paragraph [ref=e79]: Troque as cordas a cada 2–3 meses para manter o som brilhante.
+        - 'link "UkeMaster Pro Comunidade no WhatsApp Junte-se a outros ukulelistas: tire dúvidas, compartilhe e aprenda juntos." [ref=e81] [cursor=pointer]':
+          - /url: https://chat.whatsapp.com/BrEFW78LBkLKhQUQKaWcuj
+          - generic [ref=e82]:
+            - img "UkeMaster Pro" [ref=e84]
+            - generic [ref=e88]:
+              - generic [ref=e89]: Comunidade no WhatsApp
+              - generic [ref=e90]: "Junte-se a outros ukulelistas: tire dúvidas, compartilhe e aprenda juntos."
+        - generic [ref=e92]:
+          - link [ref=e93] [cursor=pointer]:
+            - /url: https://www.youtube.com/watch?v=cckKeqLYQUs
+            - img "O que é o UkemasterPro? | A Nova Era do Ukulele (Portal & Canal)" [ref=e94]
+          - generic [ref=e100]:
+            - paragraph [ref=e101]: O que é o UkemasterPro? | A Nova Era do Ukulele (Portal & Canal)
+            - paragraph [ref=e102]:
+              - generic [ref=e106]: "@ukemasterpro · mês passado · 3 visualizações"
+            - generic [ref=e107]:
+              - link "Assistir" [ref=e108] [cursor=pointer]:
+                - /url: https://www.youtube.com/watch?v=cckKeqLYQUs
+              - link "Canal no YouTube" [ref=e111] [cursor=pointer]:
+                - /url: https://www.youtube.com/@ukemasterpro
+          - generic [ref=e115]:
+            - paragraph [ref=e116]: Últimas publicações
+            - generic [ref=e120]:
+              - link "O que é o UkemasterPro? | A Nova Era do Ukulele (Portal & Canal) Vídeo · mês passado · 3 visualizações" [ref=e121] [cursor=pointer]:
+                - /url: https://www.youtube.com/watch?v=cckKeqLYQUs
+                - generic [ref=e123]:
+                  - generic [ref=e124]: O que é o UkemasterPro? | A Nova Era do Ukulele (Portal & Canal)
+                  - generic [ref=e125]: Vídeo · mês passado · 3 visualizações
+              - link "Short O Que É O UkemasterPro? | A Nova Era do Ukulele (Portal & Canal) Short · mês passado · 12 visualizações" [ref=e126] [cursor=pointer]:
+                - /url: https://www.youtube.com/shorts/OoVkWmzQcJA
+                - generic [ref=e127]: Short
+                - generic [ref=e129]:
+                  - generic [ref=e130]: O Que É O UkemasterPro? | A Nova Era do Ukulele (Portal & Canal)
+                  - generic [ref=e131]: Short · mês passado · 12 visualizações
+          - generic [ref=e132]:
+            - paragraph [ref=e133]: Mais vistos
+            - generic [ref=e137]:
+              - link "1 Short O Que É O UkemasterPro? | A Nova Era do Ukulele (Portal & Canal) 12 visualizações · mês passado" [ref=e138] [cursor=pointer]:
+                - /url: https://www.youtube.com/shorts/OoVkWmzQcJA
+                - generic [ref=e139]: "1"
+                - generic [ref=e140]: Short
+                - generic [ref=e142]:
+                  - generic [ref=e143]: O Que É O UkemasterPro? | A Nova Era do Ukulele (Portal & Canal)
+                  - generic [ref=e144]: 12 visualizações · mês passado
+              - link "2 O que é o UkemasterPro? | A Nova Era do Ukulele (Portal & Canal) 3 visualizações · mês passado" [ref=e145] [cursor=pointer]:
+                - /url: https://www.youtube.com/watch?v=cckKeqLYQUs
+                - generic [ref=e146]: "2"
+                - generic [ref=e148]:
+                  - generic [ref=e149]: O que é o UkemasterPro? | A Nova Era do Ukulele (Portal & Canal)
+                  - generic [ref=e150]: 3 visualizações · mês passado
+  - contentinfo [ref=e151]:
+    - generic [ref=e152]:
+      - generic [ref=e153]:
+        - text: © 2026
+        - link "Iluminatto Moraes" [ref=e154] [cursor=pointer]:
+          - /url: https://iluminattodev.vercel.app
+        - text: — Tudo 100% Gratuito • Mantido por Anúncios e Comunidade
+      - generic [ref=e155]:
+        - generic [aria-hidden] [ref=e156]: •
+        - text: Afinação padrão G4 C4 E4 A4
+        - link "Privacidade" [ref=e157] [cursor=pointer]:
+          - /url: /privacidade.html
+        - generic [aria-hidden] [ref=e158]: •
+        - link "Termos de Uso" [ref=e159] [cursor=pointer]:
+          - /url: /termos.html

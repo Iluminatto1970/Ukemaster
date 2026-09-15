@@ -1,0 +1,472 @@
+- generic [ref=f12e3]:
+  - generic [ref=f12e4]:
+    - generic [ref=f12e5]:
+      - generic [ref=f12e6]: "Este portal é 100% gratuito: os anúncios que você vê mantêm tudo de pé. 🙏"
+      - link "💚 Doar no APOIA.se" [ref=f12e7] [cursor=pointer]:
+        - /url: https://apoia.se/ukemasterpro
+    - banner [ref=f12e8]:
+      - generic [ref=f12e10]:
+        - generic [ref=f12e11]:
+          - button "Abrir Menu" [ref=f12e12] [cursor=pointer]
+          - generic "Ir para o início" [ref=f12e14] [cursor=pointer]:
+            - generic "UkeMaster Pro" [ref=f12e15]:
+              - img "UkeMaster Pro" [ref=f12e16]
+              - generic [ref=f12e17]:
+                - generic [ref=f12e18]:
+                  - generic [ref=f12e19]: UKE
+                  - generic [ref=f12e20]: MASTER
+                  - generic [ref=f12e21]: PRO
+                - generic [ref=f12e22]: ★ Seu Portal do Ukulele
+        - textbox "Buscar por música, autor, artista, categoria ou gênero..." [ref=f12e28]
+        - generic [ref=f12e29]:
+          - button "PT" [ref=f12e31] [cursor=pointer]
+          - button "Apoiar o projeto — doação ou ver um anúncio" [ref=f12e36] [cursor=pointer]
+          - button "1" [ref=f12e40] [cursor=pointer]
+          - generic [ref=f12e45]:
+            - button "Entrar" [ref=f12e46] [cursor=pointer]
+            - button "Cadastrar Grátis" [ref=f12e47] [cursor=pointer]
+  - generic [ref=f12e53]:
+    - main [ref=f12e54]:
+      - generic [ref=f12e56]:
+        - generic [ref=f12e57]:
+          - generic [ref=f12e58]:
+            - generic [ref=f12e59]:
+              - heading "BIBLIOTECA" [level=1] [ref=f12e60]
+              - paragraph [ref=f12e61]: Carregando…
+            - generic [ref=f12e62]:
+              - button "Importar" [ref=f12e63] [cursor=pointer]
+              - button "Exportar" [ref=f12e67] [cursor=pointer]
+              - button "Nova Cifra" [ref=f12e71] [cursor=pointer]
+          - generic [ref=f12e73]:
+            - button "LISTAS DE ARTISTAS" [ref=f12e74] [cursor=pointer]
+            - button "MINHAS LISTAS" [ref=f12e75] [cursor=pointer]
+            - button "TODAS AS CANÇÕES" [ref=f12e76] [cursor=pointer]
+        - generic [ref=f12e77]:
+          - generic [ref=f12e78]:
+            - generic [ref=f12e85]:
+              - paragraph [ref=f12e86]: ···
+              - paragraph [ref=f12e87]: músicas
+            - generic [ref=f12e93]:
+              - paragraph [ref=f12e94]: ···
+              - paragraph [ref=f12e95]: Artistas
+            - generic [ref=f12e100]:
+              - paragraph [ref=f12e101]: ···
+              - paragraph [ref=f12e102]: votos da comunidade
+            - generic [ref=f12e108]:
+              - paragraph [ref=f12e109]: ···
+              - paragraph [ref=f12e110]: Visualizações
+          - generic [ref=f12e111]:
+            - generic [ref=f12e112]:
+              - heading "NOVIDADES" [level=3] [ref=f12e113]
+              - generic [ref=f12e116]: NOVIDADES
+            - generic [ref=f12e117]:
+              - generic [ref=f12e118] [cursor=pointer]:
+                - generic [ref=f12e119]: "1"
+                - generic [ref=f12e126]:
+                  - paragraph [ref=f12e127]: Golden Ring
+                  - paragraph [ref=f12e128]: Eric Clapton · Tom D
+                - generic [ref=f12e129]:
+                  - generic [ref=f12e130]: Médio
+                  - generic [ref=f12e134]: "0"
+                - button "TOCAR" [ref=f12e138]
+              - generic [ref=f12e141] [cursor=pointer]:
+                - generic [ref=f12e142]: "2"
+                - generic [ref=f12e149]:
+                  - paragraph [ref=f12e150]: Forever man
+                  - paragraph [ref=f12e151]: Eric Clapton · Tom Bb
+                - generic [ref=f12e152]:
+                  - generic [ref=f12e153]: Médio
+                  - generic [ref=f12e157]: "0"
+                - button "TOCAR" [ref=f12e161]
+              - generic [ref=f12e164] [cursor=pointer]:
+                - generic [ref=f12e165]: "3"
+                - generic [ref=f12e172]:
+                  - paragraph [ref=f12e173]: Layla
+                  - paragraph [ref=f12e174]: Layla · Tom D
+                - generic [ref=f12e175]:
+                  - generic [ref=f12e176]: Médio
+                  - generic [ref=f12e180]: "0"
+                - button "TOCAR" [ref=f12e184]
+              - generic [ref=f12e187] [cursor=pointer]:
+                - generic [ref=f12e188]: "4"
+                - generic [ref=f12e195]:
+                  - paragraph [ref=f12e196]: I Shot the Sheriff
+                  - paragraph [ref=f12e197]: Eric Clapton · Tom G
+                - generic [ref=f12e198]:
+                  - generic [ref=f12e199]: Médio
+                  - generic [ref=f12e203]: "0"
+                - button "TOCAR" [ref=f12e207]
+              - generic [ref=f12e210] [cursor=pointer]:
+                - generic [ref=f12e211]: "5"
+                - generic [ref=f12e218]:
+                  - paragraph [ref=f12e219]: Knocking On Heaven's Door
+                  - paragraph [ref=f12e220]: Eric Clapton · Tom G
+                - generic [ref=f12e221]:
+                  - generic [ref=f12e222]: Simplificado
+                  - generic [ref=f12e226]: "0"
+                - button "TOCAR" [ref=f12e230]
+              - generic [ref=f12e233] [cursor=pointer]:
+                - generic [ref=f12e234]: "6"
+                - generic [ref=f12e241]:
+                  - paragraph [ref=f12e242]: Nobody Knows You When You're Down And Out (Simplificada)
+                  - paragraph [ref=f12e243]: Eric Clapton · Tom A
+                - generic [ref=f12e244]:
+                  - generic [ref=f12e245]: Simplificado
+                  - generic [ref=f12e249]: "0"
+                - button "TOCAR" [ref=f12e253]
+              - generic [ref=f12e256] [cursor=pointer]:
+                - generic [ref=f12e257]: "7"
+                - generic [ref=f12e264]:
+                  - paragraph [ref=f12e265]: Tears in Heaven
+                  - paragraph [ref=f12e266]: Eric Clapton · Tom F#
+                - generic [ref=f12e267]:
+                  - generic [ref=f12e268]: Médio
+                  - generic [ref=f12e272]: "0"
+                - button "TOCAR" [ref=f12e276]
+              - generic [ref=f12e279] [cursor=pointer]:
+                - generic [ref=f12e280]: "8"
+                - generic [ref=f12e287]:
+                  - paragraph [ref=f12e288]: Wonderful Tonight
+                  - paragraph [ref=f12e289]: Eric Clapton · Tom D
+                - generic [ref=f12e290]:
+                  - generic [ref=f12e291]: Médio
+                  - generic [ref=f12e295]: "0"
+                - button "TOCAR" [ref=f12e299]
+              - generic [ref=f12e302] [cursor=pointer]:
+                - generic [ref=f12e303]: "9"
+                - generic [ref=f12e310]:
+                  - paragraph [ref=f12e311]: Tell Me
+                  - paragraph [ref=f12e312]: ERA · Tom Eb
+                - generic [ref=f12e313]:
+                  - generic [ref=f12e314]: Avançado
+                  - generic [ref=f12e318]: "0"
+                - button "TOCAR" [ref=f12e322]
+              - generic [ref=f12e325] [cursor=pointer]:
+                - generic [ref=f12e326]: "10"
+                - generic [ref=f12e333]:
+                  - paragraph [ref=f12e334]: Sinfoni Deo
+                  - paragraph [ref=f12e335]: ERA · Tom C
+                - generic [ref=f12e336]:
+                  - generic [ref=f12e337]: Médio
+                  - generic [ref=f12e341]: "0"
+                - button "TOCAR" [ref=f12e345]
+          - generic [ref=f12e348]:
+            - generic [ref=f12e349]:
+              - heading "EM ALTA" [level=3] [ref=f12e351]
+              - paragraph [ref=f12e355]: As músicas com mais votos nos últimos 14 dias aparecem aqui — vote nas suas favoritas! 🔥
+            - generic [ref=f12e356]:
+              - heading "MAIS ACESSADAS" [level=3] [ref=f12e358]
+              - paragraph [ref=f12e361]: As cifras mais visitadas pela comunidade aparecem aqui.
+            - generic [ref=f12e362]:
+              - generic [ref=f12e363]:
+                - heading "NOVIDADES" [level=3] [ref=f12e364]
+                - generic [ref=f12e368]: Top 5
+              - generic [ref=f12e369]:
+                - button "1 Golden Ring Eric Clapton 0" [ref=f12e370] [cursor=pointer]:
+                  - generic [ref=f12e371]: "1"
+                  - generic [ref=f12e372]:
+                    - paragraph [ref=f12e373]: Golden Ring
+                    - paragraph [ref=f12e374]: Eric Clapton
+                  - generic [ref=f12e375]: "0"
+                - button "2 Forever man Eric Clapton 0" [ref=f12e378] [cursor=pointer]:
+                  - generic [ref=f12e379]: "2"
+                  - generic [ref=f12e380]:
+                    - paragraph [ref=f12e381]: Forever man
+                    - paragraph [ref=f12e382]: Eric Clapton
+                  - generic [ref=f12e383]: "0"
+                - button "3 Layla Layla 0" [ref=f12e386] [cursor=pointer]:
+                  - generic [ref=f12e387]: "3"
+                  - generic [ref=f12e388]:
+                    - paragraph [ref=f12e389]: Layla
+                    - paragraph [ref=f12e390]: Layla
+                  - generic [ref=f12e391]: "0"
+                - button "4 I Shot the Sheriff Eric Clapton 0" [ref=f12e394] [cursor=pointer]:
+                  - generic [ref=f12e395]: "4"
+                  - generic [ref=f12e396]:
+                    - paragraph [ref=f12e397]: I Shot the Sheriff
+                    - paragraph [ref=f12e398]: Eric Clapton
+                  - generic [ref=f12e399]: "0"
+                - button "5 Knocking On Heaven's Door Eric Clapton 0" [ref=f12e402] [cursor=pointer]:
+                  - generic [ref=f12e403]: "5"
+                  - generic [ref=f12e404]:
+                    - paragraph [ref=f12e405]: Knocking On Heaven's Door
+                    - paragraph [ref=f12e406]: Eric Clapton
+                  - generic [ref=f12e407]: "0"
+            - generic [ref=f12e410]:
+              - heading "Maiores Contribuidores" [level=3] [ref=f12e412]
+              - generic [ref=f12e419]: Carregando ranking…
+        - generic [ref=f12e422]:
+          - generic [ref=f12e423]:
+            - generic [ref=f12e424]:
+              - heading "CANÇÕES" [level=3] [ref=f12e425]
+              - button "Inéditos" [ref=f12e430] [cursor=pointer]
+            - generic [ref=f12e433]:
+              - generic [ref=f12e434]:
+                - textbox "Buscar por música, autor, artista, categoria ou gênero..." [ref=f12e439]
+                - combobox [ref=f12e440] [cursor=pointer]:
+                  - option "Todas Categorias / Gêneros" [selected]
+                  - option "MPB"
+                  - option "Pop"
+                  - option "Rock"
+                  - option "Reggae"
+                  - option "Gospel"
+                  - option "Sertanejo"
+                  - option "Infantil"
+                  - option "Internacional"
+                  - option "Forró"
+                  - option "Outros"
+                - combobox [ref=f12e441] [cursor=pointer]:
+                  - option "Todos Níveis" [selected]
+                  - option "Modo Simplificado"
+                  - option "Modo Médio"
+                  - option "Modo Avançado"
+              - generic [ref=f12e442]:
+                - generic [ref=f12e443]: "GÊNEROS:"
+                - button "Todos" [ref=f12e447] [cursor=pointer]
+                - button "MPB" [ref=f12e448] [cursor=pointer]
+                - button "Pop" [ref=f12e449] [cursor=pointer]
+                - button "Rock" [ref=f12e450] [cursor=pointer]
+                - button "Reggae" [ref=f12e451] [cursor=pointer]
+                - button "Gospel" [ref=f12e452] [cursor=pointer]
+                - button "Sertanejo" [ref=f12e453] [cursor=pointer]
+                - button "Infantil" [ref=f12e454] [cursor=pointer]
+                - button "Internacional" [ref=f12e455] [cursor=pointer]
+                - button "Forró" [ref=f12e456] [cursor=pointer]
+                - button "Outros" [ref=f12e457] [cursor=pointer]
+            - generic [ref=f12e458]:
+              - generic [ref=f12e459] [cursor=pointer]:
+                - generic [ref=f12e466]:
+                  - paragraph [ref=f12e467]: Vou Deixar
+                  - paragraph [ref=f12e469]: Skank · Tom G · Rock
+                - button "0" [ref=f12e470]
+                - generic [ref=f12e474]:
+                  - button "Adicionar à Playlist" [ref=f12e475]
+                  - button "Faça login para editar cifras" [ref=f12e477]
+                - button "TOCAR" [ref=f12e480]
+              - generic [ref=f12e483] [cursor=pointer]:
+                - img "Girassol" [ref=f12e485]
+                - generic [ref=f12e486]:
+                  - paragraph [ref=f12e487]: Girassol
+                  - paragraph [ref=f12e489]: Priscilla Alcantara & Whindersson Nunes · Tom C · Gospel
+                - button "0" [ref=f12e490]
+                - generic [ref=f12e494]:
+                  - button "Adicionar à Playlist" [ref=f12e495]
+                  - button "Faça login para editar cifras" [ref=f12e497]
+                - button "TOCAR" [ref=f12e500]
+              - generic [ref=f12e503] [cursor=pointer]:
+                - img "Somewhere Over the Rainbow / What a Wonderful World" [ref=f12e505]
+                - generic [ref=f12e506]:
+                  - paragraph [ref=f12e507]: Somewhere Over the Rainbow / What a Wonderful World
+                  - paragraph [ref=f12e509]: Israel Kamakawiwo'ole · Tom C · Internacional
+                - button "0" [ref=f12e510]
+                - generic [ref=f12e514]:
+                  - button "Adicionar à Playlist" [ref=f12e515]
+                  - button "Faça login para editar cifras" [ref=f12e517]
+                - button "TOCAR" [ref=f12e520]
+              - generic [ref=f12e523] [cursor=pointer]:
+                - generic [ref=f12e530]:
+                  - paragraph [ref=f12e531]: Anunciação
+                  - paragraph [ref=f12e533]: Alceu Valença · Tom G · MPB
+                - button "0" [ref=f12e534]
+                - generic [ref=f12e538]:
+                  - button "Adicionar à Playlist" [ref=f12e539]
+                  - button "Faça login para editar cifras" [ref=f12e541]
+                - button "TOCAR" [ref=f12e544]
+              - generic [ref=f12e547] [cursor=pointer]:
+                - generic [ref=f12e554]:
+                  - paragraph [ref=f12e555]: Golden Ring
+                  - paragraph [ref=f12e557]: Eric Clapton · Tom D · Rock
+                - button "0" [ref=f12e558]
+                - generic [ref=f12e562]:
+                  - button "Adicionar à Playlist" [ref=f12e563]
+                  - button "Faça login para editar cifras" [ref=f12e565]
+                - button "TOCAR" [ref=f12e568]
+              - generic [ref=f12e571] [cursor=pointer]:
+                - generic [ref=f12e578]:
+                  - paragraph [ref=f12e579]: Forever man
+                  - paragraph [ref=f12e581]: Eric Clapton · Tom Bb · Rock
+                - button "0" [ref=f12e582]
+                - generic [ref=f12e586]:
+                  - button "Adicionar à Playlist" [ref=f12e587]
+                  - button "Faça login para editar cifras" [ref=f12e589]
+                - button "TOCAR" [ref=f12e592]
+              - generic [ref=f12e595] [cursor=pointer]:
+                - generic [ref=f12e602]:
+                  - paragraph [ref=f12e603]: Layla
+                  - paragraph [ref=f12e605]: Layla · Tom D · Outros
+                - button "0" [ref=f12e606]
+                - generic [ref=f12e610]:
+                  - button "Adicionar à Playlist" [ref=f12e611]
+                  - button "Faça login para editar cifras" [ref=f12e613]
+                - button "TOCAR" [ref=f12e616]
+              - generic [ref=f12e619] [cursor=pointer]:
+                - generic [ref=f12e626]:
+                  - paragraph [ref=f12e627]: I Shot the Sheriff
+                  - paragraph [ref=f12e629]: Eric Clapton · Tom G · Rock
+                - button "0" [ref=f12e630]
+                - generic [ref=f12e634]:
+                  - button "Adicionar à Playlist" [ref=f12e635]
+                  - button "Faça login para editar cifras" [ref=f12e637]
+                - button "TOCAR" [ref=f12e640]
+              - generic [ref=f12e643] [cursor=pointer]:
+                - generic [ref=f12e650]:
+                  - paragraph [ref=f12e651]: Knocking On Heaven's Door
+                  - paragraph [ref=f12e653]: Eric Clapton · Tom G · Rock
+                - button "0" [ref=f12e654]
+                - generic [ref=f12e658]:
+                  - button "Adicionar à Playlist" [ref=f12e659]
+                  - button "Faça login para editar cifras" [ref=f12e661]
+                - button "TOCAR" [ref=f12e664]
+              - generic [ref=f12e667] [cursor=pointer]:
+                - generic [ref=f12e674]:
+                  - paragraph [ref=f12e675]: Nobody Knows You When You're Down And Out (Simplificada)
+                  - paragraph [ref=f12e677]: Eric Clapton · Tom A · Rock
+                - button "0" [ref=f12e678]
+                - generic [ref=f12e682]:
+                  - button "Adicionar à Playlist" [ref=f12e683]
+                  - button "Faça login para editar cifras" [ref=f12e685]
+                - button "TOCAR" [ref=f12e688]
+              - generic [ref=f12e691]:
+                - button "Mostrar mais (290 restantes)" [ref=f12e692] [cursor=pointer]
+                - paragraph [ref=f12e695]: Mostrando 10 de 300 canções
+          - generic [ref=f12e696]:
+            - generic [ref=f12e697]:
+              - button "ARTISTAS 25" [ref=f12e699] [cursor=pointer]:
+                - text: ARTISTAS
+                - generic [ref=f12e703]: "25"
+              - paragraph [ref=f12e706]: Toque para navegar por artista. As canções continuam logo ao lado ⬅️
+            - generic [ref=f12e707]:
+              - generic [ref=f12e708]:
+                - heading "REPERTÓRIO DE HOJE" [level=3] [ref=f12e709]
+                - generic [ref=f12e710] [cursor=pointer]: Favoritos
+              - generic [ref=f12e713]:
+                - generic [ref=f12e714]:
+                  - generic [ref=f12e715] [cursor=pointer]:
+                    - paragraph [ref=f12e721]: Vou Deixar
+                    - paragraph [ref=f12e722]: Skank
+                    - button "TOCAR" [ref=f12e723]
+                  - generic [ref=f12e724] [cursor=pointer]:
+                    - img "Girassol" [ref=f12e726]
+                    - paragraph [ref=f12e727]: Girassol
+                    - paragraph [ref=f12e728]: Priscilla Alcantara & Whindersson Nunes
+                    - button "TOCAR" [ref=f12e729]
+                  - generic [ref=f12e730] [cursor=pointer]:
+                    - img "Somewhere Over the Rainbow / What a Wonderful World" [ref=f12e732]
+                    - paragraph [ref=f12e733]: Somewhere Over the Rainbow / What a Wonderful World
+                    - paragraph [ref=f12e734]: Israel Kamakawiwo'ole
+                    - button "TOCAR" [ref=f12e735]
+                  - generic [ref=f12e736] [cursor=pointer]:
+                    - paragraph [ref=f12e742]: Anunciação
+                    - paragraph [ref=f12e743]: Alceu Valença
+                    - button "TOCAR" [ref=f12e744]
+                  - generic [ref=f12e745] [cursor=pointer]:
+                    - paragraph [ref=f12e751]: Golden Ring
+                    - paragraph [ref=f12e752]: Eric Clapton
+                    - button "TOCAR" [ref=f12e753]
+                  - generic [ref=f12e754] [cursor=pointer]:
+                    - paragraph [ref=f12e760]: Forever man
+                    - paragraph [ref=f12e761]: Eric Clapton
+                    - button "TOCAR" [ref=f12e762]
+                  - generic [ref=f12e763] [cursor=pointer]:
+                    - paragraph [ref=f12e769]: Layla
+                    - paragraph [ref=f12e770]: Layla
+                    - button "TOCAR" [ref=f12e771]
+                  - generic [ref=f12e772] [cursor=pointer]:
+                    - paragraph [ref=f12e778]: I Shot the Sheriff
+                    - paragraph [ref=f12e779]: Eric Clapton
+                    - button "TOCAR" [ref=f12e780]
+                - button "Próximo" [ref=f12e781] [cursor=pointer]
+            - generic [ref=f12e784]:
+              - generic [ref=f12e785]:
+                - heading "REPERTÓRIO ATUAL" [level=3] [ref=f12e786]
+                - button "Listas" [ref=f12e790] [cursor=pointer]
+              - generic [ref=f12e793]:
+                - button [ref=f12e794] [cursor=pointer]:
+                  - generic [ref=f12e798]:
+                    - paragraph [ref=f12e799]: ⭐ Favoritas do Ukulele
+                    - paragraph [ref=f12e800]: 3 músicas · Simplificado
+                - button [ref=f12e803] [cursor=pointer]:
+                  - generic [ref=f12e807]:
+                    - paragraph [ref=f12e808]: 🇧🇷 MPB & Nacionais
+                    - paragraph [ref=f12e809]: 3 músicas · Médio
+                - button [ref=f12e812] [cursor=pointer]:
+                  - generic [ref=f12e816]:
+                    - paragraph [ref=f12e817]: 🚀 Para Iniciantes
+                    - paragraph [ref=f12e818]: 3 músicas · Simplificado
+    - complementary "Em Destaque & Dicas" [ref=f12e821]:
+      - generic [ref=f12e825]:
+        - button "Cifra do dia Tell Me ERA Tom Eb TOCAR" [ref=f12e827] [cursor=pointer]:
+          - paragraph [ref=f12e828]: Cifra do dia
+          - paragraph [ref=f12e829]: Tell Me
+          - paragraph [ref=f12e830]: ERA
+          - generic [ref=f12e831]:
+            - generic [ref=f12e832]: Tom Eb
+            - generic [ref=f12e833]: TOCAR
+        - generic [ref=f12e837]:
+          - generic [ref=f12e838]: Dica do Dia
+          - paragraph [ref=f12e841]: Troque as cordas a cada 2–3 meses para manter o som brilhante.
+        - 'link "UkeMaster Pro Comunidade no WhatsApp Junte-se a outros ukulelistas: tire dúvidas, compartilhe e aprenda juntos." [ref=f12e843] [cursor=pointer]':
+          - /url: https://chat.whatsapp.com/BrEFW78LBkLKhQUQKaWcuj
+          - generic [ref=f12e844]:
+            - img "UkeMaster Pro" [ref=f12e846]
+            - generic [ref=f12e850]:
+              - generic [ref=f12e851]: Comunidade no WhatsApp
+              - generic [ref=f12e852]: "Junte-se a outros ukulelistas: tire dúvidas, compartilhe e aprenda juntos."
+        - generic [ref=f12e854]:
+          - link [ref=f12e855] [cursor=pointer]:
+            - /url: https://www.youtube.com/watch?v=cckKeqLYQUs
+            - img "O que é o UkemasterPro? | A Nova Era do Ukulele (Portal & Canal)" [ref=f12e856]
+          - generic [ref=f12e862]:
+            - paragraph [ref=f12e863]: O que é o UkemasterPro? | A Nova Era do Ukulele (Portal & Canal)
+            - paragraph [ref=f12e864]:
+              - generic [ref=f12e868]: "@ukemasterpro · mês passado · 3 visualizações"
+            - generic [ref=f12e869]:
+              - link "Assistir" [ref=f12e870] [cursor=pointer]:
+                - /url: https://www.youtube.com/watch?v=cckKeqLYQUs
+              - link "Canal no YouTube" [ref=f12e873] [cursor=pointer]:
+                - /url: https://www.youtube.com/@ukemasterpro
+          - generic [ref=f12e877]:
+            - paragraph [ref=f12e878]: Últimas publicações
+            - generic [ref=f12e882]:
+              - link "O que é o UkemasterPro? | A Nova Era do Ukulele (Portal & Canal) Vídeo · mês passado · 3 visualizações" [ref=f12e883] [cursor=pointer]:
+                - /url: https://www.youtube.com/watch?v=cckKeqLYQUs
+                - generic [ref=f12e885]:
+                  - generic [ref=f12e886]: O que é o UkemasterPro? | A Nova Era do Ukulele (Portal & Canal)
+                  - generic [ref=f12e887]: Vídeo · mês passado · 3 visualizações
+              - link "Short O Que É O UkemasterPro? | A Nova Era do Ukulele (Portal & Canal) Short · mês passado · 12 visualizações" [ref=f12e888] [cursor=pointer]:
+                - /url: https://www.youtube.com/shorts/OoVkWmzQcJA
+                - generic [ref=f12e889]: Short
+                - generic [ref=f12e891]:
+                  - generic [ref=f12e892]: O Que É O UkemasterPro? | A Nova Era do Ukulele (Portal & Canal)
+                  - generic [ref=f12e893]: Short · mês passado · 12 visualizações
+          - generic [ref=f12e894]:
+            - paragraph [ref=f12e895]: Mais vistos
+            - generic [ref=f12e899]:
+              - link "1 Short O Que É O UkemasterPro? | A Nova Era do Ukulele (Portal & Canal) 12 visualizações · mês passado" [ref=f12e900] [cursor=pointer]:
+                - /url: https://www.youtube.com/shorts/OoVkWmzQcJA
+                - generic [ref=f12e901]: "1"
+                - generic [ref=f12e902]: Short
+                - generic [ref=f12e904]:
+                  - generic [ref=f12e905]: O Que É O UkemasterPro? | A Nova Era do Ukulele (Portal & Canal)
+                  - generic [ref=f12e906]: 12 visualizações · mês passado
+              - link "2 O que é o UkemasterPro? | A Nova Era do Ukulele (Portal & Canal) 3 visualizações · mês passado" [ref=f12e907] [cursor=pointer]:
+                - /url: https://www.youtube.com/watch?v=cckKeqLYQUs
+                - generic [ref=f12e908]: "2"
+                - generic [ref=f12e910]:
+                  - generic [ref=f12e911]: O que é o UkemasterPro? | A Nova Era do Ukulele (Portal & Canal)
+                  - generic [ref=f12e912]: 3 visualizações · mês passado
+  - contentinfo [ref=f12e913]:
+    - generic [ref=f12e914]:
+      - generic [ref=f12e915]:
+        - text: © 2026
+        - link "Iluminatto Moraes" [ref=f12e916] [cursor=pointer]:
+          - /url: https://iluminattodev.vercel.app
+        - text: — Tudo 100% Gratuito • Mantido por Anúncios e Comunidade
+      - generic [ref=f12e917]:
+        - generic [aria-hidden] [ref=f12e918]: •
+        - text: Afinação padrão G4 C4 E4 A4
+        - link "Privacidade" [ref=f12e919] [cursor=pointer]:
+          - /url: /privacidade.html
+        - generic [aria-hidden] [ref=f12e920]: •
+        - link "Termos de Uso" [ref=f12e921] [cursor=pointer]:
+          - /url: /termos.html
