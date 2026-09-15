@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import SupportBanner from './SupportBanner';
+import MonetagAd from './MonetagAd';
 
 /**
  * Componente de listagem de cifras.
@@ -33,6 +34,7 @@ export default function Listing({ items }) {
         label="Apoiar no Apoia-se"
         bgColor="#ffcc00"
       />
+      <MonetagAd adSlotId="monetag-slot-01" pageType="article" />
       <div className="listing">
         <ul>
           {filtered.map(item => (
