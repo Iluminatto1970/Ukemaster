@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import SupportBanner from './SupportBanner';
 
 /**
  * Componente de listagem de cifras.
  * - Paginação simples (15 itens por página).
  * - Filtra apenas as cifras mais populares (campo `popularity`).
+ * - Exibe um banner de apoio voluntário no topo.
  */
 const ITEMS_PER_PAGE = 15;
 
@@ -25,35 +27,42 @@ export default function Listing({ items }) {
   const totalPages = Math.ceil(popularItems.length / ITEMS_PER_PAGE);
 
   return (
-    <div className="listing">
-      <ul>
-        {filtered.map(item => (
-          <li key={item.id} className="listing-item">
-            <a href={item.url}>{item.title}</a>
-            <span className="popularity">👁️ {item.popularity}</span>
-          </li>
-        ))}
-      </ul>
-      {totalPages > 1 && (
-        <nav className="pagination">
-          <button
-            onClick={() => setPage(p => Math.max(p - 1, 1))}
-            disabled={page === 1}
-          >
-            ← Anterior
-          </button>
-          <span>
-            Página {page} de {totalPages}
-          </span>
-          <button
-            onClick={() => setPage(p => Math.min(p + 1, totalPages))}
-            disabled={page === totalPages}
-          >
-            Próxima →
-          </button>
-        </nav>
-      )}
-    </div>
+    <>
+      <SupportBanner
+        url="https://apoia.se/ukemasterpro"
+        label="Apoiar no Apoia-se"
+        bgColor="#ffcc00"
+      />
+      <div className="listing">
+        <ul>
+          {filtered.map(item => (
+            <li key={item.id} className="listing-item">
+              <a href={item.url}>{item.title}</a>
+              <span className="popularity">👁️ {item.popularity}</span>
+            </li>
+          ))}
+        </ul>
+        {totalPages > 1 && (
+          <nav className="pagination">
+            <button
+              onClick={() => setPage(p => Math.max(p - 1, 1))}
+              disabled={page === 1}
+            >
+              ← Anterior
+            </button>
+            <span>
+              Página {page} de {totalPages}
+            </span>
+            <button
+              onClick={() => setPage(p => Math.min(p + 1, totalPages))}
+              disabled={page === totalPages}
+            >
+              Próxima →
+            </button>
+          </nav>
+        )}
+      </div>
+    </>
   );
 }
 
