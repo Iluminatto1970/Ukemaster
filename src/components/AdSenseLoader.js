@@ -33,14 +33,22 @@ export default function AdSenseLoader({ pageType }) {
     script.async = true;
     script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
     script.setAttribute('data-ad-client', 'ca-pub-XXXXXXXXXXXXXXXX'); // SUBSTITUA PELO SEU ID
-    document.body.appendChild(script);
+    try {
+      document.body.appendChild(script);
+    } catch (_) {
+      // Falha silenciosa se o DOM não estiver disponível
+    }
 
     // Inicializa o slot de anúncios após o script carregar (caso prebid não tenha rodado).
-    script.onload = () => {
-      if (!window.pbjs) {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-      }
-    };
+    try {
+      script.onload = () => {
+        if (!window.pbjs) {
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+        }
+      };
+    } catch (_) {
+      // Ignora erros de onload
+    }
   }, [pageType]);
 
   // Caso a página seja de listagem, renderiza nada.

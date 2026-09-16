@@ -35,7 +35,8 @@ export default function MonetagAd({ adSlotId, pageType }) {
     };
   }, [adSlotId]);
 
-  return <div id={`monetag-${adSlotId}`} className="monetag-ad" />;
+  const formattedId = adSlotId.replace(/^slot(\d+)$/i, (m, n) => `slot-0${n}`);
+  return <div id={`monetag-${formattedId}`} className="monetag-ad" />;
 }
 
 MonetagAd.propTypes = {

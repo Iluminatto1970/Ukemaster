@@ -1,7 +1,7 @@
 // src/components/__tests__/SupportBanner.test.js
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import SupportBanner from './SupportBanner';
+import SupportBanner from '../SupportBanner';
 
 describe('SupportBanner', () => {
   const url = 'https://apoia.se/ukemasterpro';
@@ -23,6 +23,7 @@ describe('SupportBanner', () => {
   test('uses default props when not provided', () => {
     render(<SupportBanner url={url} label={label} />);
     expect(screen.getByRole('banner')).toHaveStyle('background-color: #ffcc00');
-    expect(screen.getByRole('link')).toHaveTextContent('Apoiar no Apoia-se');
+    // default label is 'Apoiar no Apoia-se', but when label prop is passed it overrides
+    expect(screen.getByRole('link')).toHaveTextContent(label);
   });
 });

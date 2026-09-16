@@ -1,6 +1,7 @@
 // src/components/SupportBanner.js
 import React from 'react';
 import PropTypes from 'prop-types';
+import { isSafeUrl } from '../utils/sanitize';
 
 /**
  * Banner de apoio voluntário (Apoia-se).
@@ -11,7 +12,10 @@ import PropTypes from 'prop-types';
  * @param {string} label - Texto do botão/link.
  * @param {string} bgColor - Cor de fundo (hex ou nome).
  */
-export default function SupportBanner({ url, label, bgColor }) {
+export default function SupportBanner({ url, label = 'Apoiar no Apoia-se', bgColor = '#ffcc00' }) {
+  // Validação de URL: rejeita javascript:, data:, etc.
+  const safeUrl = isSafeUrl(url) ? url : '';
+
   return (
     <header
       className="support-banner"
@@ -22,9 +26,9 @@ export default function SupportBanner({ url, label, bgColor }) {
       <div className="support-banner-inner">
         <span>💛 Apoie o Ukemaster Pro e mantenha o site gratuito!</span>
         <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
+          href={safeUrl}
+          target={safeUrl ? '_blank' : undefined}
+          rel={safeUrl ? 'noopener noreferrer' : undefined}
           className="support-banner-link"
         >
           {label}
@@ -43,7 +47,3 @@ SupportBanner.propTypes = {
   bgColor: PropTypes.string,
 };
 
-SupportBanner.defaultProps = {
-  bgColor: '#ffcc00', // amarelo padrão
-  label: 'Apoiar no Apoia-se',
-};

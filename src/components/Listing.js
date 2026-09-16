@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { isSafeUrl } from '../utils/sanitize';
 import SupportBanner from './SupportBanner';
 import MonetagAd from './MonetagAd';
 
@@ -39,7 +40,7 @@ export default function Listing({ items }) {
         <ul>
           {filtered.map(item => (
             <li key={item.id} className="listing-item">
-              <a href={item.url}>{item.title}</a>
+              <a href={isSafeUrl(item.url) ? item.url : '/cifra/'}>{item.title}</a>
               <span className="popularity">👁️ {item.popularity}</span>
             </li>
           ))}

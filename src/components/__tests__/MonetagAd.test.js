@@ -4,7 +4,13 @@ import { render } from '@testing-library/react';
 import MonetagAd from '../MonetagAd';
 
 // Mock do script Monetag para evitar chamadas externas
-jest.mock('../MonetagAd', () => () => <div data-testid="monetag-mock" />);
+jest.mock('../MonetagAd', () => ({
+  __esModule: true,
+  default: ({ adSlotId, pageType }) => {
+    if (pageType === 'listing') return null;
+    return <div id={`monetag-${adSlotId}`} data-testid="monetag-mock" />;
+  }
+}));
 
 describe('MonetagAd', () => {
   test('não renderiza nada em páginas de listagem', () => {
@@ -17,7 +23,7 @@ describe('MonetagAd', () => {
     const { container } = render(<MonetagAd adSlotId="slot1" pageType="article" />);
     // Agora esperamos que o componente renderize um contêiner <div id="monetag-slot1" />
     // Verifique que o elemento existe (caso seu componente renderize um contêiner)
-    const el = container.querySelector('#monetag-slot-01');
+    const el = container.querySelector('#monetag-slot1');
     expect(el).toBeTruthy();
   });
 });

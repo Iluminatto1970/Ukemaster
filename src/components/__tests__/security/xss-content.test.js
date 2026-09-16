@@ -1,8 +1,8 @@
 // src/components/__tests__/security/xss-content.test.js
 import React from 'react';
 import { render } from '@testing-library/react';
-import Listing from '../../components/Listing';
-import { encodeEntities } from '../../utils/sanitize';
+import Listing from '../../Listing';
+import { encodeEntities } from '../../../utils/sanitize';
 
 describe('Security – XSS Prevention', () => {
   it('escapes malicious titles', () => {
@@ -25,9 +25,11 @@ describe('Security – XSS Prevention', () => {
         pageType="article"
       />
     );
-    const link = container.querySelector('a');
+    // Pega todos os links e filtra o da listagem (não o do SupportBanner)
+    const links = container.querySelectorAll('.listing-item a');
+    const link = links[0];
     expect(link.getAttribute('href')).not.toBe('javascript:alert(1)');
-    // Deve apontar para um caminho válido (fallback previsto no componente)
-    expect(link.getAttribute('href')).toMatch(/^\/cifra\//);
+    // Deve apontar para o fallback /cifra/
+    expect(link.getAttribute('href')).toBe('/cifra/');
   });
 });
