@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { fetchUser } from '../src/lib/supabaseAuth.js';
-import { getSupabaseServer } from '../src/lib/supabaseServer.js';
+import { fetchUser } from '../../src/lib/supabaseAuth.js';
+import { getSupabaseServer } from '../../src/lib/supabaseServer.js';
 
 export const maxDuration = 30;
 

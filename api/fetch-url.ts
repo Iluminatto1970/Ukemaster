@@ -68,15 +68,19 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   }
 
   // CSRF protection (double‑submit: cookie __Host-csrf + header x-csrf-token)
+  const csrfHeaderRaw = req.headers['x-csrf-token'];
+  const csrfHeader = Array.isArray(csrfHeaderRaw) ? csrfHeaderRaw[0] : csrfHeaderRaw;
   const csrfResult = csrfProtect(
     req.method,
     req.headers.cookie,
-    req.headers['x-csrf-token'],
+    csrfHeader,
     process.env.NODE_ENV === 'production'
   );
   if (csrfResult.setCookie) {
     const existing = res.getHeader('Set-Cookie');
-    const arr = existing ? (Array.isArray(existing) ? existing : [existing]) : [];
+    const arr: string[] = existing
+      ? (Array.isArray(existing) ? existing.map(String) : [String(existing)])
+      : [];
     arr.push(csrfResult.setCookie);
     res.setHeader('Set-Cookie', arr);
   }

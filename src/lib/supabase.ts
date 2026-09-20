@@ -16,6 +16,7 @@
  * Se as chaves não estiverem configuradas, todas as funções retornam
  * `null`/`false` e o app continua 100% funcional com localStorage.
  */
+import { logger } from './logger';
 
 export interface SupabaseConfig {
   url: string;

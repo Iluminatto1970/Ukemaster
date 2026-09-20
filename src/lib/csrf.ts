@@ -2,7 +2,7 @@
  * CSRF protection via double-submit cookie pattern.
  * - GET/HEAD/OPTIONS: emit __Host-csrf cookie (SameSite=Strict, Secure).
  * - POST/PUT/DELETE/PATCH: validate x-csrf-token header matches cookie.
- * No external deps; uses Web Crypto (works on Edge, Node 18+, Vercel).
+ * No external deps; uses Node crypto on server / Web Crypto on Edge.
  */
 
 const COOKIE_NAME = '__Host-csrf';
@@ -34,7 +34,14 @@ function buildSetCookie(token: string, isProd: boolean): string {
 
 function randomToken(): string {
   // 16 bytes hex → 32 chars.
-  return crypto.randomBytes(16).toString('hex');
+  // Prefer Node crypto (available in api/* and server.ts); fall back to Web Crypto for Edge.
+  const c = (globalThis as { crypto?: Crypto }).crypto;
+  if (c && typeof (c as Crypto & { randomBytes?: unknown }).randomBytes === 'function') {
+    return (c as unknown as { randomBytes(n: number): Buffer }).randomBytes(16).toString('hex');
+  }
+  const bytes = new Uint8Array(16);
+  c.getRandomValues(bytes);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 export interface CsrfResult {
