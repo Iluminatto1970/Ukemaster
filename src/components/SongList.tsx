@@ -46,6 +46,7 @@ import type { AffiliateLink, PartnerLink, BlogPost } from '../types';
 import { fetchTrendingSongIds } from '../lib/ratings';
 import { useT } from '../lib/i18n';
 import { difficultyLabel } from '../utils/difficultyLabel';
+import { useServerSearch } from '../lib/useServerSearch';
 
 // ── Mini-ranking genérico da vitrine (Em Alta / Mais Acessadas / Novidades) ──
 // Definido FORA do componente: com 5k músicas e re-renders frequentes, um
@@ -192,6 +193,19 @@ export const SongList: React.FC<SongListProps> = ({
   const searchQuery = externalSearchQuery !== undefined ? externalSearchQuery : internalSearchQuery;
   const setSearchQuery = externalSetSearchQuery || setInternalSearchQuery;
 
+  // ── Busca SERVER-SIDE (acervo completo do banco, ~394 mil músicas) ──
+  // O filtro local abaixo só enxerga o que já foi carregado em memória
+  // (lote inicial + "mostrar mais"). A RPC `search_songs` roda no banco
+  // com índice trigram, acento-insensível e multi-palavra, com debounce
+  // de 300ms (só dispara após a última tecla).
+  // `songs === null` = RPC indisponível OU termo ainda em trânsito →
+  // fallback automático para o filtro local (comportamento original).
+  const serverSearch = useServerSearch(searchQuery);
+  const serverActive =
+    searchQuery.trim().length > 0 &&
+    serverSearch.termo === searchQuery.trim() &&
+    serverSearch.songs !== null;
+
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedArtistFilter, setSelectedArtistFilter] = useState<string>('all');
@@ -282,33 +296,64 @@ export const SongList: React.FC<SongListProps> = ({
   const normalizeSearch = (s: string) =>
     s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-  const filteredSongs = songs.filter((s) => {
-    const query = normalizeSearch(searchQuery.trim());
+  // Filtro de nível compartilhado pelas buscas local e server (aceita
+  // sinônimos do banco: Iniciante≈Simplificado, Intermediário≈Médio).
+  const matchesDifficulty = (diff: string | undefined, sel: string) =>
+    sel === 'all' ||
+    diff === sel ||
+    (sel === 'Simplificado' && (diff === 'Iniciante' || diff === 'Simplificado')) ||
+    (sel === 'Médio' && (diff === 'Intermediário' || diff === 'Médio'));
 
-    // Comprehensive search match across title (música), artist (autor/artista), category (categoria/gênero), tags, key, content
-    const matchSearch =
-      !query ||
-      normalizeSearch(s.title || '').includes(query) ||
-      normalizeSearch(s.artist || '').includes(query) ||
-      (s.category && normalizeSearch(s.category).includes(query)) ||
-      (s.tags && s.tags.some((tag) => normalizeSearch(tag).includes(query))) ||
-      (s.key && normalizeSearch(s.key).includes(query)) ||
-      (s.content && normalizeSearch(s.content).includes(query));
+  // Resultado efetivo da busca:
+  //  - server: a RPC respondeu para ESTE termo → usa os matches do banco
+  //    (acervo completo) e aplica por cima os filtros de nível/gênero/artista.
+  //    Não refiltra por key/content: a RPC já cobriu o termo no banco inteiro.
+  //  - local: filtro na memória (comportamento original), usado quando a RPC
+  //    não está disponível ou enquanto a resposta está em trânsito.
+  const filteredSongs: Song[] = serverActive
+    ? (serverSearch.songs ?? []).filter((s) => {
+        const query = normalizeSearch(searchQuery.trim());
 
-    const matchDifficulty =
-      selectedDifficulty === 'all' ||
-      s.difficulty === selectedDifficulty ||
-      (selectedDifficulty === 'Simplificado' && (s.difficulty === 'Iniciante' || s.difficulty === 'Simplificado')) ||
-      (selectedDifficulty === 'Médio' && (s.difficulty === 'Intermediário' || s.difficulty === 'Médio'));
+        const matchSearch =
+          !query ||
+          normalizeSearch(s.title || '').includes(query) ||
+          normalizeSearch(s.artist || '').includes(query) ||
+          (s.category && normalizeSearch(s.category).includes(query)) ||
+          (s.tags && s.tags.some((tag) => normalizeSearch(tag).includes(query)));
 
-    const matchCategory =
-      selectedCategory === 'all' || (s.category && s.category.toLowerCase() === selectedCategory.toLowerCase());
+        const matchDifficulty = matchesDifficulty(s.difficulty, selectedDifficulty);
 
-    const matchArtist =
-      selectedArtistFilter === 'all' || s.artist.toLowerCase() === selectedArtistFilter.toLowerCase();
+        const matchCategory =
+          selectedCategory === 'all' || (s.category && s.category.toLowerCase() === selectedCategory.toLowerCase());
 
-    return matchSearch && matchDifficulty && matchCategory && matchArtist;
-  });
+        const matchArtist =
+          selectedArtistFilter === 'all' || s.artist.toLowerCase() === selectedArtistFilter.toLowerCase();
+
+        return matchSearch && matchDifficulty && matchCategory && matchArtist;
+      })
+    : songs.filter((s) => {
+        const query = normalizeSearch(searchQuery.trim());
+
+        // Comprehensive search match across title (música), artist (autor/artista), category (categoria/gênero), tags, key, content
+        const matchSearch =
+          !query ||
+          normalizeSearch(s.title || '').includes(query) ||
+          normalizeSearch(s.artist || '').includes(query) ||
+          (s.category && normalizeSearch(s.category).includes(query)) ||
+          (s.tags && s.tags.some((tag) => normalizeSearch(tag).includes(query))) ||
+          (s.key && normalizeSearch(s.key).includes(query)) ||
+          (s.content && normalizeSearch(s.content).includes(query));
+
+        const matchDifficulty = matchesDifficulty(s.difficulty, selectedDifficulty);
+
+        const matchCategory =
+          selectedCategory === 'all' || (s.category && s.category.toLowerCase() === selectedCategory.toLowerCase());
+
+        const matchArtist =
+          selectedArtistFilter === 'all' || s.artist.toLowerCase() === selectedArtistFilter.toLowerCase();
+
+        return matchSearch && matchDifficulty && matchCategory && matchArtist;
+      });
 
   // ── Mais Votadas: top 10 por votos da comunidade (com empate por título) —
   // filtradas pelo idioma da interface (sugestões do idioma em questão).
@@ -441,18 +486,31 @@ export const SongList: React.FC<SongListProps> = ({
   };
 
   const shownSongs = filteredSongs.slice(0, visibleCount);
-  // "Mais" quando: ainda há músicas filtradas NÃO exibidas, OU
-  // o cloud tem mais músicas que as carregadas (e não estamos filtrando).
-  const hasMore = filteredSongs.length > visibleCount ||
-    (!isFiltering && totalCount > songs.length);
 
   // Ranking hero estilo CifraClub: escondido quando há busca ou filtro ativo
   // (aí o foco é o resultado filtrado, não o ranking global — igual ao CifraClub).
+  // (declarado ANTES de hasMore — antes era lido aqui embaixo antes da
+  //  inicialização, crashando de ReferenceError quando a primeira condição
+  //  de hasMore era falsa e tudo já estava exibido.)
   const isFiltering =
     searchQuery.trim().length > 0 ||
     selectedArtistFilter !== 'all' ||
     selectedCategory !== 'all' ||
     selectedDifficulty !== 'all';
+
+  // "Mais" quando: em modo server, a paginação vem do banco (hasMore);
+  // em modo local, quando há filtradas não exibidas OU o cloud tem mais
+  // músicas que as carregadas.
+  const hasMore = serverActive
+    ? serverSearch.hasMore
+    : filteredSongs.length > visibleCount ||
+      (!isFiltering && totalCount > songs.length);
+
+  // Contador do rodapé ("Mostrando X de Y"): em modo server, o total vem
+  // do banco quando conhecido (última página); senão, o carregado na memória.
+  const resultTotal = serverActive
+    ? (serverSearch.total ?? filteredSongs.length)
+    : (totalCount > 0 ? totalCount : filteredSongs.length);
 
   // Posts do blog habilitados, mais recentes primeiro (vitrine: top 2).
   const blogVisible = useMemo(
@@ -1118,19 +1176,29 @@ export const SongList: React.FC<SongListProps> = ({
                 <div className="pt-2">
                   <button
                     onClick={() => {
-                      // Se já exibiu todas as músicas carregadas, busca mais do cloud
-                      if (visibleCount >= filteredSongs.length && onLoadMore && totalCount > songs.length) {
+                      // Modo server: busca a próxima página DIRETO do banco.
+                      // Modo local: se já exibiu tudo que está na memória,
+                      // busca mais do cloud pelo mecanismo antigo.
+                      if (serverActive) {
+                        serverSearch.loadMore();
+                      } else if (visibleCount >= filteredSongs.length && onLoadMore && totalCount > songs.length) {
                         onLoadMore();
                       }
                       setVisibleCount((c) => c + 20);
                     }}
                     className="w-full py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-extrabold text-slate-600 hover:text-orange-600 hover:border-orange-300 transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                   >
-                    {t('library.showMore')} ({totalCount > songs.length ? `${totalCount - songs.length} restantes no catálogo` : `${Math.max(0, filteredSongs.length - visibleCount)} restantes`})
+                    {serverSearch.loadingMore
+                      ? t('misc.loading')
+                      : t('library.showMore')} ({serverActive
+                      ? 'mais resultados no banco'
+                      : totalCount > songs.length
+                      ? `${totalCount - songs.length} restantes no catálogo`
+                      : `${Math.max(0, filteredSongs.length - visibleCount)} restantes`})
                     <ChevronDown className="w-3.5 h-3.5" />
                   </button>
                   <p className="text-center text-[10px] text-slate-400 font-bold mt-1.5">
-                    {t('library.showing')} {shownSongs.length} {t('library.of')} {totalCount > 0 ? totalCount : filteredSongs.length} {t('library.songsLower')}
+                    {t('library.showing')} {shownSongs.length} {t('library.of')} {resultTotal} {t('library.songsLower')}
                   </p>
                 </div>
               )}

@@ -33,6 +33,8 @@ type Dict = Record<string, string>;
 const pt: Dict = {
   // ── Header ──────────────────────────────────────────────
   'header.searchPlaceholder': 'Buscar por música, autor, artista, categoria ou gênero...',
+  'header.suggestionsTitle': 'Sugestões',
+  'header.suggestionsHint': '↑↓ navegar · Enter selecionar',
   'header.openMenu': 'Abrir Menu',
   'header.goHome': 'Ir para o início',
   'header.support': 'Apoiar o projeto — doação ou ver um anúncio',
@@ -721,6 +723,8 @@ const pt: Dict = {
 
 const en: Dict = {
   'header.searchPlaceholder': 'Search by song, author, artist, category or genre...',
+  'header.suggestionsTitle': 'Suggestions',
+  'header.suggestionsHint': '↑↓ navigate · Enter to select',
   'header.openMenu': 'Open Menu',
   'header.goHome': 'Go to home',
   'header.support': 'Support the project — donate or watch an ad',
@@ -1395,6 +1399,8 @@ const en: Dict = {
 
 const es: Dict = {
   'header.searchPlaceholder': 'Buscar por canción, autor, artista, categoría o género...',
+  'header.suggestionsTitle': 'Sugerencias',
+  'header.suggestionsHint': '↑↓ navegar · Enter para elegir',
   'header.openMenu': 'Abrir Menú',
   'header.goHome': 'Ir al inicio',
   'header.support': 'Apoyar el proyecto — donar o ver un anuncio',
@@ -1952,6 +1958,8 @@ const es: Dict = {
 
 const fr: Dict = {
   'header.searchPlaceholder': 'Rechercher une chanson, un auteur, un artiste, une catégorie ou un genre...',
+  'header.suggestionsTitle': 'Suggestions',
+  'header.suggestionsHint': '↑↓ naviguer · Entrée pour choisir',
   'header.openMenu': 'Ouvrir le menu',
   'header.goHome': "Aller à l'accueil",
   'header.support': "Soutenir le projet — faire un don ou voir une pub",
@@ -2509,6 +2517,8 @@ const fr: Dict = {
 
 const de: Dict = {
   'header.searchPlaceholder': 'Nach Lied, Autor, Künstler, Kategorie oder Genre suchen...',
+  'header.suggestionsTitle': 'Vorschläge',
+  'header.suggestionsHint': '↑↓ navigieren · Enter zum Auswählen',
   'header.openMenu': 'Menü öffnen',
   'header.goHome': 'Zur Startseite',
   'header.support': 'Projekt unterstützen — spenden oder Werbung ansehen',
@@ -3066,6 +3076,8 @@ const de: Dict = {
 
 const ja: Dict = {
   'header.searchPlaceholder': '曲名、アーティスト、カテゴリー、ジャンルで検索...',
+  'header.suggestionsTitle': '検索候補',
+  'header.suggestionsHint': '↑↓ で移動 · Enter で選択',
   'header.openMenu': 'メニューを開く',
   'header.goHome': 'ホームへ',
   'header.support': 'プロジェクトを支援 — 寄付または広告を見る',
@@ -3622,6 +3634,8 @@ const ja: Dict = {
 
 const zh: Dict = {
   'header.searchPlaceholder': '搜索歌曲、作者、艺术家、类别或流派...',
+  'header.suggestionsTitle': '搜索建议',
+  'header.suggestionsHint': '↑↓ 浏览 · 回车选择',
   'header.openMenu': '打开菜单',
   'header.goHome': '回到首页',
   'header.support': '支持项目 — 捐赠或观看广告',
@@ -4178,6 +4192,8 @@ const zh: Dict = {
 
 const ar: Dict = {
   'header.searchPlaceholder': 'ابحث عن أغنية أو مؤلف أو فنان أو فئة أو نوع...',
+  'header.suggestionsTitle': 'اقتراحات',
+  'header.suggestionsHint': '↑↓ للتنقل · Enter للاختيار',
   'header.openMenu': 'فتح القائمة',
   'header.goHome': 'الذهاب إلى الرئيسية',
   'header.support': 'ادعم المشروع — تبرع أو شاهد إعلانًا',

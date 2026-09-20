@@ -1367,14 +1367,18 @@ export default function App() {
           setSearchQuery={(q) => {
             setSearchQuery(q);
             if (q) {
-              // Digitar na busca deve SEMPRE mostrar os resultados filtrados:
-              // volta para a aba de músicas e sai do viewer/playlists (mas
-              // não interrompe a edição de uma cifra em andamento).
-              if (activeTab !== 'musicas') {
-                setActiveTab('musicas');
-              }
-              if (viewMode !== 'editor') {
-                setViewMode('list');
+              // Digitar na busca deve mostrar os resultados: volta para a aba
+              // de músicas e sai do viewer/playlists — MAS só no PRIMEIRO
+              // caractere. Trocar de aba a cada tecla remontava a SongList
+              // a cada letra (flash de "Carregando…" + scroll pulava pro
+              // topo — a sensação de "a página recarregou").
+              if (searchQuery.length === 0) {
+                if (activeTab !== 'musicas') {
+                  setActiveTab('musicas');
+                }
+                if (viewMode !== 'editor') {
+                  setViewMode('list');
+                }
               }
             }
           }}

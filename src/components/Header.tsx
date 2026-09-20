@@ -7,7 +7,9 @@ import { Logo } from './Logo';
 import { DonationModal } from './DonationModal';
 import { useAuth } from '../auth';
 import { useT, LANGS } from '../lib/i18n';
-import { Search, Menu, Sparkles, Bell, Mail, LogOut, Globe, Check, Trash2 } from 'lucide-react';
+import { Search, Menu, Sparkles, Bell, Mail, LogOut, Globe, Check, Trash2, Music } from 'lucide-react';
+import { useSearchSuggestions } from '../lib/useSearchSuggestions';
+import type { SearchSuggestion } from '../lib/searchServer';
 
 interface HeaderProps {
   setActiveTab: (tab: ActiveTab) => void;
@@ -60,6 +62,45 @@ export const Header: React.FC<HeaderProps> = ({
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // --- Autocomplete de sugestões (RPC search_songs, limite pequeno) ---
+  // O hook já embute o debounce (200ms) e a guarda de termo < 3 letras
+  // (padrões curtos não geram trigramas e derrubam a RPC — ver searchServer).
+  const { suggestions } = useSearchSuggestions(searchQuery);
+  const [sugOpen, setSugOpen] = useState(false);
+  const [sugDismissed, setSugDismissed] = useState(false);
+  const [sugSel, setSugSel] = useState(0);
+  const sugRef = useRef<HTMLDivElement>(null);
+
+  // Clique fora do campo+dropdown fecha (mesmo padrão do seletor de idioma).
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (sugRef.current && !sugRef.current.contains(e.target as Node)) {
+        setSugOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, []);
+
+  // Sugestões novas: destaque volta para a primeira.
+  useEffect(() => {
+    setSugSel(0);
+  }, [suggestions]);
+
+  const mostrarSug =
+    sugOpen && !sugDismissed && searchQuery.trim().length >= 3 && suggestions.length > 0;
+
+  // Selecionar sugestão = buscar pela música inteira: o search_text do banco
+  // é título + artista, então o termo completo casa exatamente com ela.
+  const escolherSugestao = (s: SearchSuggestion) => {
+    if (!setSearchQuery) return;
+    // Fecha ANTES de setar: a troca programática não passa pelo onChange,
+    // então o dropdown não reabre para o próprio termo escolhido.
+    setSugDismissed(true);
+    setSugOpen(false);
+    setSearchQuery(`${s.title} ${s.artist}`);
+  };
+
 
   return (
     <>
@@ -90,15 +131,76 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Center Search Bar — linha própria no mobile (embaixo), inline no desktop */}
             <div className="order-3 basis-full sm:order-2 sm:basis-auto sm:flex-1 sm:max-w-xl sm:mx-auto sm:min-w-0">
-              <div className="relative">
+              <div className="relative" ref={sugRef}>
                 <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery && setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSugDismissed(false);
+                    setSugOpen(true);
+                    setSearchQuery && setSearchQuery(e.target.value);
+                  }}
+                  onFocus={() => setSugOpen(true)}
+                  onKeyDown={(e) => {
+                    if (!mostrarSug) return;
+                    if (e.key === 'ArrowDown') {
+                      e.preventDefault();
+                      setSugSel((i) => Math.min(i + 1, suggestions.length - 1));
+                    } else if (e.key === 'ArrowUp') {
+                      e.preventDefault();
+                      setSugSel((i) => Math.max(i - 1, 0));
+                    } else if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const s = suggestions[sugSel] ?? suggestions[0];
+                      if (s) escolherSugestao(s);
+                    } else if (e.key === 'Escape') {
+                      setSugDismissed(true);
+                    }
+                  }}
+                  role="combobox"
+                  aria-autocomplete="list"
+                  aria-expanded={mostrarSug}
+                  aria-controls="header-sugestoes"
                   placeholder={t('header.searchPlaceholder')}
                   className="w-full bg-slate-100/90 border border-slate-200 rounded-full pl-10 pr-4 py-2 text-xs font-medium text-[#1D2D44] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#F26419] focus:ring-2 focus:ring-[#F26419]/20 transition-all"
                 />
+
+                {mostrarSug && (
+                  <div
+                    id="header-sugestoes"
+                    role="listbox"
+                    aria-label={t('header.suggestionsTitle')}
+                    className="absolute left-0 right-0 top-full mt-2 z-50 bg-white border border-slate-200 rounded-2xl shadow-xl p-1.5 animate-fade-in max-h-[60vh] overflow-y-auto"
+                  >
+                    {suggestions.map((s, i) => (
+                      <button
+                        key={s.id + ':' + i}
+                        role="option"
+                        aria-selected={i === sugSel}
+                        // preventDefault: mantém o foco no input (o clique não
+                        // dispara blur antes do select) e o dropdown não pisca.
+                        onMouseDown={(e) => e.preventDefault()}
+                        onMouseEnter={() => setSugSel(i)}
+                        onClick={() => escolherSugestao(s)}
+                        className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-xs transition-colors cursor-pointer ${
+                          i === sugSel
+                            ? 'bg-amber-50 text-[#F26419]'
+                            : 'text-slate-700 hover:bg-slate-50'
+                        }`}
+                      >
+                        <Music className="w-3.5 h-3.5 shrink-0 text-[#0E7C7B]" />
+                        <span className="flex-1 min-w-0 truncate">
+                          <span className="font-bold text-[#1D2D44]">{s.title}</span>
+                          <span className="text-slate-400 font-medium"> — {s.artist}</span>
+                        </span>
+                      </button>
+                    ))}
+                    <div className="px-3 pt-1.5 pb-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">
+                      {t('header.suggestionsHint')}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
