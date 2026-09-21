@@ -103,6 +103,7 @@ import {
   fetchSongsCount,
   fetchSongFromCloud,
   pushSongsToCloud,
+  adoptExistingSongIdsFromCloud,
   fetchPlaylistsFromCloud,
   pushPlaylistsToCloud,
   fetchRepertoireFromCloud,
@@ -1277,6 +1278,18 @@ export default function App() {
 
   const handleImportSongs = (importedSongs: Song[]) => {
     markLocalEdited();
+    // ANTIDUPLICATA: adota o id de músicas que já existem na nuvem (mesmo
+    // título+artista normalizados). Sem isso, uma importação de catálogo
+    // criaria id novo para música que já está no servidor (fora do preview
+    // carregado) e o push falharia no índice único — ou pior, criaria
+    // duplicata onde ainda não há índice. Adotando o id, import vira UPDATE
+    // e preserva votos/playlists do original.
+    adoptExistingSongIdsFromCloud(importedSongs)
+      .then((reconciled) => applyImportedSongs(reconciled))
+      .catch(() => applyImportedSongs(importedSongs));
+  };
+
+  const applyImportedSongs = (importedSongs: Song[]) => {
     // Só conta como contribuição as músicas NOVAS (não duplicatas/edições)
     const newOnes = importedSongs.filter(
       (imp) =>

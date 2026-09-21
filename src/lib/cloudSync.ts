@@ -348,6 +348,63 @@ export async function pushSongsToCloud(songs: Song[]): Promise<boolean> {
   return upsertRowsChunked('songs', rows);
 }
 
+/**
+ * ADOTA os ids de músicas que JÁ EXISTEM na nuvem (mesmo título+artista
+ * normalizados, sem acento/caixa).
+ *
+ * Por quê: a tabela `songs` tem índice único parcial
+ * (ukm_norm(title), ukm_norm(artist)) — o banco REJEITA (409) upserts que
+ * criariam a mesma música com id diferente. O push do app usa "upsert only,
+ * nunca deleta" por ids, então uma importação local (id novo) de uma música
+ * que já existe no servidor (id antigo, fora do preview carregado) falharia.
+ * Adotando o id existente ANTES do push, a importação vira ATUALIZAÇÃO
+ * (preserva votos/playlists do id original) em vez de duplicata.
+ *
+ * Retorna um NOVO array (não muta o original) com os ids reconciliados;
+ * músicas sem correspondência na nuvem mantêm o id local.
+ */
+export async function adoptExistingSongIdsFromCloud(songs: Song[]): Promise<Song[]> {
+  if (!isSupabaseConfigured() || songs.length === 0) return songs;
+  const ukmNorm = (s: string): string =>
+    (s || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+  const alvos = new Set<string>();
+  for (const s of songs) {
+    const t = ukmNorm(s.title);
+    const a = ukmNorm(s.artist);
+    if (t && a) alvos.add(`("${t.replace(/"/g, '')}","${a.replace(/"/g, '')}")`);
+  }
+  if (alvos.size === 0) return songs;
+  const chunkSize = 150;
+  const idMap = new Map<string, string>();
+  const alvosArr = [...alvos];
+  for (let i = 0; i < alvosArr.length; i += chunkSize) {
+    const chunk = alvosArr.slice(i, i + chunkSize).join(',');
+    try {
+      const rows = await fetchRows<{ id: string; title: string; artist: string }>(
+        'songs',
+        `&or=( ${chunk} )`,
+        'id,title,artist'
+      );
+      for (const r of rows || []) {
+        idMap.set(`${ukmNorm(r.title)}|${ukmNorm(r.artist)}`, r.id);
+      }
+    } catch {
+      // Chunk falhou — segue sem os matches dele (o pior caso é o erro 409
+      // de índice único no push daquele item, sem afetar os demais chunks).
+    }
+  }
+  if (idMap.size === 0) return songs;
+  return songs.map((s) => {
+    const existingId = idMap.get(`${ukmNorm(s.title)}|${ukmNorm(s.artist)}`);
+    return existingId && existingId !== s.id ? { ...s, id: existingId } : s;
+  });
+}
+
 /** Busca as playlists da nuvem (PAGINADO). null = indisponível. */
 export async function fetchPlaylistsFromCloud(): Promise<Playlist[] | null> {
   if (!isSupabaseConfigured()) return null;
