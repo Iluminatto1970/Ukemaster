@@ -209,13 +209,37 @@ pending → processing → done | failed
   comando ativo) com o resumo do resultado (novas/atualizadas/duplicadas/erros).
 - Comandos finalizados com mais de 24 h são apagados automaticamente.
 - **Requisito**: as máquinas precisam rodar o bundle atualizado. Regere e
-  redistribua:
+  redistribua — **de preferência com o script automático**:
 
   ```bash
-  npm run build:cron            # gera dist-cron/ukemaster-cron.mjs
-  # copie dist-cron/ para o Acer e o Desktop (ou git pull + npm run build:cron lá)
-  # e defina CRON_WORKER_NAME=acer / CRON_WORKER_NAME=desktop no dist-cron/.env
+  npm run build:cron                       # gera dist-cron/ukemaster-cron.mjs
+  node scripts/deploy-workers.mjs          # envia p/ VPS + Desktop, preserva o .env,
+                                           # confere hash e (opcional) roda 1 rodada
   ```
+
+  O `scripts/deploy-workers.mjs`:
+
+  | Máquina | Acesso | Observações |
+  |---|---|---|
+  | **VPS** (`root@100.72.114.76`) | SSH por chave (Tailscale) | destino `/root/ukemaster-cron`; **fica offline** se a VPS estiver desligada (o script avisa) |
+  | **Desktop** (`iluminatto@desktop`) | plink/pscp com senha | defina `DESKTOP_PW='<senha>'`; a pasta `dist-cron` é descoberta pela tarefa agendada |
+  | **Acer** (opcional) | SSH por chave | configure `ACER_HOST`, `ACER_USER`, `ACER_CRON_DIR` |
+
+  Flags úteis: `--alvo vps|desktop|acer|all` · `--rodada-imediata` (rodada curta
+  de 60 s logo após copiar) · `--dry-run` · `--exigir-todas` (erro se alguma
+  máquina falhar). O `.env` de cada máquina **nunca é sobrescrito** (só é criado
+  se não existir).
+
+  Exemplos:
+
+  ```bash
+  node scripts/deploy-workers.mjs --dry-run                    # ver o que faria
+  DESKTOP_PW='...' node scripts/deploy-workers.mjs --alvo desktop
+  node scripts/deploy-workers.mjs --alvo vps --rodada-imediata
+  ```
+
+  Alternativa manual (ou `git pull && npm run build:cron` em cada máquina)
+  e defina `CRON_WORKER_NAME=acer / desktop / vps` no `dist-cron/.env`:
 
 ---
 
