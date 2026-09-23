@@ -7,7 +7,8 @@ import { Logo } from './Logo';
 import { DonationModal } from './DonationModal';
 import { useAuth } from '../auth';
 import { useT, LANGS } from '../lib/i18n';
-import { Search, Menu, Sparkles, Bell, Mail, LogOut, Globe, Check } from 'lucide-react';
+import { useSearchSuggestions } from '../lib/useSearchSuggestions';
+import { Search, Menu, Sparkles, Bell, Mail, LogOut, Globe, Check, Music } from 'lucide-react';
 
 interface HeaderProps {
   setActiveTab: (tab: ActiveTab) => void;
@@ -39,6 +40,38 @@ export const Header: React.FC<HeaderProps> = ({
 
   const displayName = user?.name || 'Músico';
   const { t, lang, setLang } = useT();
+
+  // ── Autocomplete da busca global (RPC search_songs, debounce 200ms) ──
+  // Dropdown com até 8 sugestões do banco inteiro (~62 mil músicas).
+  // Selecionar uma sugestão preenche o input com "Título Artista" (a busca
+  // no SongList então roda server-side sobre o mesmo termo).
+  const { suggestions, loading: suggestionsLoading } = useSearchSuggestions(searchQuery);
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const suggestRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setActiveIdx(0);
+  }, [suggestions]);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (suggestRef.current && !suggestRef.current.contains(e.target as Node)) {
+        setSuggestOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, []);
+
+  const showSuggestions =
+    suggestOpen && searchQuery.trim().length >= 3 && (suggestions.length > 0 || suggestionsLoading);
+
+  const pickSuggestion = (title: string, artist: string) => {
+    setSearchQuery?.(`${title} ${artist}`.trim());
+    setSuggestOpen(false);
+    setActiveTab('musicas');
+  };
 
   // Seletor de idioma — dropdown ao clicar no globo (fecha ao clicar fora)
   const [langOpen, setLangOpen] = useState(false);
@@ -82,15 +115,74 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Center Search Bar — linha própria no mobile (embaixo), inline no desktop */}
             <div className="order-3 basis-full sm:order-2 sm:basis-auto sm:flex-1 sm:max-w-xl sm:mx-auto sm:min-w-0">
-              <div className="relative">
+              <div className="relative" ref={suggestRef}>
                 <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery && setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery && setSearchQuery(e.target.value);
+                    setSuggestOpen(true);
+                  }}
+                  onFocus={() => setSuggestOpen(true)}
+                  onKeyDown={(e) => {
+                    if (!showSuggestions || suggestions.length === 0) return;
+                    if (e.key === 'ArrowDown') {
+                      e.preventDefault();
+                      setActiveIdx((i) => Math.min(i + 1, suggestions.length - 1));
+                    } else if (e.key === 'ArrowUp') {
+                      e.preventDefault();
+                      setActiveIdx((i) => Math.max(i - 1, 0));
+                    } else if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const s = suggestions[activeIdx] ?? suggestions[0];
+                      if (s) pickSuggestion(s.title, s.artist);
+                    } else if (e.key === 'Escape') {
+                      setSuggestOpen(false);
+                    }
+                  }}
+                  role="combobox"
+                  aria-autocomplete="list"
+                  aria-expanded={showSuggestions}
+                  aria-controls="header-sugestoes"
                   placeholder={t('header.searchPlaceholder')}
                   className="w-full bg-slate-100/90 border border-slate-200 rounded-full pl-10 pr-4 py-2 text-xs font-medium text-[#1D2D44] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#F26419] focus:ring-2 focus:ring-[#F26419]/20 transition-all"
                 />
+
+                {showSuggestions && (
+                  <div
+                    id="header-sugestoes"
+                    role="listbox"
+                    aria-label={t('header.searchPlaceholder')}
+                    className="absolute left-0 right-0 top-full mt-2 z-50 bg-white border border-slate-200 rounded-2xl shadow-xl p-1.5 max-h-[60vh] overflow-y-auto"
+                  >
+                    {suggestionsLoading && suggestions.length === 0 ? (
+                      <p className="px-3 py-2 text-xs text-slate-400 font-semibold">…</p>
+                    ) : (
+                      suggestions.map((s, i) => (
+                        <button
+                          key={s.id + ':' + i}
+                          role="option"
+                          aria-selected={i === activeIdx}
+                          onMouseDown={(e) => e.preventDefault()}
+                          onMouseEnter={() => setActiveIdx(i)}
+                          onClick={() => pickSuggestion(s.title, s.artist)}
+                          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-xs transition-colors cursor-pointer ${
+                            i === activeIdx
+                              ? 'bg-amber-50 text-[#F26419]'
+                              : 'text-slate-700 hover:bg-slate-50'
+                          }`}
+                        >
+                          <Music className="w-3.5 h-3.5 shrink-0 text-[#0E7C7B]" />
+                          <span className="flex-1 min-w-0 truncate">
+                            <span className="font-bold text-[#1D2D44]">{s.title}</span>
+                            <span className="text-slate-400 font-medium"> — {s.artist}</span>
+                          </span>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 

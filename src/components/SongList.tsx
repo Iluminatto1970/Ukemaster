@@ -38,6 +38,7 @@ import {
 import { ImportSongModal } from './ImportSongModal';
 import { TopContributors } from './TopContributors';
 import { AdSenseSlot } from './AdSenseSlot';
+import { useServerSearch } from '../lib/useServerSearch';
 import { ADSENSE_SLOTS } from '../config';
 import { getAbVariant } from '../lib/abTest';
 import { AffiliateAdCard } from './AffiliateAdCard';
@@ -189,6 +190,65 @@ export const SongList: React.FC<SongListProps> = ({
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedArtistFilter, setSelectedArtistFilter] = useState<string>('all');
+
+  // Normaliza texto para busca: minúsculas + remove acentos (caetano == caetano).
+  // (const movida para cá — é usada pela mesclagem server+local logo abaixo.)
+  const normalizeSearch = (s: string) =>
+    s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  // ── Busca server-side (RPC search_songs) ────────────────────────────
+  // O acervo completo (~62 mil) não cabe na memória do cliente: a lista
+  // local só tem o que foi carregado do banco. A RPC busca no banco INTEIRO
+  // com índice trigram (rápida, acento-insensível) e o resultado é MESCLADO
+  // com o filtro local (que ainda vale para músicas criadas/importadas e
+  // ainda não sincronizadas). RPC indisponível → filtro local puro.
+  const server = useServerSearch(searchQuery);
+  const serverResultsReady =
+    !!server.songs && server.termo === searchQuery.trim() && searchQuery.trim().length > 0;
+
+  // Mescla resultados do banco (busca global) com o filtro local (importações
+  // recentes), dedupando por id — server primeiro (já vem ranqueado).
+  const filteredSongs = useMemo(() => {
+    const local = songs.filter((s) => {
+      const query = normalizeSearch(searchQuery.trim());
+
+      const matchSearch =
+        !query ||
+        normalizeSearch(s.title || '').includes(query) ||
+        normalizeSearch(s.artist || '').includes(query) ||
+        (s.category && normalizeSearch(s.category).includes(query)) ||
+        (s.tags && s.tags.some((tag) => normalizeSearch(tag).includes(query))) ||
+        (s.key && normalizeSearch(s.key).includes(query)) ||
+        (s.content && normalizeSearch(s.content).includes(query));
+
+      const matchDifficulty =
+        selectedDifficulty === 'all' ||
+        s.difficulty === selectedDifficulty ||
+        (selectedDifficulty === 'Simplificado' && (s.difficulty === 'Iniciante' || s.difficulty === 'Simplificado')) ||
+        (selectedDifficulty === 'Médio' && (s.difficulty === 'Intermediário' || s.difficulty === 'Médio'));
+
+      const matchCategory =
+        selectedCategory === 'all' || (s.category && s.category.toLowerCase() === selectedCategory.toLowerCase());
+
+      const matchArtist =
+        selectedArtistFilter === 'all' || s.artist.toLowerCase() === selectedArtistFilter.toLowerCase();
+
+      return matchSearch && matchDifficulty && matchCategory && matchArtist;
+    });
+
+    if (!serverResultsReady) return local;
+
+    const vistos = new Set(local.map((s) => s.id));
+    const extras: Song[] = [];
+    for (const s of server.songs!) {
+      if (vistos.has(s.id)) continue;
+      vistos.add(s.id);
+      extras.push(s);
+    }
+    return [...local, ...extras];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [songs, searchQuery, selectedDifficulty, selectedCategory, selectedArtistFilter, serverResultsReady, server.songs]);
+
   const [showAllArtists, setShowAllArtists] = useState<boolean>(false);
   // Lista de artistas secundária: no celular já nasce recolhida (só o cabeçalho
   // visível) para não roubar o protagonismo das músicas; no desktop abre normal.
@@ -271,38 +331,6 @@ export const SongList: React.FC<SongListProps> = ({
     }
     return top;
   }, [artistsList, showAllArtists, selectedArtistFilter]);
-
-  // Normaliza texto para busca: minúsculas + remove acentos (caetano == caetano).
-  const normalizeSearch = (s: string) =>
-    s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-
-  const filteredSongs = songs.filter((s) => {
-    const query = normalizeSearch(searchQuery.trim());
-
-    // Comprehensive search match across title (música), artist (autor/artista), category (categoria/gênero), tags, key, content
-    const matchSearch =
-      !query ||
-      normalizeSearch(s.title || '').includes(query) ||
-      normalizeSearch(s.artist || '').includes(query) ||
-      (s.category && normalizeSearch(s.category).includes(query)) ||
-      (s.tags && s.tags.some((tag) => normalizeSearch(tag).includes(query))) ||
-      (s.key && normalizeSearch(s.key).includes(query)) ||
-      (s.content && normalizeSearch(s.content).includes(query));
-
-    const matchDifficulty =
-      selectedDifficulty === 'all' ||
-      s.difficulty === selectedDifficulty ||
-      (selectedDifficulty === 'Simplificado' && (s.difficulty === 'Iniciante' || s.difficulty === 'Simplificado')) ||
-      (selectedDifficulty === 'Médio' && (s.difficulty === 'Intermediário' || s.difficulty === 'Médio'));
-
-    const matchCategory =
-      selectedCategory === 'all' || (s.category && s.category.toLowerCase() === selectedCategory.toLowerCase());
-
-    const matchArtist =
-      selectedArtistFilter === 'all' || s.artist.toLowerCase() === selectedArtistFilter.toLowerCase();
-
-    return matchSearch && matchDifficulty && matchCategory && matchArtist;
-  });
 
   // ── Mais Votadas: top 10 por votos da comunidade (com empate por título) —
   // filtradas pelo idioma da interface (sugestões do idioma em questão).
