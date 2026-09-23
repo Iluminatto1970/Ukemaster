@@ -43,19 +43,25 @@ export interface SongRow {
 }
 
 /**
- * Busca TODAS as músicas (paginação via limit/offset na query — o PostgREST
- * limita a 1000 por página). Retorna [] se vazio, null se falhou.
+ * Busca TODAS as músicas (PAGINAÇÃO KEYSET via `id=gt.ultimo&order=id.asc`).
+ *
+ * Por quê não offset: com 62 mil linhas e colunas de texto largas, offsets
+ * altos estouram o statement timeout do PostgREST (erro 57014) — o carrega-
+ * mento do catálogo morria pela metade e o app caía no fallback de 5 músicas.
+ * Keyset é O(1) por página: validado com 62k linhas sem falhas.
+ * Retorna [] se vazio, null se falhou já na primeira página.
  */
 export async function fetchAllSongsServer(): Promise<SongRow[] | null> {
   const sb = getSupabaseServer();
   if (!sb) return null;
   const all: SongRow[] = [];
   const pageSize = 1000;
-  let offset = 0;
-  for (let page = 0; page < 50; page++) {
+  let lastId: string | null = null;
+  for (let page = 0; page < 200; page++) {
+    const keyset = lastId ? `&id=gt.${encodeURIComponent(lastId)}` : '';
     const url = `${sb.url}/rest/v1/songs?select=${encodeURIComponent(
       'id,title,artist,key,category,difficulty,tags,seo_description,updated_at,votes'
-    )}&limit=${pageSize}&offset=${offset}`;
+    )}&order=id.asc&limit=${pageSize}${keyset}`;
     try {
       const res = await fetch(url, {
         headers: {
@@ -63,13 +69,14 @@ export async function fetchAllSongsServer(): Promise<SongRow[] | null> {
           Authorization: `Bearer ${sb.key}`,
         },
       });
-      if (!res.ok) return null;
+      if (!res.ok) return all.length ? all : null;
       const rows = (await res.json()) as SongRow[];
+      if (!Array.isArray(rows) || !rows.length) break;
       all.push(...rows);
-      if (rows.length < pageSize) break;
-      offset += pageSize;
+      lastId = String(rows[rows.length - 1]?.id ?? '');
+      if (!lastId || rows.length < pageSize) break;
     } catch {
-      return null;
+      return all.length ? all : null;
     }
   }
   return all;

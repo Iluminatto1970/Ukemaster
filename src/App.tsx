@@ -530,6 +530,16 @@ export default function App() {
       if (cloudPlaylists && cloudPlaylists.length > 0 && !localEditedRef.current) {
         setPlaylists(cloudPlaylists);
       }
+      // RETRY ÚNICO: se o catálogo falhou na 1ª tentativa (rede instável ou
+      // timeout momentâneo do PostgREST), tenta de novo uma vez antes de
+      // desistir — a página anterior ficava presa nas 5 músicas padrão até
+      // o F5, mesmo com o banco já respondendo normalmente.
+      if ((!cloudSongs || cloudSongs.length === 0) && !isAutomatedBrowser) {
+        const retry = await fetchSongsFromCloud();
+        if (!cancelled && retry && retry.length > 0 && !localEditedRef.current) {
+          setSongs(mergeLocalVotes(retry));
+        }
+      }
       setCatalogLoading(false);
       setCloudReady(true);
     })();

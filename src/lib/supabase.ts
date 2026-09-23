@@ -164,6 +164,14 @@ export async function fetchRows<T>(
  * e não header `Range` porque o navegador pode descartar o header em CORS
  * (pré-flight) — o que faria o loop repetir a mesma página indefinidamente.
  * Retorna `[]` se a tabela estiver vazia e `null` se alguma página falhar.
+ *
+ * IMPORTANTE (performance em tabelas grandes): offsets altos em tabelas com
+ * muitas colunas de texto (songs: 62 mil linhas) estouram o statement timeout
+ * do PostgREST (erro 57014). Por isso, quando a tabela tem coluna `id` texto
+ * ordenável, usamos paginação KEYSET (`id=gt.ultimo&order=id.asc`), que é
+ * O(1) por página — validado: 62k linhas carregam sem nenhuma falha, contra
+ * falha garantida a partir do offset ~10k no modo antigo. Fallback automático
+ * para offset em tabelas sem `id`.
  */
 export async function fetchAllRows<T>(
   table: string,
@@ -173,12 +181,33 @@ export async function fetchAllRows<T>(
   silent = false
 ): Promise<T[] | null> {
   const all: T[] = [];
-  let offset = 0;
   // Normaliza o filtro: callers passam '' ou "&filtro=..." (sem o '?')
   const filter = query.startsWith('&') ? query.slice(1) : query.replace(/^\?/, '');
-  // Concatena corretamente: com filtro, separa com '&' antes do limit/offset
   const filterAnd = filter ? `${filter}&` : '';
-  // Limite de segurança: 50 páginas (50k linhas) — nunca deve ser alcançado.
+
+  const usesId = /\bid\b/.test(columns.split(',').map((c) => c.trim()).join(','));
+  if (usesId) {
+    // ── Keyset pagination (estável em tabelas grandes) ─────────────────
+    let lastId: string | null = null;
+    for (let page = 0; page < 200; page++) {
+      const keyset = lastId ? `&id=gt.${encodeURIComponent(lastId)}` : '';
+      const { ok, data } = await supabaseRequest<T[]>(table, {
+        query: `?select=${encodeURIComponent(columns)}&${filterAnd}order=id.asc&limit=${pageSize}${keyset}`,
+        silent,
+      });
+      if (!ok) return all.length ? all : null;
+      if (!data || !data.length) break;
+      all.push(...data);
+      const ultimo = data[data.length - 1] as { id?: unknown };
+      if (typeof ultimo?.id !== 'string' && typeof ultimo?.id !== 'number') break;
+      lastId = String(ultimo.id);
+      if (data.length < pageSize) break;
+    }
+    return all;
+  }
+
+  // ── Fallback: offset (tabelas sem coluna id) ────────────────────────
+  let offset = 0;
   for (let page = 0; page < 50; page++) {
     const { ok, data } = await supabaseRequest<T[]>(table, {
       query: `?select=${encodeURIComponent(columns)}&${filterAnd}limit=${pageSize}&offset=${offset}`,
