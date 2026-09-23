@@ -98,12 +98,8 @@ import {
 } from './lib/repertoires';
 import {
   fetchSongsFromCloud,
-  fetchSongsPreview,
-  fetchSongsPage,
-  fetchSongsCount,
   fetchSongFromCloud,
   pushSongsToCloud,
-  adoptExistingSongIdsFromCloud,
   fetchPlaylistsFromCloud,
   pushPlaylistsToCloud,
   fetchRepertoireFromCloud,
@@ -118,7 +114,6 @@ import {
   fetchPartnerLinks,
 } from './lib/affiliateContent';
 import { fetchBlogPosts } from './lib/blogContent.tsx';
-import { addRecentSong, getRecentSongs, type RecentSong } from './lib/recentSongs';
 import type { AffiliateLink, PartnerLink, BlogPost } from './types';
 import {
   getVoterId,
@@ -193,10 +188,6 @@ export default function App() {
     }
   });
 
-  // Músicas abertas recentemente (localStorage, atualiza a cada abertura)
-  const [recentSongs, setRecentSongs] = useState<RecentSong[]>(getRecentSongs);
-  const refreshRecentSongs = useCallback(() => setRecentSongs(getRecentSongs()), []);
-
   // Autenticação real via Supabase (e-mail + senha, direto no banco)
   const { isSignedIn, user, openSignIn, openSignUp } = useAuth();
 
@@ -254,12 +245,9 @@ export default function App() {
 
   // ── Carregamento do acervo + cifras sob demanda ─────────────────────
   // catalogLoading: o catálogo da nuvem (só metadados) ainda está chegando;
-  // Enquanto o catálogo completo carrega em background, a UI mostra um
-  // preview com as primeiras 200 músicas (resolução em <2s).
+  // enquanto isso a UI mostra os defaults com um indicador, em vez de exibir
+  // um número enganoso de canções.
   const [catalogLoading, setCatalogLoading] = useState<boolean>(true);
-  // Total real de músicas no banco (buscado via COUNT sem transferir dados)
-  // — aparece no badge da sidebar enquanto o catálogo completo ainda baixa.
-  const [catalogTotalCount, setCatalogTotalCount] = useState<number>(0);
   // Cifras completas baixadas ao ABRIR cada música (a lista só tem metadados
   // — buscar tudo seriam ~15MB e o acervo pareceria vazio em conexão lenta).
   const [songDetails, setSongDetails] = useState<
@@ -524,68 +512,31 @@ export default function App() {
   useEffect(() => {
     if (isAutomatedBrowser) markSessionAsBot();
   }, [isAutomatedBrowser]);
-  // ── Carregamento progressivo ──────────────────────────────────────
-  // 1) Preview rápido: 200 músicas + playlists → UI aparece em <2s.
-  // 2) Contagem total em background → badge/subtítulo atualizam.
-  // NÃO carrega o catálogo completo no entry — 200 são suficientes.
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      if (isAutomatedBrowser) {
-        setCatalogLoading(false);
-        setCloudReady(true);
-        return;
-      }
-
-      // ── Fase 1a: Preview rápido (primeiras 200 + playlists) ──
-      // Busca PARALELA sem o count (que pode demorar no Supabase).
-      const [previewSongs, cloudPlaylists] = await Promise.all([
-        fetchSongsPreview(300),
-        fetchPlaylistsFromCloud(),
-      ]);
+      const [cloudSongs, cloudPlaylists] = isAutomatedBrowser
+        ? [null, null]
+        : await Promise.all([
+            fetchSongsFromCloud(),
+            fetchPlaylistsFromCloud(),
+          ]);
       if (cancelled) return;
-
-      if (previewSongs && previewSongs.length > 0 && !localEditedRef.current) {
-        setSongs(mergeLocalVotes(previewSongs));
+      // Se o usuário editou algo antes da resposta chegar, não sobrescreve
+      if (cloudSongs && cloudSongs.length > 0 && !localEditedRef.current) {
+        // Aplica os votos locais (fallback offline) sobre o acervo da nuvem
+        setSongs(mergeLocalVotes(cloudSongs));
       }
       if (cloudPlaylists && cloudPlaylists.length > 0 && !localEditedRef.current) {
         setPlaylists(cloudPlaylists);
       }
       setCatalogLoading(false);
       setCloudReady(true);
-
-      // ── Contagem total (background, não bloqueia) ──
-      // Mostra o total real no badge/subtítulo assim que chegar.
-      fetchSongsCount().then((count) => {
-        if (!cancelled && count > 0) setCatalogTotalCount(count);
-      });
     })();
     return () => {
       cancelled = true;
     };
   }, []);
-
-  // ── Carregamento sob demanda: "Mostrar mais" busca a próxima página ──
-  // Cada clique carrega mais 200 músicas do banco via cursor (id < último).
-  const loadingMoreRef = useRef<boolean>(false);
-  const handleLoadMoreSongs = useCallback(async () => {
-    if (loadingMoreRef.current || songs.length === 0) return;
-    loadingMoreRef.current = true;
-    try {
-      // Usa o menor id das músicas carregadas como cursor
-      const lastId = songs.reduce((min, s) => (s.id < min ? s.id : min), songs[0].id);
-      const more = await fetchSongsPage(lastId, 200);
-      if (more && more.length > 0) {
-        setSongs((prev) => {
-          const existing = new Set(prev.map((s) => s.id));
-          const newOnes = more.filter((s) => !existing.has(s.id));
-          return [...prev, ...newOnes];
-        });
-      }
-    } finally {
-      loadingMoreRef.current = false;
-    }
-  }, [songs]);
 
   // ── Cifra sob demanda: busca o conteúdo completo ao ABRIR a música ──
   // A lista carrega só metadados (~1,5MB); a cifra (content) vem por música
@@ -634,9 +585,9 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSong?.id]);
 
-  // O indicador "Carregando..." aparece enquanto a Fase 1 (preview) não
-  // terminou — depois disso, a UI já tem 200 músicas para mostrar.
-  const showCatalogLoading = catalogLoading;
+  // Só mostra o indicador de carregamento do acervo quando ainda estamos no
+  // conjunto DEFAULT (se o cache local já tem o catálogo, não há o que esperar).
+  const showCatalogLoading = catalogLoading && songs.length <= DEFAULT_SONGS.length;
 
   // ── Cifra em Destaque (sidebar): escolha determinística do dia ────────
   // Sorteia entre as 60 mais votadas do acervo com seed pela data — a mesma
@@ -971,8 +922,6 @@ export default function App() {
     const nextCount = songOpenCount + 1;
     setSongOpenCount(nextCount);
     bumpViews(song);
-    addRecentSong(song);
-    refreshRecentSongs();
 
     // Convite automático de apoio (1x por sessão). Dispara só quando o
     // intersticial de anúncio NÃO abre nesta abertura (aberturas ímpares) —
@@ -1278,18 +1227,6 @@ export default function App() {
 
   const handleImportSongs = (importedSongs: Song[]) => {
     markLocalEdited();
-    // ANTIDUPLICATA: adota o id de músicas que já existem na nuvem (mesmo
-    // título+artista normalizados). Sem isso, uma importação de catálogo
-    // criaria id novo para música que já está no servidor (fora do preview
-    // carregado) e o push falharia no índice único — ou pior, criaria
-    // duplicata onde ainda não há índice. Adotando o id, import vira UPDATE
-    // e preserva votos/playlists do original.
-    adoptExistingSongIdsFromCloud(importedSongs)
-      .then((reconciled) => applyImportedSongs(reconciled))
-      .catch(() => applyImportedSongs(importedSongs));
-  };
-
-  const applyImportedSongs = (importedSongs: Song[]) => {
     // Só conta como contribuição as músicas NOVAS (não duplicatas/edições)
     const newOnes = importedSongs.filter(
       (imp) =>
@@ -1332,12 +1269,8 @@ export default function App() {
   //   trilhas, vídeos, blog, afinador, metrônomo.
   const hasEditorialContent = useMemo(() => {
     if (verifyCode) return false;
-    // Telas SEM conteúdo editorial (ferramentas, edição, config):
     if (activeTab === 'dashboard' || activeTab === 'admin') return false;
     if (activeTab === 'musicas' && (viewMode === 'editor' || viewMode === 'playlists')) return false;
-    // Ferramentas (afinador, metrônomo) não são conteúdo editorial —
-    // exibir anúncios aqui viola a política do Google AdSense.
-    if (activeTab === 'afinador' || activeTab === 'metronomo') return false;
     return true;
   }, [activeTab, viewMode, verifyCode]);
 
@@ -1380,18 +1313,14 @@ export default function App() {
           setSearchQuery={(q) => {
             setSearchQuery(q);
             if (q) {
-              // Digitar na busca deve mostrar os resultados: volta para a aba
-              // de músicas e sai do viewer/playlists — MAS só no PRIMEIRO
-              // caractere. Trocar de aba a cada tecla remontava a SongList
-              // a cada letra (flash de "Carregando…" + scroll pulava pro
-              // topo — a sensação de "a página recarregou").
-              if (searchQuery.length === 0) {
-                if (activeTab !== 'musicas') {
-                  setActiveTab('musicas');
-                }
-                if (viewMode !== 'editor') {
-                  setViewMode('list');
-                }
+              // Digitar na busca deve SEMPRE mostrar os resultados filtrados:
+              // volta para a aba de músicas e sai do viewer/playlists (mas
+              // não interrompe a edição de uma cifra em andamento).
+              if (activeTab !== 'musicas') {
+                setActiveTab('musicas');
+              }
+              if (viewMode !== 'editor') {
+                setViewMode('list');
               }
             }
           }}
@@ -1410,7 +1339,7 @@ export default function App() {
           activeTab={activeTab}
           setActiveTab={handleSetActiveTab}
           topOffset={topFixedHeight}
-          songsCount={catalogTotalCount > 0 ? catalogTotalCount : songs.length}
+          songsCount={songs.length}
           catalogLoading={showCatalogLoading}
           playlistsCount={playlists.length}
           viewMode={viewMode}
@@ -1459,9 +1388,7 @@ export default function App() {
                 isRepertoirePublic={isRepertoirePublic}
                 onToggleRepertoirePublic={() => setIsRepertoirePublic((prev) => !prev)}
                 songs={songs}
-                playlists={playlists}
-                recentSongs={recentSongs}
-                onSelectSong={handleSelectSong}
+                playlists={playlists}                    onSelectSong={handleSelectSong}
                     onRemoveFromRepertoire={handleToggleRepertoire}
                     onOpenAuth={handleOpenAuth}
                     onGoToPublicSongs={() => {
@@ -1502,8 +1429,6 @@ export default function App() {
                     isLoggedIn={!!isSignedIn}
                     onOpenAuth={handleOpenAuth}
                     catalogLoading={showCatalogLoading}
-                    totalCount={catalogTotalCount}
-                    onLoadMore={handleLoadMoreSongs}
                     currentUser={
                       currentUser ? { id: currentUser.id, name: currentUser.name } : null
                     }
@@ -1673,15 +1598,6 @@ export default function App() {
               className="underline decoration-white/50 underline-offset-2 hover:text-[#FFE3D0] transition-colors cursor-pointer"
             >
               Privacidade
-            </a>
-            <span aria-hidden className="opacity-40">•</span>
-            <a
-              href="/termos.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline decoration-white/50 underline-offset-2 hover:text-[#FFE3D0] transition-colors cursor-pointer"
-            >
-              Termos de Uso
             </a>
           </span>
         </div>

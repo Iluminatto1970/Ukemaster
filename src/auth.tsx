@@ -17,7 +17,6 @@ import {
   signInWithPassword,
   signUp,
   signOutSession,
-  deleteAccount,
   toAuthUser,
   handleOAuthCallback,
   cleanupOAuthUrl,
@@ -43,8 +42,6 @@ interface AuthContextValue {
   /** Abre o modal de cadastro (aceita dados do lead capturado antes). */
   openSignUp: (prefill?: SignUpPrefill) => void;
   signOut: () => Promise<void>;
-  /** Exclui permanentemente a conta e todos os dados do usuário (LGPD Art. 18, VI). */
-  deleteAccount: () => Promise<{ ok: boolean; error?: string }>;
 }
 
 const AuthContext = createContext<AuthContextValue>({
@@ -55,7 +52,6 @@ const AuthContext = createContext<AuthContextValue>({
   openSignIn: () => {},
   openSignUp: () => {},
   signOut: async () => {},
-  deleteAccount: async () => ({ ok: false }),
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -190,15 +186,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSession(null);
   }, [session]);
 
-  const handleDeleteAccount = useCallback(async () => {
-    if (!session) return { ok: false, error: 'Sessão não disponível.' };
-    const result = await deleteAccount(session);
-    if (result.ok) {
-      setSession(null);
-    }
-    return result;
-  }, [session]);
-
   const value: AuthContextValue = {
     available: true,
     isLoaded,
@@ -207,7 +194,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     openSignIn,
     openSignUp,
     signOut: handleSignOut,
-    deleteAccount: handleDeleteAccount,
   };
 
   return (

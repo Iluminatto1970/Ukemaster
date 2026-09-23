@@ -51,14 +51,14 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     req.headers as Record<string, string | string[] | undefined>
   );
   if (!auth.ok) {
-    sendJson(res, 403, { error: 'Falha no processamento' });
+    sendJson(res, 403, { error: auth.reason || 'Acesso restrito.' });
     return;
   }
 
   const { url, anon } = getSupabaseEnv();
   const serviceRole = await getServiceRoleKey();
   if (!url || !serviceRole) {
-    sendJson(res, 500, { error: 'Falha no processamento' });
+    sendJson(res, 500, { error: 'Supabase não configurado no servidor.' });
     return;
   }
 
@@ -80,7 +80,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       if (target.ok) {
         const u = (await target.json()) as AdminUserRow;
         if (String(u.email).toLowerCase() === ADMIN_EMAIL) {
-          return sendJson(res, 403, { error: 'Falha no processamento' });
+          return sendJson(res, 403, { error: 'Você não pode excluir o próprio administrador.' });
         }
       }
       const r = await fetch(`${url}/auth/v1/admin/users/${id}`, {
@@ -89,7 +89,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       });
       return r.ok
         ? sendJson(res, 200, { ok: true })
-        : sendJson(res, 502, { error: 'Falha no processamento' });
+        : sendJson(res, 502, { error: 'Falha ao excluir usuário.' });
     }
 
     // ── POST: suspender (ban) por 7 dias ───────────────────────────────
@@ -100,7 +100,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       if (target.ok) {
         const u = (await target.json()) as AdminUserRow;
         if (String(u.email).toLowerCase() === ADMIN_EMAIL) {
-          return sendJson(res, 403, { error: 'Falha no processamento' });
+          return sendJson(res, 403, { error: 'Você não pode suspender o próprio administrador.' });
         }
       }
       const r = await fetch(
@@ -109,7 +109,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       );
       return r.ok
         ? sendJson(res, 200, { ok: true, bannedUntil: (await r.json() as { banned_until?: string }).banned_until ?? null })
-        : sendJson(res, 502, { error: 'Falha no processamento' });
+        : sendJson(res, 502, { error: 'Falha ao suspender usuário.' });
     }
 
     // ── GET: listar/buscar ─────────────────────────────────────────────
@@ -120,7 +120,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     // O parâmetro `search` do GoTrue é ignorado na versão hospedada (bug
     // conhecido) — buscamos tudo e filtramos em memória (catálogo pequeno).
     const r = await fetch(`${url}/auth/v1/admin/users?per_page=1000`, { headers });
-    if (!r.ok) return sendJson(res, 502, { error: 'Falha no processamento' });
+    if (!r.ok) return sendJson(res, 502, { error: 'Falha ao consultar usuários.' });
 
     const data = (await r.json()) as { users?: AdminUserRow[] };
     const mapped = (data.users || []).map((u) => ({
@@ -143,6 +143,6 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     res.setHeader('Cache-Control', 'no-store');
     res.end(JSON.stringify({ users, total, page, perPage }));
   } catch {
-    sendJson(res, 502, { error: 'Falha no processamento' });
+    sendJson(res, 502, { error: 'Erro ao processar usuários.' });
   }
 }

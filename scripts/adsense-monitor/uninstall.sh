@@ -2,7 +2,7 @@
 # ═══════════════════════════════════════════════════════════════════════
 # UkeMaster Pro — Remove o agendamento do monitor do AdSense.
 # Uso: bash scripts/adsense-monitor/uninstall.sh
-# (logs e estado em .ukemaster/ são mantidos — apague manualmente se quiser)
+# (logs e estado em .freebuff/ são mantidos — apague manualmente se quiser)
 # ═══════════════════════════════════════════════════════════════════════
 set -euo pipefail
 
@@ -17,4 +17,4 @@ else
   echo "✔ Tarefa Windows \"$TASK_NAME\" removida (se existia)."
 fi
 
-echo "  Logs/estado mantidos em .ukemaster/ (adsense-status.log|.json)."
+echo "  Logs/estado mantidos em .freebuff/ (adsense-status.log|.json)."

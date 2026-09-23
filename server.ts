@@ -1,8 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
-import crypto from 'crypto';
 import path from 'path';
-
 import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import {
@@ -30,7 +28,6 @@ import {
   fetchWithRedirectGuard,
 } from './src/lib/security';
 import { authorizeAdminRequest } from './src/lib/adminAuth';
-import { csrfProtect } from './src/lib/csrf';
 import {
   fetchLatestChannelVideos,
   FALLBACK_VIDEOS,
@@ -39,26 +36,7 @@ import {
   YOUTUBE_CHANNEL_URL,
 } from './src/lib/youtubeChannel';
 
-// CSRF double‑submit protection using central module
-function csrfProtection(req: any, res: any, next: any) {
-  const result = csrfProtect(
-    req.method,
-    req.headers.cookie,
-    req.headers['x-csrf-token'],
-    process.env.NODE_ENV === 'production'
-  );
-  if (result.setCookie) {
-    const existing = res.getHeader('Set-Cookie');
-    const arr = existing ? (Array.isArray(existing) ? existing : [existing]) : [];
-    arr.push(result.setCookie);
-    res.setHeader('Set-Cookie', arr);
-  }
-  if (!result.ok) {
-    return res.status(403).json({ error: 'Falha no processamento' });
-  }
-  next();
-}
-
+// Carrega .env.local (o dotenv padrão lê só .env)
 try {
   if (fs.existsSync(path.join(process.cwd(), '.env.local'))) {
     const content = fs.readFileSync(path.join(process.cwd(), '.env.local'), 'utf-8');
@@ -80,19 +58,13 @@ async function startServer() {
   const PORT = Number(process.env.PORT) || 3000;
   const isProd = process.env.NODE_ENV === 'production';
 
-  // Apply CSRF protection middleware
-  app.use(csrfProtection);
-
   // Warm-up: busca a contagem real do acervo em background (title/og/JSON-LD).
   fetchSongCountServer().catch(() => {});
 
   // ── Política de segurança: headers HTTP em TODAS as respostas ────────
   // (CSP, nosniff, frame-options, referrer-policy, HSTS em produção...)
   app.use((req, res, next) => {
-    const nonce = crypto.randomBytes(16).toString('base64');
-    // attach nonce to request for downstream use
-    (req as any).nonce = nonce;
-    applySecurityHeaders(res, { hsts: isProd, nonce });
+    applySecurityHeaders(res, { hsts: isProd });
     next();
   });
 
@@ -136,7 +108,7 @@ async function startServer() {
     if (!isViteRoute) {
       const rl = rateLimit(getClientIp(req), 'global', 600, 60_000);
       if (!rl.ok) {
-        return res.status(429).json({ error: 'Falha no processamento' });
+        return res.status(429).json({ error: 'Muitas requisições. Tente novamente em instantes.' });
       }
     }
 
@@ -152,12 +124,12 @@ async function startServer() {
       // Rate limit: máx 20 fetchs/min por IP (evita abuso do proxy).
       const rl = rateLimit(getClientIp(req), 'fetch-url', 20, 60_000);
       if (!rl.ok) {
-        return res.status(429).json({ error: 'Falha no processamento' });
+        return res.status(429).json({ error: `Muitas requisições. Tente novamente em ${rl.retryAfter}s.` });
       }
 
       const { url } = req.body;
       if (!url || typeof url !== 'string') {
-        return res.status(400).json({ error: 'Falha no processamento' });
+        return res.status(400).json({ error: 'URL inválida ou ausente.' });
       }
 
       let targetUrl = url.trim();
@@ -180,13 +152,13 @@ async function startServer() {
 
       if (!result.ok) {
         const status = result.status && result.status >= 400 ? result.status : 502;
-        return res.status(status).json({ error: 'Falha no processamento' });
+        return res.status(status).json({ error: result.error || 'Erro ao buscar a URL solicitada.' });
       }
 
       return res.json({ ok: true, html: result.html });
     } catch (err: any) {
       return res.status(500).json({
-        error: 'Falha no processamento',
+        error: err.message || 'Erro de conexão ao buscar a URL solicitada.',
       });
     }
   });
@@ -343,7 +315,7 @@ async function startServer() {
       `<meta name="twitter:description" content="${esc(seoDescription)}" />`,
       `<meta name="twitter:image" content="${esc(ogImage)}" />`,
       `<meta name="keywords" content="cifra ukulele, ${esc(song.title)}, ${esc(song.artist)}, acordes ukulele, ${esc(chords)}" />`,
-      `<script nonce="${(req as any).nonce || ''}" type="application/ld+json">${JSON.stringify(jsonLd)}</script>`,
+      `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`,
       `<link rel="icon" href="/favicon.png" />`,
     ].join('\n    ');
 
@@ -363,7 +335,7 @@ async function startServer() {
 
       const rl = rateLimit(getClientIp(req), 'scrape', 10, 60_000);
       if (!rl.ok) {
-        return res.status(429).json({ error: 'Falha no processamento' });
+        return res.status(429).json({ error: `Muitas requisições. Tente novamente em ${rl.retryAfter}s.` });
       }
 
       const body = req.body || {};
@@ -444,7 +416,7 @@ async function startServer() {
 
       const rl = rateLimit(getClientIp(req), 'scrape-platforms', 6, 60_000);
       if (!rl.ok) {
-        return res.status(429).json({ error: 'Falha no processamento' });
+        return res.status(429).json({ error: `Muitas requisições. Tente novamente em ${rl.retryAfter}s.` });
       }
 
       const result = await runPlatformCron({

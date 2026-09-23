@@ -33,8 +33,6 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
-  // LGPD: usuário precisa consentir para receber contato e novidades.
-  const [consent, setConsent] = useState<boolean>(false);
   // Honeypot anti-bot: campo invisível que bots preenchem (humanos não veem).
   const [honeypot, setHoneypot] = useState<string>('');
 
@@ -48,17 +46,12 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
       onClose();
       return;
     }
-    if (!consent) {
-      setError(t('lead.consentError'));
-      return;
-    }
     setSubmitting(true);
     try {
       await saveLead({
         name: name.trim(),
         email: email.trim(),
         whatsapp: normalizeWhatsApp(whatsapp),
-        consent,
         source: 'signup',
       });
       // Repassa os dados para o cadastro real (Supabase) pré-preenchido.
@@ -161,18 +154,21 @@ export const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
               className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#F26419] focus:bg-white transition-all"
             />
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="relative">
+            <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
             <input
-              id="lead-consent"
-              type="checkbox"
-              checked={consent}
-              onChange={(e) => setConsent(e.target.checked)}
-              className="h-4 w-4 text-[#F26419] border-gray-300 rounded"
+              type="tel"
+              value={whatsapp}
+              onChange={(e) => setWhatsapp(e.target.value)}
+              placeholder={t('lead.whatsapp')}
+              required
+              minLength={10}
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#F26419] focus:bg-white transition-all"
             />
-            <label htmlFor="lead-consent" className="text-xs text-slate-500">
-              {t('lead.consentLabel')}
-            </label>
           </div>
+
+          {error && <p className="text-xs text-rose-600 font-bold">{error}</p>}
+
           <button
             type="submit"
             disabled={submitting}

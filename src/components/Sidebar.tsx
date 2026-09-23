@@ -5,7 +5,7 @@
  * Os widgets (Cifra do Dia, Dica do Dia, Comunidade WhatsApp) foram movidos
  * para o painel do lado direito (SideWidgets) — aqui fica só o menu.
  */
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import { ActiveTab } from '../types';
 import { Logo } from './Logo';
 import { useT } from '../lib/i18n';
@@ -59,54 +59,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   topOffset = 64,
 }) => {
   const { t } = useT();
-  const drawerRef = useRef<HTMLDivElement>(null);
-  const firstFocusableRef = useRef<HTMLButtonElement>(null);
-  const lastFocusableRef = useRef<HTMLAnchorElement>(null);
-  const previousActiveRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    if (!isOpenMobile) return;
-    previousActiveRef.current = document.activeElement as HTMLElement | null;
-    firstFocusableRef.current?.focus();
-    return () => {
-      previousActiveRef.current?.focus?.();
-    };
-  }, [isOpenMobile]);
-
-  useEffect(() => {
-    if (!isOpenMobile) return;
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        onCloseMobile?.();
-        return;
-      }
-      if (e.key !== 'Tab' || !drawerRef.current) return;
-      const focusables = drawerRef.current.querySelectorAll<HTMLElement>(
-        'button, a[href], [tabindex]:not([tabindex="-1"])'
-      );
-      if (focusables.length === 0) return;
-      const first = focusables[0];
-      const last = focusables[focusables.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    };
-    document.addEventListener('keydown', handleKey);
-    return () => document.removeEventListener('keydown', handleKey);
-  }, [isOpenMobile, onCloseMobile]);
-
-  // close drawer on navigation (activeTab) change
-  useEffect(() => {
-    if (isOpenMobile) {
-      onCloseMobile?.();
-    }
-  }, [activeTab]);
-
   const navItems = [
     {
       id: 'musicas',
@@ -222,7 +174,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
               {item.badge !== undefined && (
                 <span className="text-[10px] px-2 py-0.5 rounded-full font-mono font-bold bg-[#F26419] text-white">
-                  {item.badge}
+                  {catalogLoading && item.id === 'musicas' ? '···' : item.badge}
                 </span>
               )}
             </button>
@@ -275,7 +227,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className="fixed inset-0 bg-stone-950/60 backdrop-blur-sm animate-fade-in"
             onClick={onCloseMobile}
           />
-          <div ref={drawerRef} role="navigation" aria-label="Menu lateral" className="relative w-full max-w-full h-full overflow-x-hidden shadow-2xl z-10 animate-slide-in-left">
+          <div className="relative w-72 max-w-[80vw] h-full shadow-2xl z-10 animate-slide-in-left">
             {content}
           </div>
         </div>

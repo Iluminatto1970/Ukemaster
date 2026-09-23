@@ -43,21 +43,19 @@ export interface SongRow {
 }
 
 /**
- * Busca TODAS as músicas via cursor-based pagination (order=id, after=último id).
- * Estável sob inserções concorrentes (offset deriva, cursor não). Retorna []
- * se vazio, null se falhou.
+ * Busca TODAS as músicas (paginação via limit/offset na query — o PostgREST
+ * limita a 1000 por página). Retorna [] se vazio, null se falhou.
  */
 export async function fetchAllSongsServer(): Promise<SongRow[] | null> {
   const sb = getSupabaseServer();
   if (!sb) return null;
   const all: SongRow[] = [];
   const pageSize = 1000;
-  let after: string | null = null;
-  for (let page = 0; page < 300; page++) {
-    const afterFilter = after ? `&id=gt.${encodeURIComponent(after)}` : '';
+  let offset = 0;
+  for (let page = 0; page < 50; page++) {
     const url = `${sb.url}/rest/v1/songs?select=${encodeURIComponent(
       'id,title,artist,key,category,difficulty,tags,seo_description,updated_at,votes'
-    )}&order=id&limit=${pageSize}${afterFilter}`;
+    )}&limit=${pageSize}&offset=${offset}`;
     try {
       const res = await fetch(url, {
         headers: {
@@ -65,20 +63,12 @@ export async function fetchAllSongsServer(): Promise<SongRow[] | null> {
           Authorization: `Bearer ${sb.key}`,
         },
       });
-      if (!res.ok) {
-        if (all.length > 0) {
-          console.warn(`[supabaseServer] fetchAllSongsServer: falha na página ${page} (after=${after}), retornando ${all.length} registros parciais`);
-          return all;
-        }
-        return null;
-      }
+      if (!res.ok) return null;
       const rows = (await res.json()) as SongRow[];
-      if (rows.length === 0) break;
       all.push(...rows);
       if (rows.length < pageSize) break;
-      after = rows[rows.length - 1].id;
+      offset += pageSize;
     } catch {
-      if (all.length > 0) return all;
       return null;
     }
   }
