@@ -163,7 +163,7 @@ export function getSupabaseEnv() {
 //   CRON_UKEMATER_PASSWORD   senha da conta UkeMater
 // Sem essas vars o cron DEGRADA para o comportamento antigo (anon key) —
 // útil durante a transição, mas as escritas passarão a falhar assim que o
-// RLS de songs exigir login (migration-ukemater-cron.sql).
+// RLS de songs exigir login (migration-completa.sql, Parte 3).
 let cachedCronToken: string | null | undefined; // undefined = ainda não tentou
 let cronTokenFetchedAt = 0;
 const CRON_TOKEN_RETRY_MS = 5 * 60_000; // re-tenta login após 5 min de falha

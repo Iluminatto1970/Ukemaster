@@ -921,7 +921,7 @@ export default function App() {
       songsState.map((s) => (s.id === song.id ? { ...s, views: next } : s))
     );
     // A coluna views fica na tabela songs, cujo UPDATE agora exige login
-    // (migration-ukemater-cron.sql). Visitantes contam localmente na sessão;
+    // (migration-completa.sql, Parte 3). Visitantes contam localmente na sessão;
     // o PATCH na nuvem só é enviado por usuários autenticados.
     if (isSupabaseConfigured() && isSignedIn) {
       patchRows('songs', `?id=eq.${encodeURIComponent(song.id)}`, { views: next });
