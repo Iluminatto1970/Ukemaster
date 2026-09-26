@@ -1474,7 +1474,13 @@ export async function scrapeArtistPage(
   timedOut: boolean;
 }> {
   const limit = options.limit || 30;
-  const delayMs = options.delayMs ?? 600;
+  // Override operacional: CRON_PAGE_DELAY_MS manda sobre o delay da
+  // plataforma (ex.: rodar devagar após bloqueio 403 do site de origem).
+  const envDelay = Number.parseInt(process.env.CRON_PAGE_DELAY_MS ?? '', 10);
+  const delayMs =
+    Number.isFinite(envDelay) && envDelay >= 0
+      ? envDelay
+      : (options.delayMs ?? 600);
   const timeoutMs = options.timeoutMs || 0;
   const startedAt = Date.now();
   const url = normalizeUrl(pageUrl);
