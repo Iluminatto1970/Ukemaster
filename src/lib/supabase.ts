@@ -1,5 +1,8 @@
 /**
  * Cliente Supabase do lado do cliente (browser): acesso ao acervo de músicas, votos, playlists e repertórios via PostgREST com fallback localStorage.
+ */
+/**
+ * Cliente Supabase mínimo (REST + anon key) — sem dependência externa.
  *
  * Usa o padrão PostgREST do Supabase:
  *  - ler:    GET  {url}/rest/v1/{table}?select=*&{filtros}
@@ -16,7 +19,6 @@
  * Se as chaves não estiverem configuradas, todas as funções retornam
  * `null`/`false` e o app continua 100% funcional com localStorage.
  */
-import { logger } from './logger';
 
 export interface SupabaseConfig {
   url: string;
@@ -123,7 +125,7 @@ export async function supabaseRequest<T = unknown>(
 
     if (!res.ok) {
       if (!options.silent) {
-        logger.error(`[supabase] ${method} ${table} → ${res.status}`, await res.text().catch(() => ''));
+        console.error(`[supabase] ${method} ${table} → ${res.status}`, await res.text().catch(() => ''));
       }
       return { ok: false, data: null, status: res.status };
     }
@@ -133,7 +135,7 @@ export async function supabaseRequest<T = unknown>(
     const data = text ? (JSON.parse(text) as T) : null;
     return { ok: true, data, status: res.status };
   } catch (e) {
-    logger.error('[supabase] Erro de rede:', e);
+    console.error('[supabase] Erro de rede:', e);
     return { ok: false, data: null, status: 0 };
   }
 }
@@ -161,9 +163,15 @@ export async function fetchRows<T>(
  * (o PostgREST limita a resposta em 1000 linhas por padrão). Usa query params
  * e não header `Range` porque o navegador pode descartar o header em CORS
  * (pré-flight) — o que faria o loop repetir a mesma página indefinidamente.
- * Retorna `[]` se a tabela estiver vazia. Se alguma página falhar (timeout/
- * erro), retorna os dados já carregados até aquele ponto (em vez de null)
- * para que o site mostre pelo menos parte do acervo.
+ * Retorna `[]` se a tabela estiver vazia e `null` se alguma página falhar.
+ *
+ * IMPORTANTE (performance em tabelas grandes): offsets altos em tabelas com
+ * muitas colunas de texto (songs: 62 mil linhas) estouram o statement timeout
+ * do PostgREST (erro 57014). Por isso, quando a tabela tem coluna `id` texto
+ * ordenável, usamos paginação KEYSET (`id=gt.ultimo&order=id.asc`), que é
+ * O(1) por página — validado: 62k linhas carregam sem nenhuma falha, contra
+ * falha garantida a partir do offset ~10k no modo antigo. Fallback automático
+ * para offset em tabelas sem `id`.
  */
 export async function fetchAllRows<T>(
   table: string,
@@ -177,32 +185,38 @@ export async function fetchAllRows<T>(
   const filter = query.startsWith('&') ? query.slice(1) : query.replace(/^\?/, '');
   const filterAnd = filter ? `${filter}&` : '';
 
-  // ── CURSOR-BASED PAGINATION (id > último_id) ──────────────────────────
-  // Em vez de OFFSET (que fica O(n²) em tabelas grandes — o PostgreSQL
-  // escanear 16.000 linhas a cada página), usa WHERE id > último_id com
-  // ORDER BY id — cada página é O(log n) via índice, rápido mesmo no
-  // final do acervo. Máximo 300 páginas (300k linhas).
-  let lastId: string | null = null;
+  const usesId = /\bid\b/.test(columns.split(',').map((c) => c.trim()).join(','));
+  if (usesId) {
+    // ── Keyset pagination (estável em tabelas grandes) ─────────────────
+    let lastId: string | null = null;
+    for (let page = 0; page < 200; page++) {
+      const keyset = lastId ? `&id=gt.${encodeURIComponent(lastId)}` : '';
+      const { ok, data } = await supabaseRequest<T[]>(table, {
+        query: `?select=${encodeURIComponent(columns)}&${filterAnd}order=id.asc&limit=${pageSize}${keyset}`,
+        silent,
+      });
+      if (!ok) return all.length ? all : null;
+      if (!data || !data.length) break;
+      all.push(...data);
+      const ultimo = data[data.length - 1] as { id?: unknown };
+      if (typeof ultimo?.id !== 'string' && typeof ultimo?.id !== 'number') break;
+      lastId = String(ultimo.id);
+      if (data.length < pageSize) break;
+    }
+    return all;
+  }
 
-  for (let page = 0; page < 300; page++) {
-    const cursorFilter = lastId ? `id=gt.${encodeURIComponent(lastId)}&` : '';
+  // ── Fallback: offset (tabelas sem coluna id) ────────────────────────
+  let offset = 0;
+  for (let page = 0; page < 50; page++) {
     const { ok, data } = await supabaseRequest<T[]>(table, {
-      query: `?select=${encodeURIComponent(columns)}&${cursorFilter}${filterAnd}order=id&limit=${pageSize}`,
+      query: `?select=${encodeURIComponent(columns)}&${filterAnd}limit=${pageSize}&offset=${offset}`,
       silent,
     });
-    if (!ok) {
-      if (all.length > 0) {
-        console.warn(`[supabase] fetchAllRows: falha na página ${page}, retornando ${all.length} registros parciais`);
-        return all;
-      }
-      return null;
-    }
-    if (data && data.length) {
-      all.push(...data);
-      const last = data[data.length - 1] as Record<string, unknown>;
-      lastId = (last?.id as string) || null;
-    }
+    if (!ok) return null;
+    if (data && data.length) all.push(...data);
     if (!data || data.length < pageSize) break;
+    offset += pageSize;
   }
   return all;
 }

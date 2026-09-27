@@ -111,8 +111,6 @@ export const SongViewer: React.FC<SongViewerProps> = ({
   const [showTablatures, setShowTablatures] = useState<boolean>(true);
   // Menu "Baixar" — fecha ao clicar em qualquer opção ou no botão de novo
   const [showDownloadMenu, setShowDownloadMenu] = useState<boolean>(false);
-  // Controles: no mobile, ficam colapsados por padrão (menos poluição visual)
-  const [showControls, setShowControls] = useState<boolean>(false);
   // Baixar é ação "premium": se o App fornecer o gate, o download espera o
   // intersticial (cadência + limite diário); senão, executa direto.
   const runDownload = (fn: () => void) => {
@@ -511,29 +509,29 @@ export const SongViewer: React.FC<SongViewerProps> = ({
       </div>
 
       {/* Main Song Header Card */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-6 shadow-2xs space-y-3 sm:space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b border-slate-100 pb-3 sm:pb-4">
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-2xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
           <div>
-            <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2 flex-wrap">
-              <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-orange-50 text-orange-600 font-bold border border-orange-200">
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-orange-50 text-orange-600 font-bold border border-orange-200">
                 {t('viewer.originalKey')} {song.key}
               </span>
               {song.category && (
-                <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-[#0E7C7B]/10 text-[#0E7C7B] font-extrabold border border-[#0E7C7B]/20 inline-flex items-center gap-1">
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#0E7C7B]/10 text-[#0E7C7B] font-extrabold border border-[#0E7C7B]/20 inline-flex items-center gap-1">
                   <Tag className="w-3 h-3" />
                   {song.category}
                 </span>
               )}
               {song.difficulty && (
-                <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-extrabold border border-emerald-200">
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-extrabold border border-emerald-200">
                   {t('playlist.mode')} {difficultyLabel(t, song.difficulty)}
                 </span>
               )}
             </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
               {song.title}
             </h1>
-            <p className="text-orange-600 font-bold text-sm sm:text-base mt-0.5 sm:mt-1">{song.artist}</p>
+            <p className="text-orange-600 font-bold text-base mt-1">{song.artist}</p>
           </div>
 
           {/* Strumming pattern & Tempo badge */}
@@ -601,17 +599,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
         )}
 
         {/* Transpose & Auto-scroll Controls Row */}
-        {/* Mobile: toggle para mostrar/esconder controles (reduce poluição visual) */}
-        <div className="md:hidden">
-          <button
-            onClick={() => setShowControls((v) => !v)}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-600 hover:text-orange-600 hover:border-orange-300 transition-colors cursor-pointer"
-          >
-            {showControls ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-            {showControls ? 'Ocultar Controles' : '⚙️ Transposição, Capo, Scroll & Fonte'}
-          </button>
-        </div>
-        <div className={`${showControls ? 'grid' : 'hidden'} md:grid grid-cols-1 md:grid-cols-2 ${hasTablatures ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-4 pt-2`}>
+        <div className={`grid grid-cols-1 md:grid-cols-2 ${hasTablatures ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-4 pt-2`}>
           {/* Transposition Control */}
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between">
             <div className="min-w-0">
@@ -761,7 +749,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
             <span className="text-xs font-extrabold text-[#1D2D44] uppercase tracking-wider block mb-3">
               {t('viewer.chordsUsed')} ({uniqueChords.length}):
             </span>
-            <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+            <div className="flex flex-wrap gap-3 overflow-x-auto pb-2">
               {uniqueChords.map((chordName) => {
                 const resolved = resolveChordForDisplay(chordName);
                 if (!resolved.def) {
@@ -825,7 +813,7 @@ export const SongViewer: React.FC<SongViewerProps> = ({
         {/* Main Interactive Chord Sheet View - Theme Matched */}
         <div
           ref={scrollContainerRef}
-          className={`bg-white border border-slate-200 rounded-2xl p-3 sm:p-6 md:p-8 shadow-sm max-h-[80vh] sm:max-h-[75vh] overflow-y-auto overflow-x-hidden min-w-0 space-y-3 sm:space-y-4 font-mono select-text ${
+          className={`bg-white border border-slate-200 rounded-2xl p-4 sm:p-8 shadow-sm max-h-[75vh] overflow-y-auto overflow-x-hidden min-w-0 space-y-4 font-mono select-text ${
             showVideo && videoId ? 'lg:col-span-7 xl:col-span-8' : 'w-full'
           }`}
           style={{ fontSize: `${fontSize}px` }}

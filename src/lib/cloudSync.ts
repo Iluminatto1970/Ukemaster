@@ -26,7 +26,6 @@ import {
   upsertRowsChunked,
   deleteRows,
   getSupabase,
-  getSessionAccessToken,
   isSupabaseConfigured,
 } from './supabase';
 import { PublicRepertoire, getPublicRepertoires as getLocalPublicRepertoires } from './repertoires';
@@ -209,68 +208,6 @@ interface RepertoireRow {
 // ── API pública ────────────────────────────────────────────────────────
 
 /**
- * Busca as primeiras N músicas (Preview rápido) — uma única query de 200
- * linhas que resolve em <2s mesmo em conexão lenta. Usado para mostrar
- * conteúdo imediatamente enquanto o catálogo completo carrega em background.
- * Ordena por ID DESC (usa a PK index — sem timeout mesmo com 270k+ rows).
- * null = indisponível.
- */
-export async function fetchSongsPreview(limit = 200): Promise<Song[] | null> {
-  if (!isSupabaseConfigured()) return null;
-  const hasViews = await checkViewsColumn();
-  const columns = hasViews ? SONG_METADATA_COLUMNS : SONG_METADATA_COLUMNS_LEGACY;
-  const rows = await fetchRows<SongRow>('songs', `&order=id.desc&limit=${limit}`, columns);
-  if (!rows) return null;
-  return rows.map(rowToSong);
-}
-
-/**
- * Busca a próxima página de músicas a partir de um lastId (cursor).
- * Usado para carregamento sob demanda quando o usuário clica "Mostrar mais".
- * Retorna as músicas mais RECENTES (id desc) a partir do lastId informado.
- * null = indisponível.
- */
-export async function fetchSongsPage(lastId: string, limit = 200): Promise<Song[] | null> {
-  if (!isSupabaseConfigured()) return null;
-  const hasViews = await checkViewsColumn();
-  const columns = hasViews ? SONG_METADATA_COLUMNS : SONG_METADATA_COLUMNS_LEGACY;
-  const rows = await fetchRows<SongRow>('songs', `&id=lt.${encodeURIComponent(lastId)}&order=id.desc&limit=${limit}`, columns);
-  if (!rows) return null;
-  return rows.map(rowToSong);
-}
-
-/**
- * Busca o TOTAL de músicas no catálogo (contagem leve, sem transferir dados).
- * Usa o header Content-Range do PostgREST para obter o count.
- * 0 = indisponível.
- */
-export async function fetchSongsCount(): Promise<number> {
-  if (!isSupabaseConfigured()) return 0;
-  try {
-    const sb = getSupabase();
-    if (!sb) return 0;
-    const accessToken = getSessionAccessToken();
-    const res = await fetch(
-      `${sb.url}/rest/v1/songs?select=id&limit=1`,
-      {
-        headers: {
-          apikey: sb.anonKey,
-          Authorization: `Bearer ${accessToken || sb.anonKey}`,
-          Range: '0-0',
-          Prefer: 'count=exact',
-        },
-      }
-    );
-    const range = res.headers.get('content-range');
-    if (range) {
-      const match = range.match(/\/([\d*]+)$/);
-      if (match) return parseInt(match[1], 10) || 0;
-    }
-  } catch { /* ignora */ }
-  return 0;
-}
-
-/**
  * Busca o acervo de músicas na nuvem (PAGINADO — o PostgREST limita a
  * resposta em 1000 linhas; o acervo real tem 16.000+). Busca SÓ METADADOS
  * (sem a cifra) para a lista carregar em segundos em qualquer conexão.
@@ -346,63 +283,6 @@ export async function pushSongsToCloud(songs: Song[]): Promise<boolean> {
   // Chunked: com 3.000+ músicas o corpo do POST único passaria do limite
   // aceito pela API — divide em lotes de 400.
   return upsertRowsChunked('songs', rows);
-}
-
-/**
- * ADOTA os ids de músicas que JÁ EXISTEM na nuvem (mesmo título+artista
- * normalizados, sem acento/caixa).
- *
- * Por quê: a tabela `songs` tem índice único parcial
- * (ukm_norm(title), ukm_norm(artist)) — o banco REJEITA (409) upserts que
- * criariam a mesma música com id diferente. O push do app usa "upsert only,
- * nunca deleta" por ids, então uma importação local (id novo) de uma música
- * que já existe no servidor (id antigo, fora do preview carregado) falharia.
- * Adotando o id existente ANTES do push, a importação vira ATUALIZAÇÃO
- * (preserva votos/playlists do id original) em vez de duplicata.
- *
- * Retorna um NOVO array (não muta o original) com os ids reconciliados;
- * músicas sem correspondência na nuvem mantêm o id local.
- */
-export async function adoptExistingSongIdsFromCloud(songs: Song[]): Promise<Song[]> {
-  if (!isSupabaseConfigured() || songs.length === 0) return songs;
-  const ukmNorm = (s: string): string =>
-    (s || '')
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, ' ')
-      .trim();
-  const alvos = new Set<string>();
-  for (const s of songs) {
-    const t = ukmNorm(s.title);
-    const a = ukmNorm(s.artist);
-    if (t && a) alvos.add(`("${t.replace(/"/g, '')}","${a.replace(/"/g, '')}")`);
-  }
-  if (alvos.size === 0) return songs;
-  const chunkSize = 150;
-  const idMap = new Map<string, string>();
-  const alvosArr = [...alvos];
-  for (let i = 0; i < alvosArr.length; i += chunkSize) {
-    const chunk = alvosArr.slice(i, i + chunkSize).join(',');
-    try {
-      const rows = await fetchRows<{ id: string; title: string; artist: string }>(
-        'songs',
-        `&or=( ${chunk} )`,
-        'id,title,artist'
-      );
-      for (const r of rows || []) {
-        idMap.set(`${ukmNorm(r.title)}|${ukmNorm(r.artist)}`, r.id);
-      }
-    } catch {
-      // Chunk falhou — segue sem os matches dele (o pior caso é o erro 409
-      // de índice único no push daquele item, sem afetar os demais chunks).
-    }
-  }
-  if (idMap.size === 0) return songs;
-  return songs.map((s) => {
-    const existingId = idMap.get(`${ukmNorm(s.title)}|${ukmNorm(s.artist)}`);
-    return existingId && existingId !== s.id ? { ...s, id: existingId } : s;
-  });
 }
 
 /** Busca as playlists da nuvem (PAGINADO). null = indisponível. */

@@ -43,34 +43,7 @@ declare global {
     gtag?: GtagFn;
     dataLayer?: unknown[];
     plausible?: (event: string, opts?: { props?: Record<string, string | number | boolean> }) => void;
-    /** Google Funding Choices — TCF v2 API (presente só quando há CMP ativo). */
-    __tcfapi?: (
-      cmd: 'getTCData' | 'addEventListener' | 'removeEventListener',
-      ver: 2,
-      cb: (data: TCFData, ok: boolean) => void
-    ) => void;
   }
-}
-
-/** Resposta do TCF v2 (apenas os campos que usamos). */
-interface TCFData {
-  eventStatus?: 'tcloaded' | 'cmpuishown' | 'useractioncomplete';
-  purpose?: { consents?: Record<number, boolean> };
-  vendor?: { consents?: Record<number, boolean> };
-}
-
-/** Google (AdSense + GA4) no IAB TCF v2 — vendor id. */
-const GOOGLE_VENDOR_ID = 755;
-/** Purpose 1: "Store and/or access information on a device". */
-const STORAGE_PURPOSE_ID = 1;
-/** Tempo máximo aguardando o CMP injetar o __tcfapi (consent banner abrindo). */
-const CMP_WAIT_MS = 2000;
-
-/** true se a TCString concedida permite carregar analytics. */
-function analyticsAllowed(data: TCFData): boolean {
-  const purposeOk = data.purpose?.consents?.[STORAGE_PURPOSE_ID] === true;
-  const vendorOk = data.vendor?.consents?.[GOOGLE_VENDOR_ID] === true;
-  return purposeOk && vendorOk;
 }
 
 /** Carrega o script do GA4 (gtag.js) e configura o stream. */
@@ -114,52 +87,11 @@ function initPlausible(domain: string, host: string) {
 /**
  * Inicializa o analytics. Deve ser chamado UMA vez, no boot do app
  * (main.tsx). Seguro chamar em qualquer ambiente (dev sem chave = no-op).
- *
- * CONSENTIMENTO (LGPD/TCF v2): os scripts só entram em <head> depois que
- * o ConsentManager (Google Funding Choices) libera a finalidade 1 (storage)
- * e o vendor Google. Sem CMP carregado (visitante não europeu, ou falha
- * do Funding Choices) caímos no fallback seguro: rodar analytics. O
- * Funding Choices carrega o banner automaticamente para UEE; fora daí o
- * GDPR não exige bloqueio, e o Plausible/GA4 (com `anonymize_ip`) seguem
- * dentro da LGPD Art. 33 (dados anonimizados).
  */
 export function initAnalytics(): void {
   if (initialized || typeof window === 'undefined') return;
   initialized = true;
   env = getEnv();
-  if (!env.gaId && !env.plausibleDomain) return;
-
-  // Caminho 1: CMP do Google Funding Choices presente → aguarda o consent.
-  if (typeof window.__tcfapi === 'function') {
-    try {
-      window.__tcfapi('addEventListener', 2, (data) => {
-        if (data.eventStatus === 'useractioncomplete' && analyticsAllowed(data)) {
-          bootstrapProviders();
-        }
-      });
-      // Banner pode já ter fechado antes do addEventListener — checa o estado atual.
-      window.__tcfapi('getTCData', 2, (data) => {
-        if (analyticsAllowed(data)) bootstrapProviders();
-      });
-    } catch {
-      bootstrapProviders();
-    }
-    // Se o usuário demorar mais que CMP_WAIT_MS sem responder, libera
-    // (também cobre o caso do banner demorar a aparecer — o app não trava).
-    window.setTimeout(() => {
-      if (!initialized) return;
-      bootstrapProviders();
-    }, CMP_WAIT_MS);
-    return;
-  }
-
-  // Caminho 2: sem CMP (visitante não-UE ou Funding Choices falhou) → carrega direto.
-  bootstrapProviders();
-}
-
-/** Carrega os providers configurados — no-op se já inicializou. */
-function bootstrapProviders(): void {
-  if (!env.gaId && !env.plausibleDomain) return;
   if (env.gaId) initGa(env.gaId);
   if (env.plausibleDomain) initPlausible(env.plausibleDomain, env.plausibleHost);
 }

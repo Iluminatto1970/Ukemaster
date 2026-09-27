@@ -164,7 +164,7 @@ export function getSupabaseEnv() {
 //   CRON_UKEMATER_PASSWORD   senha da conta UkeMater
 // Sem essas vars o cron DEGRADA para o comportamento antigo (anon key) —
 // útil durante a transição, mas as escritas passarão a falhar assim que o
-// RLS de songs exigir login (migration-ukemater-cron.sql).
+// RLS de songs exigir login (migration-completa.sql, Parte 3).
 let cachedCronToken: string | null | undefined; // undefined = ainda não tentou
 let cronTokenFetchedAt = 0;
 const CRON_TOKEN_RETRY_MS = 5 * 60_000; // re-tenta login após 5 min de falha
@@ -368,14 +368,12 @@ async function upsertRows(url: string, key: string, table: string, rows: any[]):
     // Tabela pode não existir ainda (schema não executado) — não derruba o cron
     return false;
   }
-}async function fetchExistingSongs(
-  url: string,
-  key: string,
-  maxRows = 500_000
-): Promise<Song[]> {
+}
+
+async function fetchExistingSongs(url: string, key: string): Promise<Song[]> {
   // category entra para o modo ATUALIZAÇÃO preservar categorias reais já
   // corrigidas no banco (se a inferência do scraper falhar e disser 'Outros').
-  const rows = await fetchAllRows(url, key, 'songs', 'id,title,artist,category', maxRows);
+  const rows = await fetchAllRows(url, key, 'songs', 'id,title,artist,category');
   return rows as Song[];
 }
 
@@ -410,10 +408,7 @@ async function fetchEmptyContentSongs(
 
 /** Chaves ("titulo|artista" normalizado) do histórico de importações. */
 async function fetchCronImportKeys(url: string, key: string): Promise<Set<string>> {
-  // Histórico também precisa enxergar o acervo inteiro (mesma razão do
-  // fetchExistingSongs acima): com teto antigo de 20k, importações antigas
-  // sumiam do histórico e a música era reimportada como "nova".
-  const rows = await fetchAllRows(url, key, 'cron_imports', 'song_key', 500_000);
+  const rows = await fetchAllRows(url, key, 'cron_imports', 'song_key');
   return new Set(rows.map((r) => r.song_key as string));
 }
 
@@ -842,13 +837,7 @@ export async function runPlatformCron(options: PlatformCronOptions = {}): Promis
   result.cursor = { ...cursor };
 
   // Camadas anti-duplicidade: acervo atual + histórico persistente de importações
-  //
-  // BUGFIX (fonte do "84% do catálogo duplicado"): fetchExistingSongs usava o
-  // teto default de maxRows = 20_000 linhas — num acervo de 394 mil, ~374 mil
-  // ficavam FORA do dedupe e eram reimportadas a cada rodada. O limite agora
-  // cobre o acervo inteiro (com folga; o PostgREST pagina 1.000/request —
-  // são dezenas de requests leves só de id/title/artist).
-  const existing = hasDb ? await fetchExistingSongs(sb.url, sb.key, 500_000) : [];
+  const existing = hasDb ? await fetchExistingSongs(sb.url, sb.key) : [];
   const existingKeys = new Set(existing.map(songKey));
   const cronKeys = hasDb ? await fetchCronImportKeys(sb.url, sb.key) : new Set<string>();
 

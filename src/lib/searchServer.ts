@@ -17,7 +17,6 @@
  * (mesmo padrão do restante do app — o RLS decide o que é visível).
  */
 import { getSupabase, getSessionAccessToken } from './supabase';
-import { logger } from './logger';
 import { Song } from '../types';
 
 export interface ServerSearchOutcome {
@@ -112,11 +111,11 @@ export async function searchSongsServer(
     // Função não publicada neste ambiente → modo local permanente na sessão.
     if (resp.status === 404 || resp.status === 501) {
       rpcUnavailable = true;
-      logger.warn('[searchServer] RPC search_songs indisponível — usando filtro local.');
+      console.warn('[searchServer] RPC search_songs indisponível — usando filtro local.');
       return { songs: null, total: null };
     }
     if (!resp.ok) {
-      logger.warn(`[searchServer] RPC falhou (${resp.status}) — usando filtro local.`);
+      console.warn(`[searchServer] RPC falhou (${resp.status}) — usando filtro local.`);
       return { songs: null, total: null };
     }
 
@@ -131,7 +130,7 @@ export async function searchSongsServer(
     const total = rows.length < lim ? off + rows.length : null;
     return { songs, total };
   } catch (err) {
-    logger.warn('[searchServer] Erro de rede na busca — usando filtro local.', err);
+    console.warn('[searchServer] Erro de rede na busca — usando filtro local.', err);
     return { songs: null, total: null };
   }
 }
@@ -174,11 +173,11 @@ export async function searchSuggestionsServer(
 
     if (resp.status === 404 || resp.status === 501) {
       rpcUnavailable = true;
-      logger.warn('[searchServer] RPC search_songs indisponível — autocomplete desativado.');
+      console.warn('[searchServer] RPC search_songs indisponível — autocomplete desativado.');
       return null;
     }
     if (!resp.ok) {
-      logger.warn(`[searchServer] RPC de sugestões falhou (${resp.status}).`);
+      console.warn(`[searchServer] RPC de sugestões falhou (${resp.status}).`);
       return null;
     }
 
@@ -204,7 +203,7 @@ export async function searchSuggestionsServer(
     }
     return sugestoes;
   } catch (err) {
-    logger.warn('[searchServer] Erro de rede nas sugestões.', err);
+    console.warn('[searchServer] Erro de rede nas sugestões.', err);
     return null;
   }
 }

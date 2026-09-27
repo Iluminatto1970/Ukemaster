@@ -36,36 +36,6 @@ export const Tuner: React.FC = () => {
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animFrameRef = useRef<number | null>(null);
 
-  // Request microphone permission exactly once on mount; reuse the stream forever.
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            echoCancellation: false,
-            noiseSuppression: false,
-            autoGainControl: false,
-          },
-        });
-        if (cancelled) {
-          stream.getTracks().forEach((track) => track.stop());
-          return;
-        }
-        streamRef.current = stream;
-      } catch (err) {
-        if (!cancelled) {
-          console.error('Microphone permission denied:', err);
-          setMicError(t('tuner.micError'));
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const targets = isLowG ? TARGET_STRINGS_LOW_G : TARGET_STRINGS;
 
   const stopListening = useCallback(() => {
@@ -73,13 +43,6 @@ export const Tuner: React.FC = () => {
       cancelAnimationFrame(animFrameRef.current);
       animFrameRef.current = null;
     }
-    setIsListening(false);
-    setPitchResult(null);
-  }, []);
-
-  // Full cleanup: stops mic tracks and closes audio context. Used on unmount.
-  const releaseMic = useCallback(() => {
-    stopListening();
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
@@ -88,18 +51,22 @@ export const Tuner: React.FC = () => {
       audioContextRef.current.close().catch(() => {});
       audioContextRef.current = null;
     }
-  }, [stopListening]);
+    setIsListening(false);
+    setPitchResult(null);
+  }, []);
 
   const startListening = async () => {
     setMicError(null);
     try {
-      // Assume stream already requested on mount
-      const stream = streamRef.current;
-      if (!stream) {
-        setMicError(t('tuner.micError'));
-        setIsListening(false);
-        return;
-      }
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false,
+        },
+      });
+
+      streamRef.current = stream;
       const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       const ctx = new AudioCtx();
       audioContextRef.current = ctx;
@@ -125,8 +92,10 @@ export const Tuner: React.FC = () => {
             setPitchResult(res);
           }
         } else {
+          // Fade out pitch when no sound detected
           setPitchResult((prev) => (prev ? { ...prev, clarity: 0 } : null));
         }
+
         animFrameRef.current = requestAnimationFrame(updatePitch);
       };
 
@@ -140,10 +109,10 @@ export const Tuner: React.FC = () => {
 
   useEffect(() => {
     return () => {
-      releaseMic();
+      stopListening();
       stopContinuousTone();
     };
-  }, [releaseMic]);
+  }, [stopListening]);
 
   // Handle reference tone play
   const handleToggleRefTone = (stringNum: number, freq: number) => {

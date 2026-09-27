@@ -14,7 +14,6 @@
  *  - Limite de tamanho da resposta e validação de Content-Type.
  */
 import { fetchWithRedirectGuard, classifyUserAgent, getClientIp, rateLimit } from '../src/lib/security.js';
-import { csrfProtect } from '../src/lib/csrf.js';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
 export const maxDuration = 30;
@@ -59,33 +58,12 @@ function securityHeaders(res: ServerResponse) {
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
   securityHeaders(res);
   if (req.method !== 'POST') {
-    return send(res, 405, { error: 'Falha no processamento' });
+    return send(res, 405, { error: 'Use POST.' });
   }
 
   // Ferramentas de raspagem não usam este proxy (é para o import manual).
   if (classifyUserAgent(String(req.headers['user-agent'] || '')) === 'scraper') {
-    return send(res, 403, { error: 'Falha no processamento' });
-  }
-
-  // CSRF protection (double‑submit: cookie __Host-csrf + header x-csrf-token)
-  const csrfHeaderRaw = req.headers['x-csrf-token'];
-  const csrfHeader = Array.isArray(csrfHeaderRaw) ? csrfHeaderRaw[0] : csrfHeaderRaw;
-  const csrfResult = csrfProtect(
-    req.method,
-    req.headers.cookie,
-    csrfHeader,
-    process.env.NODE_ENV === 'production'
-  );
-  if (csrfResult.setCookie) {
-    const existing = res.getHeader('Set-Cookie');
-    const arr: string[] = existing
-      ? (Array.isArray(existing) ? existing.map(String) : [String(existing)])
-      : [];
-    arr.push(csrfResult.setCookie);
-    res.setHeader('Set-Cookie', arr);
-  }
-  if (!csrfResult.ok) {
-    return send(res, 403, { error: csrfResult.reason });
+    return send(res, 403, { error: 'Acesso negado.' });
   }
 
   const rl = rateLimit(getClientIp(req), 'fetch-url', 20, 60_000);

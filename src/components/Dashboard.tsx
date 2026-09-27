@@ -4,7 +4,6 @@
 import React, { useState } from 'react';
 import { Song, Playlist } from '../types';
 import { useT } from '../lib/i18n';
-import { type RecentSong } from '../lib/recentSongs';
 import { difficultyLabel } from '../utils/difficultyLabel';
 import {
   FolderHeart,
@@ -27,7 +26,6 @@ import {
   ShieldAlert,
   Download,
   Loader2,
-  Clock,
 } from 'lucide-react';
 
 interface DashboardProps {
@@ -43,8 +41,6 @@ interface DashboardProps {
   onGoToPublicSongs: () => void;
   /** Baixa o repertório completo (letra + diagramas de todas as cifras). */
   onDownloadRepertoire?: (title: string, songs: Song[]) => Promise<void> | void;
-  /** Músicas abertas recentemente pelo usuário (localStorage). */
-  recentSongs?: RecentSong[];
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -59,7 +55,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onOpenAuth,
   onGoToPublicSongs,
   onDownloadRepertoire,
-  recentSongs = [],
 }) => {
   const { t } = useT();
   const [downloading, setDownloading] = useState<boolean>(false);
@@ -231,49 +226,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </div>
       </div>
-
-      {/* Últimas Músicas Abertas — acesso rápido */}
-      {recentSongs.length > 0 && (
-        <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs space-y-3">
-          <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
-            <Clock className="w-5 h-5 text-[#0E7C7B]" />
-            <div>
-              <h2 className="text-lg font-black text-slate-900 tracking-tight">Últimas Abertas</h2>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Acesso rápido às suas cifras recentes</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-            {recentSongs.map((rs) => (
-              <button
-                key={rs.id}
-                onClick={() => {
-                  const fullSong = songs.find((s) => s.id === rs.id);
-                  if (fullSong) onSelectSong(fullSong);
-                }}
-                className="text-left bg-slate-50 hover:bg-orange-50 hover:border-orange-300 border border-slate-200/80 rounded-xl p-3 transition-all group cursor-pointer"
-              >
-                <p className="text-[12px] font-black text-slate-900 truncate group-hover:text-orange-600 transition-colors">
-                  {rs.title}
-                </p>
-                <p className="text-[10px] text-slate-500 font-semibold truncate">
-                  {rs.artist}
-                  {rs.key ? ` · Tom ${rs.key}` : ''}
-                </p>
-                <div className="flex items-center gap-1 mt-1.5">
-                  {rs.category && (
-                    <span className="px-1.5 py-0.2 rounded text-[8px] font-extrabold bg-[#0E7C7B]/10 text-[#0E7C7B]">
-                      {rs.category}
-                    </span>
-                  )}
-                  <span className="text-[8px] text-slate-400 font-bold">
-                    {new Date(rs.viewedAt).toLocaleDateString('pt-BR')}
-                  </span>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Private Repertoire Section */}
       <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs space-y-4">

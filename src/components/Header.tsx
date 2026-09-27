@@ -7,9 +7,8 @@ import { Logo } from './Logo';
 import { DonationModal } from './DonationModal';
 import { useAuth } from '../auth';
 import { useT, LANGS } from '../lib/i18n';
-import { Search, Menu, Sparkles, Bell, Mail, LogOut, Globe, Check, Trash2, Music } from 'lucide-react';
 import { useSearchSuggestions } from '../lib/useSearchSuggestions';
-import type { SearchSuggestion } from '../lib/searchServer';
+import { Search, Menu, Sparkles, Bell, Mail, LogOut, Globe, Check, Music } from 'lucide-react';
 
 interface HeaderProps {
   setActiveTab: (tab: ActiveTab) => void;
@@ -32,7 +31,7 @@ export const Header: React.FC<HeaderProps> = ({
   onCloseDonation,
 }) => {
   const [localDonationOpen, setLocalDonationOpen] = useState(false);
-  const { available, isLoaded, isSignedIn, user, openSignIn, openSignUp, signOut, deleteAccount } = useAuth();
+  const { available, isLoaded, isSignedIn, user, openSignIn, openSignUp, signOut } = useAuth();
 
   // Suporte a ambos: estado interno (fallback) e controlado pelo App
   const isDonationOpen = onOpenDonation ? donationOpen : localDonationOpen;
@@ -41,6 +40,38 @@ export const Header: React.FC<HeaderProps> = ({
 
   const displayName = user?.name || 'Músico';
   const { t, lang, setLang } = useT();
+
+  // ── Autocomplete da busca global (RPC search_songs, debounce 200ms) ──
+  // Dropdown com até 8 sugestões do banco inteiro (~62 mil músicas).
+  // Selecionar uma sugestão preenche o input com "Título Artista" (a busca
+  // no SongList então roda server-side sobre o mesmo termo).
+  const { suggestions, loading: suggestionsLoading } = useSearchSuggestions(searchQuery);
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const suggestRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setActiveIdx(0);
+  }, [suggestions]);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (suggestRef.current && !suggestRef.current.contains(e.target as Node)) {
+        setSuggestOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, []);
+
+  const showSuggestions =
+    suggestOpen && searchQuery.trim().length >= 3 && (suggestions.length > 0 || suggestionsLoading);
+
+  const pickSuggestion = (title: string, artist: string) => {
+    setSearchQuery?.(`${title} ${artist}`.trim());
+    setSuggestOpen(false);
+    setActiveTab('musicas');
+  };
 
   // Seletor de idioma — dropdown ao clicar no globo (fecha ao clicar fora)
   const [langOpen, setLangOpen] = useState(false);
@@ -55,57 +86,10 @@ export const Header: React.FC<HeaderProps> = ({
     return () => document.removeEventListener('mousedown', onClick);
   }, []);
 
-  const [shrinkHeader, setShrinkHeader] = useState(false);
-  useEffect(() => {
-    const onScroll = () => setShrinkHeader(window.scrollY > 50);
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  // --- Autocomplete de sugestões (RPC search_songs, limite pequeno) ---
-  // O hook já embute o debounce (200ms) e a guarda de termo < 3 letras
-  // (padrões curtos não geram trigramas e derrubam a RPC — ver searchServer).
-  const { suggestions } = useSearchSuggestions(searchQuery);
-  const [sugOpen, setSugOpen] = useState(false);
-  const [sugDismissed, setSugDismissed] = useState(false);
-  const [sugSel, setSugSel] = useState(0);
-  const sugRef = useRef<HTMLDivElement>(null);
-
-  // Clique fora do campo+dropdown fecha (mesmo padrão do seletor de idioma).
-  useEffect(() => {
-    const onClick = (e: MouseEvent) => {
-      if (sugRef.current && !sugRef.current.contains(e.target as Node)) {
-        setSugOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', onClick);
-    return () => document.removeEventListener('mousedown', onClick);
-  }, []);
-
-  // Sugestões novas: destaque volta para a primeira.
-  useEffect(() => {
-    setSugSel(0);
-  }, [suggestions]);
-
-  const mostrarSug =
-    sugOpen && !sugDismissed && searchQuery.trim().length >= 3 && suggestions.length > 0;
-
-  // Selecionar sugestão = buscar pela música inteira: o search_text do banco
-  // é título + artista, então o termo completo casa exatamente com ela.
-  const escolherSugestao = (s: SearchSuggestion) => {
-    if (!setSearchQuery) return;
-    // Fecha ANTES de setar: a troca programática não passa pelo onChange,
-    // então o dropdown não reabre para o próprio termo escolhido.
-    setSugDismissed(true);
-    setSugOpen(false);
-    setSearchQuery(`${s.title} ${s.artist}`);
-  };
-
-
   return (
     <>
       {/* O sticky top-0 + safe-top agora ficam no wrapper do App (banner laranja + header juntos, sempre visíveis) */}
-      <header className={`bg-white border-b border-slate-200 z-20 shadow-2xs transition-transform duration-300 ${shrinkHeader ? '-translate-y-2' : ''}`}>
+      <header className="bg-white border-b border-slate-200 z-20 shadow-2xs">
         <div className="max-w-[1600px] mx-auto px-3 sm:px-6">
           <div className="flex flex-wrap items-center justify-between gap-2 py-2 sm:gap-4 sm:py-0 sm:h-16">
             {/* Left: Mobile Menu + Brand Logo (sempre visível, conforme template) */}
@@ -131,74 +115,72 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Center Search Bar — linha própria no mobile (embaixo), inline no desktop */}
             <div className="order-3 basis-full sm:order-2 sm:basis-auto sm:flex-1 sm:max-w-xl sm:mx-auto sm:min-w-0">
-              <div className="relative" ref={sugRef}>
+              <div className="relative" ref={suggestRef}>
                 <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => {
-                    setSugDismissed(false);
-                    setSugOpen(true);
                     setSearchQuery && setSearchQuery(e.target.value);
+                    setSuggestOpen(true);
                   }}
-                  onFocus={() => setSugOpen(true)}
+                  onFocus={() => setSuggestOpen(true)}
                   onKeyDown={(e) => {
-                    if (!mostrarSug) return;
+                    if (!showSuggestions || suggestions.length === 0) return;
                     if (e.key === 'ArrowDown') {
                       e.preventDefault();
-                      setSugSel((i) => Math.min(i + 1, suggestions.length - 1));
+                      setActiveIdx((i) => Math.min(i + 1, suggestions.length - 1));
                     } else if (e.key === 'ArrowUp') {
                       e.preventDefault();
-                      setSugSel((i) => Math.max(i - 1, 0));
+                      setActiveIdx((i) => Math.max(i - 1, 0));
                     } else if (e.key === 'Enter') {
                       e.preventDefault();
-                      const s = suggestions[sugSel] ?? suggestions[0];
-                      if (s) escolherSugestao(s);
+                      const s = suggestions[activeIdx] ?? suggestions[0];
+                      if (s) pickSuggestion(s.title, s.artist);
                     } else if (e.key === 'Escape') {
-                      setSugDismissed(true);
+                      setSuggestOpen(false);
                     }
                   }}
                   role="combobox"
                   aria-autocomplete="list"
-                  aria-expanded={mostrarSug}
+                  aria-expanded={showSuggestions}
                   aria-controls="header-sugestoes"
                   placeholder={t('header.searchPlaceholder')}
                   className="w-full bg-slate-100/90 border border-slate-200 rounded-full pl-10 pr-4 py-2 text-xs font-medium text-[#1D2D44] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#F26419] focus:ring-2 focus:ring-[#F26419]/20 transition-all"
                 />
 
-                {mostrarSug && (
+                {showSuggestions && (
                   <div
                     id="header-sugestoes"
                     role="listbox"
-                    aria-label={t('header.suggestionsTitle')}
-                    className="absolute left-0 right-0 top-full mt-2 z-50 bg-white border border-slate-200 rounded-2xl shadow-xl p-1.5 animate-fade-in max-h-[60vh] overflow-y-auto"
+                    aria-label={t('header.searchPlaceholder')}
+                    className="absolute left-0 right-0 top-full mt-2 z-50 bg-white border border-slate-200 rounded-2xl shadow-xl p-1.5 max-h-[60vh] overflow-y-auto"
                   >
-                    {suggestions.map((s, i) => (
-                      <button
-                        key={s.id + ':' + i}
-                        role="option"
-                        aria-selected={i === sugSel}
-                        // preventDefault: mantém o foco no input (o clique não
-                        // dispara blur antes do select) e o dropdown não pisca.
-                        onMouseDown={(e) => e.preventDefault()}
-                        onMouseEnter={() => setSugSel(i)}
-                        onClick={() => escolherSugestao(s)}
-                        className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-xs transition-colors cursor-pointer ${
-                          i === sugSel
-                            ? 'bg-amber-50 text-[#F26419]'
-                            : 'text-slate-700 hover:bg-slate-50'
-                        }`}
-                      >
-                        <Music className="w-3.5 h-3.5 shrink-0 text-[#0E7C7B]" />
-                        <span className="flex-1 min-w-0 truncate">
-                          <span className="font-bold text-[#1D2D44]">{s.title}</span>
-                          <span className="text-slate-400 font-medium"> — {s.artist}</span>
-                        </span>
-                      </button>
-                    ))}
-                    <div className="px-3 pt-1.5 pb-1 text-[10px] font-bold uppercase tracking-wide text-slate-400">
-                      {t('header.suggestionsHint')}
-                    </div>
+                    {suggestionsLoading && suggestions.length === 0 ? (
+                      <p className="px-3 py-2 text-xs text-slate-400 font-semibold">…</p>
+                    ) : (
+                      suggestions.map((s, i) => (
+                        <button
+                          key={s.id + ':' + i}
+                          role="option"
+                          aria-selected={i === activeIdx}
+                          onMouseDown={(e) => e.preventDefault()}
+                          onMouseEnter={() => setActiveIdx(i)}
+                          onClick={() => pickSuggestion(s.title, s.artist)}
+                          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-xs transition-colors cursor-pointer ${
+                            i === activeIdx
+                              ? 'bg-amber-50 text-[#F26419]'
+                              : 'text-slate-700 hover:bg-slate-50'
+                          }`}
+                        >
+                          <Music className="w-3.5 h-3.5 shrink-0 text-[#0E7C7B]" />
+                          <span className="flex-1 min-w-0 truncate">
+                            <span className="font-bold text-[#1D2D44]">{s.title}</span>
+                            <span className="text-slate-400 font-medium"> — {s.artist}</span>
+                          </span>
+                        </button>
+                      ))
+                    )}
                   </div>
                 )}
               </div>
@@ -298,23 +280,6 @@ export const Header: React.FC<HeaderProps> = ({
                       className="p-1.5 rounded-full text-slate-500 hover:text-[#F26419] hover:bg-white transition-colors cursor-pointer"
                     >
                       <LogOut className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={async () => {
-                        const msg = 'Tem certeza que deseja encerrar sua conta? Esta ação é PERMANENTE e não pode ser desfeita. Todos os seus dados (repertórios, playlists, favoritos) serão excluídos.';
-                        if (window.confirm(msg)) {
-                          const result = await deleteAccount();
-                          if (result.ok) {
-                            window.location.href = '/';
-                          } else {
-                            alert('Erro ao encerrar conta: ' + (result.error || 'Tente novamente.'));
-                          }
-                        }
-                      }}
-                      title="Encerrar conta permanentemente"
-                      className="p-1.5 rounded-full text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ) : (

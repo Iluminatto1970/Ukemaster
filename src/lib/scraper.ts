@@ -18,11 +18,6 @@ import {
   extractUniqueChords,
 } from '../utils/chordUtils.js';
 import { CIFRACLUB_CATALOG } from '../data/cifraclubCatalog.js';
-import { CIFRACLUB_SITEMAP_INDEX } from '../data/cifraclubSitemapIndex.js';
-import { gunzipSync } from 'node:zlib';
-import fs from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
 import type { Song } from '../types';
 
 export interface ScrapedLink {
@@ -51,55 +46,12 @@ const USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
 /** Busca o HTML de uma URL (com headers de navegador e timeout). */
-// Simple proxy rotation
-const PROXIES: string[] = (process.env.SCRAPER_PROXIES || '')
-  .split(',')
-  .map((s) => s.trim())
-  .filter(Boolean);
-let proxyIndex = 0;
-function getNextProxy(): string | undefined {
-  if (PROXIES.length === 0) return undefined;
-  const proxy = PROXIES[proxyIndex];
-  proxyIndex = (proxyIndex + 1) % PROXIES.length;
-  return proxy;
-}
-
-// Circuit‑breaker state
-let failureCount = 0;
-let circuitOpenUntil: number | null = null;
-const FAILURE_THRESHOLD = 5; // failures before opening
-const COOLDOWN_MS = 60_000; // 1 minute
-
-function checkCircuitBreaker() {
-  if (circuitOpenUntil && Date.now() < circuitOpenUntil) {
-    throw new Error('Circuit breaker open – waiting before new requests');
-  }
-}
-
-function recordFailure() {
-  failureCount++;
-  if (failureCount >= FAILURE_THRESHOLD) {
-    circuitOpenUntil = Date.now() + COOLDOWN_MS;
-    failureCount = 0;
-  }
-}
-
-function resetCircuit() {
-  failureCount = 0;
-  circuitOpenUntil = null;
-}
-
-async function fetchHtml(url: string): Promise<string> {
-  // Circuit‑breaker: abort if open
-  checkCircuitBreaker();
-  // Choose proxy if any
-  const proxy = getNextProxy();
-  const target = proxy ? `${proxy}/${url}` : url;
-
+export async function fetchHtml(url: string): Promise<string> {
+  // Timeout absoluto: um link travado não pode pendurar o cron inteiro.
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 15_000);
   try {
-    const res = await fetch(target, {
+    const res = await fetch(url, {
       signal: controller.signal,
       headers: {
         'User-Agent': USER_AGENT,
@@ -111,11 +63,7 @@ async function fetchHtml(url: string): Promise<string> {
     if (!res.ok) {
       throw new Error(`O site respondeu com status ${res.status}.`);
     }
-    resetCircuit();
     return await res.text();
-  } catch (e) {
-    recordFailure();
-    throw e;
   } finally {
     clearTimeout(timer);
   }
@@ -1237,139 +1185,6 @@ export interface DiscoverArtistSongLinksOptions {
   timeoutMs?: number;
 }
 
-/**
- * FONTES COMPLETAS (BUGFIX: "importa só as ~50 primeiras"):
- *
- * A página /artista/musicas.html — que era a fonte da descoberta do catálogo
- * completo — foi DESCONTINUADA pelo CifraClub (404 em 2026-09) e a raiz do
- * artista só entrega ~15-25 músicas no HTML server-side (o restante é
- * carregado via JS, invisível para scraper server-side).
- *
- * A fonte confiável hoje são os SITEMAPS OFICIAIS (robots.txt →
- * gcs/sitemap/sitemap_index.xml → sitemap_cifras_1..21.xml.gz), que listam
- * TODAS as músicas de TODOS os artistas. O índice embutido
- * (src/data/cifraclubSitemapIndex.ts, ~135 mil artistas) mapeia cada slug
- * aos arquivos que contêm as músicas dele; a descoberta baixa SÓ esses
- * arquivos (concorrência limitada + cache em /tmp da instância) e extrai as
- * URLs /artista/musica/ do artista.
- */
-const CIFRACLUB_SITEMAP_BASE = 'https://www.cifraclub.com.br/gcs/sitemap';
-
-async function fetchSitemapCifrasXml(n: number, cacheDir: string, deadline: number): Promise<string | null> {
-  const cacheFile = path.join(cacheDir, `sitemap_cifras_${n}.xml`);
-  if (fs.existsSync(cacheFile)) {
-    try {
-      return fs.readFileSync(cacheFile, 'utf8');
-    } catch {
-      // cache ilegível — baixa de novo
-    }
-  }
-  if (deadline && Date.now() > deadline) return null;
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 45_000);
-  try {
-    const res = await fetch(`${CIFRACLUB_SITEMAP_BASE}/sitemap_cifras_${n}.xml.gz`, {
-      signal: ctrl.signal,
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      },
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const gz = Buffer.from(await res.arrayBuffer());
-    const xml = gunzipSync(gz).toString('utf8');
-    try {
-      fs.writeFileSync(cacheFile, xml);
-    } catch {
-      // sem cache (fs read-only em alguns runtimes) — segue sem persistir
-    }
-    return xml;
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-/**
- * Descobre TODAS as músicas de um artista do CifraClub via sitemaps oficiais.
- * Retorna:
- *  - null → artista não está no índice (chamador cai no fluxo HTML antigo);
- *  - []   → indexado, mas nenhum arquivo pôde ser baixado a tempo
- *           (o chamador também cai no fallback HTML);
- *  - links → catálogo completo (título/artista derivados do slug — a página
- *           real de cada música ainda é lida depois pelo pipeline).
- */
-export async function discoverArtistSongLinksViaSitemap(
-  pageUrl: string,
-  options: { timeoutMs?: number; concurrency?: number } = {}
-): Promise<ScrapedLink[] | null> {
-  let slug = '';
-  try {
-    const u = new URL(normalizeUrl(pageUrl));
-    // GUARDA: só CifraClub tem este índice de sitemaps. Sem o check, uma URL
-    // de outra plataforma (ex.: lacuerda.net/adele/) casaria por acidente com
-    // o artista "adele" do CifraClub e importaria o catálogo errado.
-    if (!/(^|\.)cifraclub\.com(\.br)?$/i.test(u.hostname)) return null;
-    slug = u.pathname.split('/').filter(Boolean)[0] || '';
-  } catch {
-    return null;
-  }
-  if (!slug) return null;
-  const files = CIFRACLUB_SITEMAP_INDEX[slug];
-  if (!files || files.length === 0) return null;
-
-  const deadline =
-    options.timeoutMs && options.timeoutMs > 0 ? Date.now() + options.timeoutMs : 0;
-  const concurrency = Math.max(1, Math.min(options.concurrency ?? 3, 6));
-  const cacheDir = path.join(os.tmpdir(), 'cifraclub-sitemaps');
-  try {
-    fs.mkdirSync(cacheDir, { recursive: true });
-  } catch {
-    // sem /tmp — só perde o cache
-  }
-
-  const results: (string | null)[] = new Array(files.length).fill(null);
-  let next = 0;
-  let deadlineHit = false;
-  const worker = async (): Promise<void> => {
-    for (;;) {
-      if (deadlineHit) return;
-      const i = next++;
-      if (i >= files.length) return;
-      const xml = await fetchSitemapCifrasXml(files[i], cacheDir, deadline);
-      results[i] = xml;
-      if (xml === null && deadline && Date.now() > deadline) deadlineHit = true;
-    }
-  };
-  await Promise.all(
-    Array.from({ length: Math.min(concurrency, files.length) }, () => worker())
-  );
-
-  const artistRe = new RegExp(
-    `<loc>https://www\\.cifraclub\\.com\\.br/${slug}/[a-z0-9-]+/</loc>`,
-    'g'
-  );
-  const seen = new Set<string>();
-  const links: ScrapedLink[] = [];
-  for (const xml of results) {
-    if (!xml) continue;
-    let m: RegExpExecArray | null;
-    while ((m = artistRe.exec(xml)) !== null) {
-      const url = m[0].replace(/<\/?loc>/g, '');
-      if (seen.has(url)) continue;
-      seen.add(url);
-      // pathname = /artista/musica/ → filter(Boolean)[1] é o slug da música
-      // (índice 0 é o artista; split da URL completa enganaria — o índice 1
-      // seria o hostname).
-      const songSlug = new URL(url).pathname.split('/').filter(Boolean)[1] || '';
-      if (!songSlug) continue;
-      links.push({ url, title: slugToTitle(songSlug), artist: slugToTitle(slug) });
-    }
-  }
-  return links;
-}
-
 export async function discoverArtistSongLinks(
   pageUrl: string,
   options: DiscoverArtistSongLinksOptions = {}
@@ -1399,19 +1214,6 @@ export async function discoverArtistSongLinks(
   }
 
   const startedAt = Date.now();
-
-  // PRIMÁRIO: catálogo completo via sitemaps oficiais (veja função acima).
-  // Se o artista está no índice e os arquivos baixarem, retorna direto — o
-  // fluxo HTML abaixo não acharia mais que ~25 músicas de qualquer forma.
-  const viaSitemap = await discoverArtistSongLinksViaSitemap(url, {
-    timeoutMs: options.timeoutMs || 0,
-  });
-  if (viaSitemap && viaSitemap.length > 0) {
-    return options.limit ? viaSitemap.slice(0, options.limit) : viaSitemap;
-  }
-
-  // FALLBACK: fluxo HTML antigo (raiz + /musicas.html se existir) — mantido
-  // para artistas fora do índice e para as outras plataformas.
   const html = await fetchHtml(url);
   const links = discoverSongLinks(html, url);
   const isUltimateGuitar = new URL(url).hostname.includes('ultimate-guitar');

@@ -21,7 +21,6 @@
  *      name text not null,
  *      email text not null,
  *      whatsapp text,
- *      consent boolean default false,
  *      source text
  *    );
  *
@@ -43,7 +42,6 @@ export interface Lead {
   email: string;
   whatsapp?: string;
   source?: string;
-  consent?: boolean;
   createdAt?: string;
 }
 
