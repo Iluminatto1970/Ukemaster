@@ -27,6 +27,7 @@
 
 import os from 'os';
 import { scrapeArtistPage, isJunkArtistName, isJunkTitle } from './scraper.js';
+import { convertBatchToUkulele } from './aiUkeConvert.js';
 import { CHORD_PLATFORMS } from './platforms.js';
 
 // Idioma de cada plataforma (id → lang) para rotular as músicas importadas.
@@ -921,6 +922,7 @@ export async function runPlatformCron(options: PlatformCronOptions = {}): Promis
     }
 
     const artistStart = Date.now();
+    let aiUkeMsg = '';
     const entry = {
       platform: item.platformName,
       artistUrl: item.url,
@@ -1085,6 +1087,17 @@ export async function runPlatformCron(options: PlatformCronOptions = {}): Promis
         }
       }
 
+      // ── Conversão IA para UKULELE (9router local, free-roundrobin) ──────
+      // Reescreve os acordes das NOVAS para shapes reais de ukulele (gCEA),
+      // transpondo para tom amigável quando necessário. Sem IA disponível,
+      // cai no fallback determinístico. Nunca lança.
+      if (fresh.length > 0) {
+        const ai = await convertBatchToUkulele(fresh);
+        if (!ai.desativado) {
+          aiUkeMsg = `IA uke: ${ai.convertidas} convertidas, ${ai.fallback} transpostas, ${ai.mantidas} mantidas`;
+        }
+      }
+
       if (fresh.length > 0 && hasDb) {
         const upsertOk = await upsertRows(sb.url, sb.key, 'songs', fresh.map(songToRow));
         if (upsertOk) {
@@ -1154,6 +1167,7 @@ export async function runPlatformCron(options: PlatformCronOptions = {}): Promis
       message:
         [
           entry.updated > 0 ? `${entry.updated} atualizada(s)` : '',
+          aiUkeMsg,
           entry.errorMessage,
         ]
           .filter(Boolean)
