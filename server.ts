@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import path from 'path';
+import { pathToFileURL } from 'url';
 import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import {
@@ -429,6 +430,46 @@ async function startServer() {
     } catch (err: any) {
       return res.status(500).json({ ok: false, error: err?.message || 'Erro no cron.' });
     }
+  });
+
+  // Em dev, o Express não tem handlers para alguns endpoints serverless
+  // (api/*.ts da Vercel, ex.: /api/admin/users-stats com querystring). Sem
+  // isso, a requisição cai no middleware do Vite, que tenta transformar
+  // "users-stats.ts?after=..." como módulo — e o esbuild deriva o loader da
+  // extensão COM query ("ts?after=...459Z" → loader inválido), derrubando o
+  // HMR com full-reload (o app "pula" para a HOME do nada).
+  // Solução: rotear /api/* para o handler correspondente em api/*.ts e
+  // responder 404 para qualquer /api desconhecida — nada chega ao Vite.
+  const apiModuleCache = new Map<string, Promise<any>>();
+  app.use('/api', (req, res, next) => {
+    (async () => {
+      const apiPath = req.path.replace(/\/+$/, '') || '/';
+      const rel = path.join('api', apiPath === '/' ? 'index' : apiPath);
+      const candidates = [rel, path.join(rel, 'index')].map((p) =>
+        path.join(process.cwd(), `${p}.ts`)
+      );
+      const file = candidates.find((c) => fs.existsSync(c));
+      if (!file) {
+        return res.status(404).json({ error: 'API não encontrada.' });
+      }
+      // Cache de módulo (tsx já transpila; sem buster de query para não
+      // vazar memória com o polling do AdminSignupWatch).
+      if (!apiModuleCache.has(file)) {
+        apiModuleCache.set(file, import(pathToFileURL(file).href));
+      }
+      const mod = await apiModuleCache.get(file)!;
+      const handler = mod.default;
+      if (typeof handler !== 'function') {
+        return res.status(500).json({ error: `Handler inválido em ${apiPath}.` });
+      }
+      // Handlers Vercel leem a query de req.url (o Express já a mantém
+      // ao montar em '/api').
+      await handler(req, res);
+    })().catch((err: any) => {
+      if (!res.headersSent) {
+        res.status(500).json({ error: err?.message || 'Erro interno na API.' });
+      }
+    });
   });
 
   // Vite middleware for development

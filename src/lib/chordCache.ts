@@ -61,6 +61,20 @@ function rowToDef(row: ChordDictionaryRow): ChordDefinition {
   };
 }
 
+/**
+ * Remove linhas duplicadas por `name` (a PK da tabela). O cache em memória do
+ * motor é chaveado pelo nome DIGITADO (id), que pode variar em caixa/escrita
+ * (ex.: "d7" vs "D7") enquanto `def.name` é o nome canônico — sem o dedupe o
+ * upsert enviaria duas linhas com a mesma PK num único POST e o PostgREST
+ * devolveria 21000 "ON CONFLICT DO UPDATE command cannot affect row a second
+ * time". A última ocorrência vence (é a gerada mais recentemente).
+ */
+function dedupeRowsByName(rows: ChordDictionaryRow[]): ChordDictionaryRow[] {
+  const byName = new Map<string, ChordDictionaryRow>();
+  for (const row of rows) byName.set(row.name, row);
+  return Array.from(byName.values());
+}
+
 /** Evento disparado quando a hidratação do cache de acordes termina
  * (localStorage + Supabase) — o Dicionário escuta para re-renderizar e
  * mostrar os acordes gerados compartilhados. */
@@ -80,8 +94,8 @@ export async function hydrateChordCache(): Promise<void> {
   try {
     const raw = localStorage.getItem(LS_KEY);
     if (raw) {
-      const rows = JSON.parse(raw) as ChordDictionaryRow[];
-      if (Array.isArray(rows) && rows.length) seedGeneratedChords(rows.map(rowToDef));
+      const rows = dedupeRowsByName(JSON.parse(raw) as ChordDictionaryRow[]);
+      if (rows.length) seedGeneratedChords(rows.map(rowToDef));
     }
   } catch {
     // localStorage indisponível (SSR/privado) — segue sem cache local
@@ -118,14 +132,17 @@ export function schedulePersistGeneratedChords(delayMs = 1500): void {
     const defs = getAllGeneratedChords();
     if (defs.length === 0) return;
 
+    // Dedupe por PK (name) — ver comentário de dedupeRowsByName.
+    const rows = dedupeRowsByName(defs.map(defToRow));
+
     // localStorage
     try {
-      localStorage.setItem(LS_KEY, JSON.stringify(defs.map(defToRow)));
+      localStorage.setItem(LS_KEY, JSON.stringify(rows));
     } catch {
       // cheio/indisponível — ignora
     }
 
     // Supabase (upsert silencioso; não bloqueia a UI)
-    void upsertRows(TABLE, defs.map(defToRow)).catch(() => undefined);
+    void upsertRows(TABLE, rows).catch(() => undefined);
   }, delayMs);
 }

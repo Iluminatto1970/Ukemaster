@@ -7,7 +7,7 @@
  * vem a lista de canções. Cada bloco aparece apenas quando tem conteúdo,
  * então a home nunca vira uma parede massiva de músicas.
  */
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { Song, Playlist, SONG_CATEGORIES, SONG_DIFFICULTIES } from '../types';
 import {
   Search,
@@ -39,6 +39,7 @@ import { ImportSongModal } from './ImportSongModal';
 import { TopContributors } from './TopContributors';
 import { AdSenseSlot } from './AdSenseSlot';
 import { useServerSearch } from '../lib/useServerSearch';
+import { fetchSongsByArtistServer } from '../lib/searchServer';
 import { ADSENSE_SLOTS } from '../config';
 import { getAbVariant } from '../lib/abTest';
 import { AffiliateAdCard } from './AffiliateAdCard';
@@ -129,6 +130,10 @@ interface SongListProps {
   onImportSongs: (importedSongs: Song[]) => void;
   searchQuery?: string;
   setSearchQuery?: (query: string) => void;
+  /** Pedido de filtro por artista (vindo de "Ver todas" no autocomplete do
+   * Header). Objeto com seq crescente para re-disparar mesmo no MESMO artista
+   * (ex.: usuário limpou o filtro e clicou de novo). */
+  artistRequest?: { name: string; seq: number };
   myVotes?: Set<string>;
   onVoteSong?: (song: Song) => void;
   /** Só o admin (iluminatto@gmail.com) pode excluir músicas do acervo. */
@@ -161,6 +166,7 @@ export const SongList: React.FC<SongListProps> = ({
   onImportSongs,
   searchQuery: externalSearchQuery,
   setSearchQuery: externalSetSearchQuery,
+  artistRequest,
   isAdmin = false,
   isLoggedIn = false,
   onOpenAuth,
@@ -189,7 +195,21 @@ export const SongList: React.FC<SongListProps> = ({
 
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedArtistFilter, setSelectedArtistFilter] = useState<string>('all');
+  const [selectedArtistFilter, setSelectedArtistFilter] = useState<string>(
+    artistRequest?.name ?? 'all'
+  );
+
+  /** "Ver todas as músicas do artista": seleciona o artista e rola até a lista. */
+  useEffect(() => {
+    if (!artistRequest?.name) return;
+    setSelectedArtistFilter(artistRequest.name);
+    setSearchQuery('');
+    setActiveSubTab('todas');
+    requestAnimationFrame(() => {
+      songsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [artistRequest]);
 
   // Normaliza texto para busca: minúsculas + remove acentos (caetano == caetano).
   // (const movida para cá — é usada pela mesclagem server+local logo abaixo.)
@@ -208,6 +228,59 @@ export const SongList: React.FC<SongListProps> = ({
 
   // Mescla resultados do banco (busca global) com o filtro local (importações
   // recentes), dedupando por id — server primeiro (já vem ranqueado).
+  //
+  // ── MODO ARTISTA ── quando um artista está selecionado, a RPC
+  // songs_by_artist devolve o GRUPO normalizado inteiro (pega variantes de
+  // caixa/acento/pontuação que o == local perde — ex.: "Eric Clapton" vs
+  // "Eric Clapton." do scraping). O filtro local entra só como complemento
+  // (importações recentes ainda não sincronizadas).
+  const [artistSongs, setArtistSongs] = useState<Song[] | null>(null);
+  const [artistLoading, setArtistLoading] = useState(false);
+  const [artistLoadingMore, setArtistLoadingMore] = useState(false);
+  const [artistDone, setArtistDone] = useState(true);
+
+  useEffect(() => {
+    const artist = selectedArtistFilter !== 'all' ? selectedArtistFilter : '';
+    if (!artist) {
+      setArtistSongs(null);
+      setArtistDone(true);
+      setArtistLoading(false);
+      return;
+    }
+    let vigente = true;
+    setArtistLoading(true);
+    setArtistSongs(null);
+    fetchSongsByArtistServer(artist, 50, 0).then((res) => {
+      if (!vigente) return;
+      setArtistSongs(res.songs); // null = RPC indisponível → degrada p/ local
+      setArtistDone(res.done);
+      setArtistLoading(false);
+    });
+    return () => {
+      vigente = false;
+    };
+  }, [selectedArtistFilter]);
+
+  const artistMode = selectedArtistFilter !== 'all' && artistSongs !== null;
+
+  const loadMoreArtist = useCallback(() => {
+    const artist = selectedArtistFilter;
+    if (artist === 'all' || artistLoadingMore || artistDone || artistSongs === null) return;
+    setArtistLoadingMore(true);
+    fetchSongsByArtistServer(artist, 50, artistSongs.length).then((res) => {
+      setArtistLoadingMore(false);
+      if (res.songs === null) {
+        setArtistDone(true);
+        return;
+      }
+      setArtistSongs((prev) => {
+        const vistos = new Set((prev ?? []).map((x) => x.id));
+        return [...(prev ?? []), ...res.songs!.filter((x) => !vistos.has(x.id))];
+      });
+      setArtistDone(res.done);
+    });
+  }, [selectedArtistFilter, artistSongs, artistLoadingMore, artistDone]);
+
   const filteredSongs = useMemo(() => {
     const local = songs.filter((s) => {
       const query = normalizeSearch(searchQuery.trim());
@@ -236,6 +309,32 @@ export const SongList: React.FC<SongListProps> = ({
       return matchSearch && matchDifficulty && matchCategory && matchArtist;
     });
 
+    // Modo artista: RPC songs_by_artist (grupo normalizado inteiro) + locais.
+    // Dificuldade/categoria continuam valendo sobre o resultado do servidor.
+    if (selectedArtistFilter !== 'all') {
+      if (artistSongs === null) return local; // RPC indisponível → só local
+      // Comparação via string: o type Song restringe difficulty a 3 valores,
+      // mas o banco pode devolver 'Iniciante'/'Intermediário' (imports).
+      const passaFiltros = (s: Song) => {
+        const d = s.difficulty as string | undefined;
+        const filtro = selectedDifficulty as string;
+        const okDifficulty =
+          selectedDifficulty === 'all' ||
+          d === filtro ||
+          (filtro === 'Simplificado' && (d === 'Iniciante' || d === 'Simplificado')) ||
+          (filtro === 'Médio' && (d === 'Intermediário' || d === 'Médio'));
+        return (
+          okDifficulty &&
+          (selectedCategory === 'all' ||
+            (s.category && s.category.toLowerCase() === selectedCategory.toLowerCase()))
+        );
+      };
+      const base = artistSongs.filter(passaFiltros);
+      const vistos = new Set(base.map((s) => s.id));
+      const extras = local.filter((s) => !vistos.has(s.id));
+      return [...base, ...extras];
+    }
+
     if (!serverResultsReady) return local;
 
     const vistos = new Set(local.map((s) => s.id));
@@ -247,7 +346,7 @@ export const SongList: React.FC<SongListProps> = ({
     }
     return [...local, ...extras];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [songs, searchQuery, selectedDifficulty, selectedCategory, selectedArtistFilter, serverResultsReady, server.songs]);
+  }, [songs, searchQuery, selectedDifficulty, selectedCategory, selectedArtistFilter, serverResultsReady, server.songs, artistSongs]);
 
   const [showAllArtists, setShowAllArtists] = useState<boolean>(false);
   // Lista de artistas secundária: no celular já nasce recolhida (só o cabeçalho
@@ -804,7 +903,9 @@ export const SongList: React.FC<SongListProps> = ({
                     {selectedArtistFilter}
                   </p>
                   <p className="text-[10px] font-extrabold text-[#0E7C7B]">
-                    {selectedArtistCount > 0
+                    {artistMode
+                      ? `${filteredSongs.length} ${t('library.songsCount')}`
+                      : selectedArtistCount > 0
                       ? `${selectedArtistCount} ${t('library.songsCount')}`
                       : t('library.noArtistSongs')}
                   </p>
@@ -1065,10 +1166,23 @@ export const SongList: React.FC<SongListProps> = ({
               {hasMore && (
                 <div className="pt-2">
                   <button
-                    onClick={() => setVisibleCount((c) => c + 10)}
+                    onClick={() => {
+                      setVisibleCount((c) => c + 10);
+                      // Modo artista: perto do fim da página local, busca a
+                      // próxima página do acervo do artista no banco.
+                      if (
+                        selectedArtistFilter !== 'all' &&
+                        !artistDone &&
+                        visibleCount + 10 >= filteredSongs.length - 20
+                      ) {
+                        loadMoreArtist();
+                      }
+                    }}
                     className="w-full py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-extrabold text-slate-600 hover:text-orange-600 hover:border-orange-300 transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                   >
-                    {t('library.showMore')} ({filteredSongs.length - visibleCount} restantes)
+                    {artistLoadingMore
+                      ? t('library.loadingMore')
+                      : `${t('library.showMore')} (${filteredSongs.length - visibleCount} ${t('library.remainingLower')})`}
                     <ChevronDown className="w-3.5 h-3.5" />
                   </button>
                   <p className="text-center text-[10px] text-slate-400 font-bold mt-1.5">

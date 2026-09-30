@@ -1,6 +1,8 @@
 /**
  * Verifica o estado das importações: cron_log recente (quem rodou, o que importou)
- * e o total por plataforma/idioma. Usa a conta UkeMaster (dist-cron/.env).
+ * e o total por plataforma/idioma. Autentica pela SUPABASE_SERVICE_ROLE_KEY do
+ * .env.local quando presente (sem login UkeMaster); cai para o login
+ * CRON_UKEMATER_* (dist-cron/.env) se a service key não estiver disponível.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -25,18 +27,26 @@ const email = env.CRON_UKEMATER_EMAIL;
 const password = env.CRON_UKEMATER_PASSWORD;
 
 async function main() {
-  // Login como UkeMaster
-  const login = await fetch(`${url}/auth/v1/token?grant_type=password`, {
-    method: 'POST',
-    headers: { apikey: anon, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
-  });
-  if (!login.ok) {
-    console.error('login UkeMaster falhou', login.status);
-    process.exit(1);
+  // 1) Service role key (bypassa RLS, sem login) — caminho preferido.
+  const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SECRET_KEY || '';
+  let headers: Record<string, string>;
+  if (serviceKey) {
+    console.log('autenticando via SUPABASE_SERVICE_ROLE_KEY (sem login UkeMaster)');
+    headers = { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` };
+  } else {
+    // 2) Fallback: login como UkeMaster (password grant).
+    const login = await fetch(`${url}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: { apikey: anon, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    if (!login.ok) {
+      console.error('login UkeMaster falhou', login.status);
+      process.exit(1);
+    }
+    const { access_token } = (await login.json()) as { access_token: string };
+    headers = { apikey: anon, Authorization: `Bearer ${access_token}` };
   }
-  const { access_token } = (await login.json()) as { access_token: string };
-  const headers = { apikey: anon, Authorization: `Bearer ${access_token}` };
 
   // Últimas 25 execuções do cron_log (mais recentes primeiro)
   const logRes = await fetch(

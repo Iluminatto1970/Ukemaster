@@ -291,6 +291,17 @@ export default function App() {
   }, []);
 
   const [searchQuery, setSearchQuery] = useState<string>('');
+  // "Ver todas as músicas do artista" (autocomplete do Header): objeto com
+  // seq crescente para re-disparar o efeito no SongList mesmo ao re-clicar
+  // no MESMO artista (ex.: usuário limpou o filtro e clicou de novo).
+  const [artistRequest, setArtistRequest] = useState<{ name: string; seq: number } | null>(null);
+  const artistRequestSeq = useRef(0);
+  const handleSelectArtist = useCallback((name: string) => {
+    setArtistRequest({ name, seq: ++artistRequestSeq.current });
+    setSearchQuery('');
+    setActiveTab('musicas');
+    setViewMode('list');
+  }, []);
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
   const [editingSong, setEditingSong] = useState<Song | null>(null);
   const [isCreatingNew, setIsCreatingNew] = useState<boolean>(false);
@@ -1335,6 +1346,7 @@ export default function App() {
               }
             }
           }}
+          onSelectArtist={handleSelectArtist}
         />
       </div>
 
@@ -1434,6 +1446,7 @@ export default function App() {
                     onImportSongs={handleImportSongs}
                     searchQuery={searchQuery}
                     setSearchQuery={setSearchQuery}
+                    artistRequest={artistRequest ?? undefined}
                     myVotes={myVotes}
                     onVoteSong={handleVoteSong}
                     isAdmin={isAdmin}

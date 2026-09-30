@@ -242,9 +242,35 @@ async function getCronToken(url: string): Promise<string | null> {
   return cachedCronToken;
 }
 
-/** Headers padrão das chamadas REST: apikey do projeto + Bearer (JWT do
- * UkeMaster quando disponível, senão a anon key como fallback de transição). */
+/** Service role key (env SUPABASE_SERVICE_ROLE_KEY) — bypassa RLS. Quando
+ * presente (máquinas de cron/desktop, .env local ou Vercel), o cron usa esta
+ * key direto e NÃO precisa do login UkeMaster (CRON_UKEMATER_*). A key é
+ * server-side: nunca vai ao bundle do frontend. */
+function getServiceRoleKeyFromEnv(): string | null {
+  const k =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_SECRET_KEY ||
+    '';
+  return k || null;
+}
+
+let serviceRoleWarned = false;
+
+/** Headers padrão das chamadas REST: apikey do projeto + Bearer. Prioridade:
+ *  1. SUPABASE_SERVICE_ROLE_KEY (env) — bypassa RLS, sem login (desktop/cron).
+ *  2. JWT da conta UkeMaster (password grant) quando a service key não está
+ *     disponível — mantém as escritas funcionando nas máquinas com CRON_UKEMATER_*.
+ *  3. Fallback final: a própria publishable key (anon) — modo de transição.
+ */
 export async function cronHeaders(key: string): Promise<Record<string, string>> {
+  const serviceKey = getServiceRoleKeyFromEnv();
+  if (serviceKey) {
+    if (!serviceRoleWarned) {
+      console.log('[cron-auth] usando SUPABASE_SERVICE_ROLE_KEY (sem login UkeMaster).');
+      serviceRoleWarned = true;
+    }
+    return { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` };
+  }
   const token = await getCronToken(getSupabaseEnv().url);
   return { apikey: key, Authorization: `Bearer ${token || key}` };
 }

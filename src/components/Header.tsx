@@ -8,13 +8,16 @@ import { DonationModal } from './DonationModal';
 import { useAuth } from '../auth';
 import { useT, LANGS } from '../lib/i18n';
 import { useSearchSuggestions } from '../lib/useSearchSuggestions';
-import { Search, Menu, Sparkles, Bell, Mail, LogOut, Globe, Check, Music } from 'lucide-react';
+import { useArtistSuggestions } from '../lib/useArtistSuggestions';
+import { Search, Menu, Sparkles, Bell, Mail, LogOut, Globe, Check, Music, User } from 'lucide-react';
 
 interface HeaderProps {
   setActiveTab: (tab: ActiveTab) => void;
   onToggleMobileSidebar?: () => void;
   searchQuery?: string;
   setSearchQuery?: (query: string) => void;
+  /** Seleciona um artista e abre a listagem completa das músicas dele. */
+  onSelectArtist?: (artist: string) => void;
   /** Estado do modal de doação controlado pelo App (disparo automático). */
   donationOpen?: boolean;
   onOpenDonation?: () => void;
@@ -26,6 +29,7 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleMobileSidebar,
   searchQuery = '',
   setSearchQuery,
+  onSelectArtist,
   donationOpen = false,
   onOpenDonation,
   onCloseDonation,
@@ -50,6 +54,28 @@ export const Header: React.FC<HeaderProps> = ({
   const [activeIdx, setActiveIdx] = useState(0);
   const suggestRef = useRef<HTMLDivElement>(null);
 
+  // ── Artistas que casam com o termo (RPC search_artists) ──
+  // Permite ir direto para o ACERVO do artista (“ver todas as músicas”)
+  // em vez de escolher uma única música sugerida.
+  const { artists: artistSuggestions, unavailable: artistsUnavailable } =
+    useArtistSuggestions(searchQuery);
+
+  /** Ação da tecla Enter / clique: 1º artista tem prioridade sobre músicas. */
+  const confirmActiveSuggestion = () => {
+    const artistCount = Math.min(3, artistSuggestions.length);
+    if (activeIdx < artistCount) {
+      const a = artistSuggestions[activeIdx];
+      if (a && onSelectArtist) {
+        onSelectArtist(a.artist);
+        setSuggestOpen(false);
+        return;
+      }
+    }
+    const songIdx = activeIdx - artistCount;
+    const s = suggestions[songIdx];
+    if (s) pickSuggestion(s.title, s.artist);
+  };
+
   useEffect(() => {
     setActiveIdx(0);
   }, [suggestions]);
@@ -65,7 +91,9 @@ export const Header: React.FC<HeaderProps> = ({
   }, []);
 
   const showSuggestions =
-    suggestOpen && searchQuery.trim().length >= 3 && (suggestions.length > 0 || suggestionsLoading);
+    suggestOpen &&
+    searchQuery.trim().length >= 3 &&
+    (suggestions.length > 0 || suggestionsLoading || artistSuggestions.length > 0);
 
   const pickSuggestion = (title: string, artist: string) => {
     setSearchQuery?.(`${title} ${artist}`.trim());
@@ -126,17 +154,20 @@ export const Header: React.FC<HeaderProps> = ({
                   }}
                   onFocus={() => setSuggestOpen(true)}
                   onKeyDown={(e) => {
-                    if (!showSuggestions || suggestions.length === 0) return;
+                    if (!showSuggestions) return;
+                    const total =
+                      Math.min(3, artistSuggestions.length) +
+                      Math.min(Math.max(2, 5 - artistSuggestions.length), suggestions.length);
+                    if (total === 0) return;
                     if (e.key === 'ArrowDown') {
                       e.preventDefault();
-                      setActiveIdx((i) => Math.min(i + 1, suggestions.length - 1));
+                      setActiveIdx((i) => Math.min(i + 1, total - 1));
                     } else if (e.key === 'ArrowUp') {
                       e.preventDefault();
                       setActiveIdx((i) => Math.max(i - 1, 0));
                     } else if (e.key === 'Enter') {
                       e.preventDefault();
-                      const s = suggestions[activeIdx] ?? suggestions[0];
-                      if (s) pickSuggestion(s.title, s.artist);
+                      confirmActiveSuggestion();
                     } else if (e.key === 'Escape') {
                       setSuggestOpen(false);
                     }
@@ -159,27 +190,69 @@ export const Header: React.FC<HeaderProps> = ({
                     {suggestionsLoading && suggestions.length === 0 ? (
                       <p className="px-3 py-2 text-xs text-slate-400 font-semibold">…</p>
                     ) : (
-                      suggestions.map((s, i) => (
-                        <button
-                          key={s.id + ':' + i}
-                          role="option"
-                          aria-selected={i === activeIdx}
-                          onMouseDown={(e) => e.preventDefault()}
-                          onMouseEnter={() => setActiveIdx(i)}
-                          onClick={() => pickSuggestion(s.title, s.artist)}
-                          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-xs transition-colors cursor-pointer ${
-                            i === activeIdx
-                              ? 'bg-amber-50 text-[#F26419]'
-                              : 'text-slate-700 hover:bg-slate-50'
-                          }`}
-                        >
-                          <Music className="w-3.5 h-3.5 shrink-0 text-[#0E7C7B]" />
-                          <span className="flex-1 min-w-0 truncate">
-                            <span className="font-bold text-[#1D2D44]">{s.title}</span>
-                            <span className="text-slate-400 font-medium"> — {s.artist}</span>
-                          </span>
-                        </button>
-                      ))
+                      <>
+                        {artistSuggestions.length > 0 && !artistsUnavailable && (
+                          <>
+                            <p className="px-3 pt-1.5 pb-1 text-[9px] font-black uppercase tracking-widest text-slate-400">
+                              {t('library.artists')}
+                            </p>
+                            {artistSuggestions.slice(0, 3).map((a, i) => (
+                              <button
+                                key={'a:' + a.artist}
+                                role="option"
+                                aria-selected={i === activeIdx}
+                                onMouseDown={(e) => e.preventDefault()}
+                                onMouseEnter={() => setActiveIdx(i)}
+                                onClick={() => {
+                                  onSelectArtist?.(a.artist);
+                                  setSuggestOpen(false);
+                                }}
+                                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-xs transition-colors cursor-pointer ${
+                                  i === activeIdx
+                                    ? 'bg-amber-50 text-[#F26419]'
+                                    : 'text-slate-700 hover:bg-slate-50'
+                                }`}
+                              >
+                                <User className="w-3.5 h-3.5 shrink-0 text-[#F26419]" />
+                                <span className="flex-1 min-w-0 truncate">
+                                  <span className="font-bold text-[#1D2D44]">{a.artist}</span>
+                                  <span className="text-slate-400 font-medium">
+                                    {' '}
+                                    —{' '}
+                                    {a.songs_count === 1
+                                      ? t('header.oneSong')
+                                      : `${a.songs_count} ${t('library.songsCount')}`}
+                                  </span>
+                                </span>
+                                <span className="text-[9px] font-black uppercase tracking-wide text-[#0E7C7B] shrink-0">
+                                  {t('header.seeAll')}
+                                </span>
+                              </button>
+                            ))}
+                          </>
+                        )}
+                        {suggestions.slice(0, Math.max(2, 5 - artistSuggestions.length)).map((s, i) => (
+                          <button
+                            key={s.id + ':' + i}
+                            role="option"
+                            aria-selected={i + artistSuggestions.length === activeIdx}
+                            onMouseDown={(e) => e.preventDefault()}
+                            onMouseEnter={() => setActiveIdx(i + artistSuggestions.length)}
+                            onClick={() => pickSuggestion(s.title, s.artist)}
+                            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-xs transition-colors cursor-pointer ${
+                              i + artistSuggestions.length === activeIdx
+                                ? 'bg-amber-50 text-[#F26419]'
+                                : 'text-slate-700 hover:bg-slate-50'
+                            }`}
+                          >
+                            <Music className="w-3.5 h-3.5 shrink-0 text-[#0E7C7B]" />
+                            <span className="flex-1 min-w-0 truncate">
+                              <span className="font-bold text-[#1D2D44]">{s.title}</span>
+                              <span className="text-slate-400 font-medium"> — {s.artist}</span>
+                            </span>
+                          </button>
+                        ))}
+                      </>
                     )}
                   </div>
                 )}

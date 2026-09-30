@@ -44,6 +44,10 @@ interface RpcRow {
 /** Depois de detectar RPC ausente (404/PGRST202), não insiste a cada tecla. */
 let rpcUnavailable = false;
 
+/** Flags independentes para as RPCs de artista (não derrubam a search_songs). */
+let artistsRpcUnavailable = false;
+let byArtistRpcUnavailable = false;
+
 /**
  * Termo mínimo para o autocomplete.
  *
@@ -216,4 +220,99 @@ function normForDedupe(s: string): string {
     .toLowerCase()
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+/** ══════════════════════════════════════════════════════════════════
+ *  ARTISTAS — RPC search_artists + songs_by_artist
+ *
+ *  O autocomplete de músicas sugere UMA música por vez — para ouvir o
+ *  ACERVO de um artista (dezenas/centenas de cifras) o app precisa da
+ *  RPC search_artists (grupos dedupe por ukm_norm + contagem) e da
+ *  songs_by_artist (todas as músicas do artista, paginada).
+ *  ══════════════════════════════════════════════════════════════════ */
+
+/** Linha devolvida pela RPC search_artists. */
+export interface ArtistSearchResult {
+  artist: string;
+  songs_count: number;
+}
+
+async function rpcPost<T>(
+  fn: string,
+  body: Record<string, unknown>
+): Promise<{ status: number; data: T | null }> {
+  const cfg = getSupabase();
+  if (!cfg) return { status: 0, data: null };
+  const token = getSessionAccessToken();
+  const resp = await fetch(`${cfg.url}/rest/v1/rpc/${fn}`, {
+    method: 'POST',
+    headers: {
+      apikey: cfg.anonKey,
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(body),
+  });
+  if (!resp.ok) return { status: resp.status, data: null };
+  return { status: resp.status, data: (await resp.json()) as T };
+}
+
+/**
+ * Busca de ARTISTAS no acervo completo (grupos normalizados + contagem).
+ * @returns null quando a RPC está indisponível (degradação silenciosa).
+ */
+export async function searchArtistsServer(
+  q: string,
+  lim = 6
+): Promise<ArtistSearchResult[] | null> {
+  const termo = q.trim();
+  if (!getSupabase() || artistsRpcUnavailable || termo.length < MIN_SUGGEST_LEN) {
+    return artistsRpcUnavailable ? null : [];
+  }
+  try {
+    const { status, data } = await rpcPost<ArtistSearchResult[]>('search_artists', {
+      q: termo,
+      lim,
+    });
+    if (status === 404 || status === 501) {
+      artistsRpcUnavailable = true;
+      return null;
+    }
+    if (!Array.isArray(data)) return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Todas as músicas de um artista (paginada, dedupe por forma normalizada —
+ * pega o grupo inteiro mesmo com variações de caixa/acento/pontuação).
+ * @returns null quando a RPC está indisponível.
+ */
+export async function fetchSongsByArtistServer(
+  artist: string,
+  lim = 50,
+  off = 0
+): Promise<{ songs: Song[] | null; done: boolean }> {
+  if (!getSupabase() || byArtistRpcUnavailable || !artist.trim()) {
+    return { songs: null, done: true };
+  }
+  try {
+    const { status, data } = await rpcPost<RpcRow[]>('songs_by_artist', {
+      p_artist: artist,
+      lim,
+      off,
+    });
+    if (status === 404 || status === 501) {
+      byArtistRpcUnavailable = true;
+      return { songs: null, done: true };
+    }
+    if (!Array.isArray(data)) return { songs: null, done: true };
+    const songs = data.map(mapRpcRow);
+    // Menos linhas que o limite → acabou o acervo do artista.
+    return { songs, done: data.length < lim };
+  } catch {
+    return { songs: null, done: true };
+  }
 }

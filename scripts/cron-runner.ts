@@ -46,6 +46,10 @@ function loadEnv(file: string) {
 
 const envFile = process.env.CRON_ENV_FILE || '.env';
 loadEnv(envFile);
+// .env.local sobrepõe (mesma convenção do Vite/CRA) — é onde vivem as envs
+// locais por máquina (ex.: SUPABASE_SERVICE_ROLE_KEY para o cron rodar sem
+// login UkeMaster).
+loadEnv('.env.local');
 
 // ── Parse de argumentos simples ────────────────────────────────────────────
 const args = process.argv.slice(2);
