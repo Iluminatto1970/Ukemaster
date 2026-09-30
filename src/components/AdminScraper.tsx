@@ -839,7 +839,13 @@ export const AdminScraper: React.FC<AdminScraperProps> = ({ songs, onImportSongs
                       : 'bg-slate-100 text-slate-400 border-slate-200'
                   }`}
                 >
-                  {platform.enabled ? `Ativa • ${platform.artistPages.length} artistas` : 'Desligada (anti-bot)'}
+                  {platform.enabled
+                    ? `Ativa • ${platform.catalogBased
+                        ? 'catálogo completo'
+                        : platform.artistQuery
+                        ? `${platform.artistQuery.names.length} artistas`
+                        : `${platform.artistPages.length} artistas`}`
+                    : 'Desligada (anti-bot)'}
                 </span>
               </div>
               <p className="text-[10px] text-slate-400">

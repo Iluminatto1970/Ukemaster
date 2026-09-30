@@ -91,11 +91,35 @@ export const AdminSignupWatch: React.FC<AdminSignupWatchProps> = ({
       }
     };
 
-    poll();
-    const timer = setInterval(poll, POLL_MS);
+    // Economia de requisições: só faz polling com a aba VISÍVEL. Com a aba
+    // em background o interval para (o browser até limitaria o timer, mas
+    // parar de vez evita requisições inúteis ao Supabase/Vercel); ao voltar
+    // para a aba, um poll imediato atualiza badges/toast na hora.
+    let timer: ReturnType<typeof setInterval> | null = null;
+    const start = () => {
+      if (!timer) timer = setInterval(poll, POLL_MS);
+    };
+    const stop = () => {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        poll();
+        start();
+      } else {
+        stop();
+      }
+    };
+
+    onVisibility(); // estado inicial (poll imediato se já estiver visível)
+    document.addEventListener('visibilitychange', onVisibility);
     return () => {
       cancelled = true;
-      clearInterval(timer);
+      document.removeEventListener('visibilitychange', onVisibility);
+      stop();
       if (toastTimer.current) clearTimeout(toastTimer.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

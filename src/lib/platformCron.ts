@@ -284,7 +284,7 @@ async function fetchAllRows(
   key: string,
   table: string,
   columns: string,
-  maxRows = 20_000
+  maxRows = 100_000
 ): Promise<any[]> {
   const rows: any[] = [];
   const pageSize = 1000;
@@ -399,7 +399,11 @@ async function upsertRows(url: string, key: string, table: string, rows: any[]):
 async function fetchExistingSongs(url: string, key: string): Promise<Song[]> {
   // category entra para o modo ATUALIZAÇÃO preservar categorias reais já
   // corrigidas no banco (se a inferência do scraper falhar e disser 'Outros').
-  const rows = await fetchAllRows(url, key, 'songs', 'id,title,artist,category');
+  // Teto de 100k: o acervo passou de 63.000 músicas — com o teto antigo
+  // (20k) o dedupe só via as 20k primeiras e as demais voltavam como
+  // "novas", violando a constraint única title+artist (409) e descartando
+  // o lote inteiro da rodada.
+  const rows = await fetchAllRows(url, key, 'songs', 'id,title,artist,category', 100_000);
   return rows as Song[];
 }
 

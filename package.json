@@ -15,7 +15,8 @@
     "cron:install": "bash scripts/cron/install.sh",
     "cron:uninstall": "bash scripts/cron/uninstall.sh",
     "cron:test": "node dist-cron/ukemaster-cron.mjs --fast --budget 20000",
-    "cron:deploy": "node scripts/deploy-workers.mjs"
+    "cron:deploy": "node scripts/deploy-workers.mjs",
+    "test": "node tests/api-not-in-vite.test.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

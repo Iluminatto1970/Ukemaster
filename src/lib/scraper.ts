@@ -45,6 +45,131 @@ export interface ScrapeArtistOptions {
 const USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
+/* ────────────────────────────────────────────────────────────────────────
+ * Rate-limit adaptativo por host (mitigação do HTTP 429 do CifraClub)
+ *
+ * Quando o site responde 429, TODAS as requisições seguintes ao mesmo host
+ * esperam um cooldown antes de sair (circuit-breaker) e o espaçamento entre
+ * requisições dobra progressivamente (até um teto). Com uma sequência de
+ * sucessos o espaçamento decai de volta ao normal — o cron se auto-regula
+ * em vez de martelar o site e levar bloqueio longo.
+ *
+ * Override operacional: CRON_BASE_DELAY_MS define o delay-base global.
+ * ──────────────────────────────────────────────────────────────────────── */
+interface HostRateState {
+  /** Delay atual entre requisições (ms) — cresce com 429, decai com sucesso. */
+  currentDelayMs: number;
+  /** Timestamp (Date.now()) até o qual o host está em cooldown (429). */
+  blockedUntil: number;
+  /** Sucessos consecutivos desde o último 429 (para decair o delay). */
+  consecutiveOk: number;
+  /** Contagem de 429 na janela atual (para diagnóstico/log). */
+  hits: number;
+}
+
+const RATE_BASE_DELAY_MS = Math.max(
+  0,
+  Number.parseInt(process.env.CRON_BASE_DELAY_MS ?? '', 10) || 500
+);
+const RATE_MAX_DELAY_MS = 15_000; // teto do espaçamento adaptativo
+const RATE_COOLDOWN_DEFAULT_MS = 30_000; // pausa base após 429
+const RATE_COOLDOWN_MAX_MS = 5 * 60_000; // teto do circuit-breaker
+
+const hostRates = new Map<string, HostRateState>();
+
+function hostOf(url: string): string {
+  try {
+    return new URL(url).hostname.toLowerCase();
+  } catch {
+    return 'unknown';
+  }
+}
+
+function getRateState(host: string): HostRateState {
+  let st = hostRates.get(host);
+  if (!st) {
+    st = {
+      currentDelayMs: RATE_BASE_DELAY_MS,
+      blockedUntil: 0,
+      consecutiveOk: 0,
+      hits: 0,
+    };
+    hostRates.set(host, st);
+  }
+  return st;
+}
+
+/** Notifica 429/503: abre cooldown (circuit-breaker) e dobra o espaçamento. */
+function notifyRateLimited(url: string, retryAfterHeader?: string | null): void {
+  const st = getRateState(hostOf(url));
+  st.hits++;
+  st.consecutiveOk = 0;
+  // Espaçamento dobra a cada 429 (1.5x… preferimos dobra agressiva): 500 →
+  // 1s → 2s → 4s → 8s → teto 15s.
+  st.currentDelayMs = Math.min(RATE_MAX_DELAY_MS, st.currentDelayMs * 2 || RATE_BASE_DELAY_MS);
+  // Cooldown: honra Retry-After (segundos) quando presente; senão, exponencial
+  // com o número de hits (30s → 60s → 120s… teto 5min).
+  const retryAfter = Number.parseInt(retryAfterHeader ?? '', 10);
+  const cooldown =
+    Number.isFinite(retryAfter) && retryAfter > 0
+      ? Math.min(RATE_COOLDOWN_MAX_MS, retryAfter * 1_000)
+      : Math.min(RATE_COOLDOWN_MAX_MS, RATE_COOLDOWN_DEFAULT_MS * Math.pow(2, st.hits - 1));
+  st.blockedUntil = Math.max(st.blockedUntil, Date.now() + cooldown);
+  console.log(
+    `[rate-limit] ${hostOf(url)}: 429 — pausa ${Math.round(cooldown / 1000)}s, espaçamento agora ${st.currentDelayMs}ms (hits: ${st.hits}).`
+  );
+}
+
+/** Notifica sucesso: com 5+ sucessos seguidos, o espaçamento decai 20%/passo. */
+function notifySuccess(url: string): void {
+  const st = getRateState(hostOf(url));
+  st.consecutiveOk++;
+  if (st.consecutiveOk >= 5 && st.currentDelayMs > RATE_BASE_DELAY_MS) {
+    st.currentDelayMs = Math.max(RATE_BASE_DELAY_MS, Math.floor(st.currentDelayMs * 0.8));
+    st.consecutiveOk = 0; // decai de 20% em 20%, não em cascata instantânea
+  }
+}
+
+/**
+ * Delay educado a respeitar antes da PRÓXIMA requisição ao host da URL.
+ * Combina o espaçamento adaptativo com o cooldown do circuit-breaker.
+ */
+export function politeDelayMs(url: string): number {
+  const st = getRateState(hostOf(url));
+  const cooldownLeft = Math.max(0, st.blockedUntil - Date.now());
+  return Math.max(st.currentDelayMs, cooldownLeft);
+}
+
+/**
+ * Só o ESPAÇAMENTO adaptativo do host (sem o cooldown do circuit-breaker) —
+ * usado em logs/diagnóstico e testes de decaimento.
+ */
+export function currentSpacingMs(url: string): number {
+  return getRateState(hostOf(url)).currentDelayMs;
+}
+
+/** Espera o que for preciso antes da próxima requisição a este host. */
+async function waitPoliteDelay(url: string): Promise<void> {
+  const wait = politeDelayMs(url);
+  if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+}
+
+/**
+ * Espera só o COOLDOWN restante do circuit-breaker (sem o espaçamento-base):
+ * usada antes de cada tentativa do fetchHtmlWithRetry — o espaçamento entre
+ * requisições é responsabilidade do loop do scraper, não do fetch.
+ */
+async function waitCooldown(url: string): Promise<void> {
+  const st = getRateState(hostOf(url));
+  const left = Math.max(0, st.blockedUntil - Date.now());
+  if (left > 0) await new Promise((r) => setTimeout(r, left));
+}
+
+/** Reset dos contadores (útil em testes). */
+export function resetRateLimitState(): void {
+  hostRates.clear();
+}
+
 /** Busca o HTML de uma URL (com headers de navegador e timeout). */
 export async function fetchHtml(url: string): Promise<string> {
   // Timeout absoluto: um link travado não pode pendurar o cron inteiro.
@@ -61,8 +186,14 @@ export async function fetchHtml(url: string): Promise<string> {
       },
     });
     if (!res.ok) {
+      // 429/503: registra no estado global do host (circuit-breaker +
+      // espaçamento adaptativo) ANTES de propagar o erro.
+      if (res.status === 429 || res.status === 503) {
+        notifyRateLimited(url, res.headers.get('retry-after'));
+      }
       throw new Error(`O site respondeu com status ${res.status}.`);
     }
+    notifySuccess(url);
     return await res.text();
   } finally {
     clearTimeout(timer);
@@ -883,25 +1014,34 @@ export function inferCategory(artist: string): string {
 }
 
 /**
- * fetchHtml com retry educado: sob rate-limit (429/503) ou timeout, tenta de
- * novo com backoff (2s, 4s). Evita que um burst derrube o cron inteiro.
+ * fetchHtml com retry e backoff LONGO sob rate-limit (429/503):
+ * espera o cooldown do circuit-breaker antes de cada nova tentativa e
+ * usa backoff 5s → 15s → 45s (até 4 tentativas). O 403 NÃO é retentável
+ * (quase sempre bloqueio definitivo de IP — insistir agrava).
  */
 async function fetchHtmlWithRetry(url: string): Promise<string> {
-  const maxAttempts = 3;
+  const maxAttempts = 4;
+  let lastError: any;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    // Respeita o cooldown do host antes de (re)tentar — inclusive na 1ª
+    // tentativa: se um 429 recente abriu o circuit-breaker, esperamos.
+    await waitCooldown(url);
     try {
-      return await fetchHtml(url);
+      const html = await fetchHtml(url);
+      return html;
     } catch (e: any) {
+      lastError = e;
       const msg = e?.message || '';
-      const retriable = /status (429|503|403)/.test(msg) || e?.name === 'AbortError';
+      const retriable = /status (429|503)/.test(msg) || e?.name === 'AbortError';
       if (retriable && attempt < maxAttempts) {
-        await new Promise((r) => setTimeout(r, 2_000 * attempt));
+        const backoff = 5_000 * Math.pow(3, attempt - 1); // 5s → 15s → 45s
+        await new Promise((r) => setTimeout(r, backoff));
         continue;
       }
       throw e;
     }
   }
-  throw new Error('Falha após tentativas de busca.');
+  throw lastError ?? new Error('Falha após tentativas de busca.');
 }
 
 /**
@@ -1214,7 +1354,8 @@ export async function discoverArtistSongLinks(
   }
 
   const startedAt = Date.now();
-  const html = await fetchHtml(url);
+  // Descoberta usa o MESMO caminho educado das músicas (retry + cooldown).
+  const html = await fetchHtmlWithRetry(url);
   const links = discoverSongLinks(html, url);
   const isUltimateGuitar = new URL(url).hostname.includes('ultimate-guitar');
 
@@ -1234,7 +1375,7 @@ export async function discoverArtistSongLinks(
     // desperdiçados em testes/limites pequenos).
     if (options.limit && links.length >= options.limit) break;
     try {
-      const catHtml = await fetchHtml(catalogUrl);
+      const catHtml = await fetchHtmlWithRetry(catalogUrl);
       const catLinks = discoverSongLinks(catHtml, url).filter((l) => {
         if (isUltimateGuitar) return true;
         const p = new URL(l.url).pathname.replace(/\/$/, '');
@@ -1279,10 +1420,16 @@ export async function scrapeArtistPage(
   // Override operacional: CRON_PAGE_DELAY_MS manda sobre o delay da
   // plataforma (ex.: rodar devagar após bloqueio 403 do site de origem).
   const envDelay = Number.parseInt(process.env.CRON_PAGE_DELAY_MS ?? '', 10);
-  const delayMs =
+  const configuredDelay =
     Number.isFinite(envDelay) && envDelay >= 0
       ? envDelay
       : (options.delayMs ?? 600);
+  // Piso: nunca abaixo do delay-base do rate limiter (CRON_BASE_DELAY_MS,
+  // padrão 500ms) — o espaçamento adaptativo pode subir daí pra cima.
+  // delayMs=0 EXPLÍCITO (modo fast do cron) continua sem espaçamento; só o
+  // cooldown do circuit-breaker pós-429 o pauses mesmo no fast.
+  const delayMs =
+    configuredDelay === 0 ? 0 : Math.max(configuredDelay, RATE_BASE_DELAY_MS);
   const timeoutMs = options.timeoutMs || 0;
   const startedAt = Date.now();
   const url = normalizeUrl(pageUrl);
@@ -1332,8 +1479,14 @@ export async function scrapeArtistPage(
 
     options.onProgress?.(i + 1, cappedLinks.length, link);
 
-    if (i < cappedLinks.length - 1 && delayMs > 0) {
-      await new Promise((r) => setTimeout(r, delayMs));
+    if (i < cappedLinks.length - 1) {
+      // Espaçamento educado: o MAIOR entre o delay da plataforma (ou env) e
+      // o delay adaptativo do host — após 429 o host impõe pausa maior
+      // (cooldown do circuit-breaker), que decai sozinha quando estável.
+      const effective = Math.max(delayMs, politeDelayMs(link.url));
+      if (effective > 0) {
+        await new Promise((r) => setTimeout(r, effective));
+      }
     }
   }
 
