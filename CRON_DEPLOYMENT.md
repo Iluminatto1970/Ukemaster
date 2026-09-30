@@ -127,7 +127,7 @@ CRON_TIME_BUDGET_MS=900000
 > cadastro do app (ou peça a senha ao proprietário) e configure as duas
 > vars `CRON_UKEMATER_*` em TODAS as máquinas + Vercel. Sem elas o cron
 > degrada para a anon key — e passa a falhar assim que o RLS de `songs`
-> exigir login (supabase/migration-completa.sql, Parte 3).
+> exigir login (supabase/migrations/20260929210000_search_artists_e_rls_chord_dictionary.sql, seção 3 — já aplicada).
 
 ---
 

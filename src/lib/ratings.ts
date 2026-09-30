@@ -33,7 +33,7 @@ const LOCAL_MY_VOTES_KEY = 'ukemaster_local_myvotes_v1'; // string[] (song ids)
  * Id do votante: o id REAL do usuário Supabase quando logado (sem prefixo —
  * casa com auth.uid()::text do RLS, que exige login para votar). Visitantes
  * (sem conta) ganham um id de dispositivo APENAS para o fallback local — a
- * nuvem rejeita voto anônimo (migration-completa.sql).
+ * nuvem rejeita voto anônimo (migrations 20260929210000_*).
  */
 export function getVoterId(userId?: string | null): string {
   if (userId) return userId;
