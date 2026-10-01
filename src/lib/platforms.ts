@@ -118,7 +118,7 @@ export const CHORD_PLATFORMS: ChordPlatform[] = [
     delayMs: 900,
     enabled: false,
     disabledReason:
-      '0 importações históricas (2026-08): Cloudflare bloqueia o fetch do Node por fingerprint TLS e IPs de datacenter (Vercel) por IP — só curl com IP residencial passaria. Reativar só se o cron ganhar fallback curl nas máquinas.',
+      'Bloqueio deliberado anti-automacao (testado 2026-09-30 com IP residencial BR): regra propria do UkuTabs recusa 403 "Access refused" para curl, fetch do Node E Chrome headless real — o proprio site diz que visita "looks automated" e so aceita humanos navegando da homepage. Passar exigiria browser stealth (evasao explicita do pedido do dono). Nao reativar.',
   },
   {
     id: 'ultimate-guitar-en',
