@@ -333,6 +333,14 @@ function discoverUfretLinks(html: string, baseUrl: string): ScrapedLink[] {
   let m: RegExpExecArray | null;
   while ((m = re.exec(html)) !== null) {
     const id = m[1];
+    // Páginas (動画プラス = "Vídeo Plus") do U-FRET NÃO têm a variável JS
+    // ufret_chord_datas no HTML cru — a cifra só é montada via JS no
+    // navegador (serviço html-load.com). Scrapeá-las sempre falha com
+    // "Nenhuma cifra detectada" e queimava ~metade das requisições da
+    // rodada (erros == dups nos logs de 2026-09-30). O <a> dessas entradas
+    // traz <span class="c-icon__youtube">; a MESMA música tem outra
+    // entrada sem o span (versão normal), então nada se perde ao pular.
+    if (/<span[^>]*class="[^"]*c-icon__youtube/.test(m[2])) continue;
     // O <a> traz o título + espaços + sufixos do site ("初心者ver" = versão
     // iniciante) e o nome do ARTISTA no fim — remove tudo isso do título.
     let title = clean(m[2]).replace(/\s+/g, ' ').trim();
