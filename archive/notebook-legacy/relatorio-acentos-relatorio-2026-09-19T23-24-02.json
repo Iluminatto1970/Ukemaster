@@ -1,0 +1,44 @@
+{
+  "gerado_em": "2026-09-19T23:24:02.712Z",
+  "modo": "dry-run",
+  "total_propostas": 2,
+  "campos": {
+    "title": {
+      "linhas_avaliadas": 1000,
+      "janelas": 1,
+      "correcoes": 2,
+      "primeiro_id": "scraped-1785911351600-78mzb1",
+      "ultimo_id": "scraped-1785911449937-mt9964",
+      "exemplos": [
+        {
+          "row_id": "scraped-1785911351600-78mzb1",
+          "old_value": "Sonrie",
+          "new_value": "Sonríe",
+          "current_count": 3,
+          "majority_count": 7,
+          "norm_key": "sonrie",
+          "context_key": "roberto carlos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911449937-mt9964",
+          "old_value": "Tô Por Ai",
+          "new_value": "Tô Por Aí",
+          "current_count": 1,
+          "majority_count": 13,
+          "norm_key": "to por ai",
+          "context_key": "gusttavo lima",
+          "corrigido": false
+        }
+      ]
+    },
+    "artist": {
+      "linhas_avaliadas": 1000,
+      "janelas": 1,
+      "correcoes": 0,
+      "primeiro_id": null,
+      "ultimo_id": null,
+      "exemplos": []
+    }
+  }
+}

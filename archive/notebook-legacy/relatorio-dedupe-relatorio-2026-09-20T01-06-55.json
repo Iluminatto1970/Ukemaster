@@ -1,0 +1,173 @@
+{
+  "gerado_em": "2026-09-20T01:06:55.499Z",
+  "modo": "dry-run",
+  "plano_gerado_em": "2026-09-20T00:57:48.786248+00:00",
+  "resumo": {
+    "catalogo_atual": 394313,
+    "grupos_duplicados": 52901,
+    "linhas_a_remover": 331768,
+    "catalogo_estimado_apos": 62545
+  },
+  "histograma_tamanhos_de_grupo": {
+    "2": 2011,
+    "3": 2714,
+    "4": 3959,
+    "5": 4808,
+    "6": 7067,
+    "7": 8832,
+    "8": 7285,
+    "9": 6106,
+    "10": 3397,
+    "11": 2750,
+    "12": 1924,
+    "13": 1126,
+    "14": 694,
+    "15": 162,
+    "16": 55,
+    "17": 5,
+    "18": 2,
+    "19": 4
+  },
+  "maiores_grupos": [
+    {
+      "norm_title": "friends",
+      "norm_artist": "ed sheeran",
+      "n": 19,
+      "keep": "Friends — Ed Sheeran (scraped-1789012886086-x3o5jp)",
+      "remover": 18
+    },
+    {
+      "norm_title": "fulham broadway",
+      "norm_artist": "ed sheeran",
+      "n": 19,
+      "keep": "Fulham Broadway — Ed Sheeran (scraped-1789012886706-rw0jiu)",
+      "remover": 18
+    },
+    {
+      "norm_title": "homeless",
+      "norm_artist": "ed sheeran",
+      "n": 19,
+      "keep": "Homeless — Ed Sheeran (scraped-1789012891912-mcbg27)",
+      "remover": 18
+    },
+    {
+      "norm_title": "in other words",
+      "norm_artist": "ed sheeran",
+      "n": 19,
+      "keep": "In Other Words — Ed Sheeran (scraped-1789012904438-xidvp4)",
+      "remover": 18
+    },
+    {
+      "norm_title": "galway girl",
+      "norm_artist": "ed sheeran",
+      "n": 18,
+      "keep": "Galway Girl — Ed Sheeran (scraped-1789012831778-o2qqlu)",
+      "remover": 17
+    },
+    {
+      "norm_title": "little lady",
+      "norm_artist": "ed sheeran",
+      "n": 18,
+      "keep": "Little Lady — Ed Sheeran (scraped-1789012912823-4ymm4o)",
+      "remover": 17
+    },
+    {
+      "norm_title": "3 palavrinhas",
+      "norm_artist": "3 palavrinhas",
+      "n": 17,
+      "keep": "3 Palavrinhas — 3 Palavrinhas (scraped-1788993044750-yh4r4p)",
+      "remover": 16
+    },
+    {
+      "norm_title": "gold rush",
+      "norm_artist": "ed sheeran",
+      "n": 17,
+      "keep": "Gold Rush — Ed Sheeran (scraped-1789012887337-hu53i2)",
+      "remover": 16
+    },
+    {
+      "norm_title": "grade 8",
+      "norm_artist": "ed sheeran",
+      "n": 17,
+      "keep": "Grade 8 — Ed Sheeran (scraped-1789012887968-5qgrpj)",
+      "remover": 16
+    },
+    {
+      "norm_title": "o fogo nao descansa",
+      "norm_artist": "aline barros",
+      "n": 17,
+      "keep": "O Fogo Não Descansa — Aline Barros (scraped-1788996262356-5bt0n2)",
+      "remover": 16
+    },
+    {
+      "norm_title": "wasnt expecting that",
+      "norm_artist": "ed sheeran",
+      "n": 17,
+      "keep": "Wasnt Expecting That — Ed Sheeran (scraped-1789012988257-bmgtok)",
+      "remover": 16
+    },
+    {
+      "norm_title": "gone",
+      "norm_artist": "charli xcx",
+      "n": 16,
+      "keep": "Gone — Charli xcx (scraped-1789005026303-0n5466)",
+      "remover": 15
+    },
+    {
+      "norm_title": "grenade",
+      "norm_artist": "bruno mars",
+      "n": 16,
+      "keep": "Grenade — Bruno Mars (scraped-1788925922530-ta8ko0)",
+      "remover": 15
+    },
+    {
+      "norm_title": "happier",
+      "norm_artist": "ed sheeran",
+      "n": 16,
+      "keep": "Happier — Ed Sheeran (scraped-1789012830369-ukxr5o)",
+      "remover": 15
+    },
+    {
+      "norm_title": "hello",
+      "norm_artist": "adele",
+      "n": 16,
+      "keep": "Hello — Adele (scraped-1788993928639-4038pd)",
+      "remover": 15
+    },
+    {
+      "norm_title": "hells bells",
+      "norm_artist": "ac/dc",
+      "n": 16,
+      "keep": "Hells Bells — AC/DC (scraped-1788993471659-86ydlk)",
+      "remover": 15
+    },
+    {
+      "norm_title": "hiding my heart",
+      "norm_artist": "adele",
+      "n": 16,
+      "keep": "Hiding My Heart — Adele (scraped-1788993947132-52pi3e)",
+      "remover": 15
+    },
+    {
+      "norm_title": "i dont wanna know",
+      "norm_artist": "charli xcx",
+      "n": 16,
+      "keep": "I Dont Wanna Know — Charli xcx (scraped-1789005058262-jknd6n)",
+      "remover": 15
+    },
+    {
+      "norm_title": "i think about it all the time",
+      "norm_artist": "charli xcx",
+      "n": 16,
+      "keep": "I think about it all the time — Charli xcx (scraped-1789005023581-vnw88c)",
+      "remover": 15
+    },
+    {
+      "norm_title": "it's a long way to the top (if you wanna rock n' roll)",
+      "norm_artist": "ac/dc",
+      "n": 16,
+      "keep": "It's a Long Way To The Top (If You Wanna Rock N' Roll) — AC/DC (scraped-1788993473311-qdfs70)",
+      "remover": 15
+    }
+  ]
+}

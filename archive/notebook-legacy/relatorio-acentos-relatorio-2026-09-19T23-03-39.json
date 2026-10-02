@@ -1,0 +1,322 @@
+{
+  "gerado_em": "2026-09-19T23:03:39.368Z",
+  "modo": "dry-run",
+  "campos": {
+    "title": {
+      "lidas": 1000,
+      "correcoes": 1000,
+      "primeiro_id": "scraped-1785908079034-ipvuwp",
+      "ultimo_id": "scraped-1785911560821-stv3aj",
+      "exemplos": [
+        {
+          "row_id": "scraped-1785908079034-ipvuwp",
+          "old_value": "La Belle De Jour",
+          "new_value": "La Belle De Jour",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "la belle de jour",
+          "artist_key": "alceu valenca",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785908768710-cll4te",
+          "old_value": "Você É Linda",
+          "new_value": "Você É Linda",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "voce e linda",
+          "artist_key": "caetano veloso",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785909770139-hvua0k",
+          "old_value": "A Canção do Senhor da Guerra",
+          "new_value": "A Canção do Senhor da Guerra",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "a cancao do senhor da guerra",
+          "artist_key": "legiao urbana",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785909776957-679c7j",
+          "old_value": "Meninos e Meninas",
+          "new_value": "Meninos e Meninas",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "meninos e meninas",
+          "artist_key": "legiao urbana",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911191372-plseb5",
+          "old_value": "Água",
+          "new_value": "Água",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "agua",
+          "artist_key": "caetano veloso",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911294280-dsxjtq",
+          "old_value": "De Tanto Amor",
+          "new_value": "De Tanto Amor",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "de tanto amor",
+          "artist_key": "roberto carlos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911294779-rb60jd",
+          "old_value": "Amor Perfeito",
+          "new_value": "Amor Perfeito",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "amor perfeito",
+          "artist_key": "roberto carlos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911302951-xa9lrc",
+          "old_value": "Ana",
+          "new_value": "Ana",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "ana",
+          "artist_key": "roberto carlos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911305791-l8ok6p",
+          "old_value": "Cama y Mesa",
+          "new_value": "Cama y Mesa",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "cama y mesa",
+          "artist_key": "roberto carlos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911325666-nkqi6d",
+          "old_value": "Linda",
+          "new_value": "Linda",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "linda",
+          "artist_key": "roberto carlos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911333042-2eu9m2",
+          "old_value": "Nem Mesmo Você",
+          "new_value": "Nem Mesmo Você",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "nem mesmo voce",
+          "artist_key": "roberto carlos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911341219-ge0246",
+          "old_value": "Papo de Esquina",
+          "new_value": "Papo de Esquina",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "papo de esquina",
+          "artist_key": "roberto carlos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911346513-78xf68",
+          "old_value": "Quero Me Casar Contigo",
+          "new_value": "Quero Me Casar Contigo",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "quero me casar contigo",
+          "artist_key": "roberto carlos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911346607-gxa2ii",
+          "old_value": "Quero Paz",
+          "new_value": "Quero Paz",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "quero paz",
+          "artist_key": "roberto carlos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911346718-vrjqw1",
+          "old_value": "Quero Que Tudo Vá Para O Inferno",
+          "new_value": "Quero Que Tudo Vá Para O Inferno",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "quero que tudo va para o inferno",
+          "artist_key": "roberto carlos",
+          "corrigido": false
+        }
+      ]
+    },
+    "artist": {
+      "lidas": 625,
+      "correcoes": 625,
+      "primeiro_id": "scraped-1785908079034-ipvuwp",
+      "ultimo_id": "scraped-1785911515415-smsb6b",
+      "exemplos": [
+        {
+          "row_id": "scraped-1785908079034-ipvuwp",
+          "old_value": "Alceu Valença",
+          "new_value": "Alceu Valença",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "alceu valenca",
+          "artist_key": "la belle de jour",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785908768710-cll4te",
+          "old_value": "Caetano Veloso",
+          "new_value": "Caetano Veloso",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "caetano veloso",
+          "artist_key": "voce e linda",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785909770139-hvua0k",
+          "old_value": "Legião Urbana",
+          "new_value": "Legião Urbana",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "legiao urbana",
+          "artist_key": "a cancao do senhor da guerra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785909776957-679c7j",
+          "old_value": "Legião Urbana",
+          "new_value": "Legião Urbana",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "legiao urbana",
+          "artist_key": "meninos e meninas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911191372-plseb5",
+          "old_value": "Caetano Veloso",
+          "new_value": "Caetano Veloso",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "caetano veloso",
+          "artist_key": "agua",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911294280-dsxjtq",
+          "old_value": "Roberto Carlos",
+          "new_value": "Roberto Carlos",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "roberto carlos",
+          "artist_key": "de tanto amor",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911294779-rb60jd",
+          "old_value": "Roberto Carlos",
+          "new_value": "Roberto Carlos",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "roberto carlos",
+          "artist_key": "amor perfeito",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911302951-xa9lrc",
+          "old_value": "Roberto Carlos",
+          "new_value": "Roberto Carlos",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "roberto carlos",
+          "artist_key": "ana",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911305791-l8ok6p",
+          "old_value": "Roberto Carlos",
+          "new_value": "Roberto Carlos",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "roberto carlos",
+          "artist_key": "cama y mesa",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911325666-nkqi6d",
+          "old_value": "Roberto Carlos",
+          "new_value": "Roberto Carlos",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "roberto carlos",
+          "artist_key": "linda",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911333042-2eu9m2",
+          "old_value": "Roberto Carlos",
+          "new_value": "Roberto Carlos",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "roberto carlos",
+          "artist_key": "nem mesmo voce",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911341219-ge0246",
+          "old_value": "Roberto Carlos",
+          "new_value": "Roberto Carlos",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "roberto carlos",
+          "artist_key": "papo de esquina",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911346513-78xf68",
+          "old_value": "Roberto Carlos",
+          "new_value": "Roberto Carlos",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "roberto carlos",
+          "artist_key": "quero me casar contigo",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911346607-gxa2ii",
+          "old_value": "Roberto Carlos",
+          "new_value": "Roberto Carlos",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "roberto carlos",
+          "artist_key": "quero paz",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911346718-vrjqw1",
+          "old_value": "Roberto Carlos",
+          "new_value": "Roberto Carlos",
+          "current_count": null,
+          "majority_count": null,
+          "norm_key": "roberto carlos",
+          "artist_key": "quero que tudo va para o inferno",
+          "corrigido": false
+        }
+      ]
+    }
+  }
+}

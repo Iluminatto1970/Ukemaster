@@ -1,0 +1,3838 @@
+{
+  "gerado_em": "2026-09-20T02:59:14.441Z",
+  "modo": "dry-run",
+  "total_propostas": 367,
+  "campos": {
+    "artist": {
+      "linhas_avaliadas": 394283,
+      "janelas": 7870,
+      "correcoes": 367,
+      "primeiro_id": "scraped-1785931523654-n9s7iu",
+      "ultimo_id": "scraped-1789813836656-90b2tq",
+      "exemplos": [
+        {
+          "row_id": "scraped-1785931523654-n9s7iu",
+          "old_value": "Marilia Mendonca",
+          "new_value": "Marília Mendonça",
+          "current_count": 2,
+          "majority_count": 1222,
+          "norm_key": "marilia mendonca",
+          "context_key": "desliga / esperando voce chegar / na hora do adeus (pot-pourri)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785931579119-nf3co7",
+          "old_value": "Marilia Mendonca",
+          "new_value": "Marília Mendonça",
+          "current_count": 2,
+          "majority_count": 1222,
+          "norm_key": "marilia mendonca",
+          "context_key": "sendo assim / muito estranho (pot-pourri)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785931809468-rbtv05",
+          "old_value": "Legiao Urbana",
+          "new_value": "Legião Urbana",
+          "current_count": 6,
+          "majority_count": 1023,
+          "norm_key": "legiao urbana",
+          "context_key": "pais e filhos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785931818411-6cbris",
+          "old_value": "Legiao Urbana",
+          "new_value": "Legião Urbana",
+          "current_count": 6,
+          "majority_count": 1023,
+          "norm_key": "legiao urbana",
+          "context_key": "1° de julho",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785931834124-90h9hg",
+          "old_value": "Legiao Urbana",
+          "new_value": "Legião Urbana",
+          "current_count": 6,
+          "majority_count": 1023,
+          "norm_key": "legiao urbana",
+          "context_key": "conexao amazonica",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785931868227-f4adwg",
+          "old_value": "Legiao Urbana",
+          "new_value": "Legião Urbana",
+          "current_count": 6,
+          "majority_count": 1023,
+          "norm_key": "legiao urbana",
+          "context_key": "perfeicao / lithium / metal conta as nuvens (pot-pourri)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785931873875-8s333z",
+          "old_value": "Legiao Urbana",
+          "new_value": "Legião Urbana",
+          "current_count": 6,
+          "majority_count": 1023,
+          "norm_key": "legiao urbana",
+          "context_key": "que pais e este / cajuina / pintinho amarelinho (pot-pourri)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786068098501-qnqn6t",
+          "old_value": "Alejandro Fernandez",
+          "new_value": "Alejandro Fernández",
+          "current_count": 20,
+          "majority_count": 2046,
+          "norm_key": "alejandro fernandez",
+          "context_key": "a manos llenas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786068112759-czuarl",
+          "old_value": "Alejandro Fernandez",
+          "new_value": "Alejandro Fernández",
+          "current_count": 20,
+          "majority_count": 2046,
+          "norm_key": "alejandro fernandez",
+          "context_key": "muy lejos de ti",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786068641811-j4m72f",
+          "old_value": "INTRODUCCIÓN:  D",
+          "new_value": "INTRODUCCIÓN: D",
+          "current_count": 12,
+          "majority_count": 28,
+          "norm_key": "introduccion: d",
+          "context_key": "burruyacu",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786068642241-9usv71",
+          "old_value": "INTRODUCCIÓN:  Em",
+          "new_value": "INTRODUCCIÓN: Em",
+          "current_count": 10,
+          "majority_count": 115,
+          "norm_key": "introduccion: em",
+          "context_key": "campesino",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786070349623-6fq5vx",
+          "old_value": "Bjork",
+          "new_value": "Björk",
+          "current_count": 13,
+          "majority_count": 397,
+          "norm_key": "bjork",
+          "context_key": "gvendur",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786070755515-r0s7n4",
+          "old_value": "Introduçao",
+          "new_value": "Introdução",
+          "current_count": 1,
+          "majority_count": 27,
+          "norm_key": "introducao",
+          "context_key": "me namora",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786753487390-fisrpg",
+          "old_value": "INTRODUCCIÓN:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 21,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "criollita de mis amores",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786756764492-b2yn67",
+          "old_value": "Introduccion: D",
+          "new_value": "INTRODUCCIÓN: D",
+          "current_count": 1,
+          "majority_count": 28,
+          "norm_key": "introduccion: d",
+          "context_key": "ayayay!",
+          "corrigido": false
+        }
+      ],
+      "propostas": [
+        {
+          "row_id": "scraped-1785931523654-n9s7iu",
+          "old_value": "Marilia Mendonca",
+          "new_value": "Marília Mendonça",
+          "current_count": 2,
+          "majority_count": 1222,
+          "norm_key": "marilia mendonca",
+          "context_key": "desliga / esperando voce chegar / na hora do adeus (pot-pourri)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785931579119-nf3co7",
+          "old_value": "Marilia Mendonca",
+          "new_value": "Marília Mendonça",
+          "current_count": 2,
+          "majority_count": 1222,
+          "norm_key": "marilia mendonca",
+          "context_key": "sendo assim / muito estranho (pot-pourri)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785931809468-rbtv05",
+          "old_value": "Legiao Urbana",
+          "new_value": "Legião Urbana",
+          "current_count": 6,
+          "majority_count": 1023,
+          "norm_key": "legiao urbana",
+          "context_key": "pais e filhos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785931818411-6cbris",
+          "old_value": "Legiao Urbana",
+          "new_value": "Legião Urbana",
+          "current_count": 6,
+          "majority_count": 1023,
+          "norm_key": "legiao urbana",
+          "context_key": "1° de julho",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785931834124-90h9hg",
+          "old_value": "Legiao Urbana",
+          "new_value": "Legião Urbana",
+          "current_count": 6,
+          "majority_count": 1023,
+          "norm_key": "legiao urbana",
+          "context_key": "conexao amazonica",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785931868227-f4adwg",
+          "old_value": "Legiao Urbana",
+          "new_value": "Legião Urbana",
+          "current_count": 6,
+          "majority_count": 1023,
+          "norm_key": "legiao urbana",
+          "context_key": "perfeicao / lithium / metal conta as nuvens (pot-pourri)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785931873875-8s333z",
+          "old_value": "Legiao Urbana",
+          "new_value": "Legião Urbana",
+          "current_count": 6,
+          "majority_count": 1023,
+          "norm_key": "legiao urbana",
+          "context_key": "que pais e este / cajuina / pintinho amarelinho (pot-pourri)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786068098501-qnqn6t",
+          "old_value": "Alejandro Fernandez",
+          "new_value": "Alejandro Fernández",
+          "current_count": 20,
+          "majority_count": 2046,
+          "norm_key": "alejandro fernandez",
+          "context_key": "a manos llenas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786068112759-czuarl",
+          "old_value": "Alejandro Fernandez",
+          "new_value": "Alejandro Fernández",
+          "current_count": 20,
+          "majority_count": 2046,
+          "norm_key": "alejandro fernandez",
+          "context_key": "muy lejos de ti",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786068641811-j4m72f",
+          "old_value": "INTRODUCCIÓN:  D",
+          "new_value": "INTRODUCCIÓN: D",
+          "current_count": 12,
+          "majority_count": 28,
+          "norm_key": "introduccion: d",
+          "context_key": "burruyacu",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786068642241-9usv71",
+          "old_value": "INTRODUCCIÓN:  Em",
+          "new_value": "INTRODUCCIÓN: Em",
+          "current_count": 10,
+          "majority_count": 115,
+          "norm_key": "introduccion: em",
+          "context_key": "campesino",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786070349623-6fq5vx",
+          "old_value": "Bjork",
+          "new_value": "Björk",
+          "current_count": 13,
+          "majority_count": 397,
+          "norm_key": "bjork",
+          "context_key": "gvendur",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786070755515-r0s7n4",
+          "old_value": "Introduçao",
+          "new_value": "Introdução",
+          "current_count": 1,
+          "majority_count": 27,
+          "norm_key": "introducao",
+          "context_key": "me namora",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786753487390-fisrpg",
+          "old_value": "INTRODUCCIÓN:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 21,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "criollita de mis amores",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786756764492-b2yn67",
+          "old_value": "Introduccion: D",
+          "new_value": "INTRODUCCIÓN: D",
+          "current_count": 1,
+          "majority_count": 28,
+          "norm_key": "introduccion: d",
+          "context_key": "ayayay!",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786772914008-fl8djl",
+          "old_value": "INTRODUCCION: Gm",
+          "new_value": "INTRODUCCIÓN: Gm",
+          "current_count": 8,
+          "majority_count": 47,
+          "norm_key": "introduccion: gm",
+          "context_key": "te necesito",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786778163376-5pf21h",
+          "old_value": "INTRODUCCIÓN:  Gm",
+          "new_value": "INTRODUCCIÓN: Gm",
+          "current_count": 1,
+          "majority_count": 47,
+          "norm_key": "introduccion: gm",
+          "context_key": "cachorrito",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786778172480-3hcwpq",
+          "old_value": "INTRODUCCIÓN:  Em",
+          "new_value": "INTRODUCCIÓN: Em",
+          "current_count": 10,
+          "majority_count": 115,
+          "norm_key": "introduccion: em",
+          "context_key": "cuatrero",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786780415900-sfofto",
+          "old_value": "Jesse",
+          "new_value": "Jessé",
+          "current_count": 16,
+          "majority_count": 355,
+          "norm_key": "jesse",
+          "context_key": "es amor",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786780441115-dcvs6y",
+          "old_value": "Jesse",
+          "new_value": "Jessé",
+          "current_count": 16,
+          "majority_count": 355,
+          "norm_key": "jesse",
+          "context_key": "por siempremente",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786780446744-gh5flt",
+          "old_value": "Jesse",
+          "new_value": "Jessé",
+          "current_count": 16,
+          "majority_count": 355,
+          "norm_key": "jesse",
+          "context_key": "somos lo que fue",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786780452435-514406",
+          "old_value": "Jesse",
+          "new_value": "Jessé",
+          "current_count": 16,
+          "majority_count": 355,
+          "norm_key": "jesse",
+          "context_key": "una en un millon",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786781889184-u7erpl",
+          "old_value": "Joao Gilberto",
+          "new_value": "João Gilberto",
+          "current_count": 1,
+          "majority_count": 607,
+          "norm_key": "joao gilberto",
+          "context_key": "corcovado",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786782078957-docny8",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "al ladron, al ladron",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786782107936-s0f6mg",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "cristales de bohemia",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786782116680-l1pxzs",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "doble vida",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786782140370-2d822i",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "la cancion de los buenos borrachos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786782201821-6kk1s4",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "virgen de la amargura",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786782203069-dtmqjh",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "viudita de clicquot",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786785553703-7pp8qy",
+          "old_value": "Jose Claudio Machado",
+          "new_value": "José Claudio Machado",
+          "current_count": 6,
+          "majority_count": 191,
+          "norm_key": "jose claudio machado",
+          "context_key": "em cima do laco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786785562149-lzdrsj",
+          "old_value": "Jose Jose",
+          "new_value": "José José",
+          "current_count": 11,
+          "majority_count": 1296,
+          "norm_key": "jose jose",
+          "context_key": "la nave del olvido",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786785679768-uvxbp8",
+          "old_value": "Jose Jose",
+          "new_value": "José José",
+          "current_count": 11,
+          "majority_count": 1296,
+          "norm_key": "jose jose",
+          "context_key": "regalame esta noche",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786785710266-ri1tea",
+          "old_value": "Jose Jose",
+          "new_value": "José José",
+          "current_count": 11,
+          "majority_count": 1296,
+          "norm_key": "jose jose",
+          "context_key": "y nada mas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786790921760-ndcacx",
+          "old_value": "Limao Com Mel",
+          "new_value": "Limão Com Mel",
+          "current_count": 14,
+          "majority_count": 1591,
+          "norm_key": "limao com mel",
+          "context_key": "tentei te esquecer",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786791018842-6xzxil",
+          "old_value": "Limao Com Mel",
+          "new_value": "Limão Com Mel",
+          "current_count": 14,
+          "majority_count": 1591,
+          "norm_key": "limao com mel",
+          "context_key": "sem amor nao da",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786791257197-zk9zu9",
+          "old_value": "Los Autenticos Decadentes",
+          "new_value": "Los Auténticos Decadentes",
+          "current_count": 4,
+          "majority_count": 508,
+          "norm_key": "los autenticos decadentes",
+          "context_key": "amanecer",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786792774058-0bz3qe",
+          "old_value": "Introduccion: Am",
+          "new_value": "INTRODUCCIÓN: Am",
+          "current_count": 8,
+          "majority_count": 94,
+          "norm_key": "introduccion: am",
+          "context_key": "chacarera para mi vuelta",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786792806680-czkk65",
+          "old_value": "INTRODUCCIÓN:   Em",
+          "new_value": "INTRODUCCIÓN: Em",
+          "current_count": 9,
+          "majority_count": 115,
+          "norm_key": "introduccion: em",
+          "context_key": "coplas de chacarera",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786792807371-zzgkn8",
+          "old_value": "INTRODUCCIÓN:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 21,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "coplas para claudio ramiro soria",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786792811760-eitg2p",
+          "old_value": "INTRODUCCION: Am",
+          "new_value": "INTRODUCCIÓN: Am",
+          "current_count": 4,
+          "majority_count": 94,
+          "norm_key": "introduccion: am",
+          "context_key": "cual pajaro sin un arbol",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786792812375-ao3cnk",
+          "old_value": "INTRODUCCIÓN:  B",
+          "new_value": "INTRODUCCIÓN: B",
+          "current_count": 4,
+          "majority_count": 18,
+          "norm_key": "introduccion: b",
+          "context_key": "cuando el diablo anda en el vino",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786792813039-9kkxkd",
+          "old_value": "INTRODUCCIÓN:  E",
+          "new_value": "INTRODUCCIÓN: E",
+          "current_count": 11,
+          "majority_count": 126,
+          "norm_key": "introduccion: e",
+          "context_key": "cuando me da por nombrarte",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786792823025-yoa5i6",
+          "old_value": "INTRODUCCIÓN:  E",
+          "new_value": "INTRODUCCIÓN: E",
+          "current_count": 11,
+          "majority_count": 126,
+          "norm_key": "introduccion: e",
+          "context_key": "el cara y musha",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786792823634-oh9uxi",
+          "old_value": "INTRODUCCIÓN:  Am",
+          "new_value": "INTRODUCCIÓN: Am",
+          "current_count": 4,
+          "majority_count": 94,
+          "norm_key": "introduccion: am",
+          "context_key": "el lamento de la urpilita",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786798314365-5qi3z4",
+          "old_value": "INTRODUCCIÓN:  A",
+          "new_value": "INTRODUCCIÓN: A",
+          "current_count": 20,
+          "majority_count": 69,
+          "norm_key": "introduccion: a",
+          "context_key": "esto azul",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786798329004-xvs1yl",
+          "old_value": "INTRODUCCIÓN:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 21,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "la ninez",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786805470024-nqf5y5",
+          "old_value": "Os Baroes Da Pisadinha",
+          "new_value": "Os Barões da Pisadinha",
+          "current_count": 5,
+          "majority_count": 469,
+          "norm_key": "os baroes da pisadinha",
+          "context_key": "colinho do vaqueiro (pocoto) (part. pedro paulo e alex)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786806933668-z8emdq",
+          "old_value": "Pablo Milanes",
+          "new_value": "Pablo Milanés",
+          "current_count": 15,
+          "majority_count": 646,
+          "norm_key": "pablo milanes",
+          "context_key": "campesina",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786806970084-vgwpvq",
+          "old_value": "Pablo Milanes",
+          "new_value": "Pablo Milanés",
+          "current_count": 15,
+          "majority_count": 646,
+          "norm_key": "pablo milanes",
+          "context_key": "tu no sabe ingle",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786807093150-27l6f8",
+          "old_value": "introducción:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 6,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "cantores que reflexionan",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786808737963-vnqlm9",
+          "old_value": "Pokemon",
+          "new_value": "Pokémon",
+          "current_count": 7,
+          "majority_count": 201,
+          "norm_key": "pokemon",
+          "context_key": "pokemon theme",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786809136662-jy54vt",
+          "old_value": "Quilapayun",
+          "new_value": "Quilapayún",
+          "current_count": 14,
+          "majority_count": 634,
+          "norm_key": "quilapayun",
+          "context_key": "la ena (la chica el metro)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786809137267-cowazr",
+          "old_value": "Quilapayun",
+          "new_value": "Quilapayún",
+          "current_count": 14,
+          "majority_count": 634,
+          "norm_key": "quilapayun",
+          "context_key": "la gordinflonica ninfomanosica",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786809159455-xecqoo",
+          "old_value": "Raca Negra",
+          "new_value": "Raça Negra",
+          "current_count": 7,
+          "majority_count": 1395,
+          "norm_key": "raca negra",
+          "context_key": "quando te encontrei",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786817875125-iq9lz4",
+          "old_value": "Seru Giran",
+          "new_value": "Serú Girán",
+          "current_count": 16,
+          "majority_count": 339,
+          "norm_key": "seru giran",
+          "context_key": "popotitos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786817900278-qxsb16",
+          "old_value": "Seru Giran",
+          "new_value": "Serú Girán",
+          "current_count": 16,
+          "majority_count": 339,
+          "norm_key": "seru giran",
+          "context_key": "voy a mil",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786825458495-clmblc",
+          "old_value": "Titas",
+          "new_value": "Titãs",
+          "current_count": 22,
+          "majority_count": 712,
+          "norm_key": "titas",
+          "context_key": "enquanto houver sol",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786825461151-avv2t4",
+          "old_value": "Titas",
+          "new_value": "Titãs",
+          "current_count": 22,
+          "majority_count": 712,
+          "norm_key": "titas",
+          "context_key": "isso",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786827197230-h0gcpb",
+          "old_value": "Vicente Fernandez",
+          "new_value": "Vicente Fernández",
+          "current_count": 12,
+          "majority_count": 1653,
+          "norm_key": "vicente fernandez",
+          "context_key": "de que manera te olvido",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786827214713-qlvve0",
+          "old_value": "Vicente Fernandez",
+          "new_value": "Vicente Fernández",
+          "current_count": 12,
+          "majority_count": 1653,
+          "norm_key": "vicente fernandez",
+          "context_key": "el jazmin y la rosa",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786832348063-bo0q4c",
+          "old_value": "Ze Ramalho",
+          "new_value": "Zé Ramalho",
+          "current_count": 12,
+          "majority_count": 1197,
+          "norm_key": "ze ramalho",
+          "context_key": "pra nao dizer que nao falei das flores",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786832356639-7j4yn0",
+          "old_value": "Ze Ramalho",
+          "new_value": "Zé Ramalho",
+          "current_count": 12,
+          "majority_count": 1197,
+          "norm_key": "ze ramalho",
+          "context_key": "ta tudo mudando",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786873841727-t72eh3",
+          "old_value": "Alejandro Fernandez",
+          "new_value": "Alejandro Fernández",
+          "current_count": 20,
+          "majority_count": 2046,
+          "norm_key": "alejandro fernandez",
+          "context_key": "a manos llenas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786873899438-o2qfkx",
+          "old_value": "Alejandro Fernandez",
+          "new_value": "Alejandro Fernández",
+          "current_count": 20,
+          "majority_count": 2046,
+          "norm_key": "alejandro fernandez",
+          "context_key": "muy lejos de ti",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786920442471-4c2mum",
+          "old_value": "INTRODUCCIÓN:  G",
+          "new_value": "INTRODUCCIÓN: G",
+          "current_count": 3,
+          "majority_count": 69,
+          "norm_key": "introduccion: g",
+          "context_key": "coplera del viento",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786927518090-xn0cek",
+          "old_value": "Limao Com Mel",
+          "new_value": "Limão Com Mel",
+          "current_count": 14,
+          "majority_count": 1591,
+          "norm_key": "limao com mel",
+          "context_key": "tentei te esquecer",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786927621547-ytms2b",
+          "old_value": "Limao Com Mel",
+          "new_value": "Limão Com Mel",
+          "current_count": 14,
+          "majority_count": 1591,
+          "norm_key": "limao com mel",
+          "context_key": "sem amor nao da",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786927871663-7aa7l3",
+          "old_value": "Los Autenticos Decadentes",
+          "new_value": "Los Auténticos Decadentes",
+          "current_count": 4,
+          "majority_count": 508,
+          "norm_key": "los autenticos decadentes",
+          "context_key": "amanecer",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786927979544-xau8mh",
+          "old_value": "INTRODUCCIÓN:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 21,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "a su edad",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786927992907-pc7zyh",
+          "old_value": "INTRODUCCIÓN:  A",
+          "new_value": "INTRODUCCIÓN: A",
+          "current_count": 20,
+          "majority_count": 69,
+          "norm_key": "introduccion: a",
+          "context_key": "blanco y azul",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786928014396-32wrva",
+          "old_value": "INTRODUCCIÓN:  E",
+          "new_value": "INTRODUCCIÓN: E",
+          "current_count": 11,
+          "majority_count": 126,
+          "norm_key": "introduccion: e",
+          "context_key": "cuyana cosechadora",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786927999029-958pog",
+          "old_value": "INTRODUCCION: C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 3,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "chacarera del mal tenido",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786928007880-q5fbly",
+          "old_value": "INTRODUCCIÓN:  D",
+          "new_value": "INTRODUCCIÓN: D",
+          "current_count": 12,
+          "majority_count": 28,
+          "norm_key": "introduccion: d",
+          "context_key": "corazones amantes",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786928006658-ns6ot2",
+          "old_value": "INTRODUCCIÓN:  A",
+          "new_value": "INTRODUCCIÓN: A",
+          "current_count": 20,
+          "majority_count": 69,
+          "norm_key": "introduccion: a",
+          "context_key": "coplas vallistas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786928045271-uqlmta",
+          "old_value": "INTRODUCCIÓN:  A",
+          "new_value": "INTRODUCCIÓN: A",
+          "current_count": 20,
+          "majority_count": 69,
+          "norm_key": "introduccion: a",
+          "context_key": "juro amarte",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786929527852-90w3xf",
+          "old_value": "Introduccion: Am",
+          "new_value": "INTRODUCCIÓN: Am",
+          "current_count": 8,
+          "majority_count": 94,
+          "norm_key": "introduccion: am",
+          "context_key": "chacarera para mi vuelta",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786929561139-5kap54",
+          "old_value": "INTRODUCCIÓN:   Em",
+          "new_value": "INTRODUCCIÓN: Em",
+          "current_count": 9,
+          "majority_count": 115,
+          "norm_key": "introduccion: em",
+          "context_key": "coplas de chacarera",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786929561752-tzq4kw",
+          "old_value": "INTRODUCCIÓN:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 21,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "coplas para claudio ramiro soria",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786929566455-9pj0ki",
+          "old_value": "INTRODUCCION: Am",
+          "new_value": "INTRODUCCIÓN: Am",
+          "current_count": 4,
+          "majority_count": 94,
+          "norm_key": "introduccion: am",
+          "context_key": "cual pajaro sin un arbol",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786929567086-mfu3sy",
+          "old_value": "INTRODUCCIÓN:  B",
+          "new_value": "INTRODUCCIÓN: B",
+          "current_count": 4,
+          "majority_count": 18,
+          "norm_key": "introduccion: b",
+          "context_key": "cuando el diablo anda en el vino",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786929567850-rbwtmp",
+          "old_value": "INTRODUCCIÓN:  E",
+          "new_value": "INTRODUCCIÓN: E",
+          "current_count": 11,
+          "majority_count": 126,
+          "norm_key": "introduccion: e",
+          "context_key": "cuando me da por nombrarte",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786929578108-ckgz1b",
+          "old_value": "INTRODUCCIÓN:  E",
+          "new_value": "INTRODUCCIÓN: E",
+          "current_count": 11,
+          "majority_count": 126,
+          "norm_key": "introduccion: e",
+          "context_key": "el cara y musha",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786929578723-e9633x",
+          "old_value": "INTRODUCCIÓN:  Am",
+          "new_value": "INTRODUCCIÓN: Am",
+          "current_count": 4,
+          "majority_count": 94,
+          "norm_key": "introduccion: am",
+          "context_key": "el lamento de la urpilita",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786935234275-c6d1xm",
+          "old_value": "INTRODUCCIÓN:  A",
+          "new_value": "INTRODUCCIÓN: A",
+          "current_count": 20,
+          "majority_count": 69,
+          "norm_key": "introduccion: a",
+          "context_key": "esto azul",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786935248629-yo5mxp",
+          "old_value": "INTRODUCCIÓN:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 21,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "la ninez",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786942456783-vhsj1m",
+          "old_value": "Os Baroes Da Pisadinha",
+          "new_value": "Os Barões da Pisadinha",
+          "current_count": 5,
+          "majority_count": 469,
+          "norm_key": "os baroes da pisadinha",
+          "context_key": "colinho do vaqueiro (pocoto) (part. pedro paulo e alex)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786947687299-c06754",
+          "old_value": "Quilapayun",
+          "new_value": "Quilapayún",
+          "current_count": 14,
+          "majority_count": 634,
+          "norm_key": "quilapayun",
+          "context_key": "la ena (la chica el metro)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786947687896-of5owe",
+          "old_value": "Quilapayun",
+          "new_value": "Quilapayún",
+          "current_count": 14,
+          "majority_count": 634,
+          "norm_key": "quilapayun",
+          "context_key": "la gordinflonica ninfomanosica",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786947710138-ur58fc",
+          "old_value": "Raca Negra",
+          "new_value": "Raça Negra",
+          "current_count": 7,
+          "majority_count": 1395,
+          "norm_key": "raca negra",
+          "context_key": "quando te encontrei",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786956478224-hjacm2",
+          "old_value": "Seru Giran",
+          "new_value": "Serú Girán",
+          "current_count": 16,
+          "majority_count": 339,
+          "norm_key": "seru giran",
+          "context_key": "popotitos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786956502789-ptnzj8",
+          "old_value": "Seru Giran",
+          "new_value": "Serú Girán",
+          "current_count": 16,
+          "majority_count": 339,
+          "norm_key": "seru giran",
+          "context_key": "voy a mil",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786964052634-vesukh",
+          "old_value": "Titas",
+          "new_value": "Titãs",
+          "current_count": 22,
+          "majority_count": 712,
+          "norm_key": "titas",
+          "context_key": "isso",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786969293637-qr29z6",
+          "old_value": "Ze Ramalho",
+          "new_value": "Zé Ramalho",
+          "current_count": 12,
+          "majority_count": 1197,
+          "norm_key": "ze ramalho",
+          "context_key": "pra nao dizer que nao falei das flores",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786969302311-2emzlv",
+          "old_value": "Ze Ramalho",
+          "new_value": "Zé Ramalho",
+          "current_count": 12,
+          "majority_count": 1197,
+          "norm_key": "ze ramalho",
+          "context_key": "ta tudo mudando",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787010709062-gigcz6",
+          "old_value": "Alejandro Fernandez",
+          "new_value": "Alejandro Fernández",
+          "current_count": 20,
+          "majority_count": 2046,
+          "norm_key": "alejandro fernandez",
+          "context_key": "muy lejos de ti",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787015015567-m59rvc",
+          "old_value": "INTRODUCCIÓN:  D",
+          "new_value": "INTRODUCCIÓN: D",
+          "current_count": 12,
+          "majority_count": 28,
+          "norm_key": "introduccion: d",
+          "context_key": "burruyacu",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787015017998-x4lek5",
+          "old_value": "INTRODUCCIÓN:  Em",
+          "new_value": "INTRODUCCIÓN: Em",
+          "current_count": 10,
+          "majority_count": 115,
+          "norm_key": "introduccion: em",
+          "context_key": "campesino",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787017824143-vy44k7",
+          "old_value": "Bjork",
+          "new_value": "Björk",
+          "current_count": 13,
+          "majority_count": 397,
+          "norm_key": "bjork",
+          "context_key": "gvendur",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787061174818-a0uwff",
+          "old_value": "Limao Com Mel",
+          "new_value": "Limão Com Mel",
+          "current_count": 14,
+          "majority_count": 1591,
+          "norm_key": "limao com mel",
+          "context_key": "tentei te esquecer",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787080902998-vdws47",
+          "old_value": "Quilapayun",
+          "new_value": "Quilapayún",
+          "current_count": 14,
+          "majority_count": 634,
+          "norm_key": "quilapayun",
+          "context_key": "la ena (la chica el metro)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787080903779-wp88l2",
+          "old_value": "Quilapayun",
+          "new_value": "Quilapayún",
+          "current_count": 14,
+          "majority_count": 634,
+          "norm_key": "quilapayun",
+          "context_key": "la gordinflonica ninfomanosica",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787080927547-elk5nl",
+          "old_value": "Raca Negra",
+          "new_value": "Raça Negra",
+          "current_count": 7,
+          "majority_count": 1395,
+          "norm_key": "raca negra",
+          "context_key": "quando te encontrei",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787085103016-ot7qr1",
+          "old_value": "Rocio Durcal",
+          "new_value": "Rocío Durcal",
+          "current_count": 8,
+          "majority_count": 805,
+          "norm_key": "rocio durcal",
+          "context_key": "no me digas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787095466980-z182lx",
+          "old_value": "Titas",
+          "new_value": "Titãs",
+          "current_count": 22,
+          "majority_count": 712,
+          "norm_key": "titas",
+          "context_key": "isso",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787102442449-3lt9zu",
+          "old_value": "Ze Ramalho",
+          "new_value": "Zé Ramalho",
+          "current_count": 12,
+          "majority_count": 1197,
+          "norm_key": "ze ramalho",
+          "context_key": "pra nao dizer que nao falei das flores",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787102451438-q0lpa5",
+          "old_value": "Ze Ramalho",
+          "new_value": "Zé Ramalho",
+          "current_count": 12,
+          "majority_count": 1197,
+          "norm_key": "ze ramalho",
+          "context_key": "ta tudo mudando",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787143854227-3x6np2",
+          "old_value": "Alejandro Fernandez",
+          "new_value": "Alejandro Fernández",
+          "current_count": 20,
+          "majority_count": 2046,
+          "norm_key": "alejandro fernandez",
+          "context_key": "a manos llenas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787143913540-dkn0wp",
+          "old_value": "Alejandro Fernandez",
+          "new_value": "Alejandro Fernández",
+          "current_count": 20,
+          "majority_count": 2046,
+          "norm_key": "alejandro fernandez",
+          "context_key": "muy lejos de ti",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787148219099-pbci0v",
+          "old_value": "INTRODUCCIÓN:  D",
+          "new_value": "INTRODUCCIÓN: D",
+          "current_count": 12,
+          "majority_count": 28,
+          "norm_key": "introduccion: d",
+          "context_key": "burruyacu",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787148221635-fhy7vp",
+          "old_value": "INTRODUCCIÓN:  Em",
+          "new_value": "INTRODUCCIÓN: Em",
+          "current_count": 10,
+          "majority_count": 115,
+          "norm_key": "introduccion: em",
+          "context_key": "campesino",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787151024555-7l85a0",
+          "old_value": "Bjork",
+          "new_value": "Björk",
+          "current_count": 13,
+          "majority_count": 397,
+          "norm_key": "bjork",
+          "context_key": "gvendur",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787176072982-sp37mf",
+          "old_value": "INTRODUCCION: Gm",
+          "new_value": "INTRODUCCIÓN: Gm",
+          "current_count": 8,
+          "majority_count": 47,
+          "norm_key": "introduccion: gm",
+          "context_key": "te necesito",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787194391786-c82oeb",
+          "old_value": "Limao Com Mel",
+          "new_value": "Limão Com Mel",
+          "current_count": 14,
+          "majority_count": 1591,
+          "norm_key": "limao com mel",
+          "context_key": "tentei te esquecer",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787194491447-hkjqel",
+          "old_value": "Limao Com Mel",
+          "new_value": "Limão Com Mel",
+          "current_count": 14,
+          "majority_count": 1591,
+          "norm_key": "limao com mel",
+          "context_key": "sem amor nao da",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787195916765-1vtk4t",
+          "old_value": "Los Autenticos Decadentes",
+          "new_value": "Los Auténticos Decadentes",
+          "current_count": 4,
+          "majority_count": 508,
+          "norm_key": "los autenticos decadentes",
+          "context_key": "amanecer",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787196023566-czerae",
+          "old_value": "INTRODUCCIÓN:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 21,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "a su edad",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787196036933-6a1zd2",
+          "old_value": "INTRODUCCIÓN:  A",
+          "new_value": "INTRODUCCIÓN: A",
+          "current_count": 20,
+          "majority_count": 69,
+          "norm_key": "introduccion: a",
+          "context_key": "blanco y azul",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787196043121-1v79ef",
+          "old_value": "INTRODUCCION: C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 3,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "chacarera del mal tenido",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787196050655-hbkokh",
+          "old_value": "INTRODUCCIÓN:  A",
+          "new_value": "INTRODUCCIÓN: A",
+          "current_count": 20,
+          "majority_count": 69,
+          "norm_key": "introduccion: a",
+          "context_key": "coplas vallistas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787196051983-slzkrn",
+          "old_value": "INTRODUCCIÓN:  D",
+          "new_value": "INTRODUCCIÓN: D",
+          "current_count": 12,
+          "majority_count": 28,
+          "norm_key": "introduccion: d",
+          "context_key": "corazones amantes",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787196058326-chv3l3",
+          "old_value": "INTRODUCCIÓN:  E",
+          "new_value": "INTRODUCCIÓN: E",
+          "current_count": 11,
+          "majority_count": 126,
+          "norm_key": "introduccion: e",
+          "context_key": "cuyana cosechadora",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787196089097-96pu01",
+          "old_value": "INTRODUCCIÓN:  A",
+          "new_value": "INTRODUCCIÓN: A",
+          "current_count": 20,
+          "majority_count": 69,
+          "norm_key": "introduccion: a",
+          "context_key": "juro amarte",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787197564108-haugei",
+          "old_value": "Introduccion: Am",
+          "new_value": "INTRODUCCIÓN: Am",
+          "current_count": 8,
+          "majority_count": 94,
+          "norm_key": "introduccion: am",
+          "context_key": "chacarera para mi vuelta",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787197597402-9u5k35",
+          "old_value": "INTRODUCCIÓN:   Em",
+          "new_value": "INTRODUCCIÓN: Em",
+          "current_count": 9,
+          "majority_count": 115,
+          "norm_key": "introduccion: em",
+          "context_key": "coplas de chacarera",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787197598115-pwc3hh",
+          "old_value": "INTRODUCCIÓN:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 21,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "coplas para claudio ramiro soria",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787197602623-67hp1j",
+          "old_value": "INTRODUCCION: Am",
+          "new_value": "INTRODUCCIÓN: Am",
+          "current_count": 4,
+          "majority_count": 94,
+          "norm_key": "introduccion: am",
+          "context_key": "cual pajaro sin un arbol",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787197603243-kz55hb",
+          "old_value": "INTRODUCCIÓN:  B",
+          "new_value": "INTRODUCCIÓN: B",
+          "current_count": 4,
+          "majority_count": 18,
+          "norm_key": "introduccion: b",
+          "context_key": "cuando el diablo anda en el vino",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787197603858-xenlf6",
+          "old_value": "INTRODUCCIÓN:  E",
+          "new_value": "INTRODUCCIÓN: E",
+          "current_count": 11,
+          "majority_count": 126,
+          "norm_key": "introduccion: e",
+          "context_key": "cuando me da por nombrarte",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787197614096-w71gmo",
+          "old_value": "INTRODUCCIÓN:  E",
+          "new_value": "INTRODUCCIÓN: E",
+          "current_count": 11,
+          "majority_count": 126,
+          "norm_key": "introduccion: e",
+          "context_key": "el cara y musha",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787197614710-g6cy6y",
+          "old_value": "INTRODUCCIÓN:  Am",
+          "new_value": "INTRODUCCIÓN: Am",
+          "current_count": 4,
+          "majority_count": 94,
+          "norm_key": "introduccion: am",
+          "context_key": "el lamento de la urpilita",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787203340424-ihkwcb",
+          "old_value": "INTRODUCCIÓN:  A",
+          "new_value": "INTRODUCCIÓN: A",
+          "current_count": 20,
+          "majority_count": 69,
+          "norm_key": "introduccion: a",
+          "context_key": "esto azul",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787203354806-6pbz6d",
+          "old_value": "INTRODUCCIÓN:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 21,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "la ninez",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787210481222-67aly9",
+          "old_value": "Os Baroes Da Pisadinha",
+          "new_value": "Os Barões da Pisadinha",
+          "current_count": 5,
+          "majority_count": 469,
+          "norm_key": "os baroes da pisadinha",
+          "context_key": "colinho do vaqueiro (pocoto) (part. pedro paulo e alex)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787211946801-phtj79",
+          "old_value": "Pablo Milanes",
+          "new_value": "Pablo Milanés",
+          "current_count": 15,
+          "majority_count": 646,
+          "norm_key": "pablo milanes",
+          "context_key": "campesina",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787211983315-uypmqa",
+          "old_value": "Pablo Milanes",
+          "new_value": "Pablo Milanés",
+          "current_count": 15,
+          "majority_count": 646,
+          "norm_key": "pablo milanes",
+          "context_key": "tu no sabe ingle",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787212105634-n9r1ww",
+          "old_value": "introducción:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 6,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "cantores que reflexionan",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787222784903-r6uzdk",
+          "old_value": "Rocio Durcal",
+          "new_value": "Rocío Durcal",
+          "current_count": 8,
+          "majority_count": 805,
+          "norm_key": "rocio durcal",
+          "context_key": "no me digas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787233803061-0l1ymj",
+          "old_value": "Titas",
+          "new_value": "Titãs",
+          "current_count": 22,
+          "majority_count": 712,
+          "norm_key": "titas",
+          "context_key": "isso",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787233872622-tcrqix",
+          "old_value": "Titas",
+          "new_value": "Titãs",
+          "current_count": 22,
+          "majority_count": 712,
+          "norm_key": "titas",
+          "context_key": "nao vou lutar",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787233875123-sakfzb",
+          "old_value": "Titas",
+          "new_value": "Titãs",
+          "current_count": 22,
+          "majority_count": 712,
+          "norm_key": "titas",
+          "context_key": "nos estamos bem",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787233911930-h53omn",
+          "old_value": "Titas",
+          "new_value": "Titãs",
+          "current_count": 22,
+          "majority_count": 712,
+          "norm_key": "titas",
+          "context_key": "vou duvidar",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787239941694-y3s2o6",
+          "old_value": "Ze Ramalho",
+          "new_value": "Zé Ramalho",
+          "current_count": 12,
+          "majority_count": 1197,
+          "norm_key": "ze ramalho",
+          "context_key": "pra nao dizer que nao falei das flores",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787239950567-s8ukck",
+          "old_value": "Ze Ramalho",
+          "new_value": "Zé Ramalho",
+          "current_count": 12,
+          "majority_count": 1197,
+          "norm_key": "ze ramalho",
+          "context_key": "ta tudo mudando",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787289627031-3ttjqc",
+          "old_value": "Bjork",
+          "new_value": "Björk",
+          "current_count": 13,
+          "majority_count": 397,
+          "norm_key": "bjork",
+          "context_key": "gvendur",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787316480548-289zhh",
+          "old_value": "INTRODUCCION: Gm",
+          "new_value": "INTRODUCCIÓN: Gm",
+          "current_count": 8,
+          "majority_count": 47,
+          "norm_key": "introduccion: gm",
+          "context_key": "te necesito",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787329412924-8my8fj",
+          "old_value": "Jose Claudio Machado",
+          "new_value": "José Claudio Machado",
+          "current_count": 6,
+          "majority_count": 191,
+          "norm_key": "jose claudio machado",
+          "context_key": "em cima do laco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787329421620-3miue7",
+          "old_value": "Jose Jose",
+          "new_value": "José José",
+          "current_count": 11,
+          "majority_count": 1296,
+          "norm_key": "jose jose",
+          "context_key": "la nave del olvido",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787336193131-skx8p0",
+          "old_value": "Limao Com Mel",
+          "new_value": "Limão Com Mel",
+          "current_count": 14,
+          "majority_count": 1591,
+          "norm_key": "limao com mel",
+          "context_key": "tentei te esquecer",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787336296530-kkwjuu",
+          "old_value": "Limao Com Mel",
+          "new_value": "Limão Com Mel",
+          "current_count": 14,
+          "majority_count": 1591,
+          "norm_key": "limao com mel",
+          "context_key": "sem amor nao da",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787345238726-p2flh3",
+          "old_value": "INTRODUCCIÓN:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 21,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "la ninez",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787356441039-lvb0lm",
+          "old_value": "Pokemon",
+          "new_value": "Pokémon",
+          "current_count": 7,
+          "majority_count": 201,
+          "norm_key": "pokemon",
+          "context_key": "pokemon theme",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787357190250-qlid8a",
+          "old_value": "Quilapayun",
+          "new_value": "Quilapayún",
+          "current_count": 14,
+          "majority_count": 634,
+          "norm_key": "quilapayun",
+          "context_key": "la ena (la chica el metro)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787357190877-7mh9aq",
+          "old_value": "Quilapayun",
+          "new_value": "Quilapayún",
+          "current_count": 14,
+          "majority_count": 634,
+          "norm_key": "quilapayun",
+          "context_key": "la gordinflonica ninfomanosica",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787357215335-61r7j1",
+          "old_value": "Raca Negra",
+          "new_value": "Raça Negra",
+          "current_count": 7,
+          "majority_count": 1395,
+          "norm_key": "raca negra",
+          "context_key": "quando te encontrei",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787363191324-hstad3",
+          "old_value": "Rocio Durcal",
+          "new_value": "Rocío Durcal",
+          "current_count": 8,
+          "majority_count": 805,
+          "norm_key": "rocio durcal",
+          "context_key": "no me digas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787374477920-sl1glj",
+          "old_value": "Titas",
+          "new_value": "Titãs",
+          "current_count": 22,
+          "majority_count": 712,
+          "norm_key": "titas",
+          "context_key": "enquanto houver sol",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787376236048-ahpl1c",
+          "old_value": "Vicente Fernandez",
+          "new_value": "Vicente Fernández",
+          "current_count": 12,
+          "majority_count": 1653,
+          "norm_key": "vicente fernandez",
+          "context_key": "de que manera te olvido",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787376252923-bgdiy7",
+          "old_value": "Vicente Fernandez",
+          "new_value": "Vicente Fernández",
+          "current_count": 12,
+          "majority_count": 1653,
+          "norm_key": "vicente fernandez",
+          "context_key": "el jazmin y la rosa",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787430040269-2kk7et",
+          "old_value": "Bjork",
+          "new_value": "Björk",
+          "current_count": 13,
+          "majority_count": 397,
+          "norm_key": "bjork",
+          "context_key": "gvendur",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787439209010-f8uy5m",
+          "old_value": "Comunidade Catolica Shalom",
+          "new_value": "Comunidade Católica Shalom",
+          "current_count": 6,
+          "majority_count": 1662,
+          "norm_key": "comunidade catolica shalom",
+          "context_key": "kyrie eleison",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787456921577-s8da7y",
+          "old_value": "INTRODUCCION: Gm",
+          "new_value": "INTRODUCCIÓN: Gm",
+          "current_count": 8,
+          "majority_count": 47,
+          "norm_key": "introduccion: gm",
+          "context_key": "te necesito",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787469792402-bikbv0",
+          "old_value": "Jose Claudio Machado",
+          "new_value": "José Claudio Machado",
+          "current_count": 6,
+          "majority_count": 191,
+          "norm_key": "jose claudio machado",
+          "context_key": "em cima do laco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787469801168-tpdgw4",
+          "old_value": "Jose Jose",
+          "new_value": "José José",
+          "current_count": 11,
+          "majority_count": 1296,
+          "norm_key": "jose jose",
+          "context_key": "la nave del olvido",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787476879527-63wcae",
+          "old_value": "Los Autenticos Decadentes",
+          "new_value": "Los Auténticos Decadentes",
+          "current_count": 4,
+          "majority_count": 508,
+          "norm_key": "los autenticos decadentes",
+          "context_key": "amanecer",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787476983416-mmyejj",
+          "old_value": "INTRODUCCIÓN:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 21,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "a su edad",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787477010265-s0orsr",
+          "old_value": "INTRODUCCIÓN:  A",
+          "new_value": "INTRODUCCIÓN: A",
+          "current_count": 20,
+          "majority_count": 69,
+          "norm_key": "introduccion: a",
+          "context_key": "coplas vallistas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787476996736-vmx9sr",
+          "old_value": "INTRODUCCIÓN:  A",
+          "new_value": "INTRODUCCIÓN: A",
+          "current_count": 20,
+          "majority_count": 69,
+          "norm_key": "introduccion: a",
+          "context_key": "blanco y azul",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787477002808-susi89",
+          "old_value": "INTRODUCCION: C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 3,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "chacarera del mal tenido",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787477011460-d4yhkq",
+          "old_value": "INTRODUCCIÓN:  D",
+          "new_value": "INTRODUCCIÓN: D",
+          "current_count": 12,
+          "majority_count": 28,
+          "norm_key": "introduccion: d",
+          "context_key": "corazones amantes",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787477017655-gt23jh",
+          "old_value": "INTRODUCCIÓN:  E",
+          "new_value": "INTRODUCCIÓN: E",
+          "current_count": 11,
+          "majority_count": 126,
+          "norm_key": "introduccion: e",
+          "context_key": "cuyana cosechadora",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787477048007-qx8bdc",
+          "old_value": "INTRODUCCIÓN:  A",
+          "new_value": "INTRODUCCIÓN: A",
+          "current_count": 20,
+          "majority_count": 69,
+          "norm_key": "introduccion: a",
+          "context_key": "juro amarte",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787478573770-c6iokb",
+          "old_value": "Introduccion: Am",
+          "new_value": "INTRODUCCIÓN: Am",
+          "current_count": 8,
+          "majority_count": 94,
+          "norm_key": "introduccion: am",
+          "context_key": "chacarera para mi vuelta",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787478606145-f7c3zl",
+          "old_value": "INTRODUCCIÓN:   Em",
+          "new_value": "INTRODUCCIÓN: Em",
+          "current_count": 9,
+          "majority_count": 115,
+          "norm_key": "introduccion: em",
+          "context_key": "coplas de chacarera",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787478606757-h0qxf1",
+          "old_value": "INTRODUCCIÓN:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 21,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "coplas para claudio ramiro soria",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787478611233-qhh6pe",
+          "old_value": "INTRODUCCION: Am",
+          "new_value": "INTRODUCCIÓN: Am",
+          "current_count": 4,
+          "majority_count": 94,
+          "norm_key": "introduccion: am",
+          "context_key": "cual pajaro sin un arbol",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787478611848-dvb3ux",
+          "old_value": "INTRODUCCIÓN:  B",
+          "new_value": "INTRODUCCIÓN: B",
+          "current_count": 4,
+          "majority_count": 18,
+          "norm_key": "introduccion: b",
+          "context_key": "cuando el diablo anda en el vino",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787478612463-kbwbao",
+          "old_value": "INTRODUCCIÓN:  E",
+          "new_value": "INTRODUCCIÓN: E",
+          "current_count": 11,
+          "majority_count": 126,
+          "norm_key": "introduccion: e",
+          "context_key": "cuando me da por nombrarte",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787478622480-edr9mi",
+          "old_value": "INTRODUCCIÓN:  E",
+          "new_value": "INTRODUCCIÓN: E",
+          "current_count": 11,
+          "majority_count": 126,
+          "norm_key": "introduccion: e",
+          "context_key": "el cara y musha",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787478623155-2gn0tp",
+          "old_value": "INTRODUCCIÓN:  Am",
+          "new_value": "INTRODUCCIÓN: Am",
+          "current_count": 4,
+          "majority_count": 94,
+          "norm_key": "introduccion: am",
+          "context_key": "el lamento de la urpilita",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787492317447-6wn9x1",
+          "old_value": "Pablo Milanes",
+          "new_value": "Pablo Milanés",
+          "current_count": 15,
+          "majority_count": 646,
+          "norm_key": "pablo milanes",
+          "context_key": "tu no sabe ingle",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787495017165-2je6op",
+          "old_value": "Pokemon",
+          "new_value": "Pokémon",
+          "current_count": 7,
+          "majority_count": 201,
+          "norm_key": "pokemon",
+          "context_key": "pokemon theme",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787496606925-0oohzd",
+          "old_value": "Quilapayun",
+          "new_value": "Quilapayún",
+          "current_count": 14,
+          "majority_count": 634,
+          "norm_key": "quilapayun",
+          "context_key": "la ena (la chica el metro)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787496607653-jkotkx",
+          "old_value": "Quilapayun",
+          "new_value": "Quilapayún",
+          "current_count": 14,
+          "majority_count": 634,
+          "norm_key": "quilapayun",
+          "context_key": "la gordinflonica ninfomanosica",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787496631756-1nibqw",
+          "old_value": "Raca Negra",
+          "new_value": "Raça Negra",
+          "current_count": 7,
+          "majority_count": 1395,
+          "norm_key": "raca negra",
+          "context_key": "quando te encontrei",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787503589252-trgwf8",
+          "old_value": "Rocio Durcal",
+          "new_value": "Rocío Durcal",
+          "current_count": 8,
+          "majority_count": 805,
+          "norm_key": "rocio durcal",
+          "context_key": "no me digas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787505708148-mpk3th",
+          "old_value": "Seru Giran",
+          "new_value": "Serú Girán",
+          "current_count": 16,
+          "majority_count": 339,
+          "norm_key": "seru giran",
+          "context_key": "popotitos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787505712606-6iozgv",
+          "old_value": "Seru Giran",
+          "new_value": "Serú Girán",
+          "current_count": 16,
+          "majority_count": 339,
+          "norm_key": "seru giran",
+          "context_key": "voy a mil",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787514898116-pre84u",
+          "old_value": "Titas",
+          "new_value": "Titãs",
+          "current_count": 22,
+          "majority_count": 712,
+          "norm_key": "titas",
+          "context_key": "isso",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787564745310-undldi",
+          "old_value": "Alejandro Fernandez",
+          "new_value": "Alejandro Fernández",
+          "current_count": 20,
+          "majority_count": 2046,
+          "norm_key": "alejandro fernandez",
+          "context_key": "a manos llenas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787573754756-fkabvr",
+          "old_value": "Bjork",
+          "new_value": "Björk",
+          "current_count": 13,
+          "majority_count": 397,
+          "norm_key": "bjork",
+          "context_key": "gvendur",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787638913285-3sxgck",
+          "old_value": "Alejandro Fernandez",
+          "new_value": "Alejandro Fernández",
+          "current_count": 20,
+          "majority_count": 2046,
+          "norm_key": "alejandro fernandez",
+          "context_key": "muy lejos de ti",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787647657195-d4qwjv",
+          "old_value": "Bjork",
+          "new_value": "Björk",
+          "current_count": 13,
+          "majority_count": 397,
+          "norm_key": "bjork",
+          "context_key": "gvendur",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787683554725-3fbfy6",
+          "old_value": "INTRODUCCIÓN:  G",
+          "new_value": "INTRODUCCIÓN: G",
+          "current_count": 3,
+          "majority_count": 69,
+          "norm_key": "introduccion: g",
+          "context_key": "coplera del viento",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787684055182-7ah9vo",
+          "old_value": "Jose Claudio Machado",
+          "new_value": "José Claudio Machado",
+          "current_count": 6,
+          "majority_count": 191,
+          "norm_key": "jose claudio machado",
+          "context_key": "em cima do laco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787684064433-ob6a2r",
+          "old_value": "Jose Jose",
+          "new_value": "José José",
+          "current_count": 11,
+          "majority_count": 1296,
+          "norm_key": "jose jose",
+          "context_key": "la nave del olvido",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787687545902-sduakx",
+          "old_value": "Legiao Urbana",
+          "new_value": "Legião Urbana",
+          "current_count": 6,
+          "majority_count": 1023,
+          "norm_key": "legiao urbana",
+          "context_key": "pais e filhos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787688141140-zrn0hh",
+          "old_value": "Limao Com Mel",
+          "new_value": "Limão Com Mel",
+          "current_count": 14,
+          "majority_count": 1591,
+          "norm_key": "limao com mel",
+          "context_key": "tentei te esquecer",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787703791022-wtazwl",
+          "old_value": "Pablo Milanes",
+          "new_value": "Pablo Milanés",
+          "current_count": 15,
+          "majority_count": 646,
+          "norm_key": "pablo milanes",
+          "context_key": "tu no sabe ingle",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787707228412-wb2fee",
+          "old_value": "Pokemon",
+          "new_value": "Pokémon",
+          "current_count": 7,
+          "majority_count": 201,
+          "norm_key": "pokemon",
+          "context_key": "pokemon theme",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787714208362-zfo6pf",
+          "old_value": "Rocio Durcal",
+          "new_value": "Rocío Durcal",
+          "current_count": 8,
+          "majority_count": 805,
+          "norm_key": "rocio durcal",
+          "context_key": "no me digas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787716488706-l97ql8",
+          "old_value": "Seru Giran",
+          "new_value": "Serú Girán",
+          "current_count": 16,
+          "majority_count": 339,
+          "norm_key": "seru giran",
+          "context_key": "voy a mil",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787716463250-nbnw76",
+          "old_value": "Seru Giran",
+          "new_value": "Serú Girán",
+          "current_count": 16,
+          "majority_count": 339,
+          "norm_key": "seru giran",
+          "context_key": "popotitos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787725460184-1v2jz8",
+          "old_value": "Titas",
+          "new_value": "Titãs",
+          "current_count": 22,
+          "majority_count": 712,
+          "norm_key": "titas",
+          "context_key": "enquanto houver sol",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787725462777-64i7y8",
+          "old_value": "Titas",
+          "new_value": "Titãs",
+          "current_count": 22,
+          "majority_count": 712,
+          "norm_key": "titas",
+          "context_key": "isso",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787727204888-6w0tcs",
+          "old_value": "Vicente Fernandez",
+          "new_value": "Vicente Fernández",
+          "current_count": 12,
+          "majority_count": 1653,
+          "norm_key": "vicente fernandez",
+          "context_key": "de que manera te olvido",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787727221454-jyrpib",
+          "old_value": "Vicente Fernandez",
+          "new_value": "Vicente Fernández",
+          "current_count": 12,
+          "majority_count": 1653,
+          "norm_key": "vicente fernandez",
+          "context_key": "el jazmin y la rosa",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787790633932-37p75p",
+          "old_value": "Comunidade Catolica Shalom",
+          "new_value": "Comunidade Católica Shalom",
+          "current_count": 6,
+          "majority_count": 1662,
+          "norm_key": "comunidade catolica shalom",
+          "context_key": "kyrie eleison",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787811759459-g95ddu",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "la cancion de los buenos borrachos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787811819460-c0ara2",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "virgen de la amargura",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787811820764-f1w49x",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "viudita de clicquot",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787824119663-ydzs01",
+          "old_value": "Introduccion: Am",
+          "new_value": "INTRODUCCIÓN: Am",
+          "current_count": 8,
+          "majority_count": 94,
+          "norm_key": "introduccion: am",
+          "context_key": "chacarera para mi vuelta",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787824153331-b913ir",
+          "old_value": "INTRODUCCIÓN:   Em",
+          "new_value": "INTRODUCCIÓN: Em",
+          "current_count": 9,
+          "majority_count": 115,
+          "norm_key": "introduccion: em",
+          "context_key": "coplas de chacarera",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787824153952-ee5tfz",
+          "old_value": "INTRODUCCIÓN:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 21,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "coplas para claudio ramiro soria",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787838678371-wvqanp",
+          "old_value": "Pablo Milanes",
+          "new_value": "Pablo Milanés",
+          "current_count": 15,
+          "majority_count": 646,
+          "norm_key": "pablo milanes",
+          "context_key": "campesina",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787838714932-g79219",
+          "old_value": "Pablo Milanes",
+          "new_value": "Pablo Milanés",
+          "current_count": 15,
+          "majority_count": 646,
+          "norm_key": "pablo milanes",
+          "context_key": "tu no sabe ingle",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787838839273-17dv2w",
+          "old_value": "introducción:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 6,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "cantores que reflexionan",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787842252488-53jzko",
+          "old_value": "Pokemon",
+          "new_value": "Pokémon",
+          "current_count": 7,
+          "majority_count": 201,
+          "norm_key": "pokemon",
+          "context_key": "pokemon theme",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787842878887-5f2m3l",
+          "old_value": "Quilapayun",
+          "new_value": "Quilapayún",
+          "current_count": 14,
+          "majority_count": 634,
+          "norm_key": "quilapayun",
+          "context_key": "la ena (la chica el metro)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787842879501-ajwit1",
+          "old_value": "Quilapayun",
+          "new_value": "Quilapayún",
+          "current_count": 14,
+          "majority_count": 634,
+          "norm_key": "quilapayun",
+          "context_key": "la gordinflonica ninfomanosica",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787842902780-g4noms",
+          "old_value": "Raca Negra",
+          "new_value": "Raça Negra",
+          "current_count": 7,
+          "majority_count": 1395,
+          "norm_key": "raca negra",
+          "context_key": "quando te encontrei",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787914121498-14tj43",
+          "old_value": "INTRODUCCIÓN:  D",
+          "new_value": "INTRODUCCIÓN: D",
+          "current_count": 12,
+          "majority_count": 28,
+          "norm_key": "introduccion: d",
+          "context_key": "burruyacu",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787914123964-qlfx1j",
+          "old_value": "INTRODUCCIÓN:  Em",
+          "new_value": "INTRODUCCIÓN: Em",
+          "current_count": 10,
+          "majority_count": 115,
+          "norm_key": "introduccion: em",
+          "context_key": "campesino",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787948656259-com37p",
+          "old_value": "Jesse",
+          "new_value": "Jessé",
+          "current_count": 16,
+          "majority_count": 355,
+          "norm_key": "jesse",
+          "context_key": "por siempremente",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787948661877-ssy61z",
+          "old_value": "Jesse",
+          "new_value": "Jessé",
+          "current_count": 16,
+          "majority_count": 355,
+          "norm_key": "jesse",
+          "context_key": "somos lo que fue",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787948667556-fs6635",
+          "old_value": "Jesse",
+          "new_value": "Jessé",
+          "current_count": 16,
+          "majority_count": 355,
+          "norm_key": "jesse",
+          "context_key": "una en un millon",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787950383018-t0fh5s",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "la cancion de los buenos borrachos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787950444685-p70m4j",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "virgen de la amargura",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787950445942-m849qe",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "viudita de clicquot",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787962627292-a7zb8r",
+          "old_value": "Limao Com Mel",
+          "new_value": "Limão Com Mel",
+          "current_count": 14,
+          "majority_count": 1591,
+          "norm_key": "limao com mel",
+          "context_key": "sem amor nao da",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787963053067-30hi4h",
+          "old_value": "INTRODUCCIÓN:  A",
+          "new_value": "INTRODUCCIÓN: A",
+          "current_count": 20,
+          "majority_count": 69,
+          "norm_key": "introduccion: a",
+          "context_key": "juro amarte",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787978844358-v5u590",
+          "old_value": "introducción:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 6,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "cantores que reflexionan",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787988223866-dbu4nu",
+          "old_value": "Rocio Durcal",
+          "new_value": "Rocío Durcal",
+          "current_count": 8,
+          "majority_count": 805,
+          "norm_key": "rocio durcal",
+          "context_key": "no me digas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788006037526-4gcrua",
+          "old_value": "Ze Ramalho",
+          "new_value": "Zé Ramalho",
+          "current_count": 12,
+          "majority_count": 1197,
+          "norm_key": "ze ramalho",
+          "context_key": "pra nao dizer que nao falei das flores",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788006046333-lukrp7",
+          "old_value": "Ze Ramalho",
+          "new_value": "Zé Ramalho",
+          "current_count": 12,
+          "majority_count": 1197,
+          "norm_key": "ze ramalho",
+          "context_key": "ta tudo mudando",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788058256102-sv686o",
+          "old_value": "Alejandro Fernandez",
+          "new_value": "Alejandro Fernández",
+          "current_count": 20,
+          "majority_count": 2046,
+          "norm_key": "alejandro fernandez",
+          "context_key": "a manos llenas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788058315846-g668ou",
+          "old_value": "Alejandro Fernandez",
+          "new_value": "Alejandro Fernández",
+          "current_count": 20,
+          "majority_count": 2046,
+          "norm_key": "alejandro fernandez",
+          "context_key": "muy lejos de ti",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788063427487-pqzeli",
+          "old_value": "INTRODUCCIÓN:  D",
+          "new_value": "INTRODUCCIÓN: D",
+          "current_count": 12,
+          "majority_count": 28,
+          "norm_key": "introduccion: d",
+          "context_key": "burruyacu",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788063429949-dz1hwc",
+          "old_value": "INTRODUCCIÓN:  Em",
+          "new_value": "INTRODUCCIÓN: Em",
+          "current_count": 10,
+          "majority_count": 115,
+          "norm_key": "introduccion: em",
+          "context_key": "campesino",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788067052826-snxwwu",
+          "old_value": "Bjork",
+          "new_value": "Björk",
+          "current_count": 13,
+          "majority_count": 397,
+          "norm_key": "bjork",
+          "context_key": "gvendur",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788093939066-1u2b6y",
+          "old_value": "INTRODUCCION: Gm",
+          "new_value": "INTRODUCCIÓN: Gm",
+          "current_count": 8,
+          "majority_count": 47,
+          "norm_key": "introduccion: gm",
+          "context_key": "te necesito",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788101653659-stw6p9",
+          "old_value": "Jesse",
+          "new_value": "Jessé",
+          "current_count": 16,
+          "majority_count": 355,
+          "norm_key": "jesse",
+          "context_key": "por siempremente",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788101658586-0825s1",
+          "old_value": "Jesse",
+          "new_value": "Jessé",
+          "current_count": 16,
+          "majority_count": 355,
+          "norm_key": "jesse",
+          "context_key": "somos lo que fue",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788101664177-8388bt",
+          "old_value": "Jesse",
+          "new_value": "Jessé",
+          "current_count": 16,
+          "majority_count": 355,
+          "norm_key": "jesse",
+          "context_key": "una en un millon",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788106988383-4f3xwd",
+          "old_value": "Jose Claudio Machado",
+          "new_value": "José Claudio Machado",
+          "current_count": 6,
+          "majority_count": 191,
+          "norm_key": "jose claudio machado",
+          "context_key": "em cima do laco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788106997710-i39gui",
+          "old_value": "Jose Jose",
+          "new_value": "José José",
+          "current_count": 11,
+          "majority_count": 1296,
+          "norm_key": "jose jose",
+          "context_key": "la nave del olvido",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788112486709-cbef2o",
+          "old_value": "Limao Com Mel",
+          "new_value": "Limão Com Mel",
+          "current_count": 14,
+          "majority_count": 1591,
+          "norm_key": "limao com mel",
+          "context_key": "sem amor nao da",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788114096251-qn4f3w",
+          "old_value": "INTRODUCCIÓN:  A",
+          "new_value": "INTRODUCCIÓN: A",
+          "current_count": 20,
+          "majority_count": 69,
+          "norm_key": "introduccion: a",
+          "context_key": "juro amarte",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788121348281-8yufx5",
+          "old_value": "INTRODUCCIÓN:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 21,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "la ninez",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788133893516-su9nkk",
+          "old_value": "Quilapayun",
+          "new_value": "Quilapayún",
+          "current_count": 14,
+          "majority_count": 634,
+          "norm_key": "quilapayun",
+          "context_key": "la ena (la chica el metro)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788133894167-lhgl9f",
+          "old_value": "Quilapayun",
+          "new_value": "Quilapayún",
+          "current_count": 14,
+          "majority_count": 634,
+          "norm_key": "quilapayun",
+          "context_key": "la gordinflonica ninfomanosica",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788133916587-3ohs1k",
+          "old_value": "Raca Negra",
+          "new_value": "Raça Negra",
+          "current_count": 7,
+          "majority_count": 1395,
+          "norm_key": "raca negra",
+          "context_key": "quando te encontrei",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788141301505-7wdtqn",
+          "old_value": "Seru Giran",
+          "new_value": "Serú Girán",
+          "current_count": 16,
+          "majority_count": 339,
+          "norm_key": "seru giran",
+          "context_key": "popotitos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788150258490-1hf0v9",
+          "old_value": "Titas",
+          "new_value": "Titãs",
+          "current_count": 22,
+          "majority_count": 712,
+          "norm_key": "titas",
+          "context_key": "enquanto houver sol",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788150261066-49vh15",
+          "old_value": "Titas",
+          "new_value": "Titãs",
+          "current_count": 22,
+          "majority_count": 712,
+          "norm_key": "titas",
+          "context_key": "isso",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788241950110-tsug7e",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "la cancion de los buenos borrachos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788242010457-gr3o12",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "viudita de clicquot",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788242009245-yok4w7",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "virgen de la amargura",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788245698192-bx4bhz",
+          "old_value": "Jose Jose",
+          "new_value": "José José",
+          "current_count": 11,
+          "majority_count": 1296,
+          "norm_key": "jose jose",
+          "context_key": "regalame esta noche",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788252539146-5kxy5o",
+          "old_value": "INTRODUCCIÓN:  A",
+          "new_value": "INTRODUCCIÓN: A",
+          "current_count": 20,
+          "majority_count": 69,
+          "norm_key": "introduccion: a",
+          "context_key": "juro amarte",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788252863556-yxqcut",
+          "old_value": "Introduccion: Am",
+          "new_value": "INTRODUCCIÓN: Am",
+          "current_count": 8,
+          "majority_count": 94,
+          "norm_key": "introduccion: am",
+          "context_key": "chacarera para mi vuelta",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788252897021-rhit9c",
+          "old_value": "INTRODUCCIÓN:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 21,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "coplas para claudio ramiro soria",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788252896416-w6x6xd",
+          "old_value": "INTRODUCCIÓN:   Em",
+          "new_value": "INTRODUCCIÓN: Em",
+          "current_count": 9,
+          "majority_count": 115,
+          "norm_key": "introduccion: em",
+          "context_key": "coplas de chacarera",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788259710265-vlxlb2",
+          "old_value": "INTRODUCCIÓN:  A",
+          "new_value": "INTRODUCCIÓN: A",
+          "current_count": 20,
+          "majority_count": 69,
+          "norm_key": "introduccion: a",
+          "context_key": "esto azul",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788267246619-sxf3j3",
+          "old_value": "Pablo Milanes",
+          "new_value": "Pablo Milanés",
+          "current_count": 15,
+          "majority_count": 646,
+          "norm_key": "pablo milanes",
+          "context_key": "tu no sabe ingle",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788269910271-k21qvg",
+          "old_value": "Pokemon",
+          "new_value": "Pokémon",
+          "current_count": 7,
+          "majority_count": 201,
+          "norm_key": "pokemon",
+          "context_key": "pokemon theme",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788274002481-egbco0",
+          "old_value": "Rocio Durcal",
+          "new_value": "Rocío Durcal",
+          "current_count": 8,
+          "majority_count": 805,
+          "norm_key": "rocio durcal",
+          "context_key": "no me digas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788276261114-mi0a29",
+          "old_value": "Seru Giran",
+          "new_value": "Serú Girán",
+          "current_count": 16,
+          "majority_count": 339,
+          "norm_key": "seru giran",
+          "context_key": "popotitos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788276285686-k8xuu6",
+          "old_value": "Seru Giran",
+          "new_value": "Serú Girán",
+          "current_count": 16,
+          "majority_count": 339,
+          "norm_key": "seru giran",
+          "context_key": "voy a mil",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788283454619-f7z1xi",
+          "old_value": "Titas",
+          "new_value": "Titãs",
+          "current_count": 22,
+          "majority_count": 712,
+          "norm_key": "titas",
+          "context_key": "enquanto houver sol",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788285202761-vu27eh",
+          "old_value": "Vicente Fernandez",
+          "new_value": "Vicente Fernández",
+          "current_count": 12,
+          "majority_count": 1653,
+          "norm_key": "vicente fernandez",
+          "context_key": "de que manera te olvido",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788285219411-usikuo",
+          "old_value": "Vicente Fernandez",
+          "new_value": "Vicente Fernández",
+          "current_count": 12,
+          "majority_count": 1653,
+          "norm_key": "vicente fernandez",
+          "context_key": "el jazmin y la rosa",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788331850375-9zz4jg",
+          "old_value": "Alejandro Fernandez",
+          "new_value": "Alejandro Fernández",
+          "current_count": 20,
+          "majority_count": 2046,
+          "norm_key": "alejandro fernandez",
+          "context_key": "a manos llenas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788337031738-tj3uq6",
+          "old_value": "INTRODUCCIÓN:  D",
+          "new_value": "INTRODUCCIÓN: D",
+          "current_count": 12,
+          "majority_count": 28,
+          "norm_key": "introduccion: d",
+          "context_key": "burruyacu",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788337033554-g4m6li",
+          "old_value": "INTRODUCCIÓN:  Em",
+          "new_value": "INTRODUCCIÓN: Em",
+          "current_count": 10,
+          "majority_count": 115,
+          "norm_key": "introduccion: em",
+          "context_key": "campesino",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788340653607-njpb8m",
+          "old_value": "Bjork",
+          "new_value": "Björk",
+          "current_count": 13,
+          "majority_count": 397,
+          "norm_key": "bjork",
+          "context_key": "gvendur",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788362272084-k2gl5l",
+          "old_value": "INTRODUCCION: Gm",
+          "new_value": "INTRODUCCIÓN: Gm",
+          "current_count": 8,
+          "majority_count": 47,
+          "norm_key": "introduccion: gm",
+          "context_key": "te necesito",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788371146683-twxobf",
+          "old_value": "INTRODUCCIÓN:  G",
+          "new_value": "INTRODUCCIÓN: G",
+          "current_count": 3,
+          "majority_count": 69,
+          "norm_key": "introduccion: g",
+          "context_key": "coplera del viento",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788371655419-iralpy",
+          "old_value": "Jose Claudio Machado",
+          "new_value": "José Claudio Machado",
+          "current_count": 6,
+          "majority_count": 191,
+          "norm_key": "jose claudio machado",
+          "context_key": "em cima do laco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788371664401-12frae",
+          "old_value": "Jose Jose",
+          "new_value": "José José",
+          "current_count": 11,
+          "majority_count": 1296,
+          "norm_key": "jose jose",
+          "context_key": "la nave del olvido",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788374940124-bu0lej",
+          "old_value": "Limao Com Mel",
+          "new_value": "Limão Com Mel",
+          "current_count": 14,
+          "majority_count": 1591,
+          "norm_key": "limao com mel",
+          "context_key": "sem amor nao da",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788375889366-s5iv6y",
+          "old_value": "Introduccion: Am",
+          "new_value": "INTRODUCCIÓN: Am",
+          "current_count": 8,
+          "majority_count": 94,
+          "norm_key": "introduccion: am",
+          "context_key": "chacarera para mi vuelta",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788375922991-vnwjy6",
+          "old_value": "INTRODUCCIÓN:   Em",
+          "new_value": "INTRODUCCIÓN: Em",
+          "current_count": 9,
+          "majority_count": 115,
+          "norm_key": "introduccion: em",
+          "context_key": "coplas de chacarera",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788375923619-fd03i5",
+          "old_value": "INTRODUCCIÓN:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 21,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "coplas para claudio ramiro soria",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788379644686-hghd5u",
+          "old_value": "INTRODUCCIÓN:  A",
+          "new_value": "INTRODUCCIÓN: A",
+          "current_count": 20,
+          "majority_count": 69,
+          "norm_key": "introduccion: a",
+          "context_key": "esto azul",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788379659771-x684kf",
+          "old_value": "INTRODUCCIÓN:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 21,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "la ninez",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788387373743-2vbcpn",
+          "old_value": "Os Baroes Da Pisadinha",
+          "new_value": "Os Barões da Pisadinha",
+          "current_count": 5,
+          "majority_count": 469,
+          "norm_key": "os baroes da pisadinha",
+          "context_key": "colinho do vaqueiro (pocoto) (part. pedro paulo e alex)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788387766674-ptazgi",
+          "old_value": "Pablo Milanes",
+          "new_value": "Pablo Milanés",
+          "current_count": 15,
+          "majority_count": 646,
+          "norm_key": "pablo milanes",
+          "context_key": "campesina",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788387807152-w64me9",
+          "old_value": "Pablo Milanes",
+          "new_value": "Pablo Milanés",
+          "current_count": 15,
+          "majority_count": 646,
+          "norm_key": "pablo milanes",
+          "context_key": "tu no sabe ingle",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788391430403-blu7t3",
+          "old_value": "Pokemon",
+          "new_value": "Pokémon",
+          "current_count": 7,
+          "majority_count": 201,
+          "norm_key": "pokemon",
+          "context_key": "pokemon theme",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788409294718-4pckbo",
+          "old_value": "Titas",
+          "new_value": "Titãs",
+          "current_count": 22,
+          "majority_count": 712,
+          "norm_key": "titas",
+          "context_key": "enquanto houver sol",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788409302115-l6d6t8",
+          "old_value": "Titas",
+          "new_value": "Titãs",
+          "current_count": 22,
+          "majority_count": 712,
+          "norm_key": "titas",
+          "context_key": "isso",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788411148090-subo5e",
+          "old_value": "Vicente Fernandez",
+          "new_value": "Vicente Fernández",
+          "current_count": 12,
+          "majority_count": 1653,
+          "norm_key": "vicente fernandez",
+          "context_key": "de que manera te olvido",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788411165102-p8jfms",
+          "old_value": "Vicente Fernandez",
+          "new_value": "Vicente Fernández",
+          "current_count": 12,
+          "majority_count": 1653,
+          "norm_key": "vicente fernandez",
+          "context_key": "el jazmin y la rosa",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788456117704-2lsffv",
+          "old_value": "Alejandro Fernandez",
+          "new_value": "Alejandro Fernández",
+          "current_count": 20,
+          "majority_count": 2046,
+          "norm_key": "alejandro fernandez",
+          "context_key": "muy lejos de ti",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788474186824-pl55y4",
+          "old_value": "Comunidade Catolica Shalom",
+          "new_value": "Comunidade Católica Shalom",
+          "current_count": 6,
+          "majority_count": 1662,
+          "norm_key": "comunidade catolica shalom",
+          "context_key": "kyrie eleison",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788490074858-885rbo",
+          "old_value": "INTRODUCCION: Gm",
+          "new_value": "INTRODUCCIÓN: Gm",
+          "current_count": 8,
+          "majority_count": 47,
+          "norm_key": "introduccion: gm",
+          "context_key": "te necesito",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788497658959-bqat8h",
+          "old_value": "Jesse",
+          "new_value": "Jessé",
+          "current_count": 16,
+          "majority_count": 355,
+          "norm_key": "jesse",
+          "context_key": "por siempremente",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788497664248-zghocp",
+          "old_value": "Jesse",
+          "new_value": "Jessé",
+          "current_count": 16,
+          "majority_count": 355,
+          "norm_key": "jesse",
+          "context_key": "somos lo que fue",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788497669353-sluq35",
+          "old_value": "Jesse",
+          "new_value": "Jessé",
+          "current_count": 16,
+          "majority_count": 355,
+          "norm_key": "jesse",
+          "context_key": "una en un millon",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788499353848-dwy2z1",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "la cancion de los buenos borrachos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788499417761-owp3gs",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "viudita de clicquot",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788499416439-7hgoy3",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "virgen de la amargura",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788517333815-xs9wks",
+          "old_value": "INTRODUCCIÓN:  A",
+          "new_value": "INTRODUCCIÓN: A",
+          "current_count": 20,
+          "majority_count": 69,
+          "norm_key": "introduccion: a",
+          "context_key": "esto azul",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788524638628-vvlfqo",
+          "old_value": "Os Baroes Da Pisadinha",
+          "new_value": "Os Barões da Pisadinha",
+          "current_count": 5,
+          "majority_count": 469,
+          "norm_key": "os baroes da pisadinha",
+          "context_key": "colinho do vaqueiro (pocoto) (part. pedro paulo e alex)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788526169325-lrnr9z",
+          "old_value": "Pablo Milanes",
+          "new_value": "Pablo Milanés",
+          "current_count": 15,
+          "majority_count": 646,
+          "norm_key": "pablo milanes",
+          "context_key": "campesina",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788526206291-isuzl2",
+          "old_value": "Pablo Milanes",
+          "new_value": "Pablo Milanés",
+          "current_count": 15,
+          "majority_count": 646,
+          "norm_key": "pablo milanes",
+          "context_key": "tu no sabe ingle",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788526328030-x49jrx",
+          "old_value": "introducción:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 6,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "cantores que reflexionan",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788533196656-n9rc4c",
+          "old_value": "Rocio Durcal",
+          "new_value": "Rocío Durcal",
+          "current_count": 8,
+          "majority_count": 805,
+          "norm_key": "rocio durcal",
+          "context_key": "no me digas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788534560814-akm7uh",
+          "old_value": "Seru Giran",
+          "new_value": "Serú Girán",
+          "current_count": 16,
+          "majority_count": 339,
+          "norm_key": "seru giran",
+          "context_key": "popotitos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788542691972-sjredy",
+          "old_value": "Vicente Fernandez",
+          "new_value": "Vicente Fernández",
+          "current_count": 12,
+          "majority_count": 1653,
+          "norm_key": "vicente fernandez",
+          "context_key": "de que manera te olvido",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788587442914-7d411r",
+          "old_value": "Alejandro Fernandez",
+          "new_value": "Alejandro Fernández",
+          "current_count": 20,
+          "majority_count": 2046,
+          "norm_key": "alejandro fernandez",
+          "context_key": "a manos llenas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788587501499-ddssmb",
+          "old_value": "Alejandro Fernandez",
+          "new_value": "Alejandro Fernández",
+          "current_count": 20,
+          "majority_count": 2046,
+          "norm_key": "alejandro fernandez",
+          "context_key": "muy lejos de ti",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788592620815-k3y9dl",
+          "old_value": "INTRODUCCIÓN:  D",
+          "new_value": "INTRODUCCIÓN: D",
+          "current_count": 12,
+          "majority_count": 28,
+          "norm_key": "introduccion: d",
+          "context_key": "burruyacu",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788592622708-92hyxo",
+          "old_value": "INTRODUCCIÓN:  Em",
+          "new_value": "INTRODUCCIÓN: Em",
+          "current_count": 10,
+          "majority_count": 115,
+          "norm_key": "introduccion: em",
+          "context_key": "campesino",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788596255395-b0jsls",
+          "old_value": "Bjork",
+          "new_value": "Björk",
+          "current_count": 13,
+          "majority_count": 397,
+          "norm_key": "bjork",
+          "context_key": "gvendur",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788623141530-7x3upn",
+          "old_value": "INTRODUCCION: Gm",
+          "new_value": "INTRODUCCIÓN: Gm",
+          "current_count": 8,
+          "majority_count": 47,
+          "norm_key": "introduccion: gm",
+          "context_key": "te necesito",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788632562249-ax2gl9",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "la cancion de los buenos borrachos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788632623569-ogexdr",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "virgen de la amargura",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788632624829-u1e7c8",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "viudita de clicquot",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788644920407-uv6rb2",
+          "old_value": "Introduccion: Am",
+          "new_value": "INTRODUCCIÓN: Am",
+          "current_count": 8,
+          "majority_count": 94,
+          "norm_key": "introduccion: am",
+          "context_key": "chacarera para mi vuelta",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788644954377-cy83ku",
+          "old_value": "INTRODUCCIÓN:   Em",
+          "new_value": "INTRODUCCIÓN: Em",
+          "current_count": 9,
+          "majority_count": 115,
+          "norm_key": "introduccion: em",
+          "context_key": "coplas de chacarera",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788644955059-vzr0xe",
+          "old_value": "INTRODUCCIÓN:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 21,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "coplas para claudio ramiro soria",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788650652969-3i0luc",
+          "old_value": "INTRODUCCIÓN:  A",
+          "new_value": "INTRODUCCIÓN: A",
+          "current_count": 20,
+          "majority_count": 69,
+          "norm_key": "introduccion: a",
+          "context_key": "esto azul",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788650667719-b7el8g",
+          "old_value": "INTRODUCCIÓN:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 21,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "la ninez",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788659487501-1s4yoc",
+          "old_value": "Pablo Milanes",
+          "new_value": "Pablo Milanés",
+          "current_count": 15,
+          "majority_count": 646,
+          "norm_key": "pablo milanes",
+          "context_key": "campesina",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788659526035-2ag7ix",
+          "old_value": "Pablo Milanes",
+          "new_value": "Pablo Milanés",
+          "current_count": 15,
+          "majority_count": 646,
+          "norm_key": "pablo milanes",
+          "context_key": "tu no sabe ingle",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788659655527-xbxqnn",
+          "old_value": "introducción:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 6,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "cantores que reflexionan",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788671905615-jbz39v",
+          "old_value": "Seru Giran",
+          "new_value": "Serú Girán",
+          "current_count": 16,
+          "majority_count": 339,
+          "norm_key": "seru giran",
+          "context_key": "popotitos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788671910728-78ok6z",
+          "old_value": "Seru Giran",
+          "new_value": "Serú Girán",
+          "current_count": 16,
+          "majority_count": 339,
+          "norm_key": "seru giran",
+          "context_key": "voy a mil",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788679464433-plskdj",
+          "old_value": "Titas",
+          "new_value": "Titãs",
+          "current_count": 22,
+          "majority_count": 712,
+          "norm_key": "titas",
+          "context_key": "isso",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788686441223-1a80k0",
+          "old_value": "Ze Ramalho",
+          "new_value": "Zé Ramalho",
+          "current_count": 12,
+          "majority_count": 1197,
+          "norm_key": "ze ramalho",
+          "context_key": "pra nao dizer que nao falei das flores",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788686450071-73jq55",
+          "old_value": "Ze Ramalho",
+          "new_value": "Zé Ramalho",
+          "current_count": 12,
+          "majority_count": 1197,
+          "norm_key": "ze ramalho",
+          "context_key": "ta tudo mudando",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788727862124-1vivc4",
+          "old_value": "Alejandro Fernandez",
+          "new_value": "Alejandro Fernández",
+          "current_count": 20,
+          "majority_count": 2046,
+          "norm_key": "alejandro fernandez",
+          "context_key": "a manos llenas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788727922367-buhviz",
+          "old_value": "Alejandro Fernandez",
+          "new_value": "Alejandro Fernández",
+          "current_count": 20,
+          "majority_count": 2046,
+          "norm_key": "alejandro fernandez",
+          "context_key": "muy lejos de ti",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788733023196-r3pl1j",
+          "old_value": "INTRODUCCIÓN:  D",
+          "new_value": "INTRODUCCIÓN: D",
+          "current_count": 12,
+          "majority_count": 28,
+          "norm_key": "introduccion: d",
+          "context_key": "burruyacu",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788733025013-akmgyj",
+          "old_value": "INTRODUCCIÓN:  Em",
+          "new_value": "INTRODUCCIÓN: Em",
+          "current_count": 10,
+          "majority_count": 115,
+          "norm_key": "introduccion: em",
+          "context_key": "campesino",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788736657330-nwwwlb",
+          "old_value": "Bjork",
+          "new_value": "Björk",
+          "current_count": 13,
+          "majority_count": 397,
+          "norm_key": "bjork",
+          "context_key": "gvendur",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788771238632-0o7kgh",
+          "old_value": "Jesse",
+          "new_value": "Jessé",
+          "current_count": 16,
+          "majority_count": 355,
+          "norm_key": "jesse",
+          "context_key": "por siempremente",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788771243636-567szo",
+          "old_value": "Jesse",
+          "new_value": "Jessé",
+          "current_count": 16,
+          "majority_count": 355,
+          "norm_key": "jesse",
+          "context_key": "somos lo que fue",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788771248608-j475y6",
+          "old_value": "Jesse",
+          "new_value": "Jessé",
+          "current_count": 16,
+          "majority_count": 355,
+          "norm_key": "jesse",
+          "context_key": "una en un millon",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788772767642-ufa5m8",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "la cancion de los buenos borrachos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788772828796-sn97rl",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "viudita de clicquot",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788772827572-zkgfmj",
+          "old_value": "Joaquin Sabina",
+          "new_value": "Joaquín Sabina",
+          "current_count": 24,
+          "majority_count": 956,
+          "norm_key": "joaquin sabina",
+          "context_key": "virgen de la amargura",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788776381151-3u7vz0",
+          "old_value": "Jose Jose",
+          "new_value": "José José",
+          "current_count": 11,
+          "majority_count": 1296,
+          "norm_key": "jose jose",
+          "context_key": "regalame esta noche",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788776412036-m1ds69",
+          "old_value": "Jose Jose",
+          "new_value": "José José",
+          "current_count": 11,
+          "majority_count": 1296,
+          "norm_key": "jose jose",
+          "context_key": "y nada mas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788781825337-crkapc",
+          "old_value": "Limao Com Mel",
+          "new_value": "Limão Com Mel",
+          "current_count": 14,
+          "majority_count": 1591,
+          "norm_key": "limao com mel",
+          "context_key": "sem amor nao da",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788783406213-aggf3w",
+          "old_value": "INTRODUCCIÓN:  A",
+          "new_value": "INTRODUCCIÓN: A",
+          "current_count": 20,
+          "majority_count": 69,
+          "norm_key": "introduccion: a",
+          "context_key": "juro amarte",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788783773449-pjahgi",
+          "old_value": "INTRODUCCIÓN:   Em",
+          "new_value": "INTRODUCCIÓN: Em",
+          "current_count": 9,
+          "majority_count": 115,
+          "norm_key": "introduccion: em",
+          "context_key": "coplas de chacarera",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788783774064-wwjip0",
+          "old_value": "INTRODUCCIÓN:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 21,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "coplas para claudio ramiro soria",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788790884930-880dq4",
+          "old_value": "INTRODUCCIÓN:  C",
+          "new_value": "INTRODUCCIÓN: C",
+          "current_count": 21,
+          "majority_count": 85,
+          "norm_key": "introduccion: c",
+          "context_key": "la ninez",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788809802281-1rtltp",
+          "old_value": "Seru Giran",
+          "new_value": "Serú Girán",
+          "current_count": 16,
+          "majority_count": 339,
+          "norm_key": "seru giran",
+          "context_key": "popotitos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788809807413-t7gkfh",
+          "old_value": "Seru Giran",
+          "new_value": "Serú Girán",
+          "current_count": 16,
+          "majority_count": 339,
+          "norm_key": "seru giran",
+          "context_key": "voy a mil",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788817796888-ox9pic",
+          "old_value": "Titas",
+          "new_value": "Titãs",
+          "current_count": 22,
+          "majority_count": 712,
+          "norm_key": "titas",
+          "context_key": "enquanto houver sol",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788817805780-ddbz3u",
+          "old_value": "Titas",
+          "new_value": "Titãs",
+          "current_count": 22,
+          "majority_count": 712,
+          "norm_key": "titas",
+          "context_key": "isso",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788819572067-ppldcp",
+          "old_value": "Vicente Fernandez",
+          "new_value": "Vicente Fernández",
+          "current_count": 12,
+          "majority_count": 1653,
+          "norm_key": "vicente fernandez",
+          "context_key": "el jazmin y la rosa",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788866511092-d03fjx",
+          "old_value": "Alejandro Fernandez",
+          "new_value": "Alejandro Fernández",
+          "current_count": 20,
+          "majority_count": 2046,
+          "norm_key": "alejandro fernandez",
+          "context_key": "muy lejos de ti",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788882328417-5aejdz",
+          "old_value": "Comunidade Catolica Shalom",
+          "new_value": "Comunidade Católica Shalom",
+          "current_count": 6,
+          "majority_count": 1662,
+          "norm_key": "comunidade catolica shalom",
+          "context_key": "kyrie eleison",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788905761274-k6chs4",
+          "old_value": "INTRODUCCIÓN:  D",
+          "new_value": "INTRODUCCIÓN: D",
+          "current_count": 12,
+          "majority_count": 28,
+          "norm_key": "introduccion: d",
+          "context_key": "burruyacu",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788905763938-sq7pla",
+          "old_value": "INTRODUCCIÓN:  Em",
+          "new_value": "INTRODUCCIÓN: Em",
+          "current_count": 10,
+          "majority_count": 115,
+          "norm_key": "introduccion: em",
+          "context_key": "campesino",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788923111934-1us1zr",
+          "old_value": "Bjork",
+          "new_value": "Björk",
+          "current_count": 13,
+          "majority_count": 397,
+          "norm_key": "bjork",
+          "context_key": "gvendur",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788933122660-rb4u3n",
+          "old_value": "Comunidade Catolica Shalom",
+          "new_value": "Comunidade Católica Shalom",
+          "current_count": 6,
+          "majority_count": 1662,
+          "norm_key": "comunidade catolica shalom",
+          "context_key": "kyrie eleison",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788979530756-oztbo9",
+          "old_value": "Alejandro Fernandez",
+          "new_value": "Alejandro Fernández",
+          "current_count": 20,
+          "majority_count": 2046,
+          "norm_key": "alejandro fernandez",
+          "context_key": "a manos llenas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788995739774-j4zjza",
+          "old_value": "Alejandro Fernandez",
+          "new_value": "Alejandro Fernández",
+          "current_count": 20,
+          "majority_count": 2046,
+          "norm_key": "alejandro fernandez",
+          "context_key": "a manos llenas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1789001263295-wgzqca",
+          "old_value": "Bjork",
+          "new_value": "Björk",
+          "current_count": 13,
+          "majority_count": 397,
+          "norm_key": "bjork",
+          "context_key": "gvendur",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1789006858099-2sar7k",
+          "old_value": "Comunidade Catolica Shalom",
+          "new_value": "Comunidade Católica Shalom",
+          "current_count": 6,
+          "majority_count": 1662,
+          "norm_key": "comunidade catolica shalom",
+          "context_key": "kyrie eleison",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1789813829181-wtg95i",
+          "old_value": "Titas",
+          "new_value": "Titãs",
+          "current_count": 22,
+          "majority_count": 712,
+          "norm_key": "titas",
+          "context_key": "enquanto houver sol",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1789813836656-90b2tq",
+          "old_value": "Titas",
+          "new_value": "Titãs",
+          "current_count": 22,
+          "majority_count": 712,
+          "norm_key": "titas",
+          "context_key": "isso",
+          "corrigido": false
+        }
+      ]
+    }
+  }
+}

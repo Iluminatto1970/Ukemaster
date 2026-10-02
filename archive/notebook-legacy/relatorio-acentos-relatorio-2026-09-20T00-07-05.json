@@ -1,0 +1,106 @@
+{
+  "gerado_em": "2026-09-20T00:07:05.681Z",
+  "modo": "dry-run",
+  "total_propostas": 9,
+  "campos": {
+    "title": {
+      "linhas_avaliadas": 6000,
+      "janelas": 18,
+      "correcoes": 9,
+      "primeiro_id": "scraped-1785911351600-78mzb1",
+      "ultimo_id": "scraped-1785948677610-ek9ydq",
+      "exemplos": [
+        {
+          "row_id": "scraped-1785911351600-78mzb1",
+          "old_value": "Sonrie",
+          "new_value": "Sonríe",
+          "current_count": 3,
+          "majority_count": 7,
+          "norm_key": "sonrie",
+          "context_key": "roberto carlos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911449937-mt9964",
+          "old_value": "Tô Por Ai",
+          "new_value": "Tô Por Aí",
+          "current_count": 1,
+          "majority_count": 13,
+          "norm_key": "to por ai",
+          "context_key": "gusttavo lima",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785923050430-6fq3dv",
+          "old_value": "Meu Ego",
+          "new_value": "Meu Égo",
+          "current_count": 3,
+          "majority_count": 9,
+          "norm_key": "meu ego",
+          "context_key": "roberto carlos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785929181249-agtnbc",
+          "old_value": "Dois Corações e Uma Historia",
+          "new_value": "Dois Corações e Uma História",
+          "current_count": 1,
+          "majority_count": 8,
+          "norm_key": "dois coracoes e uma historia",
+          "context_key": "gusttavo lima",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785929415232-hj1vul",
+          "old_value": "Olvidame Tu",
+          "new_value": "Olvidame Tú",
+          "current_count": 2,
+          "majority_count": 9,
+          "norm_key": "olvidame tu",
+          "context_key": "ivete sangalo",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785930287774-260zdr",
+          "old_value": "Olvidame Tu",
+          "new_value": "Olvidame Tú",
+          "current_count": 2,
+          "majority_count": 9,
+          "norm_key": "olvidame tu",
+          "context_key": "ivete sangalo",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785930423063-sk2ef4",
+          "old_value": "Coração  Molim",
+          "new_value": "Coração Molim",
+          "current_count": 1,
+          "majority_count": 5,
+          "norm_key": "coracao molim",
+          "context_key": "luiz gonzaga",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785948650353-naixmx",
+          "old_value": "Angela",
+          "new_value": "Ângela",
+          "current_count": 1,
+          "majority_count": 7,
+          "norm_key": "angela",
+          "context_key": "tom jobim",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785948677610-ek9ydq",
+          "old_value": "Incerteza",
+          "new_value": "Íncerteza",
+          "current_count": 2,
+          "majority_count": 10,
+          "norm_key": "incerteza",
+          "context_key": "tom jobim",
+          "corrigido": false
+        }
+      ]
+    }
+  }
+}

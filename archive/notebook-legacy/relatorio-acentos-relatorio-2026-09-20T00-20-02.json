@@ -1,0 +1,26 @@
+{
+  "gerado_em": "2026-09-20T00:20:02.575Z",
+  "modo": "dry-run",
+  "total_propostas": 1,
+  "campos": {
+    "title": {
+      "linhas_avaliadas": 2000,
+      "janelas": 2,
+      "correcoes": 1,
+      "primeiro_id": "scraped-1785911449937-mt9964",
+      "ultimo_id": "scraped-1785911449937-mt9964",
+      "exemplos": [
+        {
+          "row_id": "scraped-1785911449937-mt9964",
+          "old_value": "Tô Por Ai",
+          "new_value": "Tô Por Aí",
+          "current_count": 1,
+          "majority_count": 13,
+          "norm_key": "to por ai",
+          "context_key": "gusttavo lima",
+          "corrigido": false
+        }
+      ]
+    }
+  }
+}

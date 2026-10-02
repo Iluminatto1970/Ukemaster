@@ -1,0 +1,86 @@
+{
+  "gerado_em": "2026-09-20T00:14:35.285Z",
+  "modo": "dry-run",
+  "total_propostas": 7,
+  "campos": {
+    "artist": {
+      "linhas_avaliadas": 3040,
+      "janelas": 47,
+      "correcoes": 7,
+      "primeiro_id": "scraped-1785931523654-n9s7iu",
+      "ultimo_id": "scraped-1785931873875-8s333z",
+      "exemplos": [
+        {
+          "row_id": "scraped-1785931523654-n9s7iu",
+          "old_value": "Marilia Mendonca",
+          "new_value": "Marília Mendonça",
+          "current_count": 2,
+          "majority_count": 1222,
+          "norm_key": "marilia mendonca",
+          "context_key": "desliga / esperando voce chegar / na hora do adeus (pot-pourri)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785931579119-nf3co7",
+          "old_value": "Marilia Mendonca",
+          "new_value": "Marília Mendonça",
+          "current_count": 2,
+          "majority_count": 1222,
+          "norm_key": "marilia mendonca",
+          "context_key": "sendo assim / muito estranho (pot-pourri)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785931809468-rbtv05",
+          "old_value": "Legiao Urbana",
+          "new_value": "Legião Urbana",
+          "current_count": 6,
+          "majority_count": 1023,
+          "norm_key": "legiao urbana",
+          "context_key": "pais e filhos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785931818411-6cbris",
+          "old_value": "Legiao Urbana",
+          "new_value": "Legião Urbana",
+          "current_count": 6,
+          "majority_count": 1023,
+          "norm_key": "legiao urbana",
+          "context_key": "1° de julho",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785931834124-90h9hg",
+          "old_value": "Legiao Urbana",
+          "new_value": "Legião Urbana",
+          "current_count": 6,
+          "majority_count": 1023,
+          "norm_key": "legiao urbana",
+          "context_key": "conexao amazonica",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785931868227-f4adwg",
+          "old_value": "Legiao Urbana",
+          "new_value": "Legião Urbana",
+          "current_count": 6,
+          "majority_count": 1023,
+          "norm_key": "legiao urbana",
+          "context_key": "perfeicao / lithium / metal conta as nuvens (pot-pourri)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785931873875-8s333z",
+          "old_value": "Legiao Urbana",
+          "new_value": "Legião Urbana",
+          "current_count": 6,
+          "majority_count": 1023,
+          "norm_key": "legiao urbana",
+          "context_key": "que pais e este / cajuina / pintinho amarelinho (pot-pourri)",
+          "corrigido": false
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,2289 @@
+{
+  "gerado_em": "2026-09-20T11:02:51.222Z",
+  "modo": "dry-run (nada foi alterado no banco)",
+  "varredura": {
+    "title": "394214 linhas (2373 janelas)",
+    "artist": "394283 linhas (7870 janelas)"
+  },
+  "total_propostas": 661,
+  "grupos_distintos": 146,
+  "stats": {
+    "title": {
+      "linhas": 394214,
+      "propostas": 294
+    },
+    "artist": {
+      "linhas": 394283,
+      "propostas": 367
+    }
+  },
+  "grupos": [
+    {
+      "campo": "artist",
+      "old_value": "Marilia Mendonca",
+      "new_value": "Marília Mendonça",
+      "context_key": "desliga / esperando voce chegar / na hora do adeus (pot-pourri)",
+      "linhas": [
+        "scraped-1785931523654-n9s7iu"
+      ],
+      "current_count": 2,
+      "majority_count": 1222,
+      "razao": 611
+    },
+    {
+      "campo": "artist",
+      "old_value": "Marilia Mendonca",
+      "new_value": "Marília Mendonça",
+      "context_key": "sendo assim / muito estranho (pot-pourri)",
+      "linhas": [
+        "scraped-1785931579119-nf3co7"
+      ],
+      "current_count": 2,
+      "majority_count": 1222,
+      "razao": 611
+    },
+    {
+      "campo": "artist",
+      "old_value": "Joao Gilberto",
+      "new_value": "João Gilberto",
+      "context_key": "corcovado",
+      "linhas": [
+        "scraped-1786781889184-u7erpl"
+      ],
+      "current_count": 1,
+      "majority_count": 607,
+      "razao": 607
+    },
+    {
+      "campo": "artist",
+      "old_value": "Comunidade Catolica Shalom",
+      "new_value": "Comunidade Católica Shalom",
+      "context_key": "kyrie eleison",
+      "linhas": [
+        "scraped-1787439209010-f8uy5m",
+        "scraped-1787790633932-37p75p",
+        "scraped-1788474186824-pl55y4",
+        "scraped-1788882328417-5aejdz",
+        "scraped-1788933122660-rb4u3n",
+        "scraped-1789006858099-2sar7k"
+      ],
+      "current_count": 6,
+      "majority_count": 1662,
+      "razao": 277
+    },
+    {
+      "campo": "artist",
+      "old_value": "Raca Negra",
+      "new_value": "Raça Negra",
+      "context_key": "quando te encontrei",
+      "linhas": [
+        "scraped-1786809159455-xecqoo",
+        "scraped-1786947710138-ur58fc",
+        "scraped-1787080927547-elk5nl",
+        "scraped-1787357215335-61r7j1",
+        "scraped-1787496631756-1nibqw",
+        "scraped-1787842902780-g4noms",
+        "scraped-1788133916587-3ohs1k"
+      ],
+      "current_count": 7,
+      "majority_count": 1395,
+      "razao": 199.3
+    },
+    {
+      "campo": "artist",
+      "old_value": "Legiao Urbana",
+      "new_value": "Legião Urbana",
+      "context_key": "pais e filhos",
+      "linhas": [
+        "scraped-1785931809468-rbtv05",
+        "scraped-1787687545902-sduakx"
+      ],
+      "current_count": 6,
+      "majority_count": 1023,
+      "razao": 170.5
+    },
+    {
+      "campo": "artist",
+      "old_value": "Legiao Urbana",
+      "new_value": "Legião Urbana",
+      "context_key": "1° de julho",
+      "linhas": [
+        "scraped-1785931818411-6cbris"
+      ],
+      "current_count": 6,
+      "majority_count": 1023,
+      "razao": 170.5
+    },
+    {
+      "campo": "artist",
+      "old_value": "Legiao Urbana",
+      "new_value": "Legião Urbana",
+      "context_key": "conexao amazonica",
+      "linhas": [
+        "scraped-1785931834124-90h9hg"
+      ],
+      "current_count": 6,
+      "majority_count": 1023,
+      "razao": 170.5
+    },
+    {
+      "campo": "artist",
+      "old_value": "Legiao Urbana",
+      "new_value": "Legião Urbana",
+      "context_key": "perfeicao / lithium / metal conta as nuvens (pot-pourri)",
+      "linhas": [
+        "scraped-1785931868227-f4adwg"
+      ],
+      "current_count": 6,
+      "majority_count": 1023,
+      "razao": 170.5
+    },
+    {
+      "campo": "artist",
+      "old_value": "Legiao Urbana",
+      "new_value": "Legião Urbana",
+      "context_key": "que pais e este / cajuina / pintinho amarelinho (pot-pourri)",
+      "linhas": [
+        "scraped-1785931873875-8s333z"
+      ],
+      "current_count": 6,
+      "majority_count": 1023,
+      "razao": 170.5
+    },
+    {
+      "campo": "artist",
+      "old_value": "Vicente Fernandez",
+      "new_value": "Vicente Fernández",
+      "context_key": "de que manera te olvido",
+      "linhas": [
+        "scraped-1786827197230-h0gcpb",
+        "scraped-1787376236048-ahpl1c",
+        "scraped-1787727204888-6w0tcs",
+        "scraped-1788285202761-vu27eh",
+        "scraped-1788411148090-subo5e",
+        "scraped-1788542691972-sjredy"
+      ],
+      "current_count": 12,
+      "majority_count": 1653,
+      "razao": 137.8
+    },
+    {
+      "campo": "artist",
+      "old_value": "Vicente Fernandez",
+      "new_value": "Vicente Fernández",
+      "context_key": "el jazmin y la rosa",
+      "linhas": [
+        "scraped-1786827214713-qlvve0",
+        "scraped-1787376252923-bgdiy7",
+        "scraped-1787727221454-jyrpib",
+        "scraped-1788285219411-usikuo",
+        "scraped-1788411165102-p8jfms",
+        "scraped-1788819572067-ppldcp"
+      ],
+      "current_count": 12,
+      "majority_count": 1653,
+      "razao": 137.8
+    },
+    {
+      "campo": "artist",
+      "old_value": "Los Autenticos Decadentes",
+      "new_value": "Los Auténticos Decadentes",
+      "context_key": "amanecer",
+      "linhas": [
+        "scraped-1786791257197-zk9zu9",
+        "scraped-1786927871663-7aa7l3",
+        "scraped-1787195916765-1vtk4t",
+        "scraped-1787476879527-63wcae"
+      ],
+      "current_count": 4,
+      "majority_count": 508,
+      "razao": 127
+    },
+    {
+      "campo": "artist",
+      "old_value": "Jose Jose",
+      "new_value": "José José",
+      "context_key": "la nave del olvido",
+      "linhas": [
+        "scraped-1786785562149-lzdrsj",
+        "scraped-1787329421620-3miue7",
+        "scraped-1787469801168-tpdgw4",
+        "scraped-1787684064433-ob6a2r",
+        "scraped-1788106997710-i39gui",
+        "scraped-1788371664401-12frae"
+      ],
+      "current_count": 11,
+      "majority_count": 1296,
+      "razao": 117.8
+    },
+    {
+      "campo": "artist",
+      "old_value": "Jose Jose",
+      "new_value": "José José",
+      "context_key": "regalame esta noche",
+      "linhas": [
+        "scraped-1786785679768-uvxbp8",
+        "scraped-1788245698192-bx4bhz",
+        "scraped-1788776381151-3u7vz0"
+      ],
+      "current_count": 11,
+      "majority_count": 1296,
+      "razao": 117.8
+    },
+    {
+      "campo": "artist",
+      "old_value": "Jose Jose",
+      "new_value": "José José",
+      "context_key": "y nada mas",
+      "linhas": [
+        "scraped-1786785710266-ri1tea",
+        "scraped-1788776412036-m1ds69"
+      ],
+      "current_count": 11,
+      "majority_count": 1296,
+      "razao": 117.8
+    },
+    {
+      "campo": "artist",
+      "old_value": "Limao Com Mel",
+      "new_value": "Limão Com Mel",
+      "context_key": "tentei te esquecer",
+      "linhas": [
+        "scraped-1786790921760-ndcacx",
+        "scraped-1786927518090-xn0cek",
+        "scraped-1787061174818-a0uwff",
+        "scraped-1787194391786-c82oeb",
+        "scraped-1787336193131-skx8p0",
+        "scraped-1787688141140-zrn0hh"
+      ],
+      "current_count": 14,
+      "majority_count": 1591,
+      "razao": 113.6
+    },
+    {
+      "campo": "artist",
+      "old_value": "Limao Com Mel",
+      "new_value": "Limão Com Mel",
+      "context_key": "sem amor nao da",
+      "linhas": [
+        "scraped-1786791018842-6xzxil",
+        "scraped-1786927621547-ytms2b",
+        "scraped-1787194491447-hkjqel",
+        "scraped-1787336296530-kkwjuu",
+        "scraped-1787962627292-a7zb8r",
+        "scraped-1788112486709-cbef2o",
+        "scraped-1788374940124-bu0lej",
+        "scraped-1788781825337-crkapc"
+      ],
+      "current_count": 14,
+      "majority_count": 1591,
+      "razao": 113.6
+    },
+    {
+      "campo": "artist",
+      "old_value": "Alejandro Fernandez",
+      "new_value": "Alejandro Fernández",
+      "context_key": "a manos llenas",
+      "linhas": [
+        "scraped-1786068098501-qnqn6t",
+        "scraped-1786873841727-t72eh3",
+        "scraped-1787143854227-3x6np2",
+        "scraped-1787564745310-undldi",
+        "scraped-1788058256102-sv686o",
+        "scraped-1788331850375-9zz4jg",
+        "scraped-1788587442914-7d411r",
+        "scraped-1788727862124-1vivc4",
+        "scraped-1788979530756-oztbo9",
+        "scraped-1788995739774-j4zjza"
+      ],
+      "current_count": 20,
+      "majority_count": 2046,
+      "razao": 102.3
+    },
+    {
+      "campo": "artist",
+      "old_value": "Alejandro Fernandez",
+      "new_value": "Alejandro Fernández",
+      "context_key": "muy lejos de ti",
+      "linhas": [
+        "scraped-1786068112759-czuarl",
+        "scraped-1786873899438-o2qfkx",
+        "scraped-1787010709062-gigcz6",
+        "scraped-1787143913540-dkn0wp",
+        "scraped-1787638913285-3sxgck",
+        "scraped-1788058315846-g668ou",
+        "scraped-1788456117704-2lsffv",
+        "scraped-1788587501499-ddssmb",
+        "scraped-1788727922367-buhviz",
+        "scraped-1788866511092-d03fjx"
+      ],
+      "current_count": 20,
+      "majority_count": 2046,
+      "razao": 102.3
+    },
+    {
+      "campo": "artist",
+      "old_value": "Rocio Durcal",
+      "new_value": "Rocío Durcal",
+      "context_key": "no me digas",
+      "linhas": [
+        "scraped-1787085103016-ot7qr1",
+        "scraped-1787222784903-r6uzdk",
+        "scraped-1787363191324-hstad3",
+        "scraped-1787503589252-trgwf8",
+        "scraped-1787714208362-zfo6pf",
+        "scraped-1787988223866-dbu4nu",
+        "scraped-1788274002481-egbco0",
+        "scraped-1788533196656-n9rc4c"
+      ],
+      "current_count": 8,
+      "majority_count": 805,
+      "razao": 100.6
+    },
+    {
+      "campo": "artist",
+      "old_value": "Ze Ramalho",
+      "new_value": "Zé Ramalho",
+      "context_key": "pra nao dizer que nao falei das flores",
+      "linhas": [
+        "scraped-1786832348063-bo0q4c",
+        "scraped-1786969293637-qr29z6",
+        "scraped-1787102442449-3lt9zu",
+        "scraped-1787239941694-y3s2o6",
+        "scraped-1788006037526-4gcrua",
+        "scraped-1788686441223-1a80k0"
+      ],
+      "current_count": 12,
+      "majority_count": 1197,
+      "razao": 99.8
+    },
+    {
+      "campo": "artist",
+      "old_value": "Ze Ramalho",
+      "new_value": "Zé Ramalho",
+      "context_key": "ta tudo mudando",
+      "linhas": [
+        "scraped-1786832356639-7j4yn0",
+        "scraped-1786969302311-2emzlv",
+        "scraped-1787102451438-q0lpa5",
+        "scraped-1787239950567-s8ukck",
+        "scraped-1788006046333-lukrp7",
+        "scraped-1788686450071-73jq55"
+      ],
+      "current_count": 12,
+      "majority_count": 1197,
+      "razao": 99.8
+    },
+    {
+      "campo": "artist",
+      "old_value": "Os Baroes Da Pisadinha",
+      "new_value": "Os Barões da Pisadinha",
+      "context_key": "colinho do vaqueiro (pocoto) (part. pedro paulo e alex)",
+      "linhas": [
+        "scraped-1786805470024-nqf5y5",
+        "scraped-1786942456783-vhsj1m",
+        "scraped-1787210481222-67aly9",
+        "scraped-1788387373743-2vbcpn",
+        "scraped-1788524638628-vvlfqo"
+      ],
+      "current_count": 5,
+      "majority_count": 469,
+      "razao": 93.8
+    },
+    {
+      "campo": "artist",
+      "old_value": "INTRODUCCIÓN:  Gm",
+      "new_value": "INTRODUCCIÓN: Gm",
+      "context_key": "cachorrito",
+      "linhas": [
+        "scraped-1786778163376-5pf21h"
+      ],
+      "current_count": 1,
+      "majority_count": 47,
+      "razao": 47
+    },
+    {
+      "campo": "artist",
+      "old_value": "Quilapayun",
+      "new_value": "Quilapayún",
+      "context_key": "la ena (la chica el metro)",
+      "linhas": [
+        "scraped-1786809136662-jy54vt",
+        "scraped-1786947687299-c06754",
+        "scraped-1787080902998-vdws47",
+        "scraped-1787357190250-qlid8a",
+        "scraped-1787496606925-0oohzd",
+        "scraped-1787842878887-5f2m3l",
+        "scraped-1788133893516-su9nkk"
+      ],
+      "current_count": 14,
+      "majority_count": 634,
+      "razao": 45.3
+    },
+    {
+      "campo": "artist",
+      "old_value": "Quilapayun",
+      "new_value": "Quilapayún",
+      "context_key": "la gordinflonica ninfomanosica",
+      "linhas": [
+        "scraped-1786809137267-cowazr",
+        "scraped-1786947687896-of5owe",
+        "scraped-1787080903779-wp88l2",
+        "scraped-1787357190877-7mh9aq",
+        "scraped-1787496607653-jkotkx",
+        "scraped-1787842879501-ajwit1",
+        "scraped-1788133894167-lhgl9f"
+      ],
+      "current_count": 14,
+      "majority_count": 634,
+      "razao": 45.3
+    },
+    {
+      "campo": "artist",
+      "old_value": "Pablo Milanes",
+      "new_value": "Pablo Milanés",
+      "context_key": "campesina",
+      "linhas": [
+        "scraped-1786806933668-z8emdq",
+        "scraped-1787211946801-phtj79",
+        "scraped-1787838678371-wvqanp",
+        "scraped-1788387766674-ptazgi",
+        "scraped-1788526169325-lrnr9z",
+        "scraped-1788659487501-1s4yoc"
+      ],
+      "current_count": 15,
+      "majority_count": 646,
+      "razao": 43.1
+    },
+    {
+      "campo": "artist",
+      "old_value": "Pablo Milanes",
+      "new_value": "Pablo Milanés",
+      "context_key": "tu no sabe ingle",
+      "linhas": [
+        "scraped-1786806970084-vgwpvq",
+        "scraped-1787211983315-uypmqa",
+        "scraped-1787492317447-6wn9x1",
+        "scraped-1787703791022-wtazwl",
+        "scraped-1787838714932-g79219",
+        "scraped-1788267246619-sxf3j3",
+        "scraped-1788387807152-w64me9",
+        "scraped-1788526206291-isuzl2",
+        "scraped-1788659526035-2ag7ix"
+      ],
+      "current_count": 15,
+      "majority_count": 646,
+      "razao": 43.1
+    },
+    {
+      "campo": "artist",
+      "old_value": "Joaquin Sabina",
+      "new_value": "Joaquín Sabina",
+      "context_key": "al ladron, al ladron",
+      "linhas": [
+        "scraped-1786782078957-docny8"
+      ],
+      "current_count": 24,
+      "majority_count": 956,
+      "razao": 39.8
+    },
+    {
+      "campo": "artist",
+      "old_value": "Joaquin Sabina",
+      "new_value": "Joaquín Sabina",
+      "context_key": "cristales de bohemia",
+      "linhas": [
+        "scraped-1786782107936-s0f6mg"
+      ],
+      "current_count": 24,
+      "majority_count": 956,
+      "razao": 39.8
+    },
+    {
+      "campo": "artist",
+      "old_value": "Joaquin Sabina",
+      "new_value": "Joaquín Sabina",
+      "context_key": "doble vida",
+      "linhas": [
+        "scraped-1786782116680-l1pxzs"
+      ],
+      "current_count": 24,
+      "majority_count": 956,
+      "razao": 39.8
+    },
+    {
+      "campo": "artist",
+      "old_value": "Joaquin Sabina",
+      "new_value": "Joaquín Sabina",
+      "context_key": "la cancion de los buenos borrachos",
+      "linhas": [
+        "scraped-1786782140370-2d822i",
+        "scraped-1787811759459-g95ddu",
+        "scraped-1787950383018-t0fh5s",
+        "scraped-1788241950110-tsug7e",
+        "scraped-1788499353848-dwy2z1",
+        "scraped-1788632562249-ax2gl9",
+        "scraped-1788772767642-ufa5m8"
+      ],
+      "current_count": 24,
+      "majority_count": 956,
+      "razao": 39.8
+    },
+    {
+      "campo": "artist",
+      "old_value": "Joaquin Sabina",
+      "new_value": "Joaquín Sabina",
+      "context_key": "virgen de la amargura",
+      "linhas": [
+        "scraped-1786782201821-6kk1s4",
+        "scraped-1787811819460-c0ara2",
+        "scraped-1787950444685-p70m4j",
+        "scraped-1788242009245-yok4w7",
+        "scraped-1788499416439-7hgoy3",
+        "scraped-1788632623569-ogexdr",
+        "scraped-1788772827572-zkgfmj"
+      ],
+      "current_count": 24,
+      "majority_count": 956,
+      "razao": 39.8
+    },
+    {
+      "campo": "artist",
+      "old_value": "Joaquin Sabina",
+      "new_value": "Joaquín Sabina",
+      "context_key": "viudita de clicquot",
+      "linhas": [
+        "scraped-1786782203069-dtmqjh",
+        "scraped-1787811820764-f1w49x",
+        "scraped-1787950445942-m849qe",
+        "scraped-1788242010457-gr3o12",
+        "scraped-1788499417761-owp3gs",
+        "scraped-1788632624829-u1e7c8",
+        "scraped-1788772828796-sn97rl"
+      ],
+      "current_count": 24,
+      "majority_count": 956,
+      "razao": 39.8
+    },
+    {
+      "campo": "artist",
+      "old_value": "Titas",
+      "new_value": "Titãs",
+      "context_key": "enquanto houver sol",
+      "linhas": [
+        "scraped-1786825458495-clmblc",
+        "scraped-1787374477920-sl1glj",
+        "scraped-1787725460184-1v2jz8",
+        "scraped-1788150258490-1hf0v9",
+        "scraped-1788283454619-f7z1xi",
+        "scraped-1788409294718-4pckbo",
+        "scraped-1788817796888-ox9pic",
+        "scraped-1789813829181-wtg95i"
+      ],
+      "current_count": 22,
+      "majority_count": 712,
+      "razao": 32.4
+    },
+    {
+      "campo": "artist",
+      "old_value": "Titas",
+      "new_value": "Titãs",
+      "context_key": "isso",
+      "linhas": [
+        "scraped-1786825461151-avv2t4",
+        "scraped-1786964052634-vesukh",
+        "scraped-1787095466980-z182lx",
+        "scraped-1787233803061-0l1ymj",
+        "scraped-1787514898116-pre84u",
+        "scraped-1787725462777-64i7y8",
+        "scraped-1788150261066-49vh15",
+        "scraped-1788409302115-l6d6t8",
+        "scraped-1788679464433-plskdj",
+        "scraped-1788817805780-ddbz3u",
+        "scraped-1789813836656-90b2tq"
+      ],
+      "current_count": 22,
+      "majority_count": 712,
+      "razao": 32.4
+    },
+    {
+      "campo": "artist",
+      "old_value": "Titas",
+      "new_value": "Titãs",
+      "context_key": "nao vou lutar",
+      "linhas": [
+        "scraped-1787233872622-tcrqix"
+      ],
+      "current_count": 22,
+      "majority_count": 712,
+      "razao": 32.4
+    },
+    {
+      "campo": "artist",
+      "old_value": "Titas",
+      "new_value": "Titãs",
+      "context_key": "nos estamos bem",
+      "linhas": [
+        "scraped-1787233875123-sakfzb"
+      ],
+      "current_count": 22,
+      "majority_count": 712,
+      "razao": 32.4
+    },
+    {
+      "campo": "artist",
+      "old_value": "Titas",
+      "new_value": "Titãs",
+      "context_key": "vou duvidar",
+      "linhas": [
+        "scraped-1787233911930-h53omn"
+      ],
+      "current_count": 22,
+      "majority_count": 712,
+      "razao": 32.4
+    },
+    {
+      "campo": "artist",
+      "old_value": "Jose Claudio Machado",
+      "new_value": "José Claudio Machado",
+      "context_key": "em cima do laco",
+      "linhas": [
+        "scraped-1786785553703-7pp8qy",
+        "scraped-1787329412924-8my8fj",
+        "scraped-1787469792402-bikbv0",
+        "scraped-1787684055182-7ah9vo",
+        "scraped-1788106988383-4f3xwd",
+        "scraped-1788371655419-iralpy"
+      ],
+      "current_count": 6,
+      "majority_count": 191,
+      "razao": 31.8
+    },
+    {
+      "campo": "artist",
+      "old_value": "Bjork",
+      "new_value": "Björk",
+      "context_key": "gvendur",
+      "linhas": [
+        "scraped-1786070349623-6fq5vx",
+        "scraped-1787017824143-vy44k7",
+        "scraped-1787151024555-7l85a0",
+        "scraped-1787289627031-3ttjqc",
+        "scraped-1787430040269-2kk7et",
+        "scraped-1787573754756-fkabvr",
+        "scraped-1787647657195-d4qwjv",
+        "scraped-1788067052826-snxwwu",
+        "scraped-1788340653607-njpb8m",
+        "scraped-1788596255395-b0jsls",
+        "scraped-1788736657330-nwwwlb",
+        "scraped-1788923111934-1us1zr",
+        "scraped-1789001263295-wgzqca"
+      ],
+      "current_count": 13,
+      "majority_count": 397,
+      "razao": 30.5
+    },
+    {
+      "campo": "artist",
+      "old_value": "Pokemon",
+      "new_value": "Pokémon",
+      "context_key": "pokemon theme",
+      "linhas": [
+        "scraped-1786808737963-vnqlm9",
+        "scraped-1787356441039-lvb0lm",
+        "scraped-1787495017165-2je6op",
+        "scraped-1787707228412-wb2fee",
+        "scraped-1787842252488-53jzko",
+        "scraped-1788269910271-k21qvg",
+        "scraped-1788391430403-blu7t3"
+      ],
+      "current_count": 7,
+      "majority_count": 201,
+      "razao": 28.7
+    },
+    {
+      "campo": "artist",
+      "old_value": "INTRODUCCION: C",
+      "new_value": "INTRODUCCIÓN: C",
+      "context_key": "chacarera del mal tenido",
+      "linhas": [
+        "scraped-1786927999029-958pog",
+        "scraped-1787196043121-1v79ef",
+        "scraped-1787477002808-susi89"
+      ],
+      "current_count": 3,
+      "majority_count": 85,
+      "razao": 28.3
+    },
+    {
+      "campo": "artist",
+      "old_value": "Introduccion: D",
+      "new_value": "INTRODUCCIÓN: D",
+      "context_key": "ayayay!",
+      "linhas": [
+        "scraped-1786756764492-b2yn67"
+      ],
+      "current_count": 1,
+      "majority_count": 28,
+      "razao": 28
+    },
+    {
+      "campo": "artist",
+      "old_value": "Introduçao",
+      "new_value": "Introdução",
+      "context_key": "me namora",
+      "linhas": [
+        "scraped-1786070755515-r0s7n4"
+      ],
+      "current_count": 1,
+      "majority_count": 27,
+      "razao": 27
+    },
+    {
+      "campo": "artist",
+      "old_value": "INTRODUCCION: Am",
+      "new_value": "INTRODUCCIÓN: Am",
+      "context_key": "cual pajaro sin un arbol",
+      "linhas": [
+        "scraped-1786792811760-eitg2p",
+        "scraped-1786929566455-9pj0ki",
+        "scraped-1787197602623-67hp1j",
+        "scraped-1787478611233-qhh6pe"
+      ],
+      "current_count": 4,
+      "majority_count": 94,
+      "razao": 23.5
+    },
+    {
+      "campo": "artist",
+      "old_value": "INTRODUCCIÓN:  Am",
+      "new_value": "INTRODUCCIÓN: Am",
+      "context_key": "el lamento de la urpilita",
+      "linhas": [
+        "scraped-1786792823634-oh9uxi",
+        "scraped-1786929578723-e9633x",
+        "scraped-1787197614710-g6cy6y",
+        "scraped-1787478623155-2gn0tp"
+      ],
+      "current_count": 4,
+      "majority_count": 94,
+      "razao": 23.5
+    },
+    {
+      "campo": "title",
+      "old_value": "Ojala",
+      "new_value": "Ojalá",
+      "context_key": "fondo flamenco",
+      "linhas": [
+        "scraped-1786769618876-y0m5hr",
+        "scraped-1787596399955-typ27e",
+        "scraped-1787938388108-h1g1c7"
+      ],
+      "current_count": 3,
+      "majority_count": 70,
+      "razao": 23.3
+    },
+    {
+      "campo": "artist",
+      "old_value": "INTRODUCCIÓN:  G",
+      "new_value": "INTRODUCCIÓN: G",
+      "context_key": "coplera del viento",
+      "linhas": [
+        "scraped-1786920442471-4c2mum",
+        "scraped-1787683554725-3fbfy6",
+        "scraped-1788371146683-twxobf"
+      ],
+      "current_count": 3,
+      "majority_count": 69,
+      "razao": 23
+    },
+    {
+      "campo": "artist",
+      "old_value": "Jesse",
+      "new_value": "Jessé",
+      "context_key": "es amor",
+      "linhas": [
+        "scraped-1786780415900-sfofto"
+      ],
+      "current_count": 16,
+      "majority_count": 355,
+      "razao": 22.2
+    },
+    {
+      "campo": "artist",
+      "old_value": "Jesse",
+      "new_value": "Jessé",
+      "context_key": "por siempremente",
+      "linhas": [
+        "scraped-1786780441115-dcvs6y",
+        "scraped-1787948656259-com37p",
+        "scraped-1788101653659-stw6p9",
+        "scraped-1788497658959-bqat8h",
+        "scraped-1788771238632-0o7kgh"
+      ],
+      "current_count": 16,
+      "majority_count": 355,
+      "razao": 22.2
+    },
+    {
+      "campo": "artist",
+      "old_value": "Jesse",
+      "new_value": "Jessé",
+      "context_key": "somos lo que fue",
+      "linhas": [
+        "scraped-1786780446744-gh5flt",
+        "scraped-1787948661877-ssy61z",
+        "scraped-1788101658586-0825s1",
+        "scraped-1788497664248-zghocp",
+        "scraped-1788771243636-567szo"
+      ],
+      "current_count": 16,
+      "majority_count": 355,
+      "razao": 22.2
+    },
+    {
+      "campo": "artist",
+      "old_value": "Jesse",
+      "new_value": "Jessé",
+      "context_key": "una en un millon",
+      "linhas": [
+        "scraped-1786780452435-514406",
+        "scraped-1787948667556-fs6635",
+        "scraped-1788101664177-8388bt",
+        "scraped-1788497669353-sluq35",
+        "scraped-1788771248608-j475y6"
+      ],
+      "current_count": 16,
+      "majority_count": 355,
+      "razao": 22.2
+    },
+    {
+      "campo": "artist",
+      "old_value": "Seru Giran",
+      "new_value": "Serú Girán",
+      "context_key": "popotitos",
+      "linhas": [
+        "scraped-1786817875125-iq9lz4",
+        "scraped-1786956478224-hjacm2",
+        "scraped-1787505708148-mpk3th",
+        "scraped-1787716463250-nbnw76",
+        "scraped-1788141301505-7wdtqn",
+        "scraped-1788276261114-mi0a29",
+        "scraped-1788534560814-akm7uh",
+        "scraped-1788671905615-jbz39v",
+        "scraped-1788809802281-1rtltp"
+      ],
+      "current_count": 16,
+      "majority_count": 339,
+      "razao": 21.2
+    },
+    {
+      "campo": "artist",
+      "old_value": "Seru Giran",
+      "new_value": "Serú Girán",
+      "context_key": "voy a mil",
+      "linhas": [
+        "scraped-1786817900278-qxsb16",
+        "scraped-1786956502789-ptnzj8",
+        "scraped-1787505712606-6iozgv",
+        "scraped-1787716488706-l97ql8",
+        "scraped-1788276285686-k8xuu6",
+        "scraped-1788671910728-78ok6z",
+        "scraped-1788809807413-t7gkfh"
+      ],
+      "current_count": 16,
+      "majority_count": 339,
+      "razao": 21.2
+    },
+    {
+      "campo": "title",
+      "old_value": "Adios",
+      "new_value": "Adiós",
+      "context_key": "bronco",
+      "linhas": [
+        "scraped-1786070706951-vco3o1"
+      ],
+      "current_count": 1,
+      "majority_count": 18,
+      "razao": 18
+    },
+    {
+      "campo": "artist",
+      "old_value": "introducción:  C",
+      "new_value": "INTRODUCCIÓN: C",
+      "context_key": "cantores que reflexionan",
+      "linhas": [
+        "scraped-1786807093150-27l6f8",
+        "scraped-1787212105634-n9r1ww",
+        "scraped-1787838839273-17dv2w",
+        "scraped-1787978844358-v5u590",
+        "scraped-1788526328030-x49jrx",
+        "scraped-1788659655527-xbxqnn"
+      ],
+      "current_count": 6,
+      "majority_count": 85,
+      "razao": 14.2
+    },
+    {
+      "campo": "title",
+      "old_value": "Escandalo",
+      "new_value": "Escándalo",
+      "context_key": "bronco",
+      "linhas": [
+        "scraped-1786070711240-qpvpm8"
+      ],
+      "current_count": 1,
+      "majority_count": 14,
+      "razao": 14
+    },
+    {
+      "campo": "title",
+      "old_value": "Y Que",
+      "new_value": "Y Qué",
+      "context_key": "jose jose",
+      "linhas": [
+        "scraped-1786785709635-0s7zwo",
+        "scraped-1788776411363-yr78rg"
+      ],
+      "current_count": 2,
+      "majority_count": 27,
+      "razao": 13.5
+    },
+    {
+      "campo": "title",
+      "old_value": "Tô Por Ai",
+      "new_value": "Tô Por Aí",
+      "context_key": "gusttavo lima",
+      "linhas": [
+        "scraped-1785911449937-mt9964"
+      ],
+      "current_count": 1,
+      "majority_count": 13,
+      "razao": 13
+    },
+    {
+      "campo": "artist",
+      "old_value": "INTRODUCCIÓN:   Em",
+      "new_value": "INTRODUCCIÓN: Em",
+      "context_key": "coplas de chacarera",
+      "linhas": [
+        "scraped-1786792806680-czkk65",
+        "scraped-1786929561139-5kap54",
+        "scraped-1787197597402-9u5k35",
+        "scraped-1787478606145-f7c3zl",
+        "scraped-1787824153331-b913ir",
+        "scraped-1788252896416-w6x6xd",
+        "scraped-1788375922991-vnwjy6",
+        "scraped-1788644954377-cy83ku",
+        "scraped-1788783773449-pjahgi"
+      ],
+      "current_count": 9,
+      "majority_count": 115,
+      "razao": 12.8
+    },
+    {
+      "campo": "title",
+      "old_value": "Alguien Como Tu",
+      "new_value": "Alguien como tú",
+      "context_key": "intocable",
+      "linhas": [
+        "scraped-1786778289003-zgecwa"
+      ],
+      "current_count": 1,
+      "majority_count": 12,
+      "razao": 12
+    },
+    {
+      "campo": "title",
+      "old_value": "Amor Mio",
+      "new_value": "Amor Mío",
+      "context_key": "javier solis",
+      "linhas": [
+        "scraped-1786780131824-bcdcuh"
+      ],
+      "current_count": 1,
+      "majority_count": 12,
+      "razao": 12
+    },
+    {
+      "campo": "artist",
+      "old_value": "Introduccion: Am",
+      "new_value": "INTRODUCCIÓN: Am",
+      "context_key": "chacarera para mi vuelta",
+      "linhas": [
+        "scraped-1786792774058-0bz3qe",
+        "scraped-1786929527852-90w3xf",
+        "scraped-1787197564108-haugei",
+        "scraped-1787478573770-c6iokb",
+        "scraped-1787824119663-ydzs01",
+        "scraped-1788252863556-yxqcut",
+        "scraped-1788375889366-s5iv6y",
+        "scraped-1788644920407-uv6rb2"
+      ],
+      "current_count": 8,
+      "majority_count": 94,
+      "razao": 11.8
+    },
+    {
+      "campo": "artist",
+      "old_value": "INTRODUCCIÓN:  E",
+      "new_value": "INTRODUCCIÓN: E",
+      "context_key": "cuando me da por nombrarte",
+      "linhas": [
+        "scraped-1786792813039-9kkxkd",
+        "scraped-1786929567850-rbwtmp",
+        "scraped-1787197603858-xenlf6",
+        "scraped-1787478612463-kbwbao"
+      ],
+      "current_count": 11,
+      "majority_count": 126,
+      "razao": 11.5
+    },
+    {
+      "campo": "artist",
+      "old_value": "INTRODUCCIÓN:  E",
+      "new_value": "INTRODUCCIÓN: E",
+      "context_key": "el cara y musha",
+      "linhas": [
+        "scraped-1786792823025-yoa5i6",
+        "scraped-1786929578108-ckgz1b",
+        "scraped-1787197614096-w71gmo",
+        "scraped-1787478622480-edr9mi"
+      ],
+      "current_count": 11,
+      "majority_count": 126,
+      "razao": 11.5
+    },
+    {
+      "campo": "artist",
+      "old_value": "INTRODUCCIÓN:  E",
+      "new_value": "INTRODUCCIÓN: E",
+      "context_key": "cuyana cosechadora",
+      "linhas": [
+        "scraped-1786928014396-32wrva",
+        "scraped-1787196058326-chv3l3",
+        "scraped-1787477017655-gt23jh"
+      ],
+      "current_count": 11,
+      "majority_count": 126,
+      "razao": 11.5
+    },
+    {
+      "campo": "artist",
+      "old_value": "INTRODUCCIÓN:  Em",
+      "new_value": "INTRODUCCIÓN: Em",
+      "context_key": "campesino",
+      "linhas": [
+        "scraped-1786068642241-9usv71",
+        "scraped-1787015017998-x4lek5",
+        "scraped-1787148221635-fhy7vp",
+        "scraped-1787914123964-qlfx1j",
+        "scraped-1788063429949-dz1hwc",
+        "scraped-1788337033554-g4m6li",
+        "scraped-1788592622708-92hyxo",
+        "scraped-1788733025013-akmgyj",
+        "scraped-1788905763938-sq7pla"
+      ],
+      "current_count": 10,
+      "majority_count": 115,
+      "razao": 11.5
+    },
+    {
+      "campo": "artist",
+      "old_value": "INTRODUCCIÓN:  Em",
+      "new_value": "INTRODUCCIÓN: Em",
+      "context_key": "cuatrero",
+      "linhas": [
+        "scraped-1786778172480-3hcwpq"
+      ],
+      "current_count": 10,
+      "majority_count": 115,
+      "razao": 11.5
+    },
+    {
+      "campo": "title",
+      "old_value": "100 anos",
+      "new_value": "100 Años",
+      "context_key": "falamansa",
+      "linhas": [
+        "scraped-1786767873431-r6ihe5"
+      ],
+      "current_count": 1,
+      "majority_count": 11,
+      "razao": 11
+    },
+    {
+      "campo": "title",
+      "old_value": "Lagrimas",
+      "new_value": "Lágrimas",
+      "context_key": "hinos avulsos ccb",
+      "linhas": [
+        "scraped-1786913559196-ty74fj",
+        "scraped-1788097987791-qia3ff",
+        "scraped-1788236622854-dj3rln",
+        "scraped-1788627192746-5t1zkm",
+        "scraped-1788767600466-mvd0js"
+      ],
+      "current_count": 5,
+      "majority_count": 49,
+      "razao": 9.8
+    },
+    {
+      "campo": "title",
+      "old_value": "Dois Corações e Uma Historia",
+      "new_value": "Dois Corações e Uma História",
+      "context_key": "gusttavo lima",
+      "linhas": [
+        "scraped-1785929181249-agtnbc"
+      ],
+      "current_count": 1,
+      "majority_count": 8,
+      "razao": 8
+    },
+    {
+      "campo": "title",
+      "old_value": "Arerê",
+      "new_value": "Arêrê",
+      "context_key": "banda eva",
+      "linhas": [
+        "scraped-1786070101649-5iw3rz"
+      ],
+      "current_count": 1,
+      "majority_count": 8,
+      "razao": 8
+    },
+    {
+      "campo": "title",
+      "old_value": "Alem do Véu",
+      "new_value": "Além do Véu",
+      "context_key": "corinhos evangelicos",
+      "linhas": [
+        "scraped-1786758345123-4nvc9h"
+      ],
+      "current_count": 1,
+      "majority_count": 8,
+      "razao": 8
+    },
+    {
+      "campo": "title",
+      "old_value": "É serio",
+      "new_value": "É Sério",
+      "context_key": "calcinha preta",
+      "linhas": [
+        "scraped-1788211838093-6ps0zh"
+      ],
+      "current_count": 1,
+      "majority_count": 8,
+      "razao": 8
+    },
+    {
+      "campo": "title",
+      "old_value": "Angela",
+      "new_value": "Ângela",
+      "context_key": "tom jobim",
+      "linhas": [
+        "scraped-1785948650353-naixmx"
+      ],
+      "current_count": 1,
+      "majority_count": 7,
+      "razao": 7
+    },
+    {
+      "campo": "title",
+      "old_value": "Coraçao Feliz",
+      "new_value": "Coração Feliz",
+      "context_key": "beth carvalho",
+      "linhas": [
+        "scraped-1786070232318-obyno6"
+      ],
+      "current_count": 1,
+      "majority_count": 7,
+      "razao": 7
+    },
+    {
+      "campo": "title",
+      "old_value": "Como Olvidarte",
+      "new_value": "Cómo olvidarte",
+      "context_key": "binomio de oro",
+      "linhas": [
+        "scraped-1786070321629-dav6cl"
+      ],
+      "current_count": 1,
+      "majority_count": 7,
+      "razao": 7
+    },
+    {
+      "campo": "title",
+      "old_value": "Hávera Sinais",
+      "new_value": "Haverá Sinais",
+      "context_key": "bruno & marrone",
+      "linhas": [
+        "scraped-1786070752790-uh6bgo"
+      ],
+      "current_count": 1,
+      "majority_count": 7,
+      "razao": 7
+    },
+    {
+      "campo": "title",
+      "old_value": "Africa",
+      "new_value": "África",
+      "context_key": "john mayer",
+      "linhas": [
+        "scraped-1787607074587-lmbq5d"
+      ],
+      "current_count": 1,
+      "majority_count": 7,
+      "razao": 7
+    },
+    {
+      "campo": "title",
+      "old_value": "Genesis",
+      "new_value": "Gênesis",
+      "context_key": "grimes",
+      "linhas": [
+        "scraped-1786910008009-77rd6u",
+        "scraped-1788094391481-78zv68",
+        "scraped-1788233074753-3puvkn",
+        "scraped-1788363033588-t8xnyk",
+        "scraped-1788623610175-cbdb0f"
+      ],
+      "current_count": 5,
+      "majority_count": 33,
+      "razao": 6.6
+    },
+    {
+      "campo": "title",
+      "old_value": "Daqui Pra Lá",
+      "new_value": "Daqui Prá Lá",
+      "context_key": "fagner",
+      "linhas": [
+        "scraped-1786767794261-c756tm"
+      ],
+      "current_count": 1,
+      "majority_count": 6,
+      "razao": 6
+    },
+    {
+      "campo": "title",
+      "old_value": "Si te vas no hay lio",
+      "new_value": "Si te vas no hay lío",
+      "context_key": "vicente fernandez",
+      "linhas": [
+        "scraped-1787235686214-sg00if"
+      ],
+      "current_count": 1,
+      "majority_count": 6,
+      "razao": 6
+    },
+    {
+      "campo": "artist",
+      "old_value": "INTRODUCCION: Gm",
+      "new_value": "INTRODUCCIÓN: Gm",
+      "context_key": "te necesito",
+      "linhas": [
+        "scraped-1786772914008-fl8djl",
+        "scraped-1787176072982-sp37mf",
+        "scraped-1787316480548-289zhh",
+        "scraped-1787456921577-s8da7y",
+        "scraped-1788093939066-1u2b6y",
+        "scraped-1788362272084-k2gl5l",
+        "scraped-1788490074858-885rbo",
+        "scraped-1788623141530-7x3upn"
+      ],
+      "current_count": 8,
+      "majority_count": 47,
+      "razao": 5.9
+    },
+    {
+      "campo": "title",
+      "old_value": "Historia de amor",
+      "new_value": "História de Amor",
+      "context_key": "intocable",
+      "linhas": [
+        "scraped-1786778312649-jx9zos",
+        "scraped-1787807921000-i2ui7b",
+        "scraped-1787946527810-htartk",
+        "scraped-1788099525324-xllydu",
+        "scraped-1788238126921-3tihe1",
+        "scraped-1788495529794-smug5i",
+        "scraped-1788628724748-rzbft3"
+      ],
+      "current_count": 7,
+      "majority_count": 40,
+      "razao": 5.7
+    },
+    {
+      "campo": "title",
+      "old_value": "Fantasia",
+      "new_value": "Fantasía",
+      "context_key": "chico buarque",
+      "linhas": [
+        "scraped-1787437937286-g4oqti",
+        "scraped-1788472328978-w3ol9m",
+        "scraped-1788931254162-u2t38q"
+      ],
+      "current_count": 3,
+      "majority_count": 17,
+      "razao": 5.7
+    },
+    {
+      "campo": "title",
+      "old_value": "Que pregunta muchacho",
+      "new_value": "Qué pregunta muchacho",
+      "context_key": "vicente fernandez",
+      "linhas": [
+        "scraped-1786965902411-occ4jd",
+        "scraped-1787235675678-ju08vs"
+      ],
+      "current_count": 2,
+      "majority_count": 11,
+      "razao": 5.5
+    },
+    {
+      "campo": "title",
+      "old_value": "Salome",
+      "new_value": "Salomé",
+      "context_key": "u2",
+      "linhas": [
+        "scraped-1787608173639-czhnjh",
+        "scraped-1788023989788-tt9gi3"
+      ],
+      "current_count": 2,
+      "majority_count": 11,
+      "razao": 5.5
+    },
+    {
+      "campo": "title",
+      "old_value": "So Love",
+      "new_value": "Só Love",
+      "context_key": "calcinha preta",
+      "linhas": [
+        "scraped-1788211927464-jzbw56",
+        "scraped-1789003909936-9sz9e5"
+      ],
+      "current_count": 2,
+      "majority_count": 11,
+      "razao": 5.5
+    },
+    {
+      "campo": "title",
+      "old_value": "Incerteza",
+      "new_value": "Íncerteza",
+      "context_key": "tom jobim",
+      "linhas": [
+        "scraped-1785948677610-ek9ydq",
+        "scraped-1787233971634-2ov11e"
+      ],
+      "current_count": 2,
+      "majority_count": 10,
+      "razao": 5
+    },
+    {
+      "campo": "title",
+      "old_value": "Coração  Molim",
+      "new_value": "Coração Molim",
+      "context_key": "luiz gonzaga",
+      "linhas": [
+        "scraped-1785930423063-sk2ef4"
+      ],
+      "current_count": 1,
+      "majority_count": 5,
+      "razao": 5
+    },
+    {
+      "campo": "title",
+      "old_value": "Cecilia",
+      "new_value": "Cécilia",
+      "context_key": "joaquin sabina",
+      "linhas": [
+        "scraped-1786782094680-ktv0du"
+      ],
+      "current_count": 1,
+      "majority_count": 5,
+      "razao": 5
+    },
+    {
+      "campo": "artist",
+      "old_value": "INTRODUCCIÓN:  B",
+      "new_value": "INTRODUCCIÓN: B",
+      "context_key": "cuando el diablo anda en el vino",
+      "linhas": [
+        "scraped-1786792812375-ao3cnk",
+        "scraped-1786929567086-mfu3sy",
+        "scraped-1787197603243-kz55hb",
+        "scraped-1787478611848-dvb3ux"
+      ],
+      "current_count": 4,
+      "majority_count": 18,
+      "razao": 4.5
+    },
+    {
+      "campo": "title",
+      "old_value": "Olvidame Tu",
+      "new_value": "Olvidame Tú",
+      "context_key": "ivete sangalo",
+      "linhas": [
+        "scraped-1785929415232-hj1vul",
+        "scraped-1785930287774-260zdr"
+      ],
+      "current_count": 2,
+      "majority_count": 9,
+      "razao": 4.5
+    },
+    {
+      "campo": "title",
+      "old_value": "A Palo Seco",
+      "new_value": "À Palo Seco",
+      "context_key": "cidade negra",
+      "linhas": [
+        "scraped-1786756881718-em2qza"
+      ],
+      "current_count": 2,
+      "majority_count": 9,
+      "razao": 4.5
+    },
+    {
+      "campo": "title",
+      "old_value": "A Palo Seco",
+      "new_value": "À Palo Seco",
+      "context_key": "fagner",
+      "linhas": [
+        "scraped-1786767760074-6y6kee"
+      ],
+      "current_count": 2,
+      "majority_count": 9,
+      "razao": 4.5
+    },
+    {
+      "campo": "title",
+      "old_value": "Tu",
+      "new_value": "Tú",
+      "context_key": "mecano (es)",
+      "linhas": [
+        "scraped-1786798263922-82txzd",
+        "scraped-1786935181894-fbevi3",
+        "scraped-1787203289348-i8owao",
+        "scraped-1787345170107-f4v7pk",
+        "scraped-1788121279503-xu9ajh",
+        "scraped-1788379591621-hlui60",
+        "scraped-1788650600745-uk74hu",
+        "scraped-1788790817053-qcphdq"
+      ],
+      "current_count": 8,
+      "majority_count": 35,
+      "razao": 4.4
+    },
+    {
+      "campo": "title",
+      "old_value": "Rei da Gloria",
+      "new_value": "Rei da Glória",
+      "context_key": "isaias saad",
+      "linhas": [
+        "scraped-1786778540246-e5hlci",
+        "scraped-1787808144114-1cj1h9",
+        "scraped-1787946757919-bzvlfc",
+        "scraped-1788099751955-4jlk4r",
+        "scraped-1788238356016-xjzuji",
+        "scraped-1788495759246-j7s3yl",
+        "scraped-1788628955184-pnjg3i"
+      ],
+      "current_count": 7,
+      "majority_count": 31,
+      "razao": 4.4
+    },
+    {
+      "campo": "artist",
+      "old_value": "INTRODUCCIÓN:  C",
+      "new_value": "INTRODUCCIÓN: C",
+      "context_key": "criollita de mis amores",
+      "linhas": [
+        "scraped-1786753487390-fisrpg"
+      ],
+      "current_count": 21,
+      "majority_count": 85,
+      "razao": 4
+    },
+    {
+      "campo": "artist",
+      "old_value": "INTRODUCCIÓN:  C",
+      "new_value": "INTRODUCCIÓN: C",
+      "context_key": "coplas para claudio ramiro soria",
+      "linhas": [
+        "scraped-1786792807371-zzgkn8",
+        "scraped-1786929561752-tzq4kw",
+        "scraped-1787197598115-pwc3hh",
+        "scraped-1787478606757-h0qxf1",
+        "scraped-1787824153952-ee5tfz",
+        "scraped-1788252897021-rhit9c",
+        "scraped-1788375923619-fd03i5",
+        "scraped-1788644955059-vzr0xe",
+        "scraped-1788783774064-wwjip0"
+      ],
+      "current_count": 21,
+      "majority_count": 85,
+      "razao": 4
+    },
+    {
+      "campo": "artist",
+      "old_value": "INTRODUCCIÓN:  C",
+      "new_value": "INTRODUCCIÓN: C",
+      "context_key": "la ninez",
+      "linhas": [
+        "scraped-1786798329004-xvs1yl",
+        "scraped-1786935248629-yo5mxp",
+        "scraped-1787203354806-6pbz6d",
+        "scraped-1787345238726-p2flh3",
+        "scraped-1788121348281-8yufx5",
+        "scraped-1788379659771-x684kf",
+        "scraped-1788650667719-b7el8g",
+        "scraped-1788790884930-880dq4"
+      ],
+      "current_count": 21,
+      "majority_count": 85,
+      "razao": 4
+    },
+    {
+      "campo": "artist",
+      "old_value": "INTRODUCCIÓN:  C",
+      "new_value": "INTRODUCCIÓN: C",
+      "context_key": "a su edad",
+      "linhas": [
+        "scraped-1786927979544-xau8mh",
+        "scraped-1787196023566-czerae",
+        "scraped-1787476983416-mmyejj"
+      ],
+      "current_count": 21,
+      "majority_count": 85,
+      "razao": 4
+    },
+    {
+      "campo": "title",
+      "old_value": "Perdon",
+      "new_value": "Perdón",
+      "context_key": "altemar dutra",
+      "linhas": [
+        "scraped-1786068292101-lyc9ne",
+        "scraped-1786875634172-m6ril6",
+        "scraped-1787423048590-oj0l7x",
+        "scraped-1787566581638-tha49d",
+        "scraped-1788200657864-p084w7",
+        "scraped-1788868235960-zn0a0f",
+        "scraped-1788946299871-rltqrb",
+        "scraped-1788972390749-08d4ct",
+        "scraped-1788996706440-v1snx3"
+      ],
+      "current_count": 9,
+      "majority_count": 36,
+      "razao": 4
+    },
+    {
+      "campo": "title",
+      "old_value": "Angeles",
+      "new_value": "Ángeles",
+      "context_key": "enya",
+      "linhas": [
+        "scraped-1786765738861-2aps09"
+      ],
+      "current_count": 1,
+      "majority_count": 4,
+      "razao": 4
+    },
+    {
+      "campo": "title",
+      "old_value": "A Gloria Do Senhor",
+      "new_value": "A Glória do Senhor",
+      "context_key": "comunidade catolica shalom",
+      "linhas": [
+        "scraped-1787439227697-7neihw",
+        "scraped-1788474199244-9gnmoq",
+        "scraped-1788882344082-6tfqko"
+      ],
+      "current_count": 3,
+      "majority_count": 11,
+      "razao": 3.7
+    },
+    {
+      "campo": "artist",
+      "old_value": "INTRODUCCIÓN:  A",
+      "new_value": "INTRODUCCIÓN: A",
+      "context_key": "esto azul",
+      "linhas": [
+        "scraped-1786798314365-5qi3z4",
+        "scraped-1786935234275-c6d1xm",
+        "scraped-1787203340424-ihkwcb",
+        "scraped-1788259710265-vlxlb2",
+        "scraped-1788379644686-hghd5u",
+        "scraped-1788517333815-xs9wks",
+        "scraped-1788650652969-3i0luc"
+      ],
+      "current_count": 20,
+      "majority_count": 69,
+      "razao": 3.5
+    },
+    {
+      "campo": "artist",
+      "old_value": "INTRODUCCIÓN:  A",
+      "new_value": "INTRODUCCIÓN: A",
+      "context_key": "blanco y azul",
+      "linhas": [
+        "scraped-1786927992907-pc7zyh",
+        "scraped-1787196036933-6a1zd2",
+        "scraped-1787476996736-vmx9sr"
+      ],
+      "current_count": 20,
+      "majority_count": 69,
+      "razao": 3.5
+    },
+    {
+      "campo": "artist",
+      "old_value": "INTRODUCCIÓN:  A",
+      "new_value": "INTRODUCCIÓN: A",
+      "context_key": "coplas vallistas",
+      "linhas": [
+        "scraped-1786928006658-ns6ot2",
+        "scraped-1787196050655-hbkokh",
+        "scraped-1787477010265-s0orsr"
+      ],
+      "current_count": 20,
+      "majority_count": 69,
+      "razao": 3.5
+    },
+    {
+      "campo": "artist",
+      "old_value": "INTRODUCCIÓN:  A",
+      "new_value": "INTRODUCCIÓN: A",
+      "context_key": "juro amarte",
+      "linhas": [
+        "scraped-1786928045271-uqlmta",
+        "scraped-1787196089097-96pu01",
+        "scraped-1787477048007-qx8bdc",
+        "scraped-1787963053067-30hi4h",
+        "scraped-1788114096251-qn4f3w",
+        "scraped-1788252539146-5kxy5o",
+        "scraped-1788783406213-aggf3w"
+      ],
+      "current_count": 20,
+      "majority_count": 69,
+      "razao": 3.5
+    },
+    {
+      "campo": "title",
+      "old_value": "Coraçao de Pedra",
+      "new_value": "Coração de Pedra",
+      "context_key": "limao com mel",
+      "linhas": [
+        "scraped-1786790955665-subhmm",
+        "scraped-1786927555752-jil3xr",
+        "scraped-1787061212158-kwviyl",
+        "scraped-1787194426926-18oqg5",
+        "scraped-1787822168343-g3vdjl",
+        "scraped-1788250979186-9s40f9",
+        "scraped-1788374872203-jmlfvs",
+        "scraped-1788508425325-a11bhd",
+        "scraped-1788642962608-t41ocj",
+        "scraped-1788781762310-uzw1ce"
+      ],
+      "current_count": 10,
+      "majority_count": 35,
+      "razao": 3.5
+    },
+    {
+      "campo": "title",
+      "old_value": "Sin ti",
+      "new_value": "Sin Tí",
+      "context_key": "canciones populares",
+      "linhas": [
+        "scraped-1786753127311-0l08r8",
+        "scraped-1787023134213-nnm92b",
+        "scraped-1787156337199-pmblc4",
+        "scraped-1787435366313-jr3d6v",
+        "scraped-1787579347956-u905fd",
+        "scraped-1789004121167-5rcizy"
+      ],
+      "current_count": 6,
+      "majority_count": 21,
+      "razao": 3.5
+    },
+    {
+      "campo": "title",
+      "old_value": "Recuerdame",
+      "new_value": "Recuérdame",
+      "context_key": "marc anthony",
+      "linhas": [
+        "scraped-1786796559325-1i16jj",
+        "scraped-1786933379406-tg3qry",
+        "scraped-1787342011703-gv4kbx",
+        "scraped-1787692988504-8axo8i",
+        "scraped-1787968381985-76jmju",
+        "scraped-1788119468114-d2ayk5",
+        "scraped-1788257855334-ojq62t",
+        "scraped-1788515463868-zomr9x",
+        "scraped-1788788853526-yk9i4g"
+      ],
+      "current_count": 9,
+      "majority_count": 31,
+      "razao": 3.4
+    },
+    {
+      "campo": "title",
+      "old_value": "Filho Prodigo",
+      "new_value": "Filho Pródigo",
+      "context_key": "hinos avulsos ccb",
+      "linhas": [
+        "scraped-1786913490480-pr9rtf",
+        "scraped-1788097919929-u0jm67",
+        "scraped-1788236554157-f3s4kg",
+        "scraped-1788627122649-ggz2rr",
+        "scraped-1788767530464-lzdk9h"
+      ],
+      "current_count": 5,
+      "majority_count": 15,
+      "razao": 3
+    },
+    {
+      "campo": "title",
+      "old_value": "Meu Ego",
+      "new_value": "Meu Égo",
+      "context_key": "roberto carlos",
+      "linhas": [
+        "scraped-1785923050430-6fq3dv",
+        "scraped-1786814479303-cl6xxb",
+        "scraped-1787846038164-asyppn"
+      ],
+      "current_count": 3,
+      "majority_count": 9,
+      "razao": 3
+    },
+    {
+      "campo": "title",
+      "old_value": "Aqui",
+      "new_value": "Aquí",
+      "context_key": "jao",
+      "linhas": [
+        "scraped-1786780079141-ua0g3o"
+      ],
+      "current_count": 1,
+      "majority_count": 3,
+      "razao": 3
+    },
+    {
+      "campo": "title",
+      "old_value": "No Volvere",
+      "new_value": "No Volveré",
+      "context_key": "gipsy kings",
+      "linhas": [
+        "scraped-1786772928138-igprwg",
+        "scraped-1787176088018-7ao5u3",
+        "scraped-1787316489525-0hde1n",
+        "scraped-1787456931826-5o5zd9",
+        "scraped-1788093947438-fpmqod",
+        "scraped-1788362280079-60jxy0",
+        "scraped-1788490084280-oqq0b3",
+        "scraped-1788623150058-3fiawv"
+      ],
+      "current_count": 8,
+      "majority_count": 22,
+      "razao": 2.8
+    },
+    {
+      "campo": "title",
+      "old_value": "Nunca Mas",
+      "new_value": "Nunca Más",
+      "context_key": "los kjarkas",
+      "linhas": [
+        "scraped-1786924278269-q2xriv",
+        "scraped-1787059195768-y2i2u0",
+        "scraped-1787192441994-c3hnqh",
+        "scraped-1787332898975-jaoyrp",
+        "scraped-1787686621939-jwav8o",
+        "scraped-1788110399507-jt6305"
+      ],
+      "current_count": 6,
+      "majority_count": 17,
+      "razao": 2.8
+    },
+    {
+      "campo": "title",
+      "old_value": "Revolucion",
+      "new_value": "Revolución",
+      "context_key": "abel pintos",
+      "linhas": [
+        "scraped-1786067852314-fa6llu",
+        "scraped-1787278591672-k2sfth",
+        "scraped-1787419997081-icbhqa"
+      ],
+      "current_count": 3,
+      "majority_count": 8,
+      "razao": 2.7
+    },
+    {
+      "campo": "title",
+      "old_value": "Besame Mucho",
+      "new_value": "Bésame Mucho",
+      "context_key": "the beatles",
+      "linhas": [
+        "scraped-1786125287951-ns8q5u"
+      ],
+      "current_count": 8,
+      "majority_count": 20,
+      "razao": 2.5
+    },
+    {
+      "campo": "title",
+      "old_value": "Besame Mucho",
+      "new_value": "Bésame Mucho",
+      "context_key": "joao gilberto",
+      "linhas": [
+        "scraped-1786781895789-e5dfam"
+      ],
+      "current_count": 8,
+      "majority_count": 20,
+      "razao": 2.5
+    },
+    {
+      "campo": "title",
+      "old_value": "Besame Mucho",
+      "new_value": "Bésame Mucho",
+      "context_key": "luis miguel",
+      "linhas": [
+        "scraped-1786794857457-hygqu2",
+        "scraped-1786931682988-u2egbe",
+        "scraped-1787826209379-1mrfxw",
+        "scraped-1788256025734-onrcn6",
+        "scraped-1788377530713-d4eam9",
+        "scraped-1788513731649-a7l8c1"
+      ],
+      "current_count": 8,
+      "majority_count": 20,
+      "razao": 2.5
+    },
+    {
+      "campo": "title",
+      "old_value": "É Voce",
+      "new_value": "É Você",
+      "context_key": "titas",
+      "linhas": [
+        "scraped-1786825466118-nb37g3",
+        "scraped-1787374485373-8rom8w",
+        "scraped-1787858676176-1ebe1x",
+        "scraped-1787999057730-sibfks",
+        "scraped-1788679467630-1fi17h",
+        "scraped-1788817808889-kvjyi4"
+      ],
+      "current_count": 6,
+      "majority_count": 15,
+      "razao": 2.5
+    },
+    {
+      "campo": "title",
+      "old_value": "mia",
+      "new_value": "Mía",
+      "context_key": "abba",
+      "linhas": [
+        "scraped-1786067836017-wanics",
+        "scraped-1787007288409-ozkogk",
+        "scraped-1787140485415-av19d3",
+        "scraped-1787419891746-081h2p",
+        "scraped-1787635496827-xldxmc",
+        "scraped-1788195285272-yec4qo",
+        "scraped-1788328490330-c0dtve",
+        "scraped-1788584074183-hslgay",
+        "scraped-1788863083222-ynnolw",
+        "scraped-1788901573135-vqe9qs",
+        "scraped-1788967236854-a4zjim",
+        "scraped-1788976222430-wp3t9n",
+        "scraped-1788993352081-1gqdq9"
+      ],
+      "current_count": 13,
+      "majority_count": 31,
+      "razao": 2.4
+    },
+    {
+      "campo": "title",
+      "old_value": "Ninguem É de Ninguem",
+      "new_value": "Ninguém É de Ninguém",
+      "context_key": "agnaldo timoteo",
+      "linhas": [
+        "scraped-1786067968864-l1uxrc",
+        "scraped-1786872288581-fe37ua",
+        "scraped-1787142299817-2w58l5",
+        "scraped-1787280388980-0d7ajy",
+        "scraped-1787907305625-nv666q",
+        "scraped-1788197095436-lb210h",
+        "scraped-1788585892829-ex0bab",
+        "scraped-1788864897777-24mzvz",
+        "scraped-1788914984243-vztj1n",
+        "scraped-1788943815462-4g824z",
+        "scraped-1788977999655-hktufi",
+        "scraped-1788994350680-vx3szo"
+      ],
+      "current_count": 12,
+      "majority_count": 29,
+      "razao": 2.4
+    },
+    {
+      "campo": "title",
+      "old_value": "So",
+      "new_value": "Só",
+      "context_key": "ed sheeran",
+      "linhas": [
+        "scraped-1786120497243-15ouho",
+        "scraped-1786834239943-0igos6",
+        "scraped-1787104271670-6ihyvb",
+        "scraped-1787383254244-kij04y",
+        "scraped-1787446083639-9wb0c6",
+        "scraped-1787523665748-dc6v4k",
+        "scraped-1787590301235-fr8raz",
+        "scraped-1788355131017-l238yt",
+        "scraped-1788547851639-togk83",
+        "scraped-1788612532543-n6euwy",
+        "scraped-1788752933636-n51acl",
+        "scraped-1788964583190-bd5v5g"
+      ],
+      "current_count": 12,
+      "majority_count": 29,
+      "razao": 2.4
+    },
+    {
+      "campo": "title",
+      "old_value": "Maria Elena",
+      "new_value": "María Elena",
+      "context_key": "altemar dutra",
+      "linhas": [
+        "scraped-1786068288981-gxyym5",
+        "scraped-1786875622170-s1b9bb",
+        "scraped-1787282608924-ji1kqx",
+        "scraped-1787423035839-wggfi9",
+        "scraped-1787566569298-t0iyff",
+        "scraped-1788200645671-eo5g7x",
+        "scraped-1788868224650-ml9q5o",
+        "scraped-1788946288813-xm2gyt"
+      ],
+      "current_count": 8,
+      "majority_count": 19,
+      "razao": 2.4
+    },
+    {
+      "campo": "artist",
+      "old_value": "INTRODUCCIÓN:  D",
+      "new_value": "INTRODUCCIÓN: D",
+      "context_key": "burruyacu",
+      "linhas": [
+        "scraped-1786068641811-j4m72f",
+        "scraped-1787015015567-m59rvc",
+        "scraped-1787148219099-pbci0v",
+        "scraped-1787914121498-14tj43",
+        "scraped-1788063427487-pqzeli",
+        "scraped-1788337031738-tj3uq6",
+        "scraped-1788592620815-k3y9dl",
+        "scraped-1788733023196-r3pl1j",
+        "scraped-1788905761274-k6chs4"
+      ],
+      "current_count": 12,
+      "majority_count": 28,
+      "razao": 2.3
+    },
+    {
+      "campo": "artist",
+      "old_value": "INTRODUCCIÓN:  D",
+      "new_value": "INTRODUCCIÓN: D",
+      "context_key": "corazones amantes",
+      "linhas": [
+        "scraped-1786928007880-q5fbly",
+        "scraped-1787196051983-slzkrn",
+        "scraped-1787477011460-d4yhkq"
+      ],
+      "current_count": 12,
+      "majority_count": 28,
+      "razao": 2.3
+    },
+    {
+      "campo": "title",
+      "old_value": "Labios de Mel",
+      "new_value": "Lábios de Mel",
+      "context_key": "silvanno salles",
+      "linhas": [
+        "scraped-1786818090056-llepcs",
+        "scraped-1787366842424-honmbn",
+        "scraped-1787717791356-732wuh",
+        "scraped-1788142630241-3l1bri",
+        "scraped-1788277586764-wsx786",
+        "scraped-1788535021531-62j39p",
+        "scraped-1788672099310-7tss6e",
+        "scraped-1788809917004-6xpzrz"
+      ],
+      "current_count": 8,
+      "majority_count": 18,
+      "razao": 2.3
+    },
+    {
+      "campo": "title",
+      "old_value": "Poquita fe",
+      "new_value": "Poquita Fé",
+      "context_key": "los tres caballeros",
+      "linhas": [
+        "scraped-1786794392194-oyv1aw",
+        "scraped-1786931199954-paoi9o",
+        "scraped-1787339816561-99kpiv",
+        "scraped-1787690813306-nukc1c"
+      ],
+      "current_count": 4,
+      "majority_count": 9,
+      "razao": 2.3
+    },
+    {
+      "campo": "title",
+      "old_value": "Sonrie",
+      "new_value": "Sonríe",
+      "context_key": "roberto carlos",
+      "linhas": [
+        "scraped-1785911351600-78mzb1",
+        "scraped-1786814618702-rrv29x",
+        "scraped-1787988093618-tbx608"
+      ],
+      "current_count": 3,
+      "majority_count": 7,
+      "razao": 2.3
+    },
+    {
+      "campo": "title",
+      "old_value": "Oya",
+      "new_value": "Oyá",
+      "context_key": "rael",
+      "linhas": [
+        "scraped-1787081440485-ppmlcf",
+        "scraped-1787357752394-9s615w",
+        "scraped-1787709018360-qshn26",
+        "scraped-1787982891052-njldf5",
+        "scraped-1788270891429-34s4sz",
+        "scraped-1788804037770-tytj2l"
+      ],
+      "current_count": 6,
+      "majority_count": 13,
+      "razao": 2.2
+    },
+    {
+      "campo": "title",
+      "old_value": "Lejos de Ti",
+      "new_value": "Lejos de tí",
+      "context_key": "gian marco",
+      "linhas": [
+        "scraped-1786772832588-3267xn",
+        "scraped-1787175993212-emjj63",
+        "scraped-1787316394905-smpd9d",
+        "scraped-1787456816962-g09jcu",
+        "scraped-1787672858774-dylj37",
+        "scraped-1788232529318-1j8vlv",
+        "scraped-1788362187033-3mnj03"
+      ],
+      "current_count": 7,
+      "majority_count": 15,
+      "razao": 2.1
+    },
+    {
+      "campo": "title",
+      "old_value": "Lejos de ti",
+      "new_value": "Lejos de tí",
+      "context_key": "pelo d'ambrosio",
+      "linhas": [
+        "scraped-1786808021504-6fqv5g",
+        "scraped-1786945733673-88jh5e",
+        "scraped-1787078898891-n5klrc",
+        "scraped-1788131876615-99wo4u",
+        "scraped-1788269435853-gakchv",
+        "scraped-1788390926495-9mskh5",
+        "scraped-1788527925508-hvuuvd"
+      ],
+      "current_count": 7,
+      "majority_count": 15,
+      "razao": 2.1
+    },
+    {
+      "campo": "title",
+      "old_value": "Contigo Aprendi",
+      "new_value": "Contigo Aprendí",
+      "context_key": "altemar dutra",
+      "linhas": [
+        "scraped-1786068284796-eq2l4k",
+        "scraped-1786875606742-4791n1",
+        "scraped-1787566553771-ayvwzz",
+        "scraped-1788333609224-zhvimm",
+        "scraped-1788457817918-4l1297",
+        "scraped-1788589214550-lpo027",
+        "scraped-1788917050310-v5tynw",
+        "scraped-1788996678943-ydlys9"
+      ],
+      "current_count": 14,
+      "majority_count": 28,
+      "razao": 2
+    },
+    {
+      "campo": "title",
+      "old_value": "Contigo Aprendi",
+      "new_value": "Contigo Aprendí",
+      "context_key": "moacyr franco",
+      "linhas": [
+        "scraped-1786800138294-kp8buv",
+        "scraped-1786937062938-samxr7",
+        "scraped-1787070074842-02cxmf",
+        "scraped-1787831662357-89ufcq",
+        "scraped-1788519155945-703g1w",
+        "scraped-1788652463525-vv76lz"
+      ],
+      "current_count": 14,
+      "majority_count": 28,
+      "razao": 2
+    },
+    {
+      "campo": "title",
+      "old_value": "Fallaste Corazon",
+      "new_value": "Fallaste Corazón",
+      "context_key": "pedro infante",
+      "linhas": [
+        "scraped-1786807876655-zlr5ff",
+        "scraped-1786945585487-dl9zzj",
+        "scraped-1787213736126-kr1oe4",
+        "scraped-1787493271776-91i5az",
+        "scraped-1788268984129-6lzd5y",
+        "scraped-1788389604289-dywtt9",
+        "scraped-1788527784678-96gqqp",
+        "scraped-1788801326568-i0o5lx"
+      ],
+      "current_count": 8,
+      "majority_count": 16,
+      "razao": 2
+    },
+    {
+      "campo": "title",
+      "old_value": "La Ultima Curda",
+      "new_value": "La última curda",
+      "context_key": "carlos gardel",
+      "linhas": [
+        "scraped-1786753499092-rko54t",
+        "scraped-1787023498928-io8cr4",
+        "scraped-1787156701576-0rp9ck",
+        "scraped-1787653502721-ykc7rg",
+        "scraped-1788072894828-xd8spw",
+        "scraped-1788212828037-rq39wq",
+        "scraped-1789004761872-ogupkz"
+      ],
+      "current_count": 7,
+      "majority_count": 14,
+      "razao": 2
+    },
+    {
+      "campo": "title",
+      "old_value": "Una Vez Mas",
+      "new_value": "Una vez más",
+      "context_key": "natiruts",
+      "linhas": [
+        "scraped-1786801945310-xmkk3y",
+        "scraped-1787071876938-68govl",
+        "scraped-1787833501199-udhbm7",
+        "scraped-1787973641822-c5vepl",
+        "scraped-1788124960459-zsnq2o",
+        "scraped-1788263305552-qvt1gd",
+        "scraped-1788794565635-hsuqcr"
+      ],
+      "current_count": 7,
+      "majority_count": 14,
+      "razao": 2
+    },
+    {
+      "campo": "title",
+      "old_value": "Ninguem Te Amou Assim",
+      "new_value": "Ninguém Te Amou Assim",
+      "context_key": "jose augusto",
+      "linhas": [
+        "scraped-1786785496824-4psptl",
+        "scraped-1787329353065-n0j2nf",
+        "scraped-1787469734820-em85v5",
+        "scraped-1787683996960-yf6w9u",
+        "scraped-1788106929147-3nnrq9",
+        "scraped-1788371596043-fngp3p"
+      ],
+      "current_count": 6,
+      "majority_count": 12,
+      "razao": 2
+    },
+    {
+      "campo": "title",
+      "old_value": "Amor mio",
+      "new_value": "Amor Mío",
+      "context_key": "los panchos",
+      "linhas": [
+        "scraped-1786826837216-1uliqa",
+        "scraped-1787375863466-mugbpy",
+        "scraped-1787726848620-u8geqd",
+        "scraped-1788284845709-p47vad",
+        "scraped-1788410780747-temxzg",
+        "scraped-1788542337075-9f57jg"
+      ],
+      "current_count": 6,
+      "majority_count": 12,
+      "razao": 2
+    },
+    {
+      "campo": "title",
+      "old_value": "Moliendo cafe",
+      "new_value": "Moliendo Café",
+      "context_key": "los panchos",
+      "linhas": [
+        "scraped-1786826912341-cvah05",
+        "scraped-1786965512984-2l5e9f",
+        "scraped-1787375939696-c96j5v",
+        "scraped-1787516330967-ihkzqh",
+        "scraped-1787726921179-3tvo4s",
+        "scraped-1787860129081-mmmk6e"
+      ],
+      "current_count": 6,
+      "majority_count": 12,
+      "razao": 2
+    },
+    {
+      "campo": "title",
+      "old_value": "Llegaste Tu",
+      "new_value": "Llegaste Tú",
+      "context_key": "juan luis guerra 4.40",
+      "linhas": [
+        "scraped-1786922361937-cczhkl",
+        "scraped-1787057307241-kc8blg",
+        "scraped-1787190520737-306dtw",
+        "scraped-1787471318094-nvyq8r",
+        "scraped-1787816912581-230ml8",
+        "scraped-1788108506561-20fs8p"
+      ],
+      "current_count": 6,
+      "majority_count": 12,
+      "razao": 2
+    },
+    {
+      "campo": "title",
+      "old_value": "Mia",
+      "new_value": "Mía",
+      "context_key": "aerosmith",
+      "linhas": [
+        "scraped-1786067942744-ryigzs"
+      ],
+      "current_count": 23,
+      "majority_count": 31,
+      "razao": 1.3
+    },
+    {
+      "campo": "title",
+      "old_value": "Poquita Fe",
+      "new_value": "Poquita Fé",
+      "context_key": "los tres reyes",
+      "linhas": [
+        "scraped-1786794404800-g9j8yr",
+        "scraped-1786931211220-orwb0m",
+        "scraped-1787339824934-n7lncr",
+        "scraped-1787690821395-lo6q6i"
+      ],
+      "current_count": 10,
+      "majority_count": 9,
+      "razao": 0.9
+    }
+  ]
+}

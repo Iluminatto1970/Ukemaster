@@ -1,0 +1,9 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]
+    - banner [ref=e8]
+  - generic [ref=e53]:
+    - main [ref=e54]
+    - complementary "Em Destaque & Dicas" [ref=e59]
+  - contentinfo [ref=e151]:
+    - generic [ref=e152]

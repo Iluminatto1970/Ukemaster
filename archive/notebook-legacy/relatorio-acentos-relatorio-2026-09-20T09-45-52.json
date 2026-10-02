@@ -1,0 +1,3108 @@
+{
+  "gerado_em": "2026-09-20T09:45:52.561Z",
+  "modo": "dry-run",
+  "total_propostas": 294,
+  "campos": {
+    "title": {
+      "linhas_avaliadas": 394214,
+      "janelas": 2373,
+      "correcoes": 294,
+      "primeiro_id": "scraped-1785911351600-78mzb1",
+      "ultimo_id": "scraped-1789004761872-ogupkz",
+      "exemplos": [
+        {
+          "row_id": "scraped-1785911351600-78mzb1",
+          "old_value": "Sonrie",
+          "new_value": "Sonríe",
+          "current_count": 3,
+          "majority_count": 7,
+          "norm_key": "sonrie",
+          "context_key": "roberto carlos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911449937-mt9964",
+          "old_value": "Tô Por Ai",
+          "new_value": "Tô Por Aí",
+          "current_count": 1,
+          "majority_count": 13,
+          "norm_key": "to por ai",
+          "context_key": "gusttavo lima",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785923050430-6fq3dv",
+          "old_value": "Meu Ego",
+          "new_value": "Meu Égo",
+          "current_count": 3,
+          "majority_count": 9,
+          "norm_key": "meu ego",
+          "context_key": "roberto carlos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785929181249-agtnbc",
+          "old_value": "Dois Corações e Uma Historia",
+          "new_value": "Dois Corações e Uma História",
+          "current_count": 1,
+          "majority_count": 8,
+          "norm_key": "dois coracoes e uma historia",
+          "context_key": "gusttavo lima",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785929415232-hj1vul",
+          "old_value": "Olvidame Tu",
+          "new_value": "Olvidame Tú",
+          "current_count": 2,
+          "majority_count": 9,
+          "norm_key": "olvidame tu",
+          "context_key": "ivete sangalo",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785930423063-sk2ef4",
+          "old_value": "Coração  Molim",
+          "new_value": "Coração Molim",
+          "current_count": 1,
+          "majority_count": 5,
+          "norm_key": "coracao molim",
+          "context_key": "luiz gonzaga",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785930287774-260zdr",
+          "old_value": "Olvidame Tu",
+          "new_value": "Olvidame Tú",
+          "current_count": 2,
+          "majority_count": 9,
+          "norm_key": "olvidame tu",
+          "context_key": "ivete sangalo",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785948650353-naixmx",
+          "old_value": "Angela",
+          "new_value": "Ângela",
+          "current_count": 1,
+          "majority_count": 7,
+          "norm_key": "angela",
+          "context_key": "tom jobim",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785948677610-ek9ydq",
+          "old_value": "Incerteza",
+          "new_value": "Íncerteza",
+          "current_count": 2,
+          "majority_count": 10,
+          "norm_key": "incerteza",
+          "context_key": "tom jobim",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786067836017-wanics",
+          "old_value": "mia",
+          "new_value": "Mía",
+          "current_count": 13,
+          "majority_count": 31,
+          "norm_key": "mia",
+          "context_key": "abba",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786067852314-fa6llu",
+          "old_value": "Revolucion",
+          "new_value": "Revolución",
+          "current_count": 3,
+          "majority_count": 8,
+          "norm_key": "revolucion",
+          "context_key": "abel pintos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786067942744-ryigzs",
+          "old_value": "Mia",
+          "new_value": "Mía",
+          "current_count": 23,
+          "majority_count": 31,
+          "norm_key": "mia",
+          "context_key": "aerosmith",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786067968864-l1uxrc",
+          "old_value": "Ninguem É de Ninguem",
+          "new_value": "Ninguém É de Ninguém",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "ninguem e de ninguem",
+          "context_key": "agnaldo timoteo",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786068284796-eq2l4k",
+          "old_value": "Contigo Aprendi",
+          "new_value": "Contigo Aprendí",
+          "current_count": 14,
+          "majority_count": 28,
+          "norm_key": "contigo aprendi",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786068288981-gxyym5",
+          "old_value": "Maria Elena",
+          "new_value": "María Elena",
+          "current_count": 8,
+          "majority_count": 19,
+          "norm_key": "maria elena",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        }
+      ],
+      "propostas": [
+        {
+          "row_id": "scraped-1785911351600-78mzb1",
+          "old_value": "Sonrie",
+          "new_value": "Sonríe",
+          "current_count": 3,
+          "majority_count": 7,
+          "norm_key": "sonrie",
+          "context_key": "roberto carlos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911449937-mt9964",
+          "old_value": "Tô Por Ai",
+          "new_value": "Tô Por Aí",
+          "current_count": 1,
+          "majority_count": 13,
+          "norm_key": "to por ai",
+          "context_key": "gusttavo lima",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785923050430-6fq3dv",
+          "old_value": "Meu Ego",
+          "new_value": "Meu Égo",
+          "current_count": 3,
+          "majority_count": 9,
+          "norm_key": "meu ego",
+          "context_key": "roberto carlos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785929181249-agtnbc",
+          "old_value": "Dois Corações e Uma Historia",
+          "new_value": "Dois Corações e Uma História",
+          "current_count": 1,
+          "majority_count": 8,
+          "norm_key": "dois coracoes e uma historia",
+          "context_key": "gusttavo lima",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785929415232-hj1vul",
+          "old_value": "Olvidame Tu",
+          "new_value": "Olvidame Tú",
+          "current_count": 2,
+          "majority_count": 9,
+          "norm_key": "olvidame tu",
+          "context_key": "ivete sangalo",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785930423063-sk2ef4",
+          "old_value": "Coração  Molim",
+          "new_value": "Coração Molim",
+          "current_count": 1,
+          "majority_count": 5,
+          "norm_key": "coracao molim",
+          "context_key": "luiz gonzaga",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785930287774-260zdr",
+          "old_value": "Olvidame Tu",
+          "new_value": "Olvidame Tú",
+          "current_count": 2,
+          "majority_count": 9,
+          "norm_key": "olvidame tu",
+          "context_key": "ivete sangalo",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785948650353-naixmx",
+          "old_value": "Angela",
+          "new_value": "Ângela",
+          "current_count": 1,
+          "majority_count": 7,
+          "norm_key": "angela",
+          "context_key": "tom jobim",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785948677610-ek9ydq",
+          "old_value": "Incerteza",
+          "new_value": "Íncerteza",
+          "current_count": 2,
+          "majority_count": 10,
+          "norm_key": "incerteza",
+          "context_key": "tom jobim",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786067836017-wanics",
+          "old_value": "mia",
+          "new_value": "Mía",
+          "current_count": 13,
+          "majority_count": 31,
+          "norm_key": "mia",
+          "context_key": "abba",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786067852314-fa6llu",
+          "old_value": "Revolucion",
+          "new_value": "Revolución",
+          "current_count": 3,
+          "majority_count": 8,
+          "norm_key": "revolucion",
+          "context_key": "abel pintos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786067942744-ryigzs",
+          "old_value": "Mia",
+          "new_value": "Mía",
+          "current_count": 23,
+          "majority_count": 31,
+          "norm_key": "mia",
+          "context_key": "aerosmith",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786067968864-l1uxrc",
+          "old_value": "Ninguem É de Ninguem",
+          "new_value": "Ninguém É de Ninguém",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "ninguem e de ninguem",
+          "context_key": "agnaldo timoteo",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786068284796-eq2l4k",
+          "old_value": "Contigo Aprendi",
+          "new_value": "Contigo Aprendí",
+          "current_count": 14,
+          "majority_count": 28,
+          "norm_key": "contigo aprendi",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786068288981-gxyym5",
+          "old_value": "Maria Elena",
+          "new_value": "María Elena",
+          "current_count": 8,
+          "majority_count": 19,
+          "norm_key": "maria elena",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786068292101-lyc9ne",
+          "old_value": "Perdon",
+          "new_value": "Perdón",
+          "current_count": 9,
+          "majority_count": 36,
+          "norm_key": "perdon",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786070101649-5iw3rz",
+          "old_value": "Arerê",
+          "new_value": "Arêrê",
+          "current_count": 1,
+          "majority_count": 8,
+          "norm_key": "arere",
+          "context_key": "banda eva",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786070232318-obyno6",
+          "old_value": "Coraçao Feliz",
+          "new_value": "Coração Feliz",
+          "current_count": 1,
+          "majority_count": 7,
+          "norm_key": "coracao feliz",
+          "context_key": "beth carvalho",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786070321629-dav6cl",
+          "old_value": "Como Olvidarte",
+          "new_value": "Cómo olvidarte",
+          "current_count": 1,
+          "majority_count": 7,
+          "norm_key": "como olvidarte",
+          "context_key": "binomio de oro",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786070706951-vco3o1",
+          "old_value": "Adios",
+          "new_value": "Adiós",
+          "current_count": 1,
+          "majority_count": 18,
+          "norm_key": "adios",
+          "context_key": "bronco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786070711240-qpvpm8",
+          "old_value": "Escandalo",
+          "new_value": "Escándalo",
+          "current_count": 1,
+          "majority_count": 14,
+          "norm_key": "escandalo",
+          "context_key": "bronco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786070752790-uh6bgo",
+          "old_value": "Hávera Sinais",
+          "new_value": "Haverá Sinais",
+          "current_count": 1,
+          "majority_count": 7,
+          "norm_key": "havera sinais",
+          "context_key": "bruno & marrone",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786120497243-15ouho",
+          "old_value": "So",
+          "new_value": "Só",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "so",
+          "context_key": "ed sheeran",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786125287951-ns8q5u",
+          "old_value": "Besame Mucho",
+          "new_value": "Bésame Mucho",
+          "current_count": 8,
+          "majority_count": 20,
+          "norm_key": "besame mucho",
+          "context_key": "the beatles",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786753127311-0l08r8",
+          "old_value": "Sin ti",
+          "new_value": "Sin Tí",
+          "current_count": 6,
+          "majority_count": 21,
+          "norm_key": "sin ti",
+          "context_key": "canciones populares",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786753499092-rko54t",
+          "old_value": "La Ultima Curda",
+          "new_value": "La última curda",
+          "current_count": 7,
+          "majority_count": 14,
+          "norm_key": "la ultima curda",
+          "context_key": "carlos gardel",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786756881718-em2qza",
+          "old_value": "A Palo Seco",
+          "new_value": "À Palo Seco",
+          "current_count": 2,
+          "majority_count": 9,
+          "norm_key": "a palo seco",
+          "context_key": "cidade negra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786758345123-4nvc9h",
+          "old_value": "Alem do Véu",
+          "new_value": "Além do Véu",
+          "current_count": 1,
+          "majority_count": 8,
+          "norm_key": "alem do veu",
+          "context_key": "corinhos evangelicos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786765738861-2aps09",
+          "old_value": "Angeles",
+          "new_value": "Ángeles",
+          "current_count": 1,
+          "majority_count": 4,
+          "norm_key": "angeles",
+          "context_key": "enya",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786767873431-r6ihe5",
+          "old_value": "100 anos",
+          "new_value": "100 Años",
+          "current_count": 1,
+          "majority_count": 11,
+          "norm_key": "100 anos",
+          "context_key": "falamansa",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786767760074-6y6kee",
+          "old_value": "A Palo Seco",
+          "new_value": "À Palo Seco",
+          "current_count": 2,
+          "majority_count": 9,
+          "norm_key": "a palo seco",
+          "context_key": "fagner",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786767794261-c756tm",
+          "old_value": "Daqui Pra Lá",
+          "new_value": "Daqui Prá Lá",
+          "current_count": 1,
+          "majority_count": 6,
+          "norm_key": "daqui pra la",
+          "context_key": "fagner",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786769618876-y0m5hr",
+          "old_value": "Ojala",
+          "new_value": "Ojalá",
+          "current_count": 3,
+          "majority_count": 70,
+          "norm_key": "ojala",
+          "context_key": "fondo flamenco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786772832588-3267xn",
+          "old_value": "Lejos de Ti",
+          "new_value": "Lejos de tí",
+          "current_count": 7,
+          "majority_count": 15,
+          "norm_key": "lejos de ti",
+          "context_key": "gian marco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786772928138-igprwg",
+          "old_value": "No Volvere",
+          "new_value": "No Volveré",
+          "current_count": 8,
+          "majority_count": 22,
+          "norm_key": "no volvere",
+          "context_key": "gipsy kings",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786778289003-zgecwa",
+          "old_value": "Alguien Como Tu",
+          "new_value": "Alguien como tú",
+          "current_count": 1,
+          "majority_count": 12,
+          "norm_key": "alguien como tu",
+          "context_key": "intocable",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786778312649-jx9zos",
+          "old_value": "Historia de amor",
+          "new_value": "História de Amor",
+          "current_count": 7,
+          "majority_count": 40,
+          "norm_key": "historia de amor",
+          "context_key": "intocable",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786778540246-e5hlci",
+          "old_value": "Rei da Gloria",
+          "new_value": "Rei da Glória",
+          "current_count": 7,
+          "majority_count": 31,
+          "norm_key": "rei da gloria",
+          "context_key": "isaias saad",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786780131824-bcdcuh",
+          "old_value": "Amor Mio",
+          "new_value": "Amor Mío",
+          "current_count": 1,
+          "majority_count": 12,
+          "norm_key": "amor mio",
+          "context_key": "javier solis",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786780079141-ua0g3o",
+          "old_value": "Aqui",
+          "new_value": "Aquí",
+          "current_count": 1,
+          "majority_count": 3,
+          "norm_key": "aqui",
+          "context_key": "jao",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786781895789-e5dfam",
+          "old_value": "Besame Mucho",
+          "new_value": "Bésame Mucho",
+          "current_count": 8,
+          "majority_count": 20,
+          "norm_key": "besame mucho",
+          "context_key": "joao gilberto",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786782094680-ktv0du",
+          "old_value": "Cecilia",
+          "new_value": "Cécilia",
+          "current_count": 1,
+          "majority_count": 5,
+          "norm_key": "cecilia",
+          "context_key": "joaquin sabina",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786785496824-4psptl",
+          "old_value": "Ninguem Te Amou Assim",
+          "new_value": "Ninguém Te Amou Assim",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "ninguem te amou assim",
+          "context_key": "jose augusto",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786785709635-0s7zwo",
+          "old_value": "Y Que",
+          "new_value": "Y Qué",
+          "current_count": 2,
+          "majority_count": 27,
+          "norm_key": "y que",
+          "context_key": "jose jose",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786790955665-subhmm",
+          "old_value": "Coraçao de Pedra",
+          "new_value": "Coração de Pedra",
+          "current_count": 10,
+          "majority_count": 35,
+          "norm_key": "coracao de pedra",
+          "context_key": "limao com mel",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786794392194-oyv1aw",
+          "old_value": "Poquita fe",
+          "new_value": "Poquita Fé",
+          "current_count": 4,
+          "majority_count": 9,
+          "norm_key": "poquita fe",
+          "context_key": "los tres caballeros",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786794404800-g9j8yr",
+          "old_value": "Poquita Fe",
+          "new_value": "Poquita Fé",
+          "current_count": 10,
+          "majority_count": 9,
+          "norm_key": "poquita fe",
+          "context_key": "los tres reyes",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786794857457-hygqu2",
+          "old_value": "Besame Mucho",
+          "new_value": "Bésame Mucho",
+          "current_count": 8,
+          "majority_count": 20,
+          "norm_key": "besame mucho",
+          "context_key": "luis miguel",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786796559325-1i16jj",
+          "old_value": "Recuerdame",
+          "new_value": "Recuérdame",
+          "current_count": 9,
+          "majority_count": 31,
+          "norm_key": "recuerdame",
+          "context_key": "marc anthony",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786798263922-82txzd",
+          "old_value": "Tu",
+          "new_value": "Tú",
+          "current_count": 8,
+          "majority_count": 35,
+          "norm_key": "tu",
+          "context_key": "mecano (es)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786800138294-kp8buv",
+          "old_value": "Contigo Aprendi",
+          "new_value": "Contigo Aprendí",
+          "current_count": 14,
+          "majority_count": 28,
+          "norm_key": "contigo aprendi",
+          "context_key": "moacyr franco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786801945310-xmkk3y",
+          "old_value": "Una Vez Mas",
+          "new_value": "Una vez más",
+          "current_count": 7,
+          "majority_count": 14,
+          "norm_key": "una vez mas",
+          "context_key": "natiruts",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786807876655-zlr5ff",
+          "old_value": "Fallaste Corazon",
+          "new_value": "Fallaste Corazón",
+          "current_count": 8,
+          "majority_count": 16,
+          "norm_key": "fallaste corazon",
+          "context_key": "pedro infante",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786808021504-6fqv5g",
+          "old_value": "Lejos de ti",
+          "new_value": "Lejos de tí",
+          "current_count": 7,
+          "majority_count": 15,
+          "norm_key": "lejos de ti",
+          "context_key": "pelo d'ambrosio",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786814479303-cl6xxb",
+          "old_value": "Meu Ego",
+          "new_value": "Meu Égo",
+          "current_count": 3,
+          "majority_count": 9,
+          "norm_key": "meu ego",
+          "context_key": "roberto carlos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786814618702-rrv29x",
+          "old_value": "Sonrie",
+          "new_value": "Sonríe",
+          "current_count": 3,
+          "majority_count": 7,
+          "norm_key": "sonrie",
+          "context_key": "roberto carlos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786818090056-llepcs",
+          "old_value": "Labios de Mel",
+          "new_value": "Lábios de Mel",
+          "current_count": 8,
+          "majority_count": 18,
+          "norm_key": "labios de mel",
+          "context_key": "silvanno salles",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786825466118-nb37g3",
+          "old_value": "É Voce",
+          "new_value": "É Você",
+          "current_count": 6,
+          "majority_count": 15,
+          "norm_key": "e voce",
+          "context_key": "titas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786826837216-1uliqa",
+          "old_value": "Amor mio",
+          "new_value": "Amor Mío",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "amor mio",
+          "context_key": "los panchos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786826912341-cvah05",
+          "old_value": "Moliendo cafe",
+          "new_value": "Moliendo Café",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "moliendo cafe",
+          "context_key": "los panchos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786834239943-0igos6",
+          "old_value": "So",
+          "new_value": "Só",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "so",
+          "context_key": "ed sheeran",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786872288581-fe37ua",
+          "old_value": "Ninguem É de Ninguem",
+          "new_value": "Ninguém É de Ninguém",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "ninguem e de ninguem",
+          "context_key": "agnaldo timoteo",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786875606742-4791n1",
+          "old_value": "Contigo Aprendi",
+          "new_value": "Contigo Aprendí",
+          "current_count": 14,
+          "majority_count": 28,
+          "norm_key": "contigo aprendi",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786875622170-s1b9bb",
+          "old_value": "Maria Elena",
+          "new_value": "María Elena",
+          "current_count": 8,
+          "majority_count": 19,
+          "norm_key": "maria elena",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786875634172-m6ril6",
+          "old_value": "Perdon",
+          "new_value": "Perdón",
+          "current_count": 9,
+          "majority_count": 36,
+          "norm_key": "perdon",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786910008009-77rd6u",
+          "old_value": "Genesis",
+          "new_value": "Gênesis",
+          "current_count": 5,
+          "majority_count": 33,
+          "norm_key": "genesis",
+          "context_key": "grimes",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786913490480-pr9rtf",
+          "old_value": "Filho Prodigo",
+          "new_value": "Filho Pródigo",
+          "current_count": 5,
+          "majority_count": 15,
+          "norm_key": "filho prodigo",
+          "context_key": "hinos avulsos ccb",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786913559196-ty74fj",
+          "old_value": "Lagrimas",
+          "new_value": "Lágrimas",
+          "current_count": 5,
+          "majority_count": 49,
+          "norm_key": "lagrimas",
+          "context_key": "hinos avulsos ccb",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786922361937-cczhkl",
+          "old_value": "Llegaste Tu",
+          "new_value": "Llegaste Tú",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "llegaste tu",
+          "context_key": "juan luis guerra 4.40",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786924278269-q2xriv",
+          "old_value": "Nunca Mas",
+          "new_value": "Nunca Más",
+          "current_count": 6,
+          "majority_count": 17,
+          "norm_key": "nunca mas",
+          "context_key": "los kjarkas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786927555752-jil3xr",
+          "old_value": "Coraçao de Pedra",
+          "new_value": "Coração de Pedra",
+          "current_count": 10,
+          "majority_count": 35,
+          "norm_key": "coracao de pedra",
+          "context_key": "limao com mel",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786931199954-paoi9o",
+          "old_value": "Poquita fe",
+          "new_value": "Poquita Fé",
+          "current_count": 4,
+          "majority_count": 9,
+          "norm_key": "poquita fe",
+          "context_key": "los tres caballeros",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786931211220-orwb0m",
+          "old_value": "Poquita Fe",
+          "new_value": "Poquita Fé",
+          "current_count": 10,
+          "majority_count": 9,
+          "norm_key": "poquita fe",
+          "context_key": "los tres reyes",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786931682988-u2egbe",
+          "old_value": "Besame Mucho",
+          "new_value": "Bésame Mucho",
+          "current_count": 8,
+          "majority_count": 20,
+          "norm_key": "besame mucho",
+          "context_key": "luis miguel",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786933379406-tg3qry",
+          "old_value": "Recuerdame",
+          "new_value": "Recuérdame",
+          "current_count": 9,
+          "majority_count": 31,
+          "norm_key": "recuerdame",
+          "context_key": "marc anthony",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786935181894-fbevi3",
+          "old_value": "Tu",
+          "new_value": "Tú",
+          "current_count": 8,
+          "majority_count": 35,
+          "norm_key": "tu",
+          "context_key": "mecano (es)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786937062938-samxr7",
+          "old_value": "Contigo Aprendi",
+          "new_value": "Contigo Aprendí",
+          "current_count": 14,
+          "majority_count": 28,
+          "norm_key": "contigo aprendi",
+          "context_key": "moacyr franco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786945585487-dl9zzj",
+          "old_value": "Fallaste Corazon",
+          "new_value": "Fallaste Corazón",
+          "current_count": 8,
+          "majority_count": 16,
+          "norm_key": "fallaste corazon",
+          "context_key": "pedro infante",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786945733673-88jh5e",
+          "old_value": "Lejos de ti",
+          "new_value": "Lejos de tí",
+          "current_count": 7,
+          "majority_count": 15,
+          "norm_key": "lejos de ti",
+          "context_key": "pelo d'ambrosio",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786965512984-2l5e9f",
+          "old_value": "Moliendo cafe",
+          "new_value": "Moliendo Café",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "moliendo cafe",
+          "context_key": "los panchos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1786965902411-occ4jd",
+          "old_value": "Que pregunta muchacho",
+          "new_value": "Qué pregunta muchacho",
+          "current_count": 2,
+          "majority_count": 11,
+          "norm_key": "que pregunta muchacho",
+          "context_key": "vicente fernandez",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787007288409-ozkogk",
+          "old_value": "mia",
+          "new_value": "Mía",
+          "current_count": 13,
+          "majority_count": 31,
+          "norm_key": "mia",
+          "context_key": "abba",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787023134213-nnm92b",
+          "old_value": "Sin ti",
+          "new_value": "Sin Tí",
+          "current_count": 6,
+          "majority_count": 21,
+          "norm_key": "sin ti",
+          "context_key": "canciones populares",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787023498928-io8cr4",
+          "old_value": "La Ultima Curda",
+          "new_value": "La última curda",
+          "current_count": 7,
+          "majority_count": 14,
+          "norm_key": "la ultima curda",
+          "context_key": "carlos gardel",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787057307241-kc8blg",
+          "old_value": "Llegaste Tu",
+          "new_value": "Llegaste Tú",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "llegaste tu",
+          "context_key": "juan luis guerra 4.40",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787059195768-y2i2u0",
+          "old_value": "Nunca Mas",
+          "new_value": "Nunca Más",
+          "current_count": 6,
+          "majority_count": 17,
+          "norm_key": "nunca mas",
+          "context_key": "los kjarkas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787061212158-kwviyl",
+          "old_value": "Coraçao de Pedra",
+          "new_value": "Coração de Pedra",
+          "current_count": 10,
+          "majority_count": 35,
+          "norm_key": "coracao de pedra",
+          "context_key": "limao com mel",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787070074842-02cxmf",
+          "old_value": "Contigo Aprendi",
+          "new_value": "Contigo Aprendí",
+          "current_count": 14,
+          "majority_count": 28,
+          "norm_key": "contigo aprendi",
+          "context_key": "moacyr franco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787071876938-68govl",
+          "old_value": "Una Vez Mas",
+          "new_value": "Una vez más",
+          "current_count": 7,
+          "majority_count": 14,
+          "norm_key": "una vez mas",
+          "context_key": "natiruts",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787078898891-n5klrc",
+          "old_value": "Lejos de ti",
+          "new_value": "Lejos de tí",
+          "current_count": 7,
+          "majority_count": 15,
+          "norm_key": "lejos de ti",
+          "context_key": "pelo d'ambrosio",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787081440485-ppmlcf",
+          "old_value": "Oya",
+          "new_value": "Oyá",
+          "current_count": 6,
+          "majority_count": 13,
+          "norm_key": "oya",
+          "context_key": "rael",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787104271670-6ihyvb",
+          "old_value": "So",
+          "new_value": "Só",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "so",
+          "context_key": "ed sheeran",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787140485415-av19d3",
+          "old_value": "mia",
+          "new_value": "Mía",
+          "current_count": 13,
+          "majority_count": 31,
+          "norm_key": "mia",
+          "context_key": "abba",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787142299817-2w58l5",
+          "old_value": "Ninguem É de Ninguem",
+          "new_value": "Ninguém É de Ninguém",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "ninguem e de ninguem",
+          "context_key": "agnaldo timoteo",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787156337199-pmblc4",
+          "old_value": "Sin ti",
+          "new_value": "Sin Tí",
+          "current_count": 6,
+          "majority_count": 21,
+          "norm_key": "sin ti",
+          "context_key": "canciones populares",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787156701576-0rp9ck",
+          "old_value": "La Ultima Curda",
+          "new_value": "La última curda",
+          "current_count": 7,
+          "majority_count": 14,
+          "norm_key": "la ultima curda",
+          "context_key": "carlos gardel",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787175993212-emjj63",
+          "old_value": "Lejos de Ti",
+          "new_value": "Lejos de tí",
+          "current_count": 7,
+          "majority_count": 15,
+          "norm_key": "lejos de ti",
+          "context_key": "gian marco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787176088018-7ao5u3",
+          "old_value": "No Volvere",
+          "new_value": "No Volveré",
+          "current_count": 8,
+          "majority_count": 22,
+          "norm_key": "no volvere",
+          "context_key": "gipsy kings",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787190520737-306dtw",
+          "old_value": "Llegaste Tu",
+          "new_value": "Llegaste Tú",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "llegaste tu",
+          "context_key": "juan luis guerra 4.40",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787192441994-c3hnqh",
+          "old_value": "Nunca Mas",
+          "new_value": "Nunca Más",
+          "current_count": 6,
+          "majority_count": 17,
+          "norm_key": "nunca mas",
+          "context_key": "los kjarkas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787194426926-18oqg5",
+          "old_value": "Coraçao de Pedra",
+          "new_value": "Coração de Pedra",
+          "current_count": 10,
+          "majority_count": 35,
+          "norm_key": "coracao de pedra",
+          "context_key": "limao com mel",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787203289348-i8owao",
+          "old_value": "Tu",
+          "new_value": "Tú",
+          "current_count": 8,
+          "majority_count": 35,
+          "norm_key": "tu",
+          "context_key": "mecano (es)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787213736126-kr1oe4",
+          "old_value": "Fallaste Corazon",
+          "new_value": "Fallaste Corazón",
+          "current_count": 8,
+          "majority_count": 16,
+          "norm_key": "fallaste corazon",
+          "context_key": "pedro infante",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787233971634-2ov11e",
+          "old_value": "Incerteza",
+          "new_value": "Íncerteza",
+          "current_count": 2,
+          "majority_count": 10,
+          "norm_key": "incerteza",
+          "context_key": "tom jobim",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787235675678-ju08vs",
+          "old_value": "Que pregunta muchacho",
+          "new_value": "Qué pregunta muchacho",
+          "current_count": 2,
+          "majority_count": 11,
+          "norm_key": "que pregunta muchacho",
+          "context_key": "vicente fernandez",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787235686214-sg00if",
+          "old_value": "Si te vas no hay lio",
+          "new_value": "Si te vas no hay lío",
+          "current_count": 1,
+          "majority_count": 6,
+          "norm_key": "si te vas no hay lio",
+          "context_key": "vicente fernandez",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787278591672-k2sfth",
+          "old_value": "Revolucion",
+          "new_value": "Revolución",
+          "current_count": 3,
+          "majority_count": 8,
+          "norm_key": "revolucion",
+          "context_key": "abel pintos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787280388980-0d7ajy",
+          "old_value": "Ninguem É de Ninguem",
+          "new_value": "Ninguém É de Ninguém",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "ninguem e de ninguem",
+          "context_key": "agnaldo timoteo",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787282608924-ji1kqx",
+          "old_value": "Maria Elena",
+          "new_value": "María Elena",
+          "current_count": 8,
+          "majority_count": 19,
+          "norm_key": "maria elena",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787316394905-smpd9d",
+          "old_value": "Lejos de Ti",
+          "new_value": "Lejos de tí",
+          "current_count": 7,
+          "majority_count": 15,
+          "norm_key": "lejos de ti",
+          "context_key": "gian marco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787316489525-0hde1n",
+          "old_value": "No Volvere",
+          "new_value": "No Volveré",
+          "current_count": 8,
+          "majority_count": 22,
+          "norm_key": "no volvere",
+          "context_key": "gipsy kings",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787329353065-n0j2nf",
+          "old_value": "Ninguem Te Amou Assim",
+          "new_value": "Ninguém Te Amou Assim",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "ninguem te amou assim",
+          "context_key": "jose augusto",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787332898975-jaoyrp",
+          "old_value": "Nunca Mas",
+          "new_value": "Nunca Más",
+          "current_count": 6,
+          "majority_count": 17,
+          "norm_key": "nunca mas",
+          "context_key": "los kjarkas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787339816561-99kpiv",
+          "old_value": "Poquita fe",
+          "new_value": "Poquita Fé",
+          "current_count": 4,
+          "majority_count": 9,
+          "norm_key": "poquita fe",
+          "context_key": "los tres caballeros",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787339824934-n7lncr",
+          "old_value": "Poquita Fe",
+          "new_value": "Poquita Fé",
+          "current_count": 10,
+          "majority_count": 9,
+          "norm_key": "poquita fe",
+          "context_key": "los tres reyes",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787342011703-gv4kbx",
+          "old_value": "Recuerdame",
+          "new_value": "Recuérdame",
+          "current_count": 9,
+          "majority_count": 31,
+          "norm_key": "recuerdame",
+          "context_key": "marc anthony",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787345170107-f4v7pk",
+          "old_value": "Tu",
+          "new_value": "Tú",
+          "current_count": 8,
+          "majority_count": 35,
+          "norm_key": "tu",
+          "context_key": "mecano (es)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787357752394-9s615w",
+          "old_value": "Oya",
+          "new_value": "Oyá",
+          "current_count": 6,
+          "majority_count": 13,
+          "norm_key": "oya",
+          "context_key": "rael",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787366842424-honmbn",
+          "old_value": "Labios de Mel",
+          "new_value": "Lábios de Mel",
+          "current_count": 8,
+          "majority_count": 18,
+          "norm_key": "labios de mel",
+          "context_key": "silvanno salles",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787374485373-8rom8w",
+          "old_value": "É Voce",
+          "new_value": "É Você",
+          "current_count": 6,
+          "majority_count": 15,
+          "norm_key": "e voce",
+          "context_key": "titas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787375863466-mugbpy",
+          "old_value": "Amor mio",
+          "new_value": "Amor Mío",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "amor mio",
+          "context_key": "los panchos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787375939696-c96j5v",
+          "old_value": "Moliendo cafe",
+          "new_value": "Moliendo Café",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "moliendo cafe",
+          "context_key": "los panchos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787383254244-kij04y",
+          "old_value": "So",
+          "new_value": "Só",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "so",
+          "context_key": "ed sheeran",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787419891746-081h2p",
+          "old_value": "mia",
+          "new_value": "Mía",
+          "current_count": 13,
+          "majority_count": 31,
+          "norm_key": "mia",
+          "context_key": "abba",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787419997081-icbhqa",
+          "old_value": "Revolucion",
+          "new_value": "Revolución",
+          "current_count": 3,
+          "majority_count": 8,
+          "norm_key": "revolucion",
+          "context_key": "abel pintos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787423035839-wggfi9",
+          "old_value": "Maria Elena",
+          "new_value": "María Elena",
+          "current_count": 8,
+          "majority_count": 19,
+          "norm_key": "maria elena",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787423048590-oj0l7x",
+          "old_value": "Perdon",
+          "new_value": "Perdón",
+          "current_count": 9,
+          "majority_count": 36,
+          "norm_key": "perdon",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787435366313-jr3d6v",
+          "old_value": "Sin ti",
+          "new_value": "Sin Tí",
+          "current_count": 6,
+          "majority_count": 21,
+          "norm_key": "sin ti",
+          "context_key": "canciones populares",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787437937286-g4oqti",
+          "old_value": "Fantasia",
+          "new_value": "Fantasía",
+          "current_count": 3,
+          "majority_count": 17,
+          "norm_key": "fantasia",
+          "context_key": "chico buarque",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787439227697-7neihw",
+          "old_value": "A Gloria Do Senhor",
+          "new_value": "A Glória do Senhor",
+          "current_count": 3,
+          "majority_count": 11,
+          "norm_key": "a gloria do senhor",
+          "context_key": "comunidade catolica shalom",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787446083639-9wb0c6",
+          "old_value": "So",
+          "new_value": "Só",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "so",
+          "context_key": "ed sheeran",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787456816962-g09jcu",
+          "old_value": "Lejos de Ti",
+          "new_value": "Lejos de tí",
+          "current_count": 7,
+          "majority_count": 15,
+          "norm_key": "lejos de ti",
+          "context_key": "gian marco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787456931826-5o5zd9",
+          "old_value": "No Volvere",
+          "new_value": "No Volveré",
+          "current_count": 8,
+          "majority_count": 22,
+          "norm_key": "no volvere",
+          "context_key": "gipsy kings",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787469734820-em85v5",
+          "old_value": "Ninguem Te Amou Assim",
+          "new_value": "Ninguém Te Amou Assim",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "ninguem te amou assim",
+          "context_key": "jose augusto",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787471318094-nvyq8r",
+          "old_value": "Llegaste Tu",
+          "new_value": "Llegaste Tú",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "llegaste tu",
+          "context_key": "juan luis guerra 4.40",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787493271776-91i5az",
+          "old_value": "Fallaste Corazon",
+          "new_value": "Fallaste Corazón",
+          "current_count": 8,
+          "majority_count": 16,
+          "norm_key": "fallaste corazon",
+          "context_key": "pedro infante",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787516330967-ihkzqh",
+          "old_value": "Moliendo cafe",
+          "new_value": "Moliendo Café",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "moliendo cafe",
+          "context_key": "los panchos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787523665748-dc6v4k",
+          "old_value": "So",
+          "new_value": "Só",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "so",
+          "context_key": "ed sheeran",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787566553771-ayvwzz",
+          "old_value": "Contigo Aprendi",
+          "new_value": "Contigo Aprendí",
+          "current_count": 14,
+          "majority_count": 28,
+          "norm_key": "contigo aprendi",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787566569298-t0iyff",
+          "old_value": "Maria Elena",
+          "new_value": "María Elena",
+          "current_count": 8,
+          "majority_count": 19,
+          "norm_key": "maria elena",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787566581638-tha49d",
+          "old_value": "Perdon",
+          "new_value": "Perdón",
+          "current_count": 9,
+          "majority_count": 36,
+          "norm_key": "perdon",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787579347956-u905fd",
+          "old_value": "Sin ti",
+          "new_value": "Sin Tí",
+          "current_count": 6,
+          "majority_count": 21,
+          "norm_key": "sin ti",
+          "context_key": "canciones populares",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787590301235-fr8raz",
+          "old_value": "So",
+          "new_value": "Só",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "so",
+          "context_key": "ed sheeran",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787596399955-typ27e",
+          "old_value": "Ojala",
+          "new_value": "Ojalá",
+          "current_count": 3,
+          "majority_count": 70,
+          "norm_key": "ojala",
+          "context_key": "fondo flamenco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787607074587-lmbq5d",
+          "old_value": "Africa",
+          "new_value": "África",
+          "current_count": 1,
+          "majority_count": 7,
+          "norm_key": "africa",
+          "context_key": "john mayer",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787608173639-czhnjh",
+          "old_value": "Salome",
+          "new_value": "Salomé",
+          "current_count": 2,
+          "majority_count": 11,
+          "norm_key": "salome",
+          "context_key": "u2",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787635496827-xldxmc",
+          "old_value": "mia",
+          "new_value": "Mía",
+          "current_count": 13,
+          "majority_count": 31,
+          "norm_key": "mia",
+          "context_key": "abba",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787653502721-ykc7rg",
+          "old_value": "La Ultima Curda",
+          "new_value": "La última curda",
+          "current_count": 7,
+          "majority_count": 14,
+          "norm_key": "la ultima curda",
+          "context_key": "carlos gardel",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787672858774-dylj37",
+          "old_value": "Lejos de Ti",
+          "new_value": "Lejos de tí",
+          "current_count": 7,
+          "majority_count": 15,
+          "norm_key": "lejos de ti",
+          "context_key": "gian marco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787683996960-yf6w9u",
+          "old_value": "Ninguem Te Amou Assim",
+          "new_value": "Ninguém Te Amou Assim",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "ninguem te amou assim",
+          "context_key": "jose augusto",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787686621939-jwav8o",
+          "old_value": "Nunca Mas",
+          "new_value": "Nunca Más",
+          "current_count": 6,
+          "majority_count": 17,
+          "norm_key": "nunca mas",
+          "context_key": "los kjarkas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787690813306-nukc1c",
+          "old_value": "Poquita fe",
+          "new_value": "Poquita Fé",
+          "current_count": 4,
+          "majority_count": 9,
+          "norm_key": "poquita fe",
+          "context_key": "los tres caballeros",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787690821395-lo6q6i",
+          "old_value": "Poquita Fe",
+          "new_value": "Poquita Fé",
+          "current_count": 10,
+          "majority_count": 9,
+          "norm_key": "poquita fe",
+          "context_key": "los tres reyes",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787692988504-8axo8i",
+          "old_value": "Recuerdame",
+          "new_value": "Recuérdame",
+          "current_count": 9,
+          "majority_count": 31,
+          "norm_key": "recuerdame",
+          "context_key": "marc anthony",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787709018360-qshn26",
+          "old_value": "Oya",
+          "new_value": "Oyá",
+          "current_count": 6,
+          "majority_count": 13,
+          "norm_key": "oya",
+          "context_key": "rael",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787717791356-732wuh",
+          "old_value": "Labios de Mel",
+          "new_value": "Lábios de Mel",
+          "current_count": 8,
+          "majority_count": 18,
+          "norm_key": "labios de mel",
+          "context_key": "silvanno salles",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787726848620-u8geqd",
+          "old_value": "Amor mio",
+          "new_value": "Amor Mío",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "amor mio",
+          "context_key": "los panchos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787726921179-3tvo4s",
+          "old_value": "Moliendo cafe",
+          "new_value": "Moliendo Café",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "moliendo cafe",
+          "context_key": "los panchos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787807921000-i2ui7b",
+          "old_value": "Historia de amor",
+          "new_value": "História de Amor",
+          "current_count": 7,
+          "majority_count": 40,
+          "norm_key": "historia de amor",
+          "context_key": "intocable",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787808144114-1cj1h9",
+          "old_value": "Rei da Gloria",
+          "new_value": "Rei da Glória",
+          "current_count": 7,
+          "majority_count": 31,
+          "norm_key": "rei da gloria",
+          "context_key": "isaias saad",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787816912581-230ml8",
+          "old_value": "Llegaste Tu",
+          "new_value": "Llegaste Tú",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "llegaste tu",
+          "context_key": "juan luis guerra 4.40",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787822168343-g3vdjl",
+          "old_value": "Coraçao de Pedra",
+          "new_value": "Coração de Pedra",
+          "current_count": 10,
+          "majority_count": 35,
+          "norm_key": "coracao de pedra",
+          "context_key": "limao com mel",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787826209379-1mrfxw",
+          "old_value": "Besame Mucho",
+          "new_value": "Bésame Mucho",
+          "current_count": 8,
+          "majority_count": 20,
+          "norm_key": "besame mucho",
+          "context_key": "luis miguel",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787831662357-89ufcq",
+          "old_value": "Contigo Aprendi",
+          "new_value": "Contigo Aprendí",
+          "current_count": 14,
+          "majority_count": 28,
+          "norm_key": "contigo aprendi",
+          "context_key": "moacyr franco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787833501199-udhbm7",
+          "old_value": "Una Vez Mas",
+          "new_value": "Una vez más",
+          "current_count": 7,
+          "majority_count": 14,
+          "norm_key": "una vez mas",
+          "context_key": "natiruts",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787846038164-asyppn",
+          "old_value": "Meu Ego",
+          "new_value": "Meu Égo",
+          "current_count": 3,
+          "majority_count": 9,
+          "norm_key": "meu ego",
+          "context_key": "roberto carlos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787860129081-mmmk6e",
+          "old_value": "Moliendo cafe",
+          "new_value": "Moliendo Café",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "moliendo cafe",
+          "context_key": "los panchos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787858676176-1ebe1x",
+          "old_value": "É Voce",
+          "new_value": "É Você",
+          "current_count": 6,
+          "majority_count": 15,
+          "norm_key": "e voce",
+          "context_key": "titas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787907305625-nv666q",
+          "old_value": "Ninguem É de Ninguem",
+          "new_value": "Ninguém É de Ninguém",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "ninguem e de ninguem",
+          "context_key": "agnaldo timoteo",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787938388108-h1g1c7",
+          "old_value": "Ojala",
+          "new_value": "Ojalá",
+          "current_count": 3,
+          "majority_count": 70,
+          "norm_key": "ojala",
+          "context_key": "fondo flamenco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787946527810-htartk",
+          "old_value": "Historia de amor",
+          "new_value": "História de Amor",
+          "current_count": 7,
+          "majority_count": 40,
+          "norm_key": "historia de amor",
+          "context_key": "intocable",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787946757919-bzvlfc",
+          "old_value": "Rei da Gloria",
+          "new_value": "Rei da Glória",
+          "current_count": 7,
+          "majority_count": 31,
+          "norm_key": "rei da gloria",
+          "context_key": "isaias saad",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787968381985-76jmju",
+          "old_value": "Recuerdame",
+          "new_value": "Recuérdame",
+          "current_count": 9,
+          "majority_count": 31,
+          "norm_key": "recuerdame",
+          "context_key": "marc anthony",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787973641822-c5vepl",
+          "old_value": "Una Vez Mas",
+          "new_value": "Una vez más",
+          "current_count": 7,
+          "majority_count": 14,
+          "norm_key": "una vez mas",
+          "context_key": "natiruts",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787982891052-njldf5",
+          "old_value": "Oya",
+          "new_value": "Oyá",
+          "current_count": 6,
+          "majority_count": 13,
+          "norm_key": "oya",
+          "context_key": "rael",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787988093618-tbx608",
+          "old_value": "Sonrie",
+          "new_value": "Sonríe",
+          "current_count": 3,
+          "majority_count": 7,
+          "norm_key": "sonrie",
+          "context_key": "roberto carlos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1787999057730-sibfks",
+          "old_value": "É Voce",
+          "new_value": "É Você",
+          "current_count": 6,
+          "majority_count": 15,
+          "norm_key": "e voce",
+          "context_key": "titas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788023989788-tt9gi3",
+          "old_value": "Salome",
+          "new_value": "Salomé",
+          "current_count": 2,
+          "majority_count": 11,
+          "norm_key": "salome",
+          "context_key": "u2",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788072894828-xd8spw",
+          "old_value": "La Ultima Curda",
+          "new_value": "La última curda",
+          "current_count": 7,
+          "majority_count": 14,
+          "norm_key": "la ultima curda",
+          "context_key": "carlos gardel",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788093947438-fpmqod",
+          "old_value": "No Volvere",
+          "new_value": "No Volveré",
+          "current_count": 8,
+          "majority_count": 22,
+          "norm_key": "no volvere",
+          "context_key": "gipsy kings",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788094391481-78zv68",
+          "old_value": "Genesis",
+          "new_value": "Gênesis",
+          "current_count": 5,
+          "majority_count": 33,
+          "norm_key": "genesis",
+          "context_key": "grimes",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788097919929-u0jm67",
+          "old_value": "Filho Prodigo",
+          "new_value": "Filho Pródigo",
+          "current_count": 5,
+          "majority_count": 15,
+          "norm_key": "filho prodigo",
+          "context_key": "hinos avulsos ccb",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788097987791-qia3ff",
+          "old_value": "Lagrimas",
+          "new_value": "Lágrimas",
+          "current_count": 5,
+          "majority_count": 49,
+          "norm_key": "lagrimas",
+          "context_key": "hinos avulsos ccb",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788099525324-xllydu",
+          "old_value": "Historia de amor",
+          "new_value": "História de Amor",
+          "current_count": 7,
+          "majority_count": 40,
+          "norm_key": "historia de amor",
+          "context_key": "intocable",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788099751955-4jlk4r",
+          "old_value": "Rei da Gloria",
+          "new_value": "Rei da Glória",
+          "current_count": 7,
+          "majority_count": 31,
+          "norm_key": "rei da gloria",
+          "context_key": "isaias saad",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788106929147-3nnrq9",
+          "old_value": "Ninguem Te Amou Assim",
+          "new_value": "Ninguém Te Amou Assim",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "ninguem te amou assim",
+          "context_key": "jose augusto",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788108506561-20fs8p",
+          "old_value": "Llegaste Tu",
+          "new_value": "Llegaste Tú",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "llegaste tu",
+          "context_key": "juan luis guerra 4.40",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788110399507-jt6305",
+          "old_value": "Nunca Mas",
+          "new_value": "Nunca Más",
+          "current_count": 6,
+          "majority_count": 17,
+          "norm_key": "nunca mas",
+          "context_key": "los kjarkas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788119468114-d2ayk5",
+          "old_value": "Recuerdame",
+          "new_value": "Recuérdame",
+          "current_count": 9,
+          "majority_count": 31,
+          "norm_key": "recuerdame",
+          "context_key": "marc anthony",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788121279503-xu9ajh",
+          "old_value": "Tu",
+          "new_value": "Tú",
+          "current_count": 8,
+          "majority_count": 35,
+          "norm_key": "tu",
+          "context_key": "mecano (es)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788124960459-zsnq2o",
+          "old_value": "Una Vez Mas",
+          "new_value": "Una vez más",
+          "current_count": 7,
+          "majority_count": 14,
+          "norm_key": "una vez mas",
+          "context_key": "natiruts",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788131876615-99wo4u",
+          "old_value": "Lejos de ti",
+          "new_value": "Lejos de tí",
+          "current_count": 7,
+          "majority_count": 15,
+          "norm_key": "lejos de ti",
+          "context_key": "pelo d'ambrosio",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788142630241-3l1bri",
+          "old_value": "Labios de Mel",
+          "new_value": "Lábios de Mel",
+          "current_count": 8,
+          "majority_count": 18,
+          "norm_key": "labios de mel",
+          "context_key": "silvanno salles",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788195285272-yec4qo",
+          "old_value": "mia",
+          "new_value": "Mía",
+          "current_count": 13,
+          "majority_count": 31,
+          "norm_key": "mia",
+          "context_key": "abba",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788197095436-lb210h",
+          "old_value": "Ninguem É de Ninguem",
+          "new_value": "Ninguém É de Ninguém",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "ninguem e de ninguem",
+          "context_key": "agnaldo timoteo",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788200645671-eo5g7x",
+          "old_value": "Maria Elena",
+          "new_value": "María Elena",
+          "current_count": 8,
+          "majority_count": 19,
+          "norm_key": "maria elena",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788200657864-p084w7",
+          "old_value": "Perdon",
+          "new_value": "Perdón",
+          "current_count": 9,
+          "majority_count": 36,
+          "norm_key": "perdon",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788211838093-6ps0zh",
+          "old_value": "É serio",
+          "new_value": "É Sério",
+          "current_count": 1,
+          "majority_count": 8,
+          "norm_key": "e serio",
+          "context_key": "calcinha preta",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788211927464-jzbw56",
+          "old_value": "So Love",
+          "new_value": "Só Love",
+          "current_count": 2,
+          "majority_count": 11,
+          "norm_key": "so love",
+          "context_key": "calcinha preta",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788212828037-rq39wq",
+          "old_value": "La Ultima Curda",
+          "new_value": "La última curda",
+          "current_count": 7,
+          "majority_count": 14,
+          "norm_key": "la ultima curda",
+          "context_key": "carlos gardel",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788232529318-1j8vlv",
+          "old_value": "Lejos de Ti",
+          "new_value": "Lejos de tí",
+          "current_count": 7,
+          "majority_count": 15,
+          "norm_key": "lejos de ti",
+          "context_key": "gian marco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788233074753-3puvkn",
+          "old_value": "Genesis",
+          "new_value": "Gênesis",
+          "current_count": 5,
+          "majority_count": 33,
+          "norm_key": "genesis",
+          "context_key": "grimes",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788236554157-f3s4kg",
+          "old_value": "Filho Prodigo",
+          "new_value": "Filho Pródigo",
+          "current_count": 5,
+          "majority_count": 15,
+          "norm_key": "filho prodigo",
+          "context_key": "hinos avulsos ccb",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788236622854-dj3rln",
+          "old_value": "Lagrimas",
+          "new_value": "Lágrimas",
+          "current_count": 5,
+          "majority_count": 49,
+          "norm_key": "lagrimas",
+          "context_key": "hinos avulsos ccb",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788238126921-3tihe1",
+          "old_value": "Historia de amor",
+          "new_value": "História de Amor",
+          "current_count": 7,
+          "majority_count": 40,
+          "norm_key": "historia de amor",
+          "context_key": "intocable",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788238356016-xjzuji",
+          "old_value": "Rei da Gloria",
+          "new_value": "Rei da Glória",
+          "current_count": 7,
+          "majority_count": 31,
+          "norm_key": "rei da gloria",
+          "context_key": "isaias saad",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788250979186-9s40f9",
+          "old_value": "Coraçao de Pedra",
+          "new_value": "Coração de Pedra",
+          "current_count": 10,
+          "majority_count": 35,
+          "norm_key": "coracao de pedra",
+          "context_key": "limao com mel",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788256025734-onrcn6",
+          "old_value": "Besame Mucho",
+          "new_value": "Bésame Mucho",
+          "current_count": 8,
+          "majority_count": 20,
+          "norm_key": "besame mucho",
+          "context_key": "luis miguel",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788257855334-ojq62t",
+          "old_value": "Recuerdame",
+          "new_value": "Recuérdame",
+          "current_count": 9,
+          "majority_count": 31,
+          "norm_key": "recuerdame",
+          "context_key": "marc anthony",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788263305552-qvt1gd",
+          "old_value": "Una Vez Mas",
+          "new_value": "Una vez más",
+          "current_count": 7,
+          "majority_count": 14,
+          "norm_key": "una vez mas",
+          "context_key": "natiruts",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788268984129-6lzd5y",
+          "old_value": "Fallaste Corazon",
+          "new_value": "Fallaste Corazón",
+          "current_count": 8,
+          "majority_count": 16,
+          "norm_key": "fallaste corazon",
+          "context_key": "pedro infante",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788269435853-gakchv",
+          "old_value": "Lejos de ti",
+          "new_value": "Lejos de tí",
+          "current_count": 7,
+          "majority_count": 15,
+          "norm_key": "lejos de ti",
+          "context_key": "pelo d'ambrosio",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788270891429-34s4sz",
+          "old_value": "Oya",
+          "new_value": "Oyá",
+          "current_count": 6,
+          "majority_count": 13,
+          "norm_key": "oya",
+          "context_key": "rael",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788277586764-wsx786",
+          "old_value": "Labios de Mel",
+          "new_value": "Lábios de Mel",
+          "current_count": 8,
+          "majority_count": 18,
+          "norm_key": "labios de mel",
+          "context_key": "silvanno salles",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788284845709-p47vad",
+          "old_value": "Amor mio",
+          "new_value": "Amor Mío",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "amor mio",
+          "context_key": "los panchos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788328490330-c0dtve",
+          "old_value": "mia",
+          "new_value": "Mía",
+          "current_count": 13,
+          "majority_count": 31,
+          "norm_key": "mia",
+          "context_key": "abba",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788333609224-zhvimm",
+          "old_value": "Contigo Aprendi",
+          "new_value": "Contigo Aprendí",
+          "current_count": 14,
+          "majority_count": 28,
+          "norm_key": "contigo aprendi",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788355131017-l238yt",
+          "old_value": "So",
+          "new_value": "Só",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "so",
+          "context_key": "ed sheeran",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788362187033-3mnj03",
+          "old_value": "Lejos de Ti",
+          "new_value": "Lejos de tí",
+          "current_count": 7,
+          "majority_count": 15,
+          "norm_key": "lejos de ti",
+          "context_key": "gian marco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788362280079-60jxy0",
+          "old_value": "No Volvere",
+          "new_value": "No Volveré",
+          "current_count": 8,
+          "majority_count": 22,
+          "norm_key": "no volvere",
+          "context_key": "gipsy kings",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788363033588-t8xnyk",
+          "old_value": "Genesis",
+          "new_value": "Gênesis",
+          "current_count": 5,
+          "majority_count": 33,
+          "norm_key": "genesis",
+          "context_key": "grimes",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788371596043-fngp3p",
+          "old_value": "Ninguem Te Amou Assim",
+          "new_value": "Ninguém Te Amou Assim",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "ninguem te amou assim",
+          "context_key": "jose augusto",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788374872203-jmlfvs",
+          "old_value": "Coraçao de Pedra",
+          "new_value": "Coração de Pedra",
+          "current_count": 10,
+          "majority_count": 35,
+          "norm_key": "coracao de pedra",
+          "context_key": "limao com mel",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788377530713-d4eam9",
+          "old_value": "Besame Mucho",
+          "new_value": "Bésame Mucho",
+          "current_count": 8,
+          "majority_count": 20,
+          "norm_key": "besame mucho",
+          "context_key": "luis miguel",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788379591621-hlui60",
+          "old_value": "Tu",
+          "new_value": "Tú",
+          "current_count": 8,
+          "majority_count": 35,
+          "norm_key": "tu",
+          "context_key": "mecano (es)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788390926495-9mskh5",
+          "old_value": "Lejos de ti",
+          "new_value": "Lejos de tí",
+          "current_count": 7,
+          "majority_count": 15,
+          "norm_key": "lejos de ti",
+          "context_key": "pelo d'ambrosio",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788389604289-dywtt9",
+          "old_value": "Fallaste Corazon",
+          "new_value": "Fallaste Corazón",
+          "current_count": 8,
+          "majority_count": 16,
+          "norm_key": "fallaste corazon",
+          "context_key": "pedro infante",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788410780747-temxzg",
+          "old_value": "Amor mio",
+          "new_value": "Amor Mío",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "amor mio",
+          "context_key": "los panchos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788457817918-4l1297",
+          "old_value": "Contigo Aprendi",
+          "new_value": "Contigo Aprendí",
+          "current_count": 14,
+          "majority_count": 28,
+          "norm_key": "contigo aprendi",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788472328978-w3ol9m",
+          "old_value": "Fantasia",
+          "new_value": "Fantasía",
+          "current_count": 3,
+          "majority_count": 17,
+          "norm_key": "fantasia",
+          "context_key": "chico buarque",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788474199244-9gnmoq",
+          "old_value": "A Gloria Do Senhor",
+          "new_value": "A Glória do Senhor",
+          "current_count": 3,
+          "majority_count": 11,
+          "norm_key": "a gloria do senhor",
+          "context_key": "comunidade catolica shalom",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788490084280-oqq0b3",
+          "old_value": "No Volvere",
+          "new_value": "No Volveré",
+          "current_count": 8,
+          "majority_count": 22,
+          "norm_key": "no volvere",
+          "context_key": "gipsy kings",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788495529794-smug5i",
+          "old_value": "Historia de amor",
+          "new_value": "História de Amor",
+          "current_count": 7,
+          "majority_count": 40,
+          "norm_key": "historia de amor",
+          "context_key": "intocable",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788495759246-j7s3yl",
+          "old_value": "Rei da Gloria",
+          "new_value": "Rei da Glória",
+          "current_count": 7,
+          "majority_count": 31,
+          "norm_key": "rei da gloria",
+          "context_key": "isaias saad",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788508425325-a11bhd",
+          "old_value": "Coraçao de Pedra",
+          "new_value": "Coração de Pedra",
+          "current_count": 10,
+          "majority_count": 35,
+          "norm_key": "coracao de pedra",
+          "context_key": "limao com mel",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788513731649-a7l8c1",
+          "old_value": "Besame Mucho",
+          "new_value": "Bésame Mucho",
+          "current_count": 8,
+          "majority_count": 20,
+          "norm_key": "besame mucho",
+          "context_key": "luis miguel",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788515463868-zomr9x",
+          "old_value": "Recuerdame",
+          "new_value": "Recuérdame",
+          "current_count": 9,
+          "majority_count": 31,
+          "norm_key": "recuerdame",
+          "context_key": "marc anthony",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788519155945-703g1w",
+          "old_value": "Contigo Aprendi",
+          "new_value": "Contigo Aprendí",
+          "current_count": 14,
+          "majority_count": 28,
+          "norm_key": "contigo aprendi",
+          "context_key": "moacyr franco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788527784678-96gqqp",
+          "old_value": "Fallaste Corazon",
+          "new_value": "Fallaste Corazón",
+          "current_count": 8,
+          "majority_count": 16,
+          "norm_key": "fallaste corazon",
+          "context_key": "pedro infante",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788527925508-hvuuvd",
+          "old_value": "Lejos de ti",
+          "new_value": "Lejos de tí",
+          "current_count": 7,
+          "majority_count": 15,
+          "norm_key": "lejos de ti",
+          "context_key": "pelo d'ambrosio",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788535021531-62j39p",
+          "old_value": "Labios de Mel",
+          "new_value": "Lábios de Mel",
+          "current_count": 8,
+          "majority_count": 18,
+          "norm_key": "labios de mel",
+          "context_key": "silvanno salles",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788542337075-9f57jg",
+          "old_value": "Amor mio",
+          "new_value": "Amor Mío",
+          "current_count": 6,
+          "majority_count": 12,
+          "norm_key": "amor mio",
+          "context_key": "los panchos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788547851639-togk83",
+          "old_value": "So",
+          "new_value": "Só",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "so",
+          "context_key": "ed sheeran",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788584074183-hslgay",
+          "old_value": "mia",
+          "new_value": "Mía",
+          "current_count": 13,
+          "majority_count": 31,
+          "norm_key": "mia",
+          "context_key": "abba",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788585892829-ex0bab",
+          "old_value": "Ninguem É de Ninguem",
+          "new_value": "Ninguém É de Ninguém",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "ninguem e de ninguem",
+          "context_key": "agnaldo timoteo",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788589214550-lpo027",
+          "old_value": "Contigo Aprendi",
+          "new_value": "Contigo Aprendí",
+          "current_count": 14,
+          "majority_count": 28,
+          "norm_key": "contigo aprendi",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788612532543-n6euwy",
+          "old_value": "So",
+          "new_value": "Só",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "so",
+          "context_key": "ed sheeran",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788623150058-3fiawv",
+          "old_value": "No Volvere",
+          "new_value": "No Volveré",
+          "current_count": 8,
+          "majority_count": 22,
+          "norm_key": "no volvere",
+          "context_key": "gipsy kings",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788623610175-cbdb0f",
+          "old_value": "Genesis",
+          "new_value": "Gênesis",
+          "current_count": 5,
+          "majority_count": 33,
+          "norm_key": "genesis",
+          "context_key": "grimes",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788627122649-ggz2rr",
+          "old_value": "Filho Prodigo",
+          "new_value": "Filho Pródigo",
+          "current_count": 5,
+          "majority_count": 15,
+          "norm_key": "filho prodigo",
+          "context_key": "hinos avulsos ccb",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788627192746-5t1zkm",
+          "old_value": "Lagrimas",
+          "new_value": "Lágrimas",
+          "current_count": 5,
+          "majority_count": 49,
+          "norm_key": "lagrimas",
+          "context_key": "hinos avulsos ccb",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788628724748-rzbft3",
+          "old_value": "Historia de amor",
+          "new_value": "História de Amor",
+          "current_count": 7,
+          "majority_count": 40,
+          "norm_key": "historia de amor",
+          "context_key": "intocable",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788628955184-pnjg3i",
+          "old_value": "Rei da Gloria",
+          "new_value": "Rei da Glória",
+          "current_count": 7,
+          "majority_count": 31,
+          "norm_key": "rei da gloria",
+          "context_key": "isaias saad",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788642962608-t41ocj",
+          "old_value": "Coraçao de Pedra",
+          "new_value": "Coração de Pedra",
+          "current_count": 10,
+          "majority_count": 35,
+          "norm_key": "coracao de pedra",
+          "context_key": "limao com mel",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788650600745-uk74hu",
+          "old_value": "Tu",
+          "new_value": "Tú",
+          "current_count": 8,
+          "majority_count": 35,
+          "norm_key": "tu",
+          "context_key": "mecano (es)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788652463525-vv76lz",
+          "old_value": "Contigo Aprendi",
+          "new_value": "Contigo Aprendí",
+          "current_count": 14,
+          "majority_count": 28,
+          "norm_key": "contigo aprendi",
+          "context_key": "moacyr franco",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788672099310-7tss6e",
+          "old_value": "Labios de Mel",
+          "new_value": "Lábios de Mel",
+          "current_count": 8,
+          "majority_count": 18,
+          "norm_key": "labios de mel",
+          "context_key": "silvanno salles",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788679467630-1fi17h",
+          "old_value": "É Voce",
+          "new_value": "É Você",
+          "current_count": 6,
+          "majority_count": 15,
+          "norm_key": "e voce",
+          "context_key": "titas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788752933636-n51acl",
+          "old_value": "So",
+          "new_value": "Só",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "so",
+          "context_key": "ed sheeran",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788767530464-lzdk9h",
+          "old_value": "Filho Prodigo",
+          "new_value": "Filho Pródigo",
+          "current_count": 5,
+          "majority_count": 15,
+          "norm_key": "filho prodigo",
+          "context_key": "hinos avulsos ccb",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788767600466-mvd0js",
+          "old_value": "Lagrimas",
+          "new_value": "Lágrimas",
+          "current_count": 5,
+          "majority_count": 49,
+          "norm_key": "lagrimas",
+          "context_key": "hinos avulsos ccb",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788776411363-yr78rg",
+          "old_value": "Y Que",
+          "new_value": "Y Qué",
+          "current_count": 2,
+          "majority_count": 27,
+          "norm_key": "y que",
+          "context_key": "jose jose",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788781762310-uzw1ce",
+          "old_value": "Coraçao de Pedra",
+          "new_value": "Coração de Pedra",
+          "current_count": 10,
+          "majority_count": 35,
+          "norm_key": "coracao de pedra",
+          "context_key": "limao com mel",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788788853526-yk9i4g",
+          "old_value": "Recuerdame",
+          "new_value": "Recuérdame",
+          "current_count": 9,
+          "majority_count": 31,
+          "norm_key": "recuerdame",
+          "context_key": "marc anthony",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788790817053-qcphdq",
+          "old_value": "Tu",
+          "new_value": "Tú",
+          "current_count": 8,
+          "majority_count": 35,
+          "norm_key": "tu",
+          "context_key": "mecano (es)",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788794565635-hsuqcr",
+          "old_value": "Una Vez Mas",
+          "new_value": "Una vez más",
+          "current_count": 7,
+          "majority_count": 14,
+          "norm_key": "una vez mas",
+          "context_key": "natiruts",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788801326568-i0o5lx",
+          "old_value": "Fallaste Corazon",
+          "new_value": "Fallaste Corazón",
+          "current_count": 8,
+          "majority_count": 16,
+          "norm_key": "fallaste corazon",
+          "context_key": "pedro infante",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788804037770-tytj2l",
+          "old_value": "Oya",
+          "new_value": "Oyá",
+          "current_count": 6,
+          "majority_count": 13,
+          "norm_key": "oya",
+          "context_key": "rael",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788809917004-6xpzrz",
+          "old_value": "Labios de Mel",
+          "new_value": "Lábios de Mel",
+          "current_count": 8,
+          "majority_count": 18,
+          "norm_key": "labios de mel",
+          "context_key": "silvanno salles",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788817808889-kvjyi4",
+          "old_value": "É Voce",
+          "new_value": "É Você",
+          "current_count": 6,
+          "majority_count": 15,
+          "norm_key": "e voce",
+          "context_key": "titas",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788863083222-ynnolw",
+          "old_value": "mia",
+          "new_value": "Mía",
+          "current_count": 13,
+          "majority_count": 31,
+          "norm_key": "mia",
+          "context_key": "abba",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788864897777-24mzvz",
+          "old_value": "Ninguem É de Ninguem",
+          "new_value": "Ninguém É de Ninguém",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "ninguem e de ninguem",
+          "context_key": "agnaldo timoteo",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788868224650-ml9q5o",
+          "old_value": "Maria Elena",
+          "new_value": "María Elena",
+          "current_count": 8,
+          "majority_count": 19,
+          "norm_key": "maria elena",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788868235960-zn0a0f",
+          "old_value": "Perdon",
+          "new_value": "Perdón",
+          "current_count": 9,
+          "majority_count": 36,
+          "norm_key": "perdon",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788882344082-6tfqko",
+          "old_value": "A Gloria Do Senhor",
+          "new_value": "A Glória do Senhor",
+          "current_count": 3,
+          "majority_count": 11,
+          "norm_key": "a gloria do senhor",
+          "context_key": "comunidade catolica shalom",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788901573135-vqe9qs",
+          "old_value": "mia",
+          "new_value": "Mía",
+          "current_count": 13,
+          "majority_count": 31,
+          "norm_key": "mia",
+          "context_key": "abba",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788914984243-vztj1n",
+          "old_value": "Ninguem É de Ninguem",
+          "new_value": "Ninguém É de Ninguém",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "ninguem e de ninguem",
+          "context_key": "agnaldo timoteo",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788917050310-v5tynw",
+          "old_value": "Contigo Aprendi",
+          "new_value": "Contigo Aprendí",
+          "current_count": 14,
+          "majority_count": 28,
+          "norm_key": "contigo aprendi",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788931254162-u2t38q",
+          "old_value": "Fantasia",
+          "new_value": "Fantasía",
+          "current_count": 3,
+          "majority_count": 17,
+          "norm_key": "fantasia",
+          "context_key": "chico buarque",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788943815462-4g824z",
+          "old_value": "Ninguem É de Ninguem",
+          "new_value": "Ninguém É de Ninguém",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "ninguem e de ninguem",
+          "context_key": "agnaldo timoteo",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788946288813-xm2gyt",
+          "old_value": "Maria Elena",
+          "new_value": "María Elena",
+          "current_count": 8,
+          "majority_count": 19,
+          "norm_key": "maria elena",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788946299871-rltqrb",
+          "old_value": "Perdon",
+          "new_value": "Perdón",
+          "current_count": 9,
+          "majority_count": 36,
+          "norm_key": "perdon",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788964583190-bd5v5g",
+          "old_value": "So",
+          "new_value": "Só",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "so",
+          "context_key": "ed sheeran",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788967236854-a4zjim",
+          "old_value": "mia",
+          "new_value": "Mía",
+          "current_count": 13,
+          "majority_count": 31,
+          "norm_key": "mia",
+          "context_key": "abba",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788972390749-08d4ct",
+          "old_value": "Perdon",
+          "new_value": "Perdón",
+          "current_count": 9,
+          "majority_count": 36,
+          "norm_key": "perdon",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788976222430-wp3t9n",
+          "old_value": "mia",
+          "new_value": "Mía",
+          "current_count": 13,
+          "majority_count": 31,
+          "norm_key": "mia",
+          "context_key": "abba",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788977999655-hktufi",
+          "old_value": "Ninguem É de Ninguem",
+          "new_value": "Ninguém É de Ninguém",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "ninguem e de ninguem",
+          "context_key": "agnaldo timoteo",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788993352081-1gqdq9",
+          "old_value": "mia",
+          "new_value": "Mía",
+          "current_count": 13,
+          "majority_count": 31,
+          "norm_key": "mia",
+          "context_key": "abba",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788994350680-vx3szo",
+          "old_value": "Ninguem É de Ninguem",
+          "new_value": "Ninguém É de Ninguém",
+          "current_count": 12,
+          "majority_count": 29,
+          "norm_key": "ninguem e de ninguem",
+          "context_key": "agnaldo timoteo",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788996678943-ydlys9",
+          "old_value": "Contigo Aprendi",
+          "new_value": "Contigo Aprendí",
+          "current_count": 14,
+          "majority_count": 28,
+          "norm_key": "contigo aprendi",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1788996706440-v1snx3",
+          "old_value": "Perdon",
+          "new_value": "Perdón",
+          "current_count": 9,
+          "majority_count": 36,
+          "norm_key": "perdon",
+          "context_key": "altemar dutra",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1789003909936-9sz9e5",
+          "old_value": "So Love",
+          "new_value": "Só Love",
+          "current_count": 2,
+          "majority_count": 11,
+          "norm_key": "so love",
+          "context_key": "calcinha preta",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1789004121167-5rcizy",
+          "old_value": "Sin ti",
+          "new_value": "Sin Tí",
+          "current_count": 6,
+          "majority_count": 21,
+          "norm_key": "sin ti",
+          "context_key": "canciones populares",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1789004761872-ogupkz",
+          "old_value": "La Ultima Curda",
+          "new_value": "La última curda",
+          "current_count": 7,
+          "majority_count": 14,
+          "norm_key": "la ultima curda",
+          "context_key": "carlos gardel",
+          "corrigido": false
+        }
+      ]
+    }
+  }
+}

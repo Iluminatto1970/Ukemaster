@@ -1,0 +1,101 @@
+{
+  "gerado_em": "2026-09-19T23:07:12.835Z",
+  "modo": "dry-run",
+  "campos": {
+    "title": {
+      "lidas": 31,
+      "correcoes": 8,
+      "primeiro_id": "scraped-1785911351600-78mzb1",
+      "ultimo_id": "scraped-1785911584113-o99mhr",
+      "exemplos": [
+        {
+          "row_id": "scraped-1785911351600-78mzb1",
+          "old_value": "Sonrie",
+          "new_value": "Sonríe",
+          "current_count": 0,
+          "majority_count": 0,
+          "norm_key": "sonrie",
+          "artist_key": "roberto carlos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911356715-pos5c1",
+          "old_value": "Tão Somente Uma Vez",
+          "new_value": "Tão Somente uma Vez",
+          "current_count": 0,
+          "majority_count": 0,
+          "norm_key": "tao somente uma vez",
+          "artist_key": "roberto carlos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911359114-yn9syg",
+          "old_value": "Você Não Sabe",
+          "new_value": "Voce Não Sabe",
+          "current_count": 0,
+          "majority_count": 0,
+          "norm_key": "voce nao sabe",
+          "artist_key": "roberto carlos",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911365095-vsosry",
+          "old_value": "A Gente Não Tá Junto",
+          "new_value": "A Gente Não Tá Junto",
+          "current_count": 0,
+          "majority_count": 0,
+          "norm_key": "a gente nao ta junto",
+          "artist_key": "marilia mendonca",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911367315-w8fl2h",
+          "old_value": "Ate Você Voltar",
+          "new_value": "Até Você Voltar",
+          "current_count": 0,
+          "majority_count": 0,
+          "norm_key": "ate voce voltar",
+          "artist_key": "marilia mendonca",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911449937-mt9964",
+          "old_value": "Tô Por Ai",
+          "new_value": "Tô Por Aí",
+          "current_count": 0,
+          "majority_count": 0,
+          "norm_key": "to por ai",
+          "artist_key": "gusttavo lima",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911537442-gs3dw5",
+          "old_value": "Do jeito que a moçada gosta",
+          "new_value": "Do Jeito Que a Moçada Gosta",
+          "current_count": 0,
+          "majority_count": 0,
+          "norm_key": "do jeito que a mocada gosta",
+          "artist_key": "zeze di camargo e luciano",
+          "corrigido": false
+        },
+        {
+          "row_id": "scraped-1785911584113-o99mhr",
+          "old_value": "E o Que Mais Você Quer De Mim",
+          "new_value": "E o Que Mais Você Quer de Mim",
+          "current_count": 0,
+          "majority_count": 0,
+          "norm_key": "e o que mais voce quer de mim",
+          "artist_key": "chitaozinho & xororo",
+          "corrigido": false
+        }
+      ]
+    },
+    "artist": {
+      "lidas": 0,
+      "correcoes": 0,
+      "primeiro_id": null,
+      "ultimo_id": null,
+      "exemplos": []
+    }
+  }
+}
