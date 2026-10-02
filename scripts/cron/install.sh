@@ -86,7 +86,7 @@ if [ "$DRY_RUN" = "1" ]; then
   echo "    ( crontab -l 2>/dev/null | grep -v ukemaster-cron.mjs; echo \"$SCHEDULE cd \\\"$DEST\\\" && node ukemaster-cron.mjs >> cron.log 2>&1\" ) | crontab -"
   echo "  Windows:"
   echo "    schtasks /Create /F /TN $TASK_NAME /TR \"\\\"<CAMINHO-WINDOWS>\\\\run-cron.cmd\\\"\" /SC HOURLY /MO $INTERVAL_HOURS /ST 00:00"
-  echo "    schtasks /Create /F /TN $TASK_NAME Commands /TR \"\\\"<CAMINHO-WINDOWS>\\\\run-cron-commands.cmd\\\"\" /SC HOURLY /MO $INTERVAL_HOURS /ST 00:30"
+  echo "    schtasks /Create /F /TN ${TASK_NAME}Commands /TR \"\\\"<CAMINHO-WINDOWS>\\\\run-cron-commands.cmd\\\"\" /SC HOURLY /MO $INTERVAL_HOURS /ST 00:30"
 elif [ "$OS" = "Linux" ] || [ "$OS" = "Darwin" ]; then
   CRON_LINE="$SCHEDULE cd \"$DEST\" && node ukemaster-cron.mjs >> cron.log 2>&1"
   ( crontab -l 2>/dev/null | grep -v "ukemaster-cron.mjs"; echo "$CRON_LINE" ) | crontab -
@@ -113,10 +113,10 @@ node ukemaster-cron.mjs --commands-only >> commands.log 2>&1
 EOF
   WIN_CMD_WRAPPER="$(cygpath -w "$CMD_WRAPPER" 2>/dev/null || echo "$CMD_WRAPPER")"
   if schtasks //Create //F //TN "$TASK_NAME" //TR "\"$WIN_WRAPPER\"" //SC HOURLY //MO "$INTERVAL_HOURS" //ST 00:00 >/dev/null 2>&1 \
-     && schtasks //Create //F //TN "$TASK_NAME Commands" //TR "\"$WIN_CMD_WRAPPER\"" //SC HOURLY //MO "$INTERVAL_HOURS" //ST 00:30 >/dev/null 2>&1; then
+     && schtasks //Create //F //TN "${TASK_NAME}Commands" //TR "\"$WIN_CMD_WRAPPER\"" //SC HOURLY //MO "$INTERVAL_HOURS" //ST 00:30 >/dev/null 2>&1; then
     echo "✔ Tarefas Windows criadas (a cada $INTERVAL_HOURS horas):"
-    echo "  $TASK_NAME          → $WIN_WRAPPER (00:00, 06:00, 12:00, 18:00)"
-    echo "  $TASK_NAME Commands → $WIN_CMD_WRAPPER (00:30, 06:30, 12:30, 18:30)"
+    echo "  $TASK_NAME           → $WIN_WRAPPER (00:00, 06:00, 12:00, 18:00)"
+    echo "  ${TASK_NAME}Commands → $WIN_CMD_WRAPPER (00:30, 06:30, 12:30, 18:30)"
   else
     echo "△ Não consegui criar as tarefas (pode exigir Administrador)."
     echo "  Opção 1: reabra o Git Bash como Administrador e rode de novo."

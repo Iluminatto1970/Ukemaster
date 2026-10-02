@@ -107,6 +107,9 @@ O instalador (`scripts/cron/install.sh`) faz tudo:
      `dist-cron/run-cron.cmd` (00:00/06:00/12:00/18:00) e
      `dist-cron/run-cron-commands.cmd` (00:30/06:30/12:30/18:30, comandos do
      painel admin). Para outra cadência: `CRON_INTERVAL_HOURS=3 npm run cron:install`.
+   - **Windows SEM Git Bash (só PowerShell)** →
+     `powershell -ExecutionPolicy Bypass -File scripts\cron\install.ps1`
+     (mesmo resultado: cria as 2 tarefas; aceita `-Test` e `-IntervalHours N`).
 5. **Testa** (com `--test`): roda uma execução rápida — o dedupe garante que
    nada duplica.
 

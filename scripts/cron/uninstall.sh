@@ -17,8 +17,8 @@ if [ "$OS" = "Linux" ] || [ "$OS" = "Darwin" ]; then
   echo "✔ Cron removido do crontab."
 else
   schtasks //Delete //F //TN "$TASK_NAME" >/dev/null 2>&1 || true
-  schtasks //Delete //F //TN "$TASK_NAME Commands" >/dev/null 2>&1 || true
-  echo "✔ Tarefas Windows \"$TASK_NAME\" e \"$TASK_NAME Commands\" removidas (se existiam)."
+  schtasks //Delete //F //TN "${TASK_NAME}Commands" >/dev/null 2>&1 || true
+  echo "✔ Tarefas Windows \"$TASK_NAME\" e \"${TASK_NAME}Commands\" removidas (se existiam)."
 fi
 
 echo "  Para apagar a pasta local (bundle + .env + logs): rm -rf \"$DEST\""
