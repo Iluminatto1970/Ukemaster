@@ -17,7 +17,8 @@ DEST="$ROOT/dist-cron"
 ENV_EXAMPLE="$ROOT/scripts/cron/cron.env.example"
 ENV_DEST="$DEST/.env"
 BUNDLE="$DEST/ukemaster-cron.mjs"
-SCHEDULE="${CRON_SCHEDULE:-*/30 * * * *}"        # padrão: a cada 30 min
+SCHEDULE="${CRON_SCHEDULE:-0 */6 * * *}"          # padrão: a cada 6 horas (4×/dia)
+INTERVAL_HOURS="${CRON_INTERVAL_HOURS:-6}"        # cadência no Windows (em horas)
 TASK_NAME="${CRON_TASK_NAME:-UkeMasterCron}"     # nome no Agendador (Windows)
 
 DRY_RUN=0
@@ -31,7 +32,7 @@ done
 
 echo "▸ UkeMaster Pro — cron de plataformas"
 echo "  Pasta:     $DEST"
-echo "  Agendado:  $SCHEDULE"
+echo "  Agendado:  a cada $INTERVAL_HOURS horas ($SCHEDULE)"
 
 # ── 1) Node.js ≥ 18 ────────────────────────────────────────────────────
 command -v node >/dev/null 2>&1 || { echo "✖ Node.js não encontrado. Instale Node ≥ 18: https://nodejs.org"; exit 1; }
@@ -84,7 +85,8 @@ if [ "$DRY_RUN" = "1" ]; then
   echo "  Linux/macOS:"
   echo "    ( crontab -l 2>/dev/null | grep -v ukemaster-cron.mjs; echo \"$SCHEDULE cd \\\"$DEST\\\" && node ukemaster-cron.mjs >> cron.log 2>&1\" ) | crontab -"
   echo "  Windows:"
-  echo "    schtasks /Create /F /TN $TASK_NAME /TR \"\\\"<CAMINHO-WINDOWS>\\\\run-cron.cmd\\\"\" /SC MINUTE /MO 30"
+  echo "    schtasks /Create /F /TN $TASK_NAME /TR \"\\\"<CAMINHO-WINDOWS>\\\\run-cron.cmd\\\"\" /SC HOURLY /MO $INTERVAL_HOURS /ST 00:00"
+  echo "    schtasks /Create /F /TN $TASK_NAME Commands /TR \"\\\"<CAMINHO-WINDOWS>\\\\run-cron-commands.cmd\\\"\" /SC HOURLY /MO $INTERVAL_HOURS /ST 00:30"
 elif [ "$OS" = "Linux" ] || [ "$OS" = "Darwin" ]; then
   CRON_LINE="$SCHEDULE cd \"$DEST\" && node ukemaster-cron.mjs >> cron.log 2>&1"
   ( crontab -l 2>/dev/null | grep -v "ukemaster-cron.mjs"; echo "$CRON_LINE" ) | crontab -
@@ -100,14 +102,26 @@ node ukemaster-cron.mjs >> cron.log 2>&1
 EOF
   # O Agendador do Windows exige caminho nativo (C:\...) — converte do POSIX (/c/...)
   WIN_WRAPPER="$(cygpath -w "$WRAPPER" 2>/dev/null || echo "$WRAPPER")"
-  if schtasks //Create //F //TN "$TASK_NAME" //TR "\"$WIN_WRAPPER\"" //SC MINUTE //MO 30 >/dev/null 2>&1; then
-    echo "✔ Tarefa Windows \"$TASK_NAME\" criada (a cada 30 min)."
-    echo "  Executa: $WIN_WRAPPER"
+  # Wrapper do polling de comandos do painel admin (--commands-only), na MESMA
+  # cadência com 30 min de defasagem (second chance para comandos).
+  CMD_WRAPPER="$DEST/run-cron-commands.cmd"
+  cat > "$CMD_WRAPPER" <<'EOF'
+@echo off
+rem UkeMaster Pro — rodada de comandos do painel admin (--commands-only)
+cd /d "%~dp0"
+node ukemaster-cron.mjs --commands-only >> commands.log 2>&1
+EOF
+  WIN_CMD_WRAPPER="$(cygpath -w "$CMD_WRAPPER" 2>/dev/null || echo "$CMD_WRAPPER")"
+  if schtasks //Create //F //TN "$TASK_NAME" //TR "\"$WIN_WRAPPER\"" //SC HOURLY //MO "$INTERVAL_HOURS" //ST 00:00 >/dev/null 2>&1 \
+     && schtasks //Create //F //TN "$TASK_NAME Commands" //TR "\"$WIN_CMD_WRAPPER\"" //SC HOURLY //MO "$INTERVAL_HOURS" //ST 00:30 >/dev/null 2>&1; then
+    echo "✔ Tarefas Windows criadas (a cada $INTERVAL_HOURS horas):"
+    echo "  $TASK_NAME          → $WIN_WRAPPER (00:00, 06:00, 12:00, 18:00)"
+    echo "  $TASK_NAME Commands → $WIN_CMD_WRAPPER (00:30, 06:30, 12:30, 18:30)"
   else
-    echo "△ Não consegui criar a tarefa (pode exigir Administrador)."
+    echo "△ Não consegui criar as tarefas (pode exigir Administrador)."
     echo "  Opção 1: reabra o Git Bash como Administrador e rode de novo."
     echo "  Opção 2: Agendador de Tarefas → Criar Tarefa Básica:"
-    echo "          Programa = $WIN_WRAPPER | Disparador = a cada 30 minutos"
+    echo "          Programa = $WIN_WRAPPER | Disparador = a cada $INTERVAL_HOURS horas"
   fi
 fi
 
@@ -119,4 +133,6 @@ if [ "$RUN_TEST" = "1" ]; then
 fi
 
 echo "✔ Pronto. Logs em: $DEST/cron.log"
+echo "  NÃO ESQUEÇA: edite $DEST/.env com CRON_WORKER_NAME único desta"
+echo "  máquina (ex.: desktop, notebook) e CRON_PLATFORMS desejados."
 echo "  Para desinstalar: bash scripts/cron/uninstall.sh"

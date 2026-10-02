@@ -14,14 +14,15 @@ dificuldade, categoria, SEO, vídeo do YouTube opcional) e publica no Supabase
 > scripts/build-catalog.mjs` e faça deploy (o cron detecta o diff pela fila).
 
 > **MULTIMÁQUINA SEM DUPLICAÇÃO**: a Vercel (1x/dia) e as máquinas locais
-> (a cada 30 min) compartilham a mesma fila e o mesmo cursor, protegidos por
+> (a cada 6 horas) compartilham a mesma fila e o mesmo cursor, protegidos por
 > um **lease atômico** na tabela `scrape_state` (key `worker_lease`): só uma
 > execução processa por vez; a que perde espera a próxima rodada. Heartbeat
 > a cada artista + expiração automática (25 min) se a máquina cair.
 
 > Idealmente roda numa máquina ligada 24/7. A Vercel já roda 1x/dia (limite
-> do plano grátis); nas suas máquinas ele roda **a cada 30 minutos** com
-> orçamento de 15 min por rodada — a sincronização completa fica em dias.
+> do plano grátis); nas suas máquinas ele roda **a cada 6 horas** (4 rodadas
+> por dia) com orçamento de 2 h por rodada — a sincronização completa fica em
+> semanas/meses para a fila grande do CifraClub (3.848 artistas).
 
 ---
 
@@ -76,7 +77,7 @@ CRON_PLATFORMS=ukutabs-en,guitaretab-int
 
 Edite `dist-cron/.env` em cada máquina (ou use `--platform` no agendamento).
 Deixe `CRON_PLATFORMS` vazio se preferir que as duas rodem tudo (o lease
-alterna quem processa a cada 30 min).
+alterna quem processa a cada 6 h).
 
 ---
 
@@ -100,10 +101,12 @@ O instalador (`scripts/cron/install.sh`) faz tudo:
 3. **Cria** `dist-cron/.env` — preenche automaticamente com as chaves do
    `.env.local` se ele existir na máquina; senão, copia o exemplo e pede
    para você editar;
-4. **Agenda** a execução (a cada 30 min por padrão):
-   - **Linux/macOS** → `crontab`
-   - **Windows (Git Bash)** → Agendador de Tarefas (`schtasks`), com wrapper
-     `dist-cron/run-cron.cmd`
+4. **Agenda** a execução (**a cada 6 horas** por padrão — 4 rodadas/dia):
+   - **Linux/macOS** → `crontab` (`0 */6 * * *`)
+   - **Windows (Git Bash)** → Agendador de Tarefas (`schtasks`), com wrappers
+     `dist-cron/run-cron.cmd` (00:00/06:00/12:00/18:00) e
+     `dist-cron/run-cron-commands.cmd` (00:30/06:30/12:30/18:30, comandos do
+     painel admin). Para outra cadência: `CRON_INTERVAL_HOURS=3 npm run cron:install`.
 5. **Testa** (com `--test`): roda uma execução rápida — o dedupe garante que
    nada duplica.
 
@@ -148,14 +151,14 @@ Se preferir não clonar o repositório (ou a máquina não tiver git/npm):
 
    **Linux/macOS** (`crontab -e`):
    ```
-   */30 * * * * cd /CAMINHO/dist-cron && node ukemaster-cron.mjs >> cron.log 2>&1
+   0 */6 * * * cd /CAMINHO/dist-cron && node ukemaster-cron.mjs >> cron.log 2>&1
    ```
 
-   **Windows** — Agendador de Tarefas:
-   - Programa: `node`
-   - Argumentos: `C:\CAMINHO\dist-cron\ukemaster-cron.mjs`
-   - Iniciar em: `C:\CAMINHO\dist-cron`
-   - Disparador: a cada 30 minutos (repetição)
+   **Windows** — Agendador de Tarefas (a cada 6 horas):
+   - Programa: `C:\CAMINHO\dist-cron\run-cron.cmd` (wrapper; inicia em `dist-cron`)
+   - Disparador: diariamente a partir de 00:00, repetindo a cada 6 horas
+   - Segunda tarefa (comandos do painel): `run-cron-commands.cmd`, a partir de 00:30,
+     repetindo a cada 6 horas
 
 ---
 
@@ -165,8 +168,9 @@ Se preferir não clonar o repositório (ou a máquina não tiver git/npm):
 |---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | — | URL do Supabase (obrigatória) |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | — | Chave publishable/anon (obrigatória) |
-| `CRON_TIME_BUDGET_MS` | `900000` | Orçamento por execução (ms). 15 min = 900000 |
-| `CRON_SCHEDULE` | `*/30 * * * *` | Expressão cron (usada pelo instalador) |
+| `CRON_TIME_BUDGET_MS` | `7200000` | Orçamento por execução (ms). 2 h = 7200000 |
+| `CRON_SCHEDULE` | `0 */6 * * *` | Expressão cron (Linux/macOS, usada pelo instalador) |
+| `CRON_INTERVAL_HOURS` | `6` | Cadência no Windows (horas) — tarefas `UkeMasterCron` e `UkeMasterCronCommands` |
 | `CRON_TASK_NAME` | `UkeMasterCron` | Nome da tarefa no Windows |
 | `CRON_UKEMATER_EMAIL` | — | E-mail da conta UkeMaster (autenticação do cron) |
 | `CRON_UKEMATER_PASSWORD` | — | Senha da conta UkeMaster (fica no .env da máquina) |
