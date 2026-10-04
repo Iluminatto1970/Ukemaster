@@ -77,19 +77,32 @@ node ukemaster-cron.mjs --commands-only >> commands.log 2>&1
 Write-Host "OK Wrappers: $(Split-Path -Leaf $runCron), $(Split-Path -Leaf $runCmds)"
 
 if ($DryRun) {
-  Write-Host "DRY-RUN - nada foi agendado. Comandos que seriam usados:"
-  Write-Host "  schtasks /Create /F /TN $taskName /TR `"`"$runCron`"`" /SC HOURLY /MO $IntervalHours /ST 00:00"
-  Write-Host "  schtasks /Create /F /TN ${taskName}Commands /TR `"`"$runCmds`"`" /SC HOURLY /MO $IntervalHours /ST 00:30"
+  Write-Host "DRY-RUN - nada foi agendado. Acoes que seriam registradas:"
+  Write-Host "  Register-ScheduledTask $taskName           -> $runCron   (repete a cada ${IntervalHours}h, ancorado em 00:00)"
+  Write-Host "  Register-ScheduledTask ${taskName}Commands -> $runCmds  (repete a cada ${IntervalHours}h, ancorado em 00:30)"
   exit 0
 }
 
 # -- 5) Tarefas agendadas (a cada N horas) ------------------------------------
-$tr1 = '"' + $runCron + '"'
-$tr2 = '"' + $runCmds + '"'
-& schtasks /Create /F /TN $taskName /TR $tr1 /SC HOURLY /MO $IntervalHours /ST 00:00
-if ($LASTEXITCODE -ne 0) { Write-Host "X Falha ao criar '$taskName' (tente PowerShell como Administrador)." -ForegroundColor Red; exit 1 }
-& schtasks /Create /F /TN "${taskName}Commands" /TR $tr2 /SC HOURLY /MO $IntervalHours /ST 00:30
-if ($LASTEXITCODE -ne 0) { Write-Host "X Falha ao criar '${taskName}Commands'." -ForegroundColor Red; exit 1 }
+# Usa Register-ScheduledTask (API do Task Scheduler) em vez de 'schtasks /TR':
+# o schtasks quebra o /TR quando o caminho tem espacos (corta no primeiro
+# espaco, deixando a tarefa apontando para um caminho inexistente).
+$action1 = New-ScheduledTaskAction -Execute $runCron -WorkingDirectory $dest
+$action2 = New-ScheduledTaskAction -Execute $runCmds -WorkingDirectory $dest
+# Um gatilho diario por rodada (ex.: 6h -> 00/06/12/18h e :30 nas mesmas horas).
+# Gatilhos diarios evitam as armadilhas de RepetitionDuration do Task Scheduler.
+$triggers1 = @(); $triggers2 = @()
+for ($h = 0; $h -lt 24; $h += $IntervalHours) {
+  $triggers1 += New-ScheduledTaskTrigger -Daily -At ([DateTime]::Today).AddHours($h)
+  $triggers2 += New-ScheduledTaskTrigger -Daily -At ([DateTime]::Today).AddHours($h).AddMinutes(30)
+}
+try {
+  Register-ScheduledTask -TaskName $taskName -Action $action1 -Trigger $triggers1 -Force | Out-Null
+  Register-ScheduledTask -TaskName "${taskName}Commands" -Action $action2 -Trigger $triggers2 -Force | Out-Null
+} catch {
+  Write-Host "X Falha ao registrar tarefas: $($_.Exception.Message)" -ForegroundColor Red
+  exit 1
+}
 Write-Host "OK Tarefas criadas (a cada $IntervalHours horas):"
 Write-Host "  $taskName           -> $runCron (00:00, 06:00, 12:00, 18:00)"
 Write-Host "  ${taskName}Commands -> $runCmds (00:30, 06:30, 12:30, 18:30)"

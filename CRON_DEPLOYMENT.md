@@ -110,6 +110,16 @@ O instalador (`scripts/cron/install.sh`) faz tudo:
    - **Windows SEM Git Bash (só PowerShell)** →
      `powershell -ExecutionPolicy Bypass -File scripts\cron\install.ps1`
      (mesmo resultado: cria as 2 tarefas; aceita `-Test` e `-IntervalHours N`).
+     ⚠️ **Importante**: use esta versão do `install.ps1` (registra via
+     `Register-ScheduledTask`, com `WorkingDirectory` explícito). Versões
+     antigas que criavam as tarefas com `schtasks /TR` **truncavam o caminho
+     no primeiro espaço** — em pastas com espaços (ex.:
+     `C:\Users\ilumi\Documents\Dev\Iluminatto Dev\...`) a tarefa ficava
+     apontando para um caminho inexistente, mostrava "Pronto"/"LastRun hoje"
+     mas **nunca executava nada** (LastTaskResult `0x800710E2`). Se suspeitar,
+     confira a ação da tarefa:
+     `(Get-ScheduledTask UkeMasterCron).Actions` — o `Execute` deve ser o
+     `.cmd` COMPLETO (com espaços) e o `WorkingDirectory` preenchido.
 5. **Testa** (com `--test`): roda uma execução rápida — o dedupe garante que
    nada duplica.
 
@@ -247,6 +257,108 @@ pending → processing → done | failed
 
   Alternativa manual (ou `git pull && npm run build:cron` em cada máquina)
   e defina `CRON_WORKER_NAME=acer / desktop / vps` no `dist-cron/.env`:
+
+---
+
+## 🔄 Sincronização entre as duas máquinas (desktop ↔ notebook-dev)
+
+Registro do processo validado em 2026-10 para espelhar projeto, cron, skills
+e CLIs entre o **desktop** (Windows, hostname `DESKTOP`, user `ilumi`) e o
+**notebook-dev** (Windows, hostname `Notebook-Dev`, user `ilumi`).
+
+### 1) Acesso remoto sem senha (SSH via Tailscale)
+
+Ambas na rede Tailscale. O notebook é `100.108.235.116` (pode estar suspenso
+— valide com `tailscale status | grep -i notebook` e use retry).
+
+Setup (feito 1x no desktop):
+```bash
+ssh-keygen -t ed25519 -N "" -C ilumi-desktop-ukemaster
+# chave pública instalada no notebook em:
+#   C:\ProgramData\ssh\administrators_authorized_keys
+# (ACL correta: só SYSTEM/Administrators — icacls /inheritance:r /grant "SYSTEM:F" "Administrators:F")
+ssh -o BatchMode=yes ilumi@100.108.235.116 "echo ok"
+```
+
+**Armadilhas de quoting** (Git Bash local → cmd/PowerShell remoto):
+- Preferir `ssh ... "powershell -NoProfile -Command \"...\""` e escapar
+  `\$_` para variáveis do PowerShell.
+- Para scripts PS complexos: escrever o `.ps1` local, `scp` e executar com
+  `-File` (mais confiável que citar na linha).
+- `scp -r` **não funciona** com o OpenSSH do Windows (falha "stat remote").
+  Para diretórios, use zip (`Compress-Archive`/`Expand-Archive`) ou `tar`.
+
+Path do projeto no notebook:
+`C:\Users\ilumi\Documents\Dev\Iluminatto Dev\Marcas\Ukemaster Pro`
+(com espaços — sempre via PowerShell, nunca cmd cru).
+
+### 2) Espelhar o repositório (git bundle)
+
+Quando as linhas de histórico divergem (sem ancestral comum), o `git pull`
+não resolve. Processo usado:
+
+```bash
+# 1. Backup tar completo da pasta antiga da máquina de destino (reversível)
+#    (desktop guardou cópia em ~/ukemaster-backups/, destino em C:\Users\ilumi\)
+
+# 2. Empacota o branch main do desktop e envia
+git bundle create ukemaster.bundle main
+scp ukemaster.bundle ilumi@100.108.235.116:C:/Users/ilumi/
+
+# 3. No notebook: clona do bundle e aponta origin para o GitHub
+git clone C:/Users/ilumi/ukemaster.bundle "C:\...\Ukemaster Pro" -b main
+git remote set-url origin https://github.com/Iluminatto1970/Ukemaster.git
+```
+
+- Legado da linha antiga preservado em `archive/notebook-legacy/`
+  (commit `818ae34`) e, no GitHub, no branch `legacy/notebook-old-line`.
+- Após espelhar, rodar `npm install` na máquina nova e validar `npx esbuild --version`.
+- O push ao GitHub pode exigir `--force-with-lease=<branch>:<hash-atual-remota>`
+  quando a main remota divergiu — **preservar a linha antiga num branch antes**.
+
+### 3) Cron nas duas máquinas (sem duplicar)
+
+1. Na máquina nova: `powershell -ExecutionPolicy Bypass -File scripts\cron\install.ps1 -IntervalHours 6`
+2. Editar `dist-cron\.env`: `CRON_WORKER_NAME` **distinto por máquina**
+   (`desktop` / `notebook`) e copiar as chaves do Supabase da outra máquina.
+3. O **lease atômico** (`scrape_state.worker_lease`) garante que só uma
+   máquina processa por vez — validado em produção: com o desktop processando,
+   o notebook registrou "Outra máquina está processando a fila agora (lease
+   ativo)... nada foi processado para evitar duplicação" e encerrou ok.
+4. Execução forçada para validar: `Start-ScheduledTask -TaskName UkeMasterCron`
+   (e `UkeMasterCronCommands`) — confirmar no `dist-cron\cron.log` /
+   `commands.log` um bloco JSON novo com o `"worker"` correto.
+
+### 4) Skills (~/.agents/skills e ~/.claude/skills)
+
+- Biblioteca real: `~/.agents/skills` (504 dirs em ambas as máquinas).
+  `~/.claude/skills` pode conter **junctions** apontando para ela (contar
+  arquivos direto em `~/.agents/skills`, não na junction).
+- Para unir: copiar os diretórios que faltam de uma máquina para a outra
+  (zip via scp) — nunca mover, sempre copiar/mesclar.
+
+### 5) CLIs npm globais pareadas
+
+Referência de paridade validada por `npm ls -g --depth=0` nas duas máquinas
+(idênticas em 2026-10): `@agentskill.sh/cli`, `@anthropic-ai/claude-code`,
+`@earendil-works/pi-coding-agent`, `@iflow-mcp/locomotive-agency-linear-mcp`,
+`@mcp-devtools/linear`, `@openai/codex`, `@qwen-code/qwen-code`, `9router`,
+`better-sqlite3`, `clerk`, `freebuff`, `mcp-linear`, `melies`, `openclaw`,
+`opencode-ai`, `pm2`, `pnpm`, `serve`, `sql.js`, `supabase`, `vercel`.
+
+Para parar uma nova:
+```bash
+ssh ilumi@100.108.235.116 "npm i -g --no-audit --no-fund pacote@latest --loglevel=error && pacote --version"
+```
+
+- O npm do desktop (11.x) **bloqueia scripts de instalação por padrão** —
+  se pnpm/esbuild quebrarem pós-install: `npm install-scripts approve pnpm`
+  e reinstalar.
+- O npm do desktop é lento com muitos pacotes: instalar **um por um** com
+  timeout longo e validar cada `--version`. Cache corrompido uma vez
+  (`TAR_ENTRY_ERROR`/`ENOTEMPTY`): resolver com `npm cache clean --force`.
+- Shims antigos do Chocolatey (`C:\ProgramData\chocolatey\bin\claude.exe`)
+  **sombreiam** o npm global — removê-los se conflitarem.
 
 ---
 
