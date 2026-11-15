@@ -35,8 +35,9 @@ const hasKey =
   env.VITE_SUPABASE_PUBLISHABLE_KEY ||
   env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 if (!hasUrl || !hasKey) {
-  console.error('❌ Sem credenciais Supabase (VITE_* ou NEXT_PUBLIC_*) — demo não pode acessar dados.');
-  process.exit(1);
+  console.warn('⚠️ Sem credenciais Supabase (VITE_* ou NEXT_PUBLIC_*) — demo rodará em modo offline.');
+} else {
+  // Apenas define se tiver credenciais
 }
 
 await build({
@@ -47,7 +48,7 @@ await build({
   jsx: 'automatic',
   target: ['es2020'],
   outfile: 'public/admin-stats-demo.js',
-  define,
+  define: hasUrl && hasKey ? define : {},
   minify: true,
   logLevel: 'info',
 });
